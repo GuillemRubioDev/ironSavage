@@ -3,15 +3,17 @@ import {Suspense} from "react";
 import {getRouteLocale} from "@/platform/i18n/server";
 import {HeroSection} from "@/site/home/hero-section";
 import {FeaturedProducts} from '@/features/products/featured-products';
-import {SITE_NAME, SITE_URL, buildCanonicalUrl} from "@/config/metadata";
+import {SITE_NAME, buildCanonicalUrl, localizedPath} from "@/config/metadata";
 import {BadgeCheck, Tag, Zap} from "lucide-react";
 import {getTranslations} from 'next-intl/server';
 import {toOgLocale} from '@/platform/i18n/locale-utils';
+import {routing} from '@/platform/i18n/routing';
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Home'});
     const ogLocale = toOgLocale(locale);
+    const homeUrl = buildCanonicalUrl(localizedPath(locale, '/'));
 
     return {
         title: {
@@ -19,14 +21,17 @@ export async function generateMetadata(): Promise<Metadata> {
         },
         description: t('description'),
         alternates: {
-            canonical: buildCanonicalUrl("/"),
+            canonical: homeUrl,
+            languages: Object.fromEntries(
+                routing.locales.map((l) => [l, buildCanonicalUrl(localizedPath(l, '/'))])
+            ),
         },
         openGraph: {
             title: `${SITE_NAME} - ${t('pageTitle')}`,
             description: t('ogDescription'),
             type: "website",
             locale: ogLocale,
-            url: SITE_URL,
+            url: homeUrl,
         },
     };
 }

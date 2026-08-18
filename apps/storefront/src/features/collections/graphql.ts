@@ -13,6 +13,19 @@ export const GetTopCollectionsQuery = graphql(`
     }
 `);
 
+// Vendure's Shop API caps list queries at 100 items (apiOptions.shopListQueryLimit).
+export const GetAllCollectionsQuery = graphql(`
+    query GetAllCollections {
+        collections(options: { take: 100 }) {
+            items {
+                id
+                name
+                slug
+            }
+        }
+    }
+`);
+
 export const GetCollectionProductsQuery = graphql(`
     query GetCollectionProducts($slug: String!, $input: SearchInput!) {
         collection(slug: $slug) {

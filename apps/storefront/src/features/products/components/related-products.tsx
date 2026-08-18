@@ -6,6 +6,7 @@ import { query } from "@/platform/vendure/api";
 import {GetCollectionProductsQuery} from '@/features/collections/graphql';
 import { readFragment } from "@/platform/vendure/graphql";
 import {ProductCardFragment} from '@/features/products/graphql';
+import {filterVisibleProducts} from '@/features/products/visibility';
 import {getTranslations} from 'next-intl/server';
 
 interface RelatedProductsProps {
@@ -31,8 +32,9 @@ async function getRelatedProducts(collectionSlug: string, currentProductId: stri
         }
     }, {languageCode: locale, currencyCode});
 
-    // Filter out the current product and limit to 12
-    return result.data.search.items
+    // Filter out the current product and hidden products, then limit to 12
+    const visibleItems = await filterVisibleProducts(result.data.search.items);
+    return visibleItems
         .filter(item => {
             const product = readFragment(ProductCardFragment, item);
             return product.productId !== currentProductId;

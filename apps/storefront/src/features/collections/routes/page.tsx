@@ -22,6 +22,7 @@ import {
     SITE_NAME,
     truncateDescription,
     buildCanonicalUrl,
+    localizedPath,
     buildOgImages,
 } from '@/config/metadata';
 import {toOgLocale} from '@/platform/i18n/locale-utils';
@@ -60,7 +61,7 @@ async function getCollectionMetadata(slug: string) {
 
 export async function generateMetadata({
     params,
-}: PageProps<'/[locale]/collection/[slug]'>): Promise<Metadata> {
+}: PageProps<'/[locale]/categorias/[slug]'>): Promise<Metadata> {
     const { slug } = await params;
     const locale = await getRouteLocale();
     const result = await getCollectionMetadata(slug);
@@ -78,15 +79,15 @@ export async function generateMetadata({
         truncateDescription(collection.description) ||
         t('browseCollectionAt', {name: collection.name, siteName: SITE_NAME});
     const ogLocale = toOgLocale(locale);
-    const collectionPath = `/collection/${collection.slug}`;
+    const collectionPath = `/categorias/${collection.slug}`;
 
     return {
         title: collection.name,
         description,
         alternates: {
-            canonical: buildCanonicalUrl(`/${locale}${collectionPath}`),
+            canonical: buildCanonicalUrl(localizedPath(locale, collectionPath)),
             languages: Object.fromEntries(
-                routing.locales.map((l) => [l, buildCanonicalUrl(`/${l}${collectionPath}`)])
+                routing.locales.map((l) => [l, buildCanonicalUrl(localizedPath(l, collectionPath))])
             ),
         },
         openGraph: {
@@ -94,7 +95,7 @@ export async function generateMetadata({
             description,
             type: 'website',
             locale: ogLocale,
-            url: buildCanonicalUrl(`/${locale}${collectionPath}`),
+            url: buildCanonicalUrl(localizedPath(locale, collectionPath)),
             images: buildOgImages(collection.featuredAsset?.preview, collection.name),
         },
         twitter: {
@@ -108,7 +109,7 @@ export async function generateMetadata({
     };
 }
 
-export default async function CollectionPage({params, searchParams}: PageProps<'/[locale]/collection/[slug]'>) {
+export default async function CollectionPage({params, searchParams}: PageProps<'/[locale]/categorias/[slug]'>) {
     const { slug } = await params;
     const searchParamsResolved = await searchParams;
     const locale = await getRouteLocale();

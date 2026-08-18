@@ -22,7 +22,7 @@ export async function NavbarCollections() {
             <NavigationMenuList>
                 {collections.map((collection) => (
                     <NavigationMenuItem key={collection.slug}>
-                        <NavbarLink href={`/collection/${collection.slug}`}>
+                        <NavbarLink href={`/categorias/${collection.slug}`}>
                             {collection.name}
                         </NavbarLink>
                     </NavigationMenuItem>

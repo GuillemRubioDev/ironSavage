@@ -16,6 +16,8 @@
     "featuredProducts": "Empfohlene Produkte",
     "relatedProducts": "Ähnliche Produkte",
     "viewAllProducts": "Alle Produkte anzeigen",
+    "allProducts": "Alle Produkte",
+    "allProductsDescription": "Durchsuchen Sie unseren gesamten Produktkatalog bei {siteName}",
     "notFound": "Produkt nicht gefunden",
     "home": "Startseite",
     "noProductsFound": "Keine Produkte gefunden",

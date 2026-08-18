@@ -75,7 +75,7 @@ export function OrderDetail({orderPromise}: OrderDetailProps) {
                                         </div>
                                         <div className="flex-1">
                                             <Link
-                                                href={`/product/${line.productVariant.product.slug}`}
+                                                href={`/productos/${line.productVariant.product.slug}`}
                                                 className="font-medium hover:underline"
                                             >
                                                 {line.productVariant.product.name}

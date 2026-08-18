@@ -8,15 +8,16 @@ import {useTranslations} from 'next-intl';
 
 interface ProductCardProps {
     product: FragmentOf<typeof ProductCardFragment>;
+    categoryName?: string;
 }
 
-export function ProductCard({product: productProp}: ProductCardProps) {
+export function ProductCard({product: productProp, categoryName}: ProductCardProps) {
     const t = useTranslations('Product');
     const product = readFragment(ProductCardFragment, productProp);
 
     return (
         <Link
-            href={`/product/${product.slug}`}
+            href={`/productos/${product.slug}`}
             className="group block bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
         >
             <div className="aspect-square relative bg-muted overflow-hidden">
@@ -33,8 +34,18 @@ export function ProductCard({product: productProp}: ProductCardProps) {
                         {t('noImage')}
                     </div>
                 )}
+                {!product.inStock && (
+                    <span className="absolute top-2 right-2 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-muted-foreground border border-border">
+                        {t('outOfStock')}
+                    </span>
+                )}
             </div>
             <div className="p-4 space-y-2">
+                {categoryName && (
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        {categoryName}
+                    </p>
+                )}
                 <h3 className="font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                     {product.productName}
                 </h3>
@@ -54,6 +65,9 @@ export function ProductCard({product: productProp}: ProductCardProps) {
                         ) : null}
                     </p>
                 </Suspense>
+                <p className="text-xs text-muted-foreground">
+                    {product.inStock ? t('inStock') : t('outOfStock')}
+                </p>
             </div>
         </Link>
     );

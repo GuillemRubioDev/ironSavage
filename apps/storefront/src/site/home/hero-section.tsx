@@ -29,10 +29,10 @@ export async function HeroSection() {
                     <div
                         className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards"
                     >
-                        <Button render={<Link href="/search" />} nativeButton={false} size="lg" className="min-w-[200px] text-base">
+                        <Button render={<Link href="/productos" />} nativeButton={false} size="lg" className="min-w-[200px] text-base">
                             {t('shopNow')}
                         </Button>
-                        <Button render={<Link href="/search" />} nativeButton={false} variant="outline" size="lg" className="min-w-[200px] text-base">
+                        <Button render={<Link href="/productos" />} nativeButton={false} variant="outline" size="lg" className="min-w-[200px] text-base">
                             {t('viewCollections')}
                         </Button>
                     </div>

@@ -1,7 +1,17 @@
 import type { Metadata } from 'next';
+import { routing } from '@/platform/i18n/routing';
 
 export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Vendure Store';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+/**
+ * Prefix a path with its locale, unless it's the default locale under an
+ * 'as-needed' localePrefix policy — that locale is served (and canonicalized)
+ * unprefixed, and an explicit `/en/...` URL 307s to the unprefixed form.
+ */
+export function localizedPath(locale: string, path: string): string {
+  return locale === routing.defaultLocale ? path : `/${locale}${path}`;
+}
 
 /**
  * Truncate text to a maximum length while preserving word boundaries.

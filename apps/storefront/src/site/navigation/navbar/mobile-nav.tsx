@@ -71,7 +71,7 @@ export function MobileNav({collections}: MobileNavProps) {
                         <SheetClose
                             render={
                                 <Link
-                                    href="/search"
+                                    href="/productos"
                                     className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
                                 />
                             }
@@ -95,7 +95,7 @@ export function MobileNav({collections}: MobileNavProps) {
                                         key={collection.slug}
                                         render={
                                             <Link
-                                                href={`/collection/${collection.slug}`}
+                                                href={`/categorias/${collection.slug}`}
                                                 className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
                                             />
                                         }

@@ -51,7 +51,7 @@ export async function Footer() {
                             {collections.map((collection) => (
                                 <li key={collection.id}>
                                     <NavigationLink
-                                        href={`/collection/${collection.slug}`}
+                                        href={`/categorias/${collection.slug}`}
                                         className="hover:text-foreground transition-colors"
                                     >
                                         {collection.name}
@@ -66,7 +66,7 @@ export async function Footer() {
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>
                                 <NavigationLink
-                                    href="/search"
+                                    href="/productos"
                                     className="hover:text-foreground transition-colors"
                                 >
                                     {t('shopAll')}

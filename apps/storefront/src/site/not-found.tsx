@@ -37,7 +37,7 @@ export default async function NotFound() {
                         <Home className="mr-2 h-4 w-4" />
                         {t('goHome')}
                     </Button>
-                    <Button nativeButton={false} render={<Link href="/search" />} variant="outline" size="lg">
+                    <Button nativeButton={false} render={<Link href="/productos" />} variant="outline" size="lg">
                         <ShoppingBag className="mr-2 h-4 w-4" />
                         {t('browseProducts')}
                     </Button>
@@ -50,7 +50,7 @@ export default async function NotFound() {
                             {collections.slice(0, 6).map((collection) => (
                                 <Button
                                     key={collection.id}
-                                    render={<Link href={`/collection/${collection.slug}`} />}
+                                    render={<Link href={`/categorias/${collection.slug}`} />}
                                     nativeButton={false}
                                     variant="outline"
                                     size="sm"

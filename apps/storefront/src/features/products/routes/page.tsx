@@ -28,6 +28,7 @@ import {
     SITE_NAME,
     truncateDescription,
     buildCanonicalUrl,
+    localizedPath,
     buildOgImages,
 } from '@/config/metadata';
 import {getTranslations} from 'next-intl/server';
@@ -48,7 +49,7 @@ async function getProductData(slug: string, currencyCode: string) {
 
 export async function generateMetadata({
     params,
-}: PageProps<'/[locale]/product/[slug]'>): Promise<Metadata> {
+}: PageProps<'/[locale]/productos/[slug]'>): Promise<Metadata> {
     const { slug } = await params;
     const locale = await getRouteLocale();
     const currencyCode = await getActiveCurrencyCode();
@@ -57,7 +58,7 @@ export async function generateMetadata({
 
     const t = await getTranslations({locale, namespace: 'Product'});
 
-    if (!product) {
+    if (!product || !product.enabled || !product.customFields?.visibleInStorefront) {
         return {
             title: t('notFound'),
         };
@@ -67,15 +68,15 @@ export async function generateMetadata({
     const fallbackDescription = t('shopProductAt', {name: product.name, siteName: SITE_NAME});
     const ogImage = product.assets?.[0]?.preview;
     const ogLocale = toOgLocale(locale);
-    const productPath = `/product/${product.slug}`;
+    const productPath = `/productos/${product.slug}`;
 
     return {
         title: product.name,
         description: description || fallbackDescription,
         alternates: {
-            canonical: buildCanonicalUrl(`/${locale}${productPath}`),
+            canonical: buildCanonicalUrl(localizedPath(locale, productPath)),
             languages: Object.fromEntries(
-                routing.locales.map((l) => [l, buildCanonicalUrl(`/${l}${productPath}`)])
+                routing.locales.map((l) => [l, buildCanonicalUrl(localizedPath(l, productPath))])
             ),
         },
         openGraph: {
@@ -83,7 +84,7 @@ export async function generateMetadata({
             description: description || fallbackDescription,
             type: 'website',
             locale: ogLocale,
-            url: buildCanonicalUrl(`/${locale}${productPath}`),
+            url: buildCanonicalUrl(localizedPath(locale, productPath)),
             images: buildOgImages(ogImage, product.name),
         },
         twitter: {
@@ -98,7 +99,7 @@ export async function generateMetadata({
 export default async function ProductDetailPage({
     params,
     searchParams,
-}: PageProps<'/[locale]/product/[slug]'>) {
+}: PageProps<'/[locale]/productos/[slug]'>) {
     const { slug } = await params;
     const searchParamsResolved = await searchParams;
     const locale = await getRouteLocale();
@@ -109,7 +110,7 @@ export default async function ProductDetailPage({
 
     const product = result.data.product;
 
-    if (!product) {
+    if (!product || !product.enabled || !product.customFields?.visibleInStorefront) {
         notFound();
     }
 
@@ -133,7 +134,7 @@ export default async function ProductDetailPage({
                             <>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink render={<Link href={`/collection/${primaryCollection.slug}`} />}>
+                                    <BreadcrumbLink render={<Link href={`/categorias/${primaryCollection.slug}`} />}>
                                         {primaryCollection.name}
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>

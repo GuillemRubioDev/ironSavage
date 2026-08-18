@@ -20,6 +20,8 @@ export const ProductCardFragment = graphql(`
             }
         }
         currencyCode
+        inStock
+        collectionIds
     }
 `);
 
@@ -30,6 +32,10 @@ export const GetProductDetailQuery = graphql(`
             name
             description
             slug
+            enabled
+            customFields {
+                visibleInStorefront
+            }
             assets {
                 id
                 preview

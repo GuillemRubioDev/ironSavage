@@ -16,6 +16,8 @@
     "featuredProducts": "Featured Products",
     "relatedProducts": "Related Products",
     "viewAllProducts": "View All Products",
+    "allProducts": "All Products",
+    "allProductsDescription": "Browse our full product catalog at {siteName}",
     "notFound": "Product Not Found",
     "home": "Home",
     "noProductsFound": "No products found",
