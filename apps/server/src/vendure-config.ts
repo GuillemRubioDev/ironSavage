@@ -3,6 +3,7 @@ import {
     DefaultJobQueuePlugin,
     DefaultSchedulerPlugin,
     DefaultSearchPlugin,
+    LanguageCode,
     VendureConfig,
 } from '@vendure/core';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
@@ -60,7 +61,31 @@ export const config: VendureConfig = {
     },
     // When adding or altering custom field definitions, the database will
     // need to be updated. See the "Migrations" section in README.md.
-    customFields: {},
+    customFields: {
+        Product: [
+            {
+                name: 'visibleInStorefront',
+                type: 'boolean',
+                defaultValue: true,
+                nullable: false,
+                public: true,
+                label: [
+                    { languageCode: LanguageCode.en, value: 'Visible in storefront' },
+                    { languageCode: LanguageCode.es, value: 'Visible en la tienda' },
+                ],
+                description: [
+                    {
+                        languageCode: LanguageCode.en,
+                        value: 'Independent of "enabled": lets a product stay enabled/manageable while being temporarily hidden from storefront listings.',
+                    },
+                    {
+                        languageCode: LanguageCode.es,
+                        value: 'Independiente de "enabled": permite mantener un producto activo/gestionable ocultándolo temporalmente de los listados de la tienda.',
+                    },
+                ],
+            },
+        ],
+    },
     plugins: [
         GraphiqlPlugin.init(),
         AssetServerPlugin.init({
