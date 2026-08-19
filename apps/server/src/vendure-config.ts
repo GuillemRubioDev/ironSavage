@@ -15,6 +15,7 @@ import { LoyaltyPlugin } from './plugins/loyalty/loyalty.plugin';
 import { InvoicingPlugin } from './plugins/invoicing/invoicing.plugin';
 import { ReviewsPlugin } from './plugins/reviews/reviews.plugin';
 import { ContentPlugin, contentPermission } from './plugins/content/content.plugin';
+import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
 import 'dotenv/config';
 import path from 'path';
 
@@ -100,6 +101,7 @@ export const config: VendureConfig = {
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
+            namingStrategy: new PosixAssetNamingStrategy(),
             // For local dev, the correct value for assetUrlPrefix should
             // be guessed correctly, but for production it will usually need
             // to be set manually to match your production url.
