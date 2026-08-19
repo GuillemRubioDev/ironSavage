@@ -11,6 +11,8 @@ import {CheckoutProvider} from './checkout-provider';
 import {noIndexRobots} from '@/config/metadata';
 import {getActiveCustomer} from '@/features/account/customer';
 import {getAvailableCountriesCached} from '@/features/checkout/countries';
+import {Alert, AlertDescription} from '@/components/ui/alert';
+import {AlertCircle} from 'lucide-react';
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
@@ -21,7 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default async function CheckoutPage() {
+export default async function CheckoutPage({searchParams}: PageProps<'/[locale]/checkout'>) {
+    const resolvedSearchParams = await searchParams;
+    const paymentDeclined = resolvedSearchParams.redsys === 'declined';
     const locale = await getRouteLocale();
     const currencyCode = await getActiveCurrencyCode();
     const t = await getTranslations({locale, namespace: 'Checkout'});
@@ -57,6 +61,12 @@ export default async function CheckoutPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-8">{t('pageTitle')}</h1>
+            {paymentDeclined && (
+                <Alert variant="destructive" className="mb-6">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{t('redsysDeclined')}</AlertDescription>
+                </Alert>
+            )}
             <CheckoutProvider
                 order={activeOrder}
                 addresses={addresses}

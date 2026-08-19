@@ -1,7 +1,7 @@
 'use server';
 
 import {mutate} from '@/platform/vendure/api';
-import {SetOrderShippingAddressMutation, SetOrderBillingAddressMutation, SetOrderShippingMethodMutation, AddPaymentToOrderMutation, TransitionOrderToStateMutation, SetCustomerForOrderMutation} from '@/features/checkout/graphql';
+import {SetOrderShippingAddressMutation, SetOrderBillingAddressMutation, SetOrderShippingMethodMutation, AddPaymentToOrderMutation, TransitionOrderToStateMutation, SetCustomerForOrderMutation, CreateRedsysPaymentFormMutation} from '@/features/checkout/graphql';
 import {CreateCustomerAddressMutation} from '@/features/account/graphql';
 import {revalidatePath, updateTag} from 'next/cache';
 import {redirect} from '@/platform/i18n/navigation';
@@ -92,6 +92,43 @@ export async function transitionToArrangingPayment() {
 
     const locale = await getLocale();
     revalidatePath(`/${locale}/checkout`);
+}
+
+export interface RedsysPaymentForm {
+    url: string;
+    signatureVersion: string;
+    merchantParameters: string;
+    signature: string;
+}
+
+/**
+ * Redsys is a redirect gateway: unlike `placeOrder`, this does not call
+ * addPaymentToOrder — it only asks the backend for a signed redirect form.
+ * The order is only actually paid once Redsys' server-to-server notification
+ * has been verified (see RedsysPlugin), so the order must stay retryable
+ * (ArrangingPayment) until then.
+ */
+export async function getRedsysPaymentForm(): Promise<
+    {success: true; form: RedsysPaymentForm} | {success: false; error: string}
+> {
+    await transitionToArrangingPayment();
+
+    const result = await mutate(CreateRedsysPaymentFormMutation, {}, {useAuthToken: true});
+    const data = result.data.createRedsysPaymentForm;
+
+    if (data.__typename !== 'RedsysPaymentForm') {
+        return {success: false, error: data.message};
+    }
+
+    return {
+        success: true,
+        form: {
+            url: data.url,
+            signatureVersion: data.signatureVersion,
+            merchantParameters: data.merchantParameters,
+            signature: data.signature,
+        },
+    };
 }
 
 export async function placeOrder(paymentMethodCode: string) {

@@ -10,6 +10,7 @@ import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@ven
 import { AssetServerPlugin } from '@vendure/asset-server-plugin';
 import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
+import { RedsysPlugin } from './plugins/redsys-payment/redsys-payment.plugin';
 import 'dotenv/config';
 import path from 'path';
 
@@ -57,7 +58,10 @@ export const config: VendureConfig = {
         password: process.env.DB_PASSWORD,
     },
     paymentOptions: {
-        paymentMethodHandlers: [dummyPaymentHandler],
+        // The dummy handler is only wired up in dev, so nothing simulates a
+        // successful card payment without a gateway in production. RedsysPlugin
+        // registers its own handler via its `configuration` hook below.
+        paymentMethodHandlers: IS_DEV ? [dummyPaymentHandler] : [],
     },
     // When adding or altering custom field definitions, the database will
     // need to be updated. See the "Migrations" section in README.md.
@@ -120,5 +124,6 @@ export const config: VendureConfig = {
                 ? path.join(__dirname, '../dist/dashboard')
                 : path.join(__dirname, 'dashboard'),
         }),
+        RedsysPlugin,
     ],
 };

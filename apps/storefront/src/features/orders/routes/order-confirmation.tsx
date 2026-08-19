@@ -1,6 +1,6 @@
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
-import {Check, ShoppingBag, ClipboardList} from 'lucide-react';
+import {Check, Loader2, ShoppingBag, ClipboardList} from 'lucide-react';
 import { Link } from '@/platform/i18n/navigation';
 import Image from 'next/image';
 import {Separator} from '@/components/ui/separator';
@@ -66,23 +66,40 @@ export async function OrderConfirmation({paramsPromise}: OrderConfirmationProps)
         notFound();
     }
 
+    // Redirect-based gateways (Redsys) send the browser here as soon as the
+    // customer finishes paying, but the order is only actually marked as paid
+    // once the separate, asynchronous server-to-server notification has been
+    // verified and processed — which can lose this race by a second or two.
+    // Rather than claim success prematurely, show a "confirming" state and
+    // auto-refresh until the order has moved out of ArrangingPayment.
+    const paymentPending = order.state === 'ArrangingPayment';
+
     return (
         <div className="container mx-auto px-4 py-16">
+            {paymentPending && <meta httpEquiv="refresh" content="3" />}
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-10">
                     <div className="flex justify-center mb-6">
                         <div className="rounded-full bg-primary p-5 shadow-lg shadow-primary/25">
-                            <Check className="h-10 w-10 text-primary-foreground" strokeWidth={3} />
+                            {paymentPending ? (
+                                <Loader2 className="h-10 w-10 text-primary-foreground animate-spin" strokeWidth={3} />
+                            ) : (
+                                <Check className="h-10 w-10 text-primary-foreground" strokeWidth={3} />
+                            )}
                         </div>
                     </div>
-                    <h1 className="text-3xl font-bold mb-2">{t('orderConfirmed')}</h1>
+                    <h1 className="text-3xl font-bold mb-2">
+                        {paymentPending ? t('confirmingPayment') : t('orderConfirmed')}
+                    </h1>
                     <p className="text-muted-foreground">
-                        {t('thankYou')}{' '}
+                        {paymentPending ? t('confirmingPaymentMessage') : t('thankYou')}{' '}
                         <span className="font-semibold text-foreground">{order.code}</span>
                     </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        {t('emailConfirmation')}
-                    </p>
+                    {!paymentPending && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                            {t('emailConfirmation')}
+                        </p>
+                    )}
                 </div>
 
                 <Card className="mb-6">

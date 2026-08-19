@@ -30,6 +30,7 @@
     "cartEmpty": "Your cart is empty.",
     "cartEmptyShop": "Continue shopping",
     "unexpectedError": "An unexpected error occurred",
+    "redsysDeclined": "Your card payment was declined. Please check your card details or try a different card.",
     "fullName": "Full Name *",
     "company": "Company",
     "streetAddress": "Street Address *",

@@ -30,6 +30,7 @@
     "cartEmpty": "Ihr Warenkorb ist leer.",
     "cartEmptyShop": "Weiter einkaufen",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten",
+    "redsysDeclined": "Ihre Kartenzahlung wurde abgelehnt. Bitte überprüfen Sie Ihre Kartendaten oder versuchen Sie eine andere Karte.",
     "fullName": "Vollständiger Name *",
     "company": "Firma",
     "streetAddress": "Straße *",

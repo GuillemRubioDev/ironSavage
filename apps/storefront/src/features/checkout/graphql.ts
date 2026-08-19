@@ -220,6 +220,24 @@ export const TransitionOrderToStateMutation = graphql(`
     }
 `);
 
+export const CreateRedsysPaymentFormMutation = graphql(`
+    mutation CreateRedsysPaymentForm {
+        createRedsysPaymentForm {
+            __typename
+            ... on RedsysPaymentForm {
+                url
+                signatureVersion
+                merchantParameters
+                signature
+            }
+            ... on RedsysPaymentFormError {
+                errorCode
+                message
+            }
+        }
+    }
+`);
+
 export const AddPaymentToOrderMutation = graphql(`
     mutation AddPaymentToOrder($input: PaymentInput!) {
         addPaymentToOrder(input: $input) {

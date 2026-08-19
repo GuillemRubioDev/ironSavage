@@ -4,13 +4,39 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, MapPin, Truck, CreditCard, Edit, Mail } from 'lucide-react';
 import { useCheckout } from '../checkout-provider';
-import { placeOrder as placeOrderAction } from '../actions';
+import { placeOrder as placeOrderAction, getRedsysPaymentForm, type RedsysPaymentForm } from '../actions';
 import { Price } from '@/features/pricing/price';
 import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 
 interface ReviewStepProps {
   onEditStep: (step: 'contact' | 'shipping' | 'delivery' | 'payment') => void;
+}
+
+// Matches the `code` of the PaymentMethod created in the Admin UI for RedsysPlugin's
+// handler. Only this code triggers the redirect-to-Redsys flow; any other eligible
+// method (e.g. the dev-only dummy handler) goes through the normal placeOrder flow.
+const REDSYS_PAYMENT_METHOD_CODE = 'redsys';
+
+/** Redsys' "Conexión por Redirección" requires a real browser POST navigation. */
+function submitRedsysRedirect(form: RedsysPaymentForm) {
+  const formEl = document.createElement('form');
+  formEl.method = 'POST';
+  formEl.action = form.url;
+  const fields: Record<string, string> = {
+    Ds_SignatureVersion: form.signatureVersion,
+    Ds_MerchantParameters: form.merchantParameters,
+    Ds_Signature: form.signature,
+  };
+  for (const [name, value] of Object.entries(fields)) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    formEl.appendChild(input);
+  }
+  document.body.appendChild(formEl);
+  formEl.submit();
 }
 
 export default function ReviewStep({ onEditStep }: ReviewStepProps) {
@@ -27,6 +53,18 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
 
     setLoading(true);
     try {
+      if (selectedPaymentMethodCode === REDSYS_PAYMENT_METHOD_CODE) {
+        const result = await getRedsysPaymentForm();
+        if (!result.success) {
+          toast.error(t('unexpectedError'), { description: result.error });
+          setLoading(false);
+          return;
+        }
+        submitRedsysRedirect(result.form);
+        // Browser is navigating away to Redsys now — stay in the loading state.
+        return;
+      }
+
       await placeOrderAction(selectedPaymentMethodCode);
     } catch (error) {
       if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {

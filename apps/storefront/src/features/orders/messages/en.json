@@ -13,6 +13,8 @@
   "OrderConfirmation": {
     "pageTitle": "Order Confirmation",
     "orderConfirmed": "Order Confirmed!",
+    "confirmingPayment": "Confirming your payment…",
+    "confirmingPaymentMessage": "This page will update automatically once your payment is confirmed. Order number",
     "thankYou": "Thank you for your order. Your order number is",
     "emailConfirmation": "We'll send you an email with your order details and tracking information.",
     "orderSummary": "Order Summary",

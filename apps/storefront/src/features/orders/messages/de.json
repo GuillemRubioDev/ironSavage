@@ -13,6 +13,8 @@
   "OrderConfirmation": {
     "pageTitle": "Bestellbestätigung",
     "orderConfirmed": "Bestellung bestätigt!",
+    "confirmingPayment": "Zahlung wird bestätigt…",
+    "confirmingPaymentMessage": "Diese Seite aktualisiert sich automatisch, sobald Ihre Zahlung bestätigt ist. Bestellnummer",
     "thankYou": "Vielen Dank für Ihre Bestellung. Ihre Bestellnummer lautet",
     "emailConfirmation": "Wir senden Ihnen eine E-Mail mit Ihren Bestelldetails und Tracking-Informationen.",
     "orderSummary": "Bestellübersicht",
