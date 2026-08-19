@@ -19,8 +19,8 @@ async function VerifyPendingContent({searchParams}: {searchParams: Promise<Recor
     const redirectTo = resolvedParams?.redirectTo as string | undefined;
 
     const signInHref = redirectTo
-        ? `/sign-in?redirectTo=${encodeURIComponent(redirectTo)}`
-        : '/sign-in';
+        ? `/login?redirectTo=${encodeURIComponent(redirectTo)}`
+        : '/login';
 
     return (
         <Card>

@@ -12,10 +12,19 @@ export async function registerAction(prevState: { error?: string } | undefined, 
     const lastName = formData.get('lastName') as string;
     const phoneNumber = formData.get('phoneNumber') as string;
     const password = formData.get('password') as string;
+    const termsAccepted = formData.get('termsAccepted') as string | null;
     const redirectTo = formData.get('redirectTo') as string | null;
 
     if (!emailAddress || !password) {
         return {error: t('emailPasswordRequired')};
+    }
+    if (!firstName) {
+        return {error: t('firstNameRequired')};
+    }
+    // The client already blocks submission without this checked — this is
+    // only a backstop against a request built by hand, bypassing the form.
+    if (termsAccepted !== 'true') {
+        return {error: t('termsRequired')};
     }
 
 

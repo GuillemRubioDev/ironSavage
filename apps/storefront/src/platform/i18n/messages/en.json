@@ -20,6 +20,8 @@
     "newPasswordMustDiffer": "New password must be different from current password",
     "failedPasswordReset": "Failed to request password reset",
     "verificationTokenRequired": "Verification token is required",
-    "failedAddToCart": "Failed to add item to cart"
+    "failedAddToCart": "Failed to add item to cart",
+    "firstNameRequired": "First name is required",
+    "termsRequired": "You must accept the terms and conditions"
   }
 }

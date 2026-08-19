@@ -173,7 +173,7 @@ export async function OrderConfirmation({paramsPromise}: OrderConfirmationProps)
                         <ShoppingBag className="mr-2 h-4 w-4" />
                         {t('continueShopping')}
                     </Button>
-                    <Button nativeButton={false} render={<Link href="/account/orders" />} variant="outline" className="flex-1" size="lg">
+                    <Button nativeButton={false} render={<Link href="/mi-cuenta/pedidos" />} variant="outline" className="flex-1" size="lg">
                         <ClipboardList className="mr-2 h-4 w-4" />
                         {t('viewOrders')}
                     </Button>

@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const ITEMS_PER_PAGE = 10;
 
-export default async function OrdersPage(props: PageProps<'/[locale]/account/orders'>) {
+export default async function OrdersPage(props: PageProps<'/[locale]/mi-cuenta/pedidos'>) {
     const searchParams = await props.searchParams;
     const locale = await getRouteLocale();
     const pageParam = searchParams.page;
@@ -54,7 +54,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/account/ord
     );
 
     if (!data.activeCustomer) {
-        return redirect({href: '/sign-in', locale});
+        return redirect({href: '/login', locale});
     }
     const t = await getTranslations({locale, namespace: 'Account'});
 
@@ -77,7 +77,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/account/ord
                         {orders.map((order) => (
                             <Link
                                 key={order.id}
-                                href={`/account/orders/${order.code}`}
+                                href={`/mi-cuenta/pedidos/${order.code}`}
                                 className="block border rounded-xl p-4 bg-card hover:bg-muted/30 transition-colors duration-200"
                             >
                                 <div className="flex items-center justify-between mb-3">
@@ -116,7 +116,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/account/ord
                                 {orders.map((order) => (
                                     <TableRow key={order.id} className="hover:bg-muted/50">
                                         <TableCell className="font-medium">
-                                            <Button nativeButton={false} render={<Link href={`/account/orders/${order.code}`} />} variant="outline">
+                                            <Button nativeButton={false} render={<Link href={`/mi-cuenta/pedidos/${order.code}`} />} variant="outline">
                                                     {order.code} <ArrowRightIcon/>
                                             </Button>
                                         </TableCell>
@@ -147,7 +147,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/account/ord
                                         <PaginationPrevious
                                             href={
                                                 currentPage > 1
-                                                    ? `/account/orders?page=${currentPage - 1}`
+                                                    ? `/mi-cuenta/pedidos?page=${currentPage - 1}`
                                                     : '#'
                                             }
                                             className={
@@ -169,7 +169,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/account/ord
                                                 return (
                                                     <PaginationItem key={page}>
                                                         <PaginationLink
-                                                            href={`/account/orders?page=${page}`}
+                                                            href={`/mi-cuenta/pedidos?page=${page}`}
                                                             isActive={page === currentPage}
                                                         >
                                                             {page}
@@ -194,7 +194,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/account/ord
                                         <PaginationNext
                                             href={
                                                 currentPage < totalPages
-                                                    ? `/account/orders?page=${currentPage + 1}`
+                                                    ? `/mi-cuenta/pedidos?page=${currentPage + 1}`
                                                     : '#'
                                             }
                                             className={

@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Injectable } from '@nestjs/common';
 import { ID, Logger, Order, PaginatedList, RequestContext, TransactionalConnection } from '@vendure/core';
+import { Brackets } from 'typeorm';
 
 import { DEFAULT_INVOICE_SERIES, loggerCtx } from './constants';
 import { getInvoicingConfig } from './invoicing-config';
@@ -95,7 +96,7 @@ export class InvoicingService {
 
     async list(
         ctx: RequestContext,
-        options?: { skip?: number; take?: number; search?: string },
+        options?: { skip?: number; take?: number; search?: string; customerId?: ID },
     ): Promise<PaginatedList<Invoice>> {
         const qb = this.connection
             .getRepository(ctx, Invoice)
@@ -104,13 +105,27 @@ export class InvoicingService {
             .skip(options?.skip ?? 0)
             .take(options?.take ?? 50);
 
+        if (options?.customerId) {
+            // Scopes the list to one customer — used by the Shop API's `myInvoices`,
+            // where this is the only thing standing between a customer and every
+            // other customer's invoices. Applied via `andWhere` (never `where`,
+            // which would replace rather than combine) so a later `search` clause
+            // can never widen the result past this customer's own rows.
+            qb.andWhere('invoice.customerId = :customerId', { customerId: options.customerId });
+        }
+
         if (options?.search) {
             // The '-' | number::text form must zero-pad to match the displayed
             // `formattedNumber` (e.g. "A-000001"), or a search for that exact
-            // string would never match.
-            qb.where('invoice.orderCode ILIKE :search', { search: `%${options.search}%` }).orWhere(
-                "invoice.series || '-' || LPAD(invoice.number::text, 6, '0') ILIKE :search",
-                { search: `%${options.search}%` },
+            // string would never match. Grouped in a Brackets so this OR only
+            // spans the two search conditions, not the customerId filter above.
+            qb.andWhere(
+                new Brackets(sub => {
+                    sub.where('invoice.orderCode ILIKE :search', { search: `%${options.search}%` }).orWhere(
+                        "invoice.series || '-' || LPAD(invoice.number::text, 6, '0') ILIKE :search",
+                        { search: `%${options.search}%` },
+                    );
+                }),
             );
         }
 

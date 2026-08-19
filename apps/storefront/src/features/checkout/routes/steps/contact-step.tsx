@@ -41,7 +41,7 @@ export default function ContactStep({ onComplete }: ContactStepProps) {
         return (
           <>
             {t('emailConflict')}{' '}
-            <Link href="/sign-in?redirectTo=/checkout" className="underline hover:no-underline">
+            <Link href="/login?redirectTo=/checkout" className="underline hover:no-underline">
               {t('emailConflictSignIn')}
             </Link>{' '}
             {t('emailConflictSuffix')}
@@ -88,7 +88,7 @@ export default function ContactStep({ onComplete }: ContactStepProps) {
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         {t('alreadyHaveAccount')}{' '}
-        <Link href="/sign-in?redirectTo=/checkout" className="text-primary underline hover:no-underline">
+        <Link href="/login?redirectTo=/checkout" className="text-primary underline hover:no-underline">
           {t('signInLink')}
         </Link>
       </p>

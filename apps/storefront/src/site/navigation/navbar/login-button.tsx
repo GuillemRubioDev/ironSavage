@@ -22,7 +22,7 @@ export function LoginButton({isLoggedIn, ...props}: LoginButtonProps) {
                             await logoutAction()
                         })
                     } else {
-                        router.push('/sign-in')
+                        router.push('/login')
                     }
                 }}>
             {isLoggedIn ? t('signOut') : t('signIn')}

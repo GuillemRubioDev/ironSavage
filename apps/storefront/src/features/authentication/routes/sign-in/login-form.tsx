@@ -63,8 +63,8 @@ export function LoginForm({redirectTo}: LoginFormProps) {
     };
 
     const registerHref = redirectTo
-        ? `/register?redirectTo=${encodeURIComponent(redirectTo)}`
-        : '/register';
+        ? `/registro?redirectTo=${encodeURIComponent(redirectTo)}`
+        : '/registro';
 
     return (
         <Card>

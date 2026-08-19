@@ -8,12 +8,14 @@ export const metadata: Metadata = {
 };
 
 const navItems = [
-    {href: '/account/orders', labelKey: 'orders', icon: 'Package'},
-    {href: '/account/addresses', labelKey: 'addresses', icon: 'MapPin'},
-    {href: '/account/profile', labelKey: 'profile', icon: 'User'},
+    {href: '/mi-cuenta/pedidos', labelKey: 'orders', icon: 'Package'},
+    {href: '/mi-cuenta/facturas', labelKey: 'invoices', icon: 'FileText'},
+    {href: '/mi-cuenta/puntos', labelKey: 'points', icon: 'Star'},
+    {href: '/mi-cuenta/addresses', labelKey: 'addresses', icon: 'MapPin'},
+    {href: '/mi-cuenta/profile', labelKey: 'profile', icon: 'User'},
 ];
 
-export default async function AccountLayout({children}: LayoutProps<'/[locale]/account'>) {
+export default async function AccountLayout({children}: LayoutProps<'/[locale]/mi-cuenta'>) {
     return (
         <div className="container mx-auto px-4 py-30">
             {/* Mobile: horizontal tab bar */}

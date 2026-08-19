@@ -46,7 +46,7 @@ async function SignInContent({searchParams}: { searchParams: Promise<Record<stri
     return <LoginForm redirectTo={redirectTo}/>;
 }
 
-export default async function SignInPage({searchParams}: PageProps<'/[locale]/sign-in'>) {
+export default async function SignInPage({searchParams}: PageProps<'/[locale]/login'>) {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Auth'});
 

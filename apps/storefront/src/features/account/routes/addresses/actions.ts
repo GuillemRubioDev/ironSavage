@@ -33,7 +33,7 @@ export async function createAddress(address: AddressInput) {
     }
 
     const locale = await getLocale();
-    revalidatePath(`/${locale}/account/addresses`);
+    revalidatePath(`/${locale}/mi-cuenta/addresses`);
     return result.data.createCustomerAddress;
 }
 
@@ -64,7 +64,7 @@ export async function updateAddress(address: UpdateAddressInput) {
     }
 
     const locale = await getLocale();
-    revalidatePath(`/${locale}/account/addresses`);
+    revalidatePath(`/${locale}/mi-cuenta/addresses`);
     return result.data.updateCustomerAddress;
 }
 
@@ -80,7 +80,7 @@ export async function deleteAddress(id: string) {
     }
 
     const locale = await getLocale();
-    revalidatePath(`/${locale}/account/addresses`);
+    revalidatePath(`/${locale}/mi-cuenta/addresses`);
     return result.data.deleteCustomerAddress;
 }
 
@@ -101,7 +101,7 @@ export async function setDefaultShippingAddress(id: string) {
     }
 
     const locale = await getLocale();
-    revalidatePath(`/${locale}/account/addresses`);
+    revalidatePath(`/${locale}/mi-cuenta/addresses`);
     return result.data.updateCustomerAddress;
 }
 
@@ -122,6 +122,6 @@ export async function setDefaultBillingAddress(id: string) {
     }
 
     const locale = await getLocale();
-    revalidatePath(`/${locale}/account/addresses`);
+    revalidatePath(`/${locale}/mi-cuenta/addresses`);
     return result.data.updateCustomerAddress;
 }

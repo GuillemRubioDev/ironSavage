@@ -61,7 +61,7 @@ async function RegisterContent({searchParams}: {searchParams: Promise<Record<str
     return <RegistrationForm redirectTo={redirectTo} />;
 }
 
-export default async function RegisterPage({searchParams}: PageProps<'/[locale]/register'>) {
+export default async function RegisterPage({searchParams}: PageProps<'/[locale]/registro'>) {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Auth'});
 

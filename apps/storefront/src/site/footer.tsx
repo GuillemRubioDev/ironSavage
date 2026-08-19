@@ -74,7 +74,7 @@ export async function Footer() {
                             </li>
                             <li>
                                 <NavigationLink
-                                    href="/account/orders"
+                                    href="/mi-cuenta/pedidos"
                                     className="hover:text-foreground transition-colors"
                                 >
                                     {t('orders')}
@@ -82,7 +82,7 @@ export async function Footer() {
                             </li>
                             <li>
                                 <NavigationLink
-                                    href="/account/profile"
+                                    href="/mi-cuenta/profile"
                                     className="hover:text-foreground transition-colors"
                                 >
                                     {t('account')}

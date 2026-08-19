@@ -1,8 +1,9 @@
 import { PluginCommonModule, VendurePlugin } from '@vendure/core';
 
-import { adminApiExtensions } from './api-extensions';
+import { adminApiExtensions, shopApiExtensions } from './api-extensions';
 import { setInvoicingConfig } from './invoicing-config';
 import { InvoicingAdminResolver } from './invoicing-admin.resolver';
+import { InvoicingShopResolver } from './invoicing-shop.resolver';
 import { InvoicingController } from './invoicing.controller';
 import { InvoicingEventSubscriber } from './invoicing-event-subscriber';
 import { InvoicingService } from './invoicing.service';
@@ -49,9 +50,8 @@ import type { InvoicingPluginOptions } from './types';
  * })
  * ```
  * PDF download: `GET /invoices/:id/pdf` (admin session, or a signed-in
- * customer who owns the order — the latter has no Shop API query to look up
- * an invoice id yet, so it's reachable but not yet linked from anywhere;
- * see InvoicingController's doc comment).
+ * customer who owns the order). The Shop API's `myInvoices` query lists the
+ * signed-in customer's own invoices to link to that route from.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],
@@ -61,6 +61,10 @@ import type { InvoicingPluginOptions } from './types';
     adminApiExtensions: {
         schema: adminApiExtensions,
         resolvers: [InvoicingAdminResolver],
+    },
+    shopApiExtensions: {
+        schema: shopApiExtensions,
+        resolvers: [InvoicingShopResolver],
     },
     compatibility: '^3.0.0',
 })

@@ -6,7 +6,7 @@ import {getTranslations} from 'next-intl/server';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {OrderDetail} from './order-detail';
 
-type OrderDetailPageProps = PageProps<'/[locale]/account/orders/[code]'>;
+type OrderDetailPageProps = PageProps<'/[locale]/mi-cuenta/pedidos/[code]'>;
 
 export async function generateMetadata({params}: OrderDetailPageProps): Promise<Metadata> {
     const {code} = await params;

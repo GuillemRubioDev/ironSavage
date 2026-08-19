@@ -67,7 +67,7 @@ export function ForgotPasswordForm() {
                     </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                    <Link href="/sign-in">
+                    <Link href="/login">
                         <Button variant="outline" className="w-full">
                             {t('backToSignIn')}
                         </Button>
@@ -118,7 +118,7 @@ export function ForgotPasswordForm() {
                             {isPending ? t('sending') : t('sendResetLink')}
                         </Button>
                         <Link
-                            href="/sign-in"
+                            href="/login"
                             className="text-sm text-center text-muted-foreground hover:text-primary"
                         >
                             {t('backToSignIn')}

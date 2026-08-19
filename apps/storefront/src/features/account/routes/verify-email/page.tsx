@@ -27,7 +27,7 @@ async function VerifyEmailContent({searchParams}: {searchParams: Promise<Record<
                     <p className="text-sm text-muted-foreground mb-4">
                         {t('verifyEmail.checkEmail')}
                     </p>
-                    <Button render={<Link href="/account/profile" />} nativeButton={false}>{t('verifyEmail.goToProfile')}</Button>
+                    <Button render={<Link href="/mi-cuenta/profile" />} nativeButton={false}>{t('verifyEmail.goToProfile')}</Button>
                 </CardContent>
             </Card>
         );
@@ -50,7 +50,7 @@ async function VerifyEmailContent({searchParams}: {searchParams: Promise<Record<
                         <p className="text-sm text-muted-foreground mb-4">
                             {t('verifyEmail.successMessage')}
                         </p>
-                        <Button render={<Link href="/account/profile" />} nativeButton={false}>{t('verifyEmail.goToProfile')}</Button>
+                        <Button render={<Link href="/mi-cuenta/profile" />} nativeButton={false}>{t('verifyEmail.goToProfile')}</Button>
                     </CardContent>
                 </Card>
             );
@@ -68,7 +68,7 @@ async function VerifyEmailContent({searchParams}: {searchParams: Promise<Record<
                     <p className="text-sm text-muted-foreground mb-4">
                         {t('verifyEmail.failedMessage')}
                     </p>
-                    <Button render={<Link href="/account/profile" />} nativeButton={false}>{t('verifyEmail.goToProfile')}</Button>
+                    <Button render={<Link href="/mi-cuenta/profile" />} nativeButton={false}>{t('verifyEmail.goToProfile')}</Button>
                 </CardContent>
             </Card>
         );
@@ -85,14 +85,14 @@ async function VerifyEmailContent({searchParams}: {searchParams: Promise<Record<
                     <p className="text-sm text-muted-foreground mb-4">
                         {t('verifyEmail.errorMessage')}
                     </p>
-                    <Button render={<Link href="/account/profile" />} nativeButton={false}>{t('verifyEmail.goToProfile')}</Button>
+                    <Button render={<Link href="/mi-cuenta/profile" />} nativeButton={false}>{t('verifyEmail.goToProfile')}</Button>
                 </CardContent>
             </Card>
         );
     }
 }
 
-export default async function VerifyEmailPage({searchParams}: PageProps<'/[locale]/account/verify-email'>) {
+export default async function VerifyEmailPage({searchParams}: PageProps<'/[locale]/mi-cuenta/verify-email'>) {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Account'});
 

@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import { Link, useRouter } from '@/platform/i18n/navigation';
-import {Menu, Search, ShoppingBag, User, Package, MapPin} from 'lucide-react';
+import {Menu, Search, ShoppingBag, User, Package, MapPin, FileText, Star} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {
@@ -118,7 +118,7 @@ export function MobileNav({collections}: MobileNavProps) {
                             <SheetClose
                                 render={
                                     <Link
-                                        href="/account/profile"
+                                        href="/mi-cuenta/profile"
                                         className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
                                     />
                                 }
@@ -131,7 +131,7 @@ export function MobileNav({collections}: MobileNavProps) {
                             <SheetClose
                                 render={
                                     <Link
-                                        href="/account/orders"
+                                        href="/mi-cuenta/pedidos"
                                         className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
                                     />
                                 }
@@ -144,7 +144,33 @@ export function MobileNav({collections}: MobileNavProps) {
                             <SheetClose
                                 render={
                                     <Link
-                                        href="/account/addresses"
+                                        href="/mi-cuenta/facturas"
+                                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                                    />
+                                }
+                                nativeButton={false}
+                                onClick={handleLinkClick}
+                            >
+                                <FileText className="h-5 w-5" />
+                                {t('invoices')}
+                            </SheetClose>
+                            <SheetClose
+                                render={
+                                    <Link
+                                        href="/mi-cuenta/puntos"
+                                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                                    />
+                                }
+                                nativeButton={false}
+                                onClick={handleLinkClick}
+                            >
+                                <Star className="h-5 w-5" />
+                                {t('points')}
+                            </SheetClose>
+                            <SheetClose
+                                render={
+                                    <Link
+                                        href="/mi-cuenta/addresses"
                                         className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
                                     />
                                 }

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Form,
     FormControl,
@@ -23,11 +24,12 @@ import {useTranslations} from 'next-intl';
 function createRegistrationSchema(t: ReturnType<typeof useTranslations<'Auth'>>) {
     return z.object({
         emailAddress: z.string().email(t('emailValidation')),
-        firstName: z.string().optional(),
+        firstName: z.string().min(1, t('firstNameRequired')),
         lastName: z.string().optional(),
         phoneNumber: z.string().optional(),
         password: z.string().min(8, t('passwordMinLength')),
         confirmPassword: z.string(),
+        termsAccepted: z.boolean().refine(val => val === true, { message: t('termsRequired') }),
     }).refine((data) => data.password === data.confirmPassword, {
         message: t('passwordsMismatch'),
         path: ["confirmPassword"],
@@ -55,6 +57,7 @@ export function RegistrationForm({ redirectTo }: RegistrationFormProps) {
             phoneNumber: '',
             password: '',
             confirmPassword: '',
+            termsAccepted: false,
         },
     });
 
@@ -64,10 +67,11 @@ export function RegistrationForm({ redirectTo }: RegistrationFormProps) {
         startTransition(async () => {
             const formData = new FormData();
             formData.append('emailAddress', data.emailAddress);
-            if (data.firstName) formData.append('firstName', data.firstName);
+            formData.append('firstName', data.firstName);
             if (data.lastName) formData.append('lastName', data.lastName);
             if (data.phoneNumber) formData.append('phoneNumber', data.phoneNumber);
             formData.append('password', data.password);
+            formData.append('termsAccepted', String(data.termsAccepted));
             if (redirectTo) {
                 formData.append('redirectTo', redirectTo);
             }
@@ -80,8 +84,8 @@ export function RegistrationForm({ redirectTo }: RegistrationFormProps) {
     };
 
     const signInHref = redirectTo
-        ? `/sign-in?redirectTo=${encodeURIComponent(redirectTo)}`
-        : '/sign-in';
+        ? `/login?redirectTo=${encodeURIComponent(redirectTo)}`
+        : '/login';
 
     return (
         <Card>
@@ -197,6 +201,28 @@ export function RegistrationForm({ redirectTo }: RegistrationFormProps) {
                                             {...field}
                                         />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="termsAccepted"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <div className="flex items-start gap-2">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={(checked) => field.onChange(checked === true)}
+                                                disabled={isPending}
+                                            />
+                                        </FormControl>
+                                        <FormLabel className="font-normal leading-snug">
+                                            {t('termsAcceptance')}
+                                        </FormLabel>
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}

@@ -82,7 +82,7 @@ export function ResetPasswordForm({ searchParams }: ResetPasswordFormProps) {
                         {isPending ? t('resettingPassword') : t('resetPassword')}
                     </Button>
                     <Link
-                        href="/sign-in"
+                        href="/login"
                         className="text-sm text-center text-muted-foreground hover:text-primary"
                     >
                         {t('backToSignIn')}

@@ -20,6 +20,8 @@
     "newPasswordMustDiffer": "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden",
     "failedPasswordReset": "Passwort-Zurücksetzung konnte nicht angefordert werden",
     "verificationTokenRequired": "Bestätigungs-Token ist erforderlich",
-    "failedAddToCart": "Artikel konnte nicht zum Warenkorb hinzugefügt werden"
+    "failedAddToCart": "Artikel konnte nicht zum Warenkorb hinzugefügt werden",
+    "firstNameRequired": "Vorname ist erforderlich",
+    "termsRequired": "Sie müssen die Allgemeinen Geschäftsbedingungen akzeptieren"
   }
 }

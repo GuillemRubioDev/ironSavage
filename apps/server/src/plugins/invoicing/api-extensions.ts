@@ -1,6 +1,6 @@
 import { gql } from 'graphql-tag';
 
-export const adminApiExtensions = gql`
+const commonTypes = gql`
     type InvoiceLine {
         id: ID!
         productName: String!
@@ -41,13 +41,31 @@ export const adminApiExtensions = gql`
     input InvoiceListOptions {
         skip: Int
         take: Int
+    }
+`;
+
+export const adminApiExtensions = gql`
+    ${commonTypes}
+
+    input AdminInvoiceListOptions {
+        skip: Int
+        take: Int
         "Matches against the order code or the formatted invoice number (e.g. A-000123)."
         search: String
     }
 
     extend type Query {
-        invoices(options: InvoiceListOptions): InvoiceList!
+        invoices(options: AdminInvoiceListOptions): InvoiceList!
         invoice(id: ID!): Invoice
         invoiceForOrder(orderId: ID!): Invoice
+    }
+`;
+
+export const shopApiExtensions = gql`
+    ${commonTypes}
+
+    extend type Query {
+        "The active customer's own invoices. Never accepts a customer id from the client — always scoped to the signed-in session."
+        myInvoices(options: InvoiceListOptions): InvoiceList!
     }
 `;

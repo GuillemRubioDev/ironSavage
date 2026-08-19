@@ -65,7 +65,7 @@ export async function updateCustomerAction(prevState: { error?: string; success?
         }
 
         const locale = await getLocale();
-        revalidatePath(`/${locale}/account/profile`);
+        revalidatePath(`/${locale}/mi-cuenta/profile`);
         return {success: true};
     } catch {
         return {error: t('unexpectedError')};

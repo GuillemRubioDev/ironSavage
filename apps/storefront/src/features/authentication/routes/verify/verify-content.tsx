@@ -59,12 +59,12 @@ export function VerifyContent({searchParams}: VerifyContentProps) {
                         </p>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <Link href="/register" className="block">
+                        <Link href="/registro" className="block">
                             <Button variant="outline" className="w-full">
                                 {t('createNewAccount')}
                             </Button>
                         </Link>
-                        <Link href="/sign-in" className="block">
+                        <Link href="/login" className="block">
                             <Button variant="ghost" className="w-full">
                                 {t('backToSignIn')}
                             </Button>
