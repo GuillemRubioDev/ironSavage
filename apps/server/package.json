@@ -25,9 +25,11 @@
     "@vendure/graphiql-plugin": "3.7.2",
     "dotenv": "17.4.2",
     "graphql-tag": "2.12.7",
+    "pdfkit": "^0.15.0",
     "pg": "8.23.0"
   },
   "devDependencies": {
+    "@types/pdfkit": "^0.13.5",
     "@vendure/cli": "3.7.2",
     "ts-node": "10.9.2",
     "typescript": "5.8.2",

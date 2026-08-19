@@ -12,6 +12,7 @@ import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import { RedsysPlugin } from './plugins/redsys-payment/redsys-payment.plugin';
 import { LoyaltyPlugin } from './plugins/loyalty/loyalty.plugin';
+import { InvoicingPlugin } from './plugins/invoicing/invoicing.plugin';
 import 'dotenv/config';
 import path from 'path';
 
@@ -131,6 +132,13 @@ export const config: VendureConfig = {
             pointValueInCents: 1,
             minRedeemablePoints: 100,
             maxDiscountPerOrderCents: 2000,
+        }),
+        InvoicingPlugin.init({
+            storeName: process.env.INVOICE_STORE_NAME,
+            storeTaxId: process.env.INVOICE_STORE_TAX_ID,
+            storeAddress: process.env.INVOICE_STORE_ADDRESS,
+            storeEmail: process.env.INVOICE_STORE_EMAIL,
+            storePhone: process.env.INVOICE_STORE_PHONE,
         }),
     ],
 };
