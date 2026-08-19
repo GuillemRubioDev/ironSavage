@@ -6,6 +6,7 @@ import { ChevronDown, ShoppingBag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
+import { Tag } from 'lucide-react';
 import { OrderLine } from './types';
 import { useCheckout } from './checkout-provider';
 import { Price } from '@/features/pricing/price';
@@ -45,8 +46,13 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
                 {t('qty', {quantity: line.quantity})}
               </p>
             </div>
-            <div className="text-sm font-medium">
-              <Price value={line.linePriceWithTax} currencyCode={order.currencyCode} />
+            <div className="text-sm font-medium text-right">
+              {line.discountedLinePriceWithTax < line.linePriceWithTax && (
+                <p className="text-xs text-muted-foreground line-through">
+                  <Price value={line.linePriceWithTax} currencyCode={order.currencyCode} />
+                </p>
+              )}
+              <Price value={line.discountedLinePriceWithTax} currencyCode={order.currencyCode} />
             </div>
           </div>
         ))}
@@ -73,6 +79,13 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
               </div>
             ))}
           </>
+        )}
+
+        {order.couponCodes && order.couponCodes.length > 0 && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Tag className="h-3 w-3" />
+            <span>{order.couponCodes.join(', ')}</span>
+          </div>
         )}
 
         <div className="flex justify-between text-sm">

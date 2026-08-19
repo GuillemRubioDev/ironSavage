@@ -18,6 +18,10 @@
     "remove": "Entfernen",
     "enterCode": "Code eingeben",
     "apply": "Einlösen",
+    "applying": "Wird eingelöst...",
+    "couponInvalid": "Dieser Code ist ungültig",
+    "couponExpired": "Dieser Code ist abgelaufen",
+    "couponLimitReached": "Dieser Code hat sein Nutzungslimit erreicht",
     "sku": "Art.-Nr.: {sku}",
     "updateError": "Menge konnte nicht aktualisiert werden",
     "removeError": "Artikel konnte nicht entfernt werden"

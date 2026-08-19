@@ -1,17 +1,25 @@
+'use client';
+
+import {useActionState} from 'react';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Tag} from 'lucide-react';
-import {applyPromotionCode, removePromotionCode} from './actions';
-import {getTranslations} from 'next-intl/server';
+import {applyPromotionCode, removePromotionCode, type CartActionResult} from './actions';
+import {useTranslations} from 'next-intl';
 
 type ActiveOrder = {
     id: string;
     couponCodes?: string[] | null;
 };
 
-export async function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
-    const t = await getTranslations('Cart');
+export function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
+    const t = useTranslations('Cart');
+    const [state, formAction, isPending] = useActionState<CartActionResult | undefined, FormData>(
+        applyPromotionCode,
+        undefined,
+    );
+
     return (
         <Card className="mt-4">
             <CardHeader>
@@ -48,15 +56,23 @@ export async function PromotionCode({activeOrder}: { activeOrder: ActiveOrder })
                         ))}
                     </div>
                 ) : (
-                    <form action={applyPromotionCode} className="flex gap-2">
-                        <Input
-                            type="text"
-                            name="code"
-                            placeholder={t('enterCode')}
-                            className="flex-1"
-                            required
-                        />
-                        <Button type="submit">{t('apply')}</Button>
+                    <form action={formAction} className="space-y-2">
+                        <div className="flex gap-2">
+                            <Input
+                                type="text"
+                                name="code"
+                                placeholder={t('enterCode')}
+                                className="flex-1"
+                                required
+                                disabled={isPending}
+                            />
+                            <Button type="submit" disabled={isPending}>
+                                {isPending ? t('applying') : t('apply')}
+                            </Button>
+                        </div>
+                        {state?.success === false && state.error && (
+                            <p className="text-sm text-destructive">{state.error}</p>
+                        )}
                     </form>
                 )}
             </CardContent>

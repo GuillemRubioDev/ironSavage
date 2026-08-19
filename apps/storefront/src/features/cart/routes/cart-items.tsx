@@ -12,7 +12,9 @@ type ActiveOrder = {
         id: string;
         quantity: number;
         unitPriceWithTax: number;
+        discountedUnitPriceWithTax: number;
         linePriceWithTax: number;
+        discountedLinePriceWithTax: number;
         productVariant: {
             id: string;
             name: string;
@@ -81,8 +83,13 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                         <p className="text-sm text-muted-foreground mt-1">
                             {t('sku', {sku: line.productVariant.sku})}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-2 sm:hidden">
-                            <Price value={line.unitPriceWithTax} currencyCode={activeOrder.currencyCode}/> {t('each')}
+                        <p className="text-sm text-muted-foreground mt-2 sm:hidden flex items-center gap-2">
+                            {line.discountedUnitPriceWithTax < line.unitPriceWithTax && (
+                                <span className="line-through">
+                                    <Price value={line.unitPriceWithTax} currencyCode={activeOrder.currencyCode}/>
+                                </span>
+                            )}
+                            <Price value={line.discountedUnitPriceWithTax} currencyCode={activeOrder.currencyCode}/> {t('each')}
                         </p>
 
                         <div className="flex items-center gap-3 mt-4">
@@ -90,7 +97,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
 
                             <div className="sm:hidden ml-auto">
                                 <p className="font-semibold text-lg">
-                                    <Price value={line.linePriceWithTax}
+                                    <Price value={line.discountedLinePriceWithTax}
                                            currencyCode={activeOrder.currencyCode}/>
                                 </p>
                             </div>
@@ -99,10 +106,15 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
 
                     <div className="hidden sm:block text-right flex-shrink-0">
                         <p className="font-semibold text-lg">
-                            <Price value={line.linePriceWithTax} currencyCode={activeOrder.currencyCode}/>
+                            <Price value={line.discountedLinePriceWithTax} currencyCode={activeOrder.currencyCode}/>
                         </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            <Price value={line.unitPriceWithTax} currencyCode={activeOrder.currencyCode}/> {t('each')}
+                        <p className="text-sm text-muted-foreground mt-1 flex items-center justify-end gap-2">
+                            {line.discountedUnitPriceWithTax < line.unitPriceWithTax && (
+                                <span className="line-through">
+                                    <Price value={line.unitPriceWithTax} currencyCode={activeOrder.currencyCode}/>
+                                </span>
+                            )}
+                            <Price value={line.discountedUnitPriceWithTax} currencyCode={activeOrder.currencyCode}/> {t('each')}
                         </p>
                     </div>
                 </div>

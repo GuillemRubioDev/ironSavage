@@ -4,6 +4,7 @@ import {mutate} from '@/platform/vendure/api';
 import {RemoveFromCartMutation, AdjustCartItemMutation, ApplyPromotionCodeMutation, RemovePromotionCodeMutation} from '@/features/cart/graphql';
 import {getActiveCurrencyCode} from '@/features/currency/currency-server';
 import {updateTag} from 'next/cache';
+import {getTranslations} from 'next-intl/server';
 
 export type CartActionResult = {success: true} | {success: false; error: string};
 
@@ -29,13 +30,30 @@ export async function adjustQuantity(lineId: string, quantity: number): Promise<
     return {success: true};
 }
 
-export async function applyPromotionCode(formData: FormData) {
+export async function applyPromotionCode(
+    prevState: CartActionResult | undefined,
+    formData: FormData,
+): Promise<CartActionResult> {
     const code = formData.get('code') as string;
-    if (!code) return;
+    if (!code) {
+        return {success: false, error: ''};
+    }
 
+    const t = await getTranslations('Cart');
     const currencyCode = await getActiveCurrencyCode();
-    await mutate(ApplyPromotionCodeMutation, {couponCode: code}, {useAuthToken: true, currencyCode});
+    const result = await mutate(ApplyPromotionCodeMutation, {couponCode: code}, {useAuthToken: true, currencyCode});
+
+    if (result.data.applyCouponCode.__typename !== 'Order') {
+        const errorKey = result.data.applyCouponCode.__typename === 'CouponCodeExpiredError'
+            ? 'couponExpired'
+            : result.data.applyCouponCode.__typename === 'CouponCodeLimitError'
+                ? 'couponLimitReached'
+                : 'couponInvalid';
+        return {success: false, error: t(errorKey)};
+    }
+
     updateTag('cart');
+    return {success: true};
 }
 
 export async function removePromotionCode(formData: FormData) {

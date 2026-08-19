@@ -18,6 +18,10 @@
     "remove": "Remove",
     "enterCode": "Enter code",
     "apply": "Apply",
+    "applying": "Applying...",
+    "couponInvalid": "This code is not valid",
+    "couponExpired": "This code has expired",
+    "couponLimitReached": "This code has reached its usage limit",
     "sku": "SKU: {sku}",
     "updateError": "Couldn't update quantity",
     "removeError": "Couldn't remove item"

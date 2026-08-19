@@ -41,8 +41,10 @@ export const GetActiveOrderQuery = graphql(`
                     }
                 }
                 unitPriceWithTax
+                discountedUnitPriceWithTax
                 quantity
                 linePriceWithTax
+                discountedLinePriceWithTax
             }
         }
     }
