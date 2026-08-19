@@ -11,6 +11,7 @@ import { AssetServerPlugin } from '@vendure/asset-server-plugin';
 import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import { RedsysPlugin } from './plugins/redsys-payment/redsys-payment.plugin';
+import { LoyaltyPlugin } from './plugins/loyalty/loyalty.plugin';
 import 'dotenv/config';
 import path from 'path';
 
@@ -125,5 +126,11 @@ export const config: VendureConfig = {
                 : path.join(__dirname, 'dashboard'),
         }),
         RedsysPlugin,
+        LoyaltyPlugin.init({
+            pointsPerEuro: 1,
+            pointValueInCents: 1,
+            minRedeemablePoints: 100,
+            maxDiscountPerOrderCents: 2000,
+        }),
     ],
 };
