@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { Link } from '@/platform/i18n/navigation';
 import { query } from '@/platform/vendure/api';
 import {GetProductDetailQuery} from '@/features/products/graphql';
@@ -6,6 +7,7 @@ import { ProductImageCarousel } from '@/features/products/components/product-ima
 import { ProductInfo } from '@/features/products/components/product-info';
 import {getDisplayOptionGroups} from '@/features/products/product-options';
 import { RelatedProducts } from '@/features/products/components/related-products';
+import { ProductReviewsSection } from '@/features/reviews/components/product-reviews-section';
 import {
     Accordion,
     AccordionContent,
@@ -183,6 +185,13 @@ export default async function ProductDetailPage({
                     </div>
                 </div>
             </section>
+
+            {/* Product Reviews — reads the auth cookie for a signed-in customer's own
+                review eligibility, so it's isolated in its own Suspense boundary rather
+                than blocking the surrounding statically-cached page content. */}
+            <Suspense fallback={<div className="py-16" />}>
+                <ProductReviewsSection productId={product.id} productSlug={product.slug} />
+            </Suspense>
 
             {/* Store FAQ Section */}
             <section className="py-16 bg-muted/30">

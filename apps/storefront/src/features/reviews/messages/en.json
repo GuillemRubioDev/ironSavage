@@ -1,0 +1,19 @@
+{
+  "Reviews": {
+    "title": "Reviews",
+    "oneReview": "1 review",
+    "reviewCount": "{count} reviews",
+    "noReviews": "No reviews yet.",
+    "writeAReview": "Write a review",
+    "whichOrder": "Which order is this review for?",
+    "rating": "Rating",
+    "reviewTitle": "Title",
+    "reviewComment": "Your review",
+    "submitReview": "Submit review",
+    "submitting": "Submitting...",
+    "submittedForModeration": "Thanks! Your review has been submitted and will appear once it's been checked.",
+    "signInToReview": "Bought this product?",
+    "signIn": "Sign in to write a review.",
+    "unexpectedError": "An unexpected error occurred. Please try again."
+  }
+}

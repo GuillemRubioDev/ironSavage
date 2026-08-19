@@ -1,0 +1,19 @@
+{
+  "Reviews": {
+    "title": "Bewertungen",
+    "oneReview": "1 Bewertung",
+    "reviewCount": "{count} Bewertungen",
+    "noReviews": "Noch keine Bewertungen.",
+    "writeAReview": "Bewertung schreiben",
+    "whichOrder": "Für welche Bestellung ist diese Bewertung?",
+    "rating": "Bewertung",
+    "reviewTitle": "Titel",
+    "reviewComment": "Ihre Bewertung",
+    "submitReview": "Bewertung absenden",
+    "submitting": "Wird gesendet...",
+    "submittedForModeration": "Danke! Ihre Bewertung wurde eingereicht und erscheint nach Prüfung.",
+    "signInToReview": "Dieses Produkt gekauft?",
+    "signIn": "Melden Sie sich an, um eine Bewertung zu schreiben.",
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+  }
+}

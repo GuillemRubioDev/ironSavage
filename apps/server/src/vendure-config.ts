@@ -13,6 +13,7 @@ import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import { RedsysPlugin } from './plugins/redsys-payment/redsys-payment.plugin';
 import { LoyaltyPlugin } from './plugins/loyalty/loyalty.plugin';
 import { InvoicingPlugin } from './plugins/invoicing/invoicing.plugin';
+import { ReviewsPlugin } from './plugins/reviews/reviews.plugin';
 import 'dotenv/config';
 import path from 'path';
 
@@ -140,5 +141,6 @@ export const config: VendureConfig = {
             storeEmail: process.env.INVOICE_STORE_EMAIL,
             storePhone: process.env.INVOICE_STORE_PHONE,
         }),
+        ReviewsPlugin,
     ],
 };

@@ -5,6 +5,7 @@ import {checkoutMessageLoaders} from '@/features/checkout/messages';
 import {collectionsMessageLoaders} from '@/features/collections/messages';
 import {ordersMessageLoaders} from '@/features/orders/messages';
 import {productsMessageLoaders} from '@/features/products/messages';
+import {reviewsMessageLoaders} from '@/features/reviews/messages';
 import {searchMessageLoaders} from '@/features/search/messages';
 import {
     platformMessageLoaders,
@@ -24,6 +25,7 @@ const registrations: MessageLoaders[] = [
     collectionsMessageLoaders,
     ordersMessageLoaders,
     productsMessageLoaders,
+    reviewsMessageLoaders,
     searchMessageLoaders,
     platformMessageLoaders,
     homeMessageLoaders,
