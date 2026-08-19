@@ -1,8 +1,6 @@
 'use client';
 
-import {useState, useMemo, useTransition} from 'react';
-import {useSearchParams} from 'next/navigation';
-import {usePathname, useRouter} from '@/platform/i18n/navigation';
+import {useState, useTransition} from 'react';
 import {Button} from '@/components/ui/button';
 import {Label} from '@/components/ui/label';
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
@@ -13,29 +11,31 @@ import {toast} from 'sonner';
 import {Price} from '@/features/pricing/price';
 import {useTranslations} from 'next-intl';
 
+interface ProductVariant {
+    id: string;
+    name: string;
+    sku: string;
+    priceWithTax: number;
+    stockLevel: string;
+    options: Array<{
+        id: string;
+        code: string;
+        name: string;
+        groupId: string;
+        group: {
+            id: string;
+            code: string;
+            name: string;
+        };
+    }>;
+}
+
 interface ProductInfoProps {
     product: {
         id: string;
         name: string;
         description: string;
-        variants: Array<{
-            id: string;
-            name: string;
-            sku: string;
-            priceWithTax: number;
-            stockLevel: string;
-            options: Array<{
-                id: string;
-                code: string;
-                name: string;
-                groupId: string;
-                group: {
-                    id: string;
-                    code: string;
-                    name: string;
-                };
-            }>;
-        }>;
+        variants: ProductVariant[];
         optionGroups: Array<{
             id: string;
             code: string;
@@ -47,73 +47,16 @@ interface ProductInfoProps {
             }>;
         }>;
     };
-    searchParams: { [key: string]: string | string[] | undefined };
     currencyCode: string;
+    selectedOptions: Record<string, string>;
+    selectedVariant: ProductVariant | null | undefined;
+    onOptionChange: (groupId: string, optionId: string) => void;
 }
 
-export function ProductInfo({product, searchParams, currencyCode}: ProductInfoProps) {
+export function ProductInfo({product, currencyCode, selectedOptions, selectedVariant, onOptionChange}: ProductInfoProps) {
     const t = useTranslations('Product');
-    const pathname = usePathname();
-    const router = useRouter();
-    const currentSearchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
     const [isAdded, setIsAdded] = useState(false);
-
-    // Initialize selected options from URL
-    const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
-        const initialOptions: Record<string, string> = {};
-
-        // Load from URL search params
-        product.optionGroups.forEach((group) => {
-            const paramValue = searchParams[group.code];
-            if (typeof paramValue === 'string') {
-                // Find the option by code
-                const option = group.options.find((opt) => opt.code === paramValue);
-                if (option) {
-                    initialOptions[group.id] = option.id;
-                }
-            }
-        });
-
-        return initialOptions;
-    });
-
-    // Find the matching variant based on selected options
-    const selectedVariant = useMemo(() => {
-        if (product.variants.length === 1) {
-            return product.variants[0];
-        }
-
-        // If not all option groups have a selection, return null
-        if (Object.keys(selectedOptions).length !== product.optionGroups.length) {
-            return null;
-        }
-
-        // Find variant that matches all selected options
-        return product.variants.find((variant) => {
-            const variantOptionIds = variant.options.map((opt) => opt.id);
-            const selectedOptionIds = Object.values(selectedOptions);
-            return selectedOptionIds.every((optId) => variantOptionIds.includes(optId));
-        });
-    }, [selectedOptions, product.variants, product.optionGroups]);
-
-    const handleOptionChange = (groupId: string, optionId: string) => {
-        setSelectedOptions((prev) => ({
-            ...prev,
-            [groupId]: optionId,
-        }));
-
-        // Find the option group and option to get their codes
-        const group = product.optionGroups.find((g) => g.id === groupId);
-        const option = group?.options.find((opt) => opt.id === optionId);
-
-        if (group && option) {
-            // Update URL with option code
-            const params = new URLSearchParams(currentSearchParams);
-            params.set(group.code, option.code);
-            router.push(`${pathname}?${params.toString()}`, {scroll: false});
-        }
-    };
 
     const handleAddToCart = async () => {
         if (!selectedVariant) return;
@@ -169,7 +112,7 @@ export function ProductInfo({product, searchParams, currencyCode}: ProductInfoPr
                             </Label>
                             <RadioGroup
                                 value={selectedOptions[group.id] || ''}
-                                onValueChange={(value) => handleOptionChange(group.id, value)}
+                                onValueChange={(value) => onOptionChange(group.id, value)}
                             >
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     {group.options.map((option) => (
