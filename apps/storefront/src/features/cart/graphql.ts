@@ -15,6 +15,11 @@ export const GetActiveOrderQuery = graphql(`
             totalWithTax
             currencyCode
             couponCodes
+            taxSummary {
+                description
+                taxRate
+                taxTotal
+            }
             discounts {
                 description
                 amountWithTax

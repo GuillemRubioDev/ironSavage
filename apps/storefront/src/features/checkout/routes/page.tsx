@@ -42,7 +42,7 @@ export default async function CheckoutPage() {
     const activeOrder = orderRes.data.activeOrder;
 
     if (!activeOrder || activeOrder.lines.length === 0) {
-        return redirect({href: '/cart', locale});
+        return redirect({href: '/carrito', locale});
     }
 
     if (activeOrder.state !== 'AddingItems' && activeOrder.state !== 'ArrangingPayment') {

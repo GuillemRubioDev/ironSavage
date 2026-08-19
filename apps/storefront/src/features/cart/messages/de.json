@@ -8,6 +8,7 @@
     "orderSummary": "Bestellübersicht",
     "subtotal": "Zwischensumme",
     "shipping": "Versand",
+    "tax": "MwSt.",
     "calculatedAtCheckout": "Wird an der Kasse berechnet",
     "total": "Gesamt",
     "proceedToCheckout": "Zur Kasse",
@@ -17,6 +18,8 @@
     "remove": "Entfernen",
     "enterCode": "Code eingeben",
     "apply": "Einlösen",
-    "sku": "Art.-Nr.: {sku}"
+    "sku": "Art.-Nr.: {sku}",
+    "updateError": "Menge konnte nicht aktualisiert werden",
+    "removeError": "Artikel konnte nicht entfernt werden"
   }
 }

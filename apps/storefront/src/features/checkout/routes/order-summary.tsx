@@ -58,7 +58,7 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">{t('subtotal')}</span>
           <span>
-            <Price value={order.subTotalWithTax} currencyCode={order.currencyCode} />
+            <Price value={order.subTotal} currencyCode={order.currencyCode} />
           </span>
         </div>
 
@@ -79,10 +79,21 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
           <span className="text-muted-foreground">{t('shipping')}</span>
           <span>
             {order.shippingWithTax > 0
-              ? <Price value={order.shippingWithTax} currencyCode={order.currencyCode} />
+              ? <Price value={order.shipping} currencyCode={order.currencyCode} />
               : t('toBeCalculated')}
           </span>
         </div>
+
+        {order.taxSummary?.map((tax, index: number) => (
+          <div key={index} className="flex justify-between text-sm">
+            <span className="text-muted-foreground">
+              {t('tax')} ({tax.taxRate}%)
+            </span>
+            <span>
+              <Price value={tax.taxTotal} currencyCode={order.currencyCode} />
+            </span>
+          </div>
+        ))}
       </div>
 
       <Separator />

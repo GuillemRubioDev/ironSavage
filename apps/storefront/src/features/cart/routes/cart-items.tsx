@@ -1,9 +1,8 @@
 import Image from 'next/image';
 import { Link } from '@/platform/i18n/navigation';
 import {Button} from '@/components/ui/button';
-import {Minus, Plus, X} from 'lucide-react';
 import {Price} from '@/features/pricing/price';
-import {removeFromCart, adjustQuantity} from './actions';
+import {QuantityControl} from './quantity-control';
 import {getTranslations} from 'next-intl/server';
 
 type ActiveOrder = {
@@ -87,58 +86,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                         </p>
 
                         <div className="flex items-center gap-3 mt-4">
-                            <div className="flex items-center gap-1 border rounded-full bg-muted/50">
-                                <form
-                                    action={async () => {
-                                        'use server';
-                                        await adjustQuantity(line.id, Math.max(1, line.quantity - 1));
-                                    }}
-                                >
-                                    <Button
-                                        type="submit"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-9 w-9 rounded-full transition-all duration-200 hover:bg-background"
-                                        disabled={line.quantity <= 1}
-                                    >
-                                        <Minus className="h-4 w-4"/>
-                                    </Button>
-                                </form>
-
-                                <span className="w-10 text-center font-semibold tabular-nums transition-all duration-200">{line.quantity}</span>
-
-                                <form
-                                    action={async () => {
-                                        'use server';
-                                        await adjustQuantity(line.id, line.quantity + 1);
-                                    }}
-                                >
-                                    <Button
-                                        type="submit"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-9 w-9 rounded-full transition-all duration-200 hover:bg-background"
-                                    >
-                                        <Plus className="h-4 w-4"/>
-                                    </Button>
-                                </form>
-                            </div>
-
-                            <form
-                                action={async () => {
-                                    'use server';
-                                    await removeFromCart(line.id);
-                                }}
-                            >
-                                <Button
-                                    type="submit"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-9 w-9 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors duration-200"
-                                >
-                                    <X className="h-5 w-5"/>
-                                </Button>
-                            </form>
+                            <QuantityControl lineId={line.id} quantity={line.quantity}/>
 
                             <div className="sm:hidden ml-auto">
                                 <p className="font-semibold text-lg">

@@ -8,6 +8,7 @@
     "orderSummary": "Order Summary",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
+    "tax": "Tax",
     "calculatedAtCheckout": "Calculated at checkout",
     "total": "Total",
     "proceedToCheckout": "Proceed to Checkout",
@@ -17,6 +18,8 @@
     "remove": "Remove",
     "enterCode": "Enter code",
     "apply": "Apply",
-    "sku": "SKU: {sku}"
+    "sku": "SKU: {sku}",
+    "updateError": "Couldn't update quantity",
+    "removeError": "Couldn't remove item"
   }
 }

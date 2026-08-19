@@ -9,8 +9,9 @@ import { Loader2, Truck } from 'lucide-react';
 import { useRouter } from '@/platform/i18n/navigation';
 import { useCheckout } from '../checkout-provider';
 import { setShippingMethod as setShippingMethodAction } from '../actions';
-import {useTranslations, useLocale} from 'next-intl';
-import {toIntlLocale} from '@/platform/i18n/locale-utils';
+import {useTranslations} from 'next-intl';
+import {Price} from '@/features/pricing/price';
+import {toast} from 'sonner';
 
 interface DeliveryStepProps {
   onComplete: () => void;
@@ -18,8 +19,6 @@ interface DeliveryStepProps {
 
 export default function DeliveryStep({ onComplete }: DeliveryStepProps) {
   const t = useTranslations('Checkout');
-  const locale = useLocale();
-  const intlLocale = toIntlLocale(locale);
   const router = useRouter();
   const { shippingMethods, order } = useCheckout();
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(() => {
@@ -40,6 +39,7 @@ export default function DeliveryStep({ onComplete }: DeliveryStepProps) {
       onComplete();
     } catch (error) {
       console.error('Error setting shipping method:', error);
+      toast.error(t('unexpectedError'));
     } finally {
       setSubmitting(false);
     }
@@ -78,10 +78,7 @@ export default function DeliveryStep({ onComplete }: DeliveryStepProps) {
                   <p className="font-semibold">
                     {method.priceWithTax === 0
                       ? t('free')
-                      : (method.priceWithTax / 100).toLocaleString(intlLocale, {
-                          style: 'currency',
-                          currency: 'USD',
-                        })}
+                      : <Price value={method.priceWithTax} currencyCode={order.currencyCode} />}
                   </p>
                 </div>
               </div>

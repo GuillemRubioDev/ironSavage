@@ -16,6 +16,7 @@ import { useCheckout } from '../checkout-provider';
 import { setShippingAddress, createCustomerAddress } from '../actions';
 import { CountrySelect } from '@/components/ui/country-select';
 import {useTranslations} from 'next-intl';
+import {toast} from 'sonner';
 
 interface ShippingAddressStepProps {
   onComplete: () => void;
@@ -107,6 +108,7 @@ export default function ShippingAddressStep({ onComplete }: ShippingAddressStepP
       onComplete();
     } catch (error) {
       console.error('Error setting address:', error);
+      toast.error(t('unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -122,7 +124,9 @@ export default function ShippingAddressStep({ onComplete }: ShippingAddressStepP
       setSelectedAddressId(newAddress.id);
     } catch (error) {
       console.error('Error creating address:', error);
-      alert(`Error creating address: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(t('unexpectedError'), {
+        description: error instanceof Error ? error.message : undefined,
+      });
     } finally {
       setSaving(false);
     }
@@ -136,6 +140,7 @@ export default function ShippingAddressStep({ onComplete }: ShippingAddressStepP
       onComplete();
     } catch (error) {
       console.error('Error setting address:', error);
+      toast.error(t('unexpectedError'));
     } finally {
       setLoading(false);
     }

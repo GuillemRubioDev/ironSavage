@@ -7,6 +7,7 @@ import { useCheckout } from '../checkout-provider';
 import { placeOrder as placeOrderAction } from '../actions';
 import { Price } from '@/features/pricing/price';
 import {useTranslations} from 'next-intl';
+import {toast} from 'sonner';
 
 interface ReviewStepProps {
   onEditStep: (step: 'contact' | 'shipping' | 'delivery' | 'payment') => void;
@@ -32,6 +33,9 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
         throw error;
       }
       console.error('Error placing order:', error);
+      toast.error(t('unexpectedError'), {
+        description: error instanceof Error ? error.message : undefined,
+      });
       setLoading(false);
     }
   };

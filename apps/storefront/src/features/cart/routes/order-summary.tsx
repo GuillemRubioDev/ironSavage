@@ -7,9 +7,15 @@ import {getTranslations} from 'next-intl/server';
 type ActiveOrder = {
     id: string;
     currencyCode: string;
-    subTotalWithTax: number;
+    subTotal: number;
+    shipping: number;
     shippingWithTax: number;
     totalWithTax: number;
+    taxSummary: Array<{
+        description: string;
+        taxRate: number;
+        taxTotal: number;
+    }>;
     discounts?: Array<{
         description: string;
         amountWithTax: number;
@@ -26,7 +32,7 @@ export async function OrderSummary({activeOrder}: { activeOrder: ActiveOrder }) 
                 <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t('subtotal')}</span>
                     <span>
-                        <Price value={activeOrder.subTotalWithTax} currencyCode={activeOrder.currencyCode}/>
+                        <Price value={activeOrder.subTotal} currencyCode={activeOrder.currencyCode}/>
                     </span>
                 </div>
                 {activeOrder.discounts && activeOrder.discounts.length > 0 && (
@@ -45,10 +51,18 @@ export async function OrderSummary({activeOrder}: { activeOrder: ActiveOrder }) 
                     <span className="text-muted-foreground">{t('shipping')}</span>
                     <span>
                         {activeOrder.shippingWithTax > 0
-                            ? <Price value={activeOrder.shippingWithTax} currencyCode={activeOrder.currencyCode}/>
+                            ? <Price value={activeOrder.shipping} currencyCode={activeOrder.currencyCode}/>
                             : t('calculatedAtCheckout')}
                     </span>
                 </div>
+                {activeOrder.taxSummary?.map((tax, index) => (
+                    <div key={index} className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">{t('tax')} ({tax.taxRate}%)</span>
+                        <span>
+                            <Price value={tax.taxTotal} currencyCode={activeOrder.currencyCode}/>
+                        </span>
+                    </div>
+                ))}
             </div>
 
             <div className="border-t pt-4 mb-6">
