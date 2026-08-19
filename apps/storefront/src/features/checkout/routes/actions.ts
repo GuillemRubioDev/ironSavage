@@ -85,9 +85,17 @@ export async function transitionToArrangingPayment() {
 
     if (result.data.transitionOrderToState?.__typename === 'OrderStateTransitionError') {
         const errorResult = result.data.transitionOrderToState;
-        throw new Error(
-            `Failed to transition order state: ${errorResult.errorCode} - ${errorResult.message}`
-        );
+        // A retry (e.g. the customer went back after a declined/cancelled Redsys
+        // attempt, or double-clicked) finds the order already in ArrangingPayment.
+        // Vendure's state machine rejects a state->itself "transition", but that's
+        // exactly the state this function is trying to ensure — treat it as success
+        // rather than surfacing a spurious error.
+        const alreadyThere = errorResult.fromState === 'ArrangingPayment' && errorResult.toState === 'ArrangingPayment';
+        if (!alreadyThere) {
+            throw new Error(
+                `Failed to transition order state: ${errorResult.errorCode} - ${errorResult.message}`
+            );
+        }
     }
 
     const locale = await getLocale();
