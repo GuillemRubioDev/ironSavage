@@ -14,6 +14,7 @@ import { RedsysPlugin } from './plugins/redsys-payment/redsys-payment.plugin';
 import { LoyaltyPlugin } from './plugins/loyalty/loyalty.plugin';
 import { InvoicingPlugin } from './plugins/invoicing/invoicing.plugin';
 import { ReviewsPlugin } from './plugins/reviews/reviews.plugin';
+import { ContentPlugin, contentPermission } from './plugins/content/content.plugin';
 import 'dotenv/config';
 import path from 'path';
 
@@ -45,6 +46,7 @@ export const config: VendureConfig = {
         cookieOptions: {
           secret: process.env.COOKIE_SECRET,
         },
+        customPermissions: [contentPermission],
     },
     dbConnectionOptions: {
         type: 'postgres',
@@ -142,5 +144,6 @@ export const config: VendureConfig = {
             storePhone: process.env.INVOICE_STORE_PHONE,
         }),
         ReviewsPlugin,
+        ContentPlugin,
     ],
 };

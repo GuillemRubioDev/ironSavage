@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import { Link, useRouter } from '@/platform/i18n/navigation';
-import {Menu, Search, ShoppingBag, User, Package, MapPin, FileText, Star} from 'lucide-react';
+import {Menu, Search, ShoppingBag, User, Package, MapPin, FileText, Star, Newspaper} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {
@@ -80,6 +80,23 @@ export function MobileNav({collections}: MobileNavProps) {
                         >
                             <ShoppingBag className="h-5 w-5" />
                             {t('shopAll')}
+                        </SheetClose>
+                    </div>
+
+                    {/* News */}
+                    <div>
+                        <SheetClose
+                            render={
+                                <Link
+                                    href="/noticias"
+                                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                                />
+                            }
+                            nativeButton={false}
+                            onClick={handleLinkClick}
+                        >
+                            <Newspaper className="h-5 w-5" />
+                            {t('news')}
                         </SheetClose>
                     </div>
 

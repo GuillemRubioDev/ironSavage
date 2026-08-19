@@ -3,6 +3,7 @@ import {Suspense} from "react";
 import {getRouteLocale} from "@/platform/i18n/server";
 import {HeroSection} from "@/site/home/hero-section";
 import {FeaturedProducts} from '@/features/products/featured-products';
+import {LatestNewsSection} from '@/features/news/components/latest-news-section';
 import {SITE_NAME, buildCanonicalUrl, localizedPath} from "@/config/metadata";
 import {BadgeCheck, Tag, Zap} from "lucide-react";
 import {getTranslations} from 'next-intl/server';
@@ -51,6 +52,10 @@ export default async function Home() {
             <HeroSection/>
             <Suspense>
                 <FeaturedProducts/>
+            </Suspense>
+
+            <Suspense>
+                <LatestNewsSection/>
             </Suspense>
 
             <section className="py-16 md:py-24 bg-muted/30">

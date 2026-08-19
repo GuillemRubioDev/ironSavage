@@ -1,0 +1,12 @@
+{
+  "News": {
+    "pageTitle": "Neuigkeiten",
+    "metaDescription": "Die neuesten Neuigkeiten von {siteName}.",
+    "homeTitle": "Neuste Beitrage",
+    "viewAll": "Alle Neuigkeiten ansehen",
+    "noArticles": "Noch keine Neuigkeiten — schauen Sie bald wieder vorbei.",
+    "readMore": "Weiterlesen",
+    "backToNews": "Zuruck zu den Neuigkeiten",
+    "notFound": "Artikel nicht gefunden"
+  }
+}

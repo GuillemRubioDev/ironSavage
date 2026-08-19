@@ -7,6 +7,7 @@ import {
     NavigationMenuItem,
 } from '@/components/ui/navigation-menu';
 import {NavbarLink} from '@/site/navigation/navbar/navbar-link';
+import {getTranslations} from 'next-intl/server';
 
 export async function NavbarCollections() {
     "use cache";
@@ -15,7 +16,10 @@ export async function NavbarCollections() {
     const locale = await getRouteLocale();
     cacheTag(`navbar-collections-${locale}`);
 
-    const collections = await getTopCollections(locale);
+    const [collections, t] = await Promise.all([
+        getTopCollections(locale),
+        getTranslations({locale, namespace: 'Navigation'}),
+    ]);
 
     return (
         <NavigationMenu>
@@ -27,6 +31,9 @@ export async function NavbarCollections() {
                         </NavbarLink>
                     </NavigationMenuItem>
                 ))}
+                <NavigationMenuItem>
+                    <NavbarLink href="/noticias">{t('news')}</NavbarLink>
+                </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>
     );
