@@ -16,13 +16,17 @@ import { ReviewsPlugin } from './plugins/reviews/reviews.plugin';
 import { ContentPlugin, contentPermission } from './plugins/content/content.plugin';
 import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
+import { getAssetUrlPrefix, getCorsOrigin, runProductionSafetyChecks } from './production-safety';
+import { getAppEnv, includeDummyPaymentHandler } from './app-environment';
 import 'dotenv/config';
 import path from 'path';
 
-const IS_DEV = process.env.APP_ENV === 'dev';
+const IS_DEV = getAppEnv() === 'dev';
 // PORT wins because hosting platforms inject it into the environment at runtime, and that
 // must take precedence over any value baked into the .env file at scaffold time.
 const serverPort = +process.env.PORT || +process.env.VENDURE_SERVER_PORT || 3000;
+
+runProductionSafetyChecks(IS_DEV);
 
 export const config: VendureConfig = {
     apiOptions: {
@@ -30,6 +34,14 @@ export const config: VendureConfig = {
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
         trustProxy: IS_DEV ? false : 1,
+        // Vendure's own default (`{origin: true, credentials: true}`) reflects
+        // any request Origin while allowing cookies — fine in dev, but in
+        // production that would let any website make credentialed requests
+        // against a signed-in session. See production-safety.ts.
+        cors: {
+            origin: getCorsOrigin(IS_DEV),
+            credentials: true,
+        },
         // The following options are useful in development mode,
         // but are best turned off for production for security
         // reasons.
@@ -64,10 +76,14 @@ export const config: VendureConfig = {
         password: process.env.DB_PASSWORD,
     },
     paymentOptions: {
-        // The dummy handler is only wired up in dev, so nothing simulates a
-        // successful card payment without a gateway in production. RedsysPlugin
-        // registers its own handler via its `configuration` hook below.
-        paymentMethodHandlers: IS_DEV ? [dummyPaymentHandler] : [],
+        // The dummy handler is wired up in dev/test, so nothing simulates a
+        // successful card payment without a gateway in production. seed.ts
+        // only creates a PaymentMethod referencing this handler under the
+        // same condition (see environment.ts) — the two must stay in sync,
+        // or a seeded PaymentMethod row could reference an unregistered
+        // handler. RedsysPlugin registers its own handler via its
+        // `configuration` hook below, unconditionally.
+        paymentMethodHandlers: includeDummyPaymentHandler() ? [dummyPaymentHandler] : [],
     },
     // When adding or altering custom field definitions, the database will
     // need to be updated. See the "Migrations" section in README.md.
@@ -97,15 +113,19 @@ export const config: VendureConfig = {
         ],
     },
     plugins: [
-        GraphiqlPlugin.init(),
+        // Interactive GraphQL IDE for both APIs — dev-only. Auth is still
+        // required for anything sensitive, but there's no reason to expose
+        // the schema-exploration tooling itself in production.
+        ...(IS_DEV ? [GraphiqlPlugin.init()] : []),
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
             namingStrategy: new PosixAssetNamingStrategy(),
-            // For local dev, the correct value for assetUrlPrefix should
-            // be guessed correctly, but for production it will usually need
-            // to be set manually to match your production url.
-            assetUrlPrefix: IS_DEV ? undefined : 'https://www.my-shop.com/assets/',
+            // In dev, letting Vendure guess this from the request works fine.
+            // In production it must be set explicitly via ASSET_URL_PREFIX —
+            // see production-safety.ts for why this used to be a hardcoded
+            // placeholder domain here.
+            assetUrlPrefix: getAssetUrlPrefix(IS_DEV),
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),

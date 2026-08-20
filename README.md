@@ -48,6 +48,30 @@ Use these credentials to log in to the Vendure Dashboard:
 - **Username**: superadmin
 - **Password**: superadmin
 
+## Database Setup
+
+A brand new environment needs three steps, in order, before the store can process a checkout:
+
+```bash
+cd apps/server
+npx vendure migrate --run  # create the schema
+npm run seed                # create the minimum commercial configuration
+npm run dev:server          # or build + start, for production
+```
+
+`npm run seed` reproducibly creates the commercial configuration a clean
+install needs — country Spain (ES), a "Spain" zone, the default channel set
+to EUR + that zone, a "Standard" 21% tax rate, the `standard-shipping`
+method, and the `redsys` payment method (plus a `standard-payment` dummy
+method outside `APP_ENV=production`, for testing without a real gateway). It
+never creates products, customers, orders, or any Redsys credentials — those
+still come from `.env` (see `.env.example`) at request time, never from the
+seed.
+
+Safe to run more than once: every step checks for the existing row first
+(by country code, zone name, tax category name, method code) and reuses or
+updates it in place instead of duplicating it.
+
 ## Production Build
 
 Build all packages:

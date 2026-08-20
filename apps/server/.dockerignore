@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.*
+!.env.example
+static/assets
+static/email/test-emails
+static/invoices
+static/transactional-emails
+.vendure/
+*.log
+.git
