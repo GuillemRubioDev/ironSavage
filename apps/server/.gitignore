@@ -4,4 +4,5 @@ admin-ui
 static/assets
 static/email/test-emails
 static/invoices
+static/transactional-emails
 .vendure/

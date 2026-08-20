@@ -6,7 +6,6 @@ import {
     LanguageCode,
     VendureConfig,
 } from '@vendure/core';
-import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AssetServerPlugin } from '@vendure/asset-server-plugin';
 import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
@@ -15,6 +14,7 @@ import { LoyaltyPlugin } from './plugins/loyalty/loyalty.plugin';
 import { InvoicingPlugin } from './plugins/invoicing/invoicing.plugin';
 import { ReviewsPlugin } from './plugins/reviews/reviews.plugin';
 import { ContentPlugin, contentPermission } from './plugins/content/content.plugin';
+import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
 import 'dotenv/config';
 import path from 'path';
@@ -110,21 +110,6 @@ export const config: VendureConfig = {
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
-        EmailPlugin.init({
-            devMode: true,
-            outputPath: path.join(__dirname, '../static/email/test-emails'),
-            route: 'mailbox',
-            handlers: defaultEmailHandlers,
-            templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
-            globalTemplateVars: {
-                // The following variables will change depending on your storefront implementation.
-                // Here we are assuming a storefront running at http://localhost:8080.
-                fromAddress: '"example" <noreply@example.com>',
-                verifyEmailAddressUrl: 'http://localhost:8080/verify',
-                passwordResetUrl: 'http://localhost:8080/password-reset',
-                changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
-            },
-        }),
         DashboardPlugin.init({
             route: 'dashboard',
             appDir: IS_DEV
@@ -145,6 +130,7 @@ export const config: VendureConfig = {
             storeEmail: process.env.INVOICE_STORE_EMAIL,
             storePhone: process.env.INVOICE_STORE_PHONE,
         }),
+        TransactionalEmailPlugin,
         ReviewsPlugin,
         ContentPlugin,
     ],

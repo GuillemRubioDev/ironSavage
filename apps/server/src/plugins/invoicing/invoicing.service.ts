@@ -164,19 +164,6 @@ export class InvoicingService {
         return absolutePath;
     }
 
-    /**
-     * Prepared for a future email-sending phase — deliberately not wired to any
-     * provider yet (no SMTP/API integration), and not exposed via the GraphQL
-     * API. Wiring this up (and deciding whether it should also fire
-     * automatically after `generateForOrder`) is left for that phase.
-     */
-    async sendInvoiceByEmail(ctx: RequestContext, invoice: Invoice): Promise<void> {
-        Logger.info(
-            `[not yet implemented] Would email invoice ${invoice.series}-${invoice.number} to ${invoice.customerSnapshot.emailAddress}`,
-            loggerCtx,
-        );
-    }
-
     private buildCustomerSnapshot(order: Order): CustomerSnapshot {
         const customer = order.customer;
         return {

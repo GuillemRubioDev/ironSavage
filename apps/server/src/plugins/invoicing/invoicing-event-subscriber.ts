@@ -2,6 +2,7 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { EventBus, Logger, OrderService, OrderStateTransitionEvent } from '@vendure/core';
 
 import { loggerCtx } from './constants';
+import { InvoiceGeneratedEvent } from './invoice-generated-event';
 import { InvoicingService } from './invoicing.service';
 
 /**
@@ -40,6 +41,13 @@ export class InvoicingEventSubscriber implements OnApplicationBootstrap {
         if (!order) {
             return;
         }
-        await this.invoicingService.generateForOrder(event.ctx, order);
+        const result = await this.invoicingService.generateForOrder(event.ctx, order);
+        if (result.created) {
+            const [lines, pdfPath] = await Promise.all([
+                this.invoicingService.getLines(event.ctx, result.invoice.id),
+                this.invoicingService.ensurePdfFile(event.ctx, result.invoice),
+            ]);
+            this.eventBus.publish(new InvoiceGeneratedEvent(event.ctx, result.invoice, lines, pdfPath));
+        }
     }
 }
