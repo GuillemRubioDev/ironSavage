@@ -13,6 +13,7 @@
     "sku": "SKU: {sku}",
     "from": "From",
     "noImage": "No image",
+    "noImagesAvailable": "No images available",
     "featuredProducts": "Featured Products",
     "relatedProducts": "Related Products",
     "viewAllProducts": "View All Products",

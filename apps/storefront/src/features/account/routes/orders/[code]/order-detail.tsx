@@ -63,7 +63,7 @@ export function OrderDetail({orderPromise}: OrderDetailProps) {
                             <div className="space-y-4">
                                 {order.lines.map((line: OrderLineItem) => (
                                     <div key={line.id} className="flex gap-4">
-                                        <div className="relative h-20 w-20 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                                        <div className="relative h-20 w-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
                                             {line.productVariant.product.featuredAsset && (
                                                 <Image
                                                     src={line.productVariant.product.featuredAsset.preview}
@@ -118,7 +118,7 @@ export function OrderDetail({orderPromise}: OrderDetailProps) {
                                 {order.discounts?.length > 0 && order.discounts.map((discount: OrderDiscount, idx: number) => (
                                     <div key={idx} className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">{discount.description}</span>
-                                        <span className="text-green-600">
+                                        <span className="text-primary font-medium">
                                             -<Price value={discount.amountWithTax} currencyCode={order.currencyCode}/>
                                         </span>
                                     </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 
 interface ProductImageCarouselProps {
@@ -14,12 +15,13 @@ interface ProductImageCarouselProps {
 }
 
 export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
+    const t = useTranslations('Product');
     const [currentIndex, setCurrentIndex] = useState(0);
 
     if (!images || images.length === 0) {
         return (
             <div className="aspect-square bg-muted rounded-xl flex items-center justify-center">
-                <span className="text-muted-foreground">No images available</span>
+                <span className="text-muted-foreground">{t('noImagesAvailable')}</span>
             </div>
         );
     }

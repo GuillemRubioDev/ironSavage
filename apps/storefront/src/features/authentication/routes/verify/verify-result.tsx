@@ -23,7 +23,7 @@ export function VerifyResult({result}: VerifyResultProps) {
                 {isSuccess ? (
                     <>
                         <div className="flex justify-center">
-                            <CheckCircle className="h-16 w-16 text-green-600"/>
+                            <CheckCircle className="h-16 w-16 text-success"/>
                         </div>
                         <div className="space-y-2 text-center">
                             <h1 className="text-2xl font-bold">{t('accountVerified')}</h1>

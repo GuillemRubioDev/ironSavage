@@ -1,0 +1,26 @@
+{
+  "NotFound": {
+    "title": "Página no encontrada",
+    "message": "La página que buscas no existe, se ha movido o no está disponible temporalmente.",
+    "goHome": "Ir al inicio",
+    "browseProducts": "Ver productos",
+    "popularCollections": "Categorías populares"
+  },
+  "Footer": {
+    "description": "Suplementación deportiva premium para atletas que entrenan duro y se recuperan más duro todavía.",
+    "categories": "Categorías",
+    "customer": "Cliente",
+    "shopAll": "Ver todo",
+    "orders": "Pedidos",
+    "account": "Cuenta",
+    "points": "Mis puntos",
+    "legal": "Legal",
+    "legalNotice": "Aviso legal",
+    "privacyPolicy": "Política de privacidad",
+    "cookiePolicy": "Política de cookies",
+    "termsAndConditions": "Términos y condiciones",
+    "shippingReturns": "Envíos y devoluciones",
+    "cookieSettings": "Configurar cookies",
+    "copyright": "Iron Savage. Todos los derechos reservados."
+  }
+}

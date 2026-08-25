@@ -17,7 +17,7 @@ const navItems = [
 
 export default async function AccountLayout({children}: LayoutProps<'/[locale]/mi-cuenta'>) {
     return (
-        <div className="container mx-auto px-4 py-30">
+        <div className="container mx-auto px-4 py-8">
             {/* Mobile: horizontal tab bar */}
             <div className="md:hidden mb-6">
                 <Suspense>

@@ -1,8 +1,9 @@
 import {getRouteLocale} from '@/platform/i18n/server';
 import {cacheLife, cacheTag} from 'next/cache';
 import {getTopCollections} from '@/features/collections/data';
-import Image from "next/image";
 import {NavigationLink} from '@/site/navigation/navigation-link';
+import {Logo} from '@/site/brand/logo';
+import {CookieSettingsLink} from '@/site/cookie-consent/cookie-settings-link';
 import {getTranslations} from 'next-intl/server';
 
 
@@ -33,12 +34,12 @@ export async function Footer() {
     const collections = await getTopCollections(locale);
 
     return (
-        <footer className="border-t border-border mt-auto">
+        <footer className="border-t border-border mt-auto bg-card">
             <div className="container mx-auto px-4 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="md:col-span-1">
                         <NavigationLink href="/" className="inline-block mb-4">
-                            <Image src="/vendure.svg" alt="Vendure" width={40} height={27} className="h-6 w-auto dark:invert" />
+                            <Logo variant="full" className="h-24" />
                         </NavigationLink>
                         <p className="text-sm text-muted-foreground text-balance leading-relaxed">
                             {t('description')}
@@ -46,7 +47,7 @@ export async function Footer() {
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-4">{t('categories')}</p>
+                        <p className="text-sm font-display font-semibold uppercase tracking-tight mb-4">{t('categories')}</p>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             {collections.map((collection) => (
                                 <li key={collection.id}>
@@ -62,7 +63,7 @@ export async function Footer() {
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-4">{t('customer')}</p>
+                        <p className="text-sm font-display font-semibold uppercase tracking-tight mb-4">{t('customer')}</p>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>
                                 <NavigationLink
@@ -82,6 +83,14 @@ export async function Footer() {
                             </li>
                             <li>
                                 <NavigationLink
+                                    href="/mi-cuenta/puntos"
+                                    className="hover:text-foreground transition-colors"
+                                >
+                                    {t('points')}
+                                </NavigationLink>
+                            </li>
+                            <li>
+                                <NavigationLink
                                     href="/mi-cuenta/profile"
                                     className="hover:text-foreground transition-colors"
                                 >
@@ -92,37 +101,35 @@ export async function Footer() {
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-4">{t('vendure')}</p>
+                        <p className="text-sm font-display font-semibold uppercase tracking-tight mb-4">{t('legal')}</p>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>
-                                <a
-                                    href="https://github.com/vendure-ecommerce"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="hover:text-foreground transition-colors"
-                                >
-                                    {t('github')}
-                                </a>
+                                <NavigationLink href="/aviso-legal" className="hover:text-foreground transition-colors">
+                                    {t('legalNotice')}
+                                </NavigationLink>
                             </li>
                             <li>
-                                <a
-                                    href="https://docs.vendure.io"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="hover:text-foreground transition-colors"
-                                >
-                                    {t('documentation')}
-                                </a>
+                                <NavigationLink href="/politica-de-privacidad" className="hover:text-foreground transition-colors">
+                                    {t('privacyPolicy')}
+                                </NavigationLink>
                             </li>
                             <li>
-                                <a
-                                    href="https://github.com/vendure-ecommerce/vendure"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="hover:text-foreground transition-colors"
-                                >
-                                    {t('sourceCode')}
-                                </a>
+                                <NavigationLink href="/politica-de-cookies" className="hover:text-foreground transition-colors">
+                                    {t('cookiePolicy')}
+                                </NavigationLink>
+                            </li>
+                            <li>
+                                <NavigationLink href="/terminos-y-condiciones" className="hover:text-foreground transition-colors">
+                                    {t('termsAndConditions')}
+                                </NavigationLink>
+                            </li>
+                            <li>
+                                <NavigationLink href="/envios-y-devoluciones" className="hover:text-foreground transition-colors">
+                                    {t('shippingReturns')}
+                                </NavigationLink>
+                            </li>
+                            <li>
+                                <CookieSettingsLink className="hover:text-foreground transition-colors text-left" />
                             </li>
                         </ul>
                     </div>
@@ -132,26 +139,6 @@ export async function Footer() {
                 <div
                     className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
                     <Copyright/>
-                    <div className="flex items-center gap-2">
-                        <span>{t('poweredBy')}</span>
-                        <a
-                            href="https://vendure.io"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-foreground transition-colors"
-                        >
-                            <Image src="/vendure.svg" alt="Vendure" width={40} height={27} className="h-4 w-auto dark:invert" />
-                        </a>
-                        <span>&</span>
-                        <a
-                            href="https://nextjs.org"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-foreground transition-colors"
-                        >
-                            <Image src="/next.svg" alt="Next.js" width={16} height={16} className="h-5 w-auto dark:invert" />
-                        </a>
-                    </div>
                 </div>
             </div>
         </footer>

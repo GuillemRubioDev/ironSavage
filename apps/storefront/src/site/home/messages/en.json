@@ -1,29 +1,49 @@
 {
   "Hero": {
-    "title": "Discover Quality",
-    "titleHighlight": "Products",
-    "subtitle": "Premium products, exceptional prices. Free shipping on orders over $50.",
+    "title": "Train",
+    "titleHighlight": "Savage",
+    "subtitle": "Premium sports supplementation for athletes who train hard and recover harder.",
     "shopNow": "Shop Now",
     "viewCollections": "View Collections"
   },
   "Home": {
-    "pageTitle": "Your One-Stop Shop",
-    "description": "Discover high-quality products at competitive prices. Shop now for the best deals on electronics, fashion, home goods, and more.",
-    "ogDescription": "Discover high-quality products at competitive prices. Shop now for the best deals.",
-    "whyShopWithUs": "Why Shop With Us",
+    "pageTitle": "Premium Sports Supplements",
+    "description": "Iron Savage: premium sports supplementation for athletes who train hard. Protein, creatine, pre-workout and recovery, backed by real quality.",
+    "ogDescription": "Premium sports supplementation for athletes who train hard and recover harder.",
+    "whyShopWithUs": "Why Train With Iron Savage",
     "features": {
       "highQuality": {
-        "title": "High Quality",
-        "description": "Premium products carefully selected for you"
+        "title": "Rigorous Quality",
+        "description": "Every batch selected for purity and performance — no shortcuts."
       },
       "bestPrices": {
-        "title": "Best Prices",
-        "description": "Competitive pricing on all our products"
+        "title": "Fair Prices",
+        "description": "Premium supplementation without the premium markup."
       },
       "fastDelivery": {
         "title": "Fast Delivery",
-        "description": "Quick and reliable shipping worldwide"
+        "description": "Your order shipped quickly, so your training never waits."
       }
+    },
+    "categories": {
+      "title": "Shop by Category"
+    },
+    "carousel": {
+      "regionLabel": "Promotional carousel",
+      "goToSlide": "Go to slide {number}",
+      "pause": "Pause carousel",
+      "play": "Play carousel",
+      "previous": "Previous slide",
+      "next": "Next slide"
+    },
+    "loyalty": {
+      "title": "Iron Rewards",
+      "description": "Earn points on every order and redeem them for discounts on your next one.",
+      "balanceLabel": "Your balance",
+      "pointsSuffix": "pts",
+      "cta": "View my points",
+      "signedOutCta": "Sign in to start earning",
+      "guestDescription": "Create an account to start earning points on every order."
     }
   }
 }

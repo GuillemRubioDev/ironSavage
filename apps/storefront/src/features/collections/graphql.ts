@@ -8,6 +8,24 @@ export const GetTopCollectionsQuery = graphql(`
                 id
                 name
                 slug
+                featuredAsset {
+                    preview
+                }
+            }
+        }
+    }
+`);
+
+// Lean fallback query for CategoriesShowcase: only the fields needed to pick
+// a representative product image for a collection that has no featuredAsset
+// of its own — deliberately not the full ProductCard fragment.
+export const GetCollectionFallbackImagesQuery = graphql(`
+    query GetCollectionFallbackImages($input: SearchInput!) {
+        search(input: $input) {
+            items {
+                productAsset {
+                    preview
+                }
             }
         }
     }

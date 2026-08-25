@@ -17,6 +17,12 @@
     "greeting": "Hi, {name}",
     "shoppingCart": "Shopping Cart",
     "switchLanguage": "Switch language",
-    "switchCurrency": "Switch currency"
+    "switchCurrency": "Switch currency",
+    "theme": {
+      "toggle": "Toggle theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
   }
 }

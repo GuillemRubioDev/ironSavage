@@ -36,9 +36,9 @@ export function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
                     <div className="space-y-2">
                         {activeOrder.couponCodes.map((code) => (
                             <div key={code}
-                                 className="flex items-center justify-between p-3 border rounded-md bg-green-50 dark:bg-green-950/20">
+                                 className="flex items-center justify-between p-3 border border-primary/20 rounded-md bg-primary/5">
                                 <div className="flex items-center gap-2">
-                                    <Tag className="h-4 w-4 text-green-600"/>
+                                    <Tag className="h-4 w-4 text-primary"/>
                                     <span className="font-medium text-sm">{code}</span>
                                 </div>
                                 <form action={removePromotionCode}>

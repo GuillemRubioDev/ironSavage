@@ -1,0 +1,28 @@
+{
+  "Navigation": {
+    "openMenu": "Abrir menú",
+    "menu": "Menú",
+    "searchProducts": "Buscar productos...",
+    "shopAll": "Ver todo",
+    "collections": "Categorías",
+    "news": "Noticias",
+    "account": "Cuenta",
+    "profile": "Perfil",
+    "orders": "Pedidos",
+    "invoices": "Facturas",
+    "points": "Puntos",
+    "addresses": "Direcciones",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "greeting": "Hola, {name}",
+    "shoppingCart": "Carrito de la compra",
+    "switchLanguage": "Cambiar idioma",
+    "switchCurrency": "Cambiar moneda",
+    "theme": {
+      "toggle": "Cambiar tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    }
+  }
+}

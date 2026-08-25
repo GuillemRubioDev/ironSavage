@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ForgotPasswordPage() {
     return (
-        <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
+        <div className="min-h-[calc(100vh-var(--header-offset))] flex items-center justify-center px-4">
             <div className="w-full max-w-md">
                 <ForgotPasswordForm />
             </div>

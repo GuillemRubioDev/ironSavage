@@ -17,6 +17,8 @@ import {
 import {homeMessageLoaders} from '@/site/home/messages';
 import {navigationMessageLoaders} from '@/site/navigation/messages';
 import {siteMessageLoaders} from '@/site/messages';
+import {cookieConsentMessageLoaders} from '@/site/cookie-consent/messages';
+import {legalMessageLoaders} from '@/site/legal/messages';
 
 const registrations: MessageLoaders[] = [
     accountMessageLoaders,
@@ -33,6 +35,8 @@ const registrations: MessageLoaders[] = [
     homeMessageLoaders,
     navigationMessageLoaders,
     siteMessageLoaders,
+    cookieConsentMessageLoaders,
+    legalMessageLoaders,
 ];
 
 const loaders: Record<string, MessageLoader[]> = {};

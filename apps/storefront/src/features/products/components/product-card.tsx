@@ -42,7 +42,7 @@ export function ProductCard({product: productProp, categoryName}: ProductCardPro
             </div>
             <div className="p-4 space-y-2">
                 {categoryName && (
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <p className="text-xs font-display font-medium uppercase tracking-wide text-muted-foreground">
                         {categoryName}
                     </p>
                 )}

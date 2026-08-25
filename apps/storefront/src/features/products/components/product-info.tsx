@@ -141,8 +141,8 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
             {selectedVariant && (
                 <div className="text-sm">
                     {isInStock ? (
-                        <span className="inline-flex items-center gap-1.5 text-green-600 font-medium">
-                            <span className="h-2 w-2 rounded-full bg-green-600" />
+                        <span className="inline-flex items-center gap-1.5 text-success font-medium">
+                            <span className="h-2 w-2 rounded-full bg-success" />
                             {t('inStock')}
                         </span>
                     ) : (

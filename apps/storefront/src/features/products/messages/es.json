@@ -1,0 +1,53 @@
+{
+  "Product": {
+    "inStock": "En stock",
+    "outOfStock": "Agotado",
+    "addToCart": "Añadir al carrito",
+    "addedToCart": "Añadido al carrito",
+    "adding": "Añadiendo...",
+    "selectOptions": "Selecciona opciones",
+    "addedToCartMessage": "Añadido al carrito",
+    "addedToCartDescription": "{name} se ha añadido a tu carrito",
+    "errorTitle": "Error",
+    "errorAddToCart": "No se ha podido añadir el artículo al carrito",
+    "sku": "SKU: {sku}",
+    "from": "Desde",
+    "noImage": "Sin imagen",
+    "noImagesAvailable": "No hay imágenes disponibles",
+    "featuredProducts": "Productos destacados",
+    "relatedProducts": "Productos relacionados",
+    "viewAllProducts": "Ver todos los productos",
+    "allProducts": "Todos los productos",
+    "allProductsDescription": "Explora nuestro catálogo completo en {siteName}",
+    "notFound": "Producto no encontrado",
+    "home": "Inicio",
+    "noProductsFound": "No se han encontrado productos",
+    "shopProductAt": "Compra {name} en {siteName}",
+    "productCount": "{count, plural, one {# producto} other {# productos}}",
+    "trustBadges": {
+      "fastShipping": "Envío rápido",
+      "freeReturns": "Devoluciones gratuitas",
+      "secureCheckout": "Pago seguro",
+      "guarantee": "Garantía de 30 días"
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "shipping": {
+        "question": "¿Qué opciones de envío tenéis?",
+        "answer": "Ofrecemos envío estándar (5-7 días laborables), envío exprés (2-3 días laborables) y entrega al día siguiente en zonas seleccionadas. El envío estándar es gratuito en pedidos superiores a 50 €."
+      },
+      "returns": {
+        "question": "¿Cuál es vuestra política de devoluciones?",
+        "answer": "Aceptamos devoluciones dentro de los 30 días posteriores a la compra. Los artículos deben estar sin usar y en su embalaje original. Contacta con nuestro equipo de soporte para iniciar una devolución y recibir una etiqueta de envío prepagada."
+      },
+      "tracking": {
+        "question": "¿Cómo puedo hacer seguimiento de mi pedido?",
+        "answer": "En cuanto se envíe tu pedido, recibirás un correo con un número de seguimiento. También puedes consultar el estado de tu pedido en cualquier momento iniciando sesión en tu cuenta y visitando el historial de pedidos."
+      },
+      "international": {
+        "question": "¿Hacéis envíos internacionales?",
+        "answer": "¡Sí! Enviamos a más de 50 países. Las tarifas y plazos de envío internacional varían según la ubicación. Podrás ver el coste exacto en el checkout antes de completar tu compra."
+      }
+    }
+  }
+}

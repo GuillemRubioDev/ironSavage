@@ -1,0 +1,29 @@
+{
+  "Cart": {
+    "title": "Carrito",
+    "empty": "Tu carrito está vacío",
+    "emptyMessage": "Añade artículos a tu carrito para empezar",
+    "continueShopping": "Seguir comprando",
+    "each": "cada uno",
+    "orderSummary": "Resumen del pedido",
+    "subtotal": "Subtotal",
+    "shipping": "Envío",
+    "tax": "Impuestos",
+    "calculatedAtCheckout": "Se calcula en el checkout",
+    "total": "Total",
+    "proceedToCheckout": "Finalizar compra",
+    "secureCheckout": "Pago seguro",
+    "promotionCode": "Código promocional",
+    "enterDiscountCode": "Introduce tu código de descuento",
+    "remove": "Eliminar",
+    "enterCode": "Introducir código",
+    "apply": "Aplicar",
+    "applying": "Aplicando...",
+    "couponInvalid": "Este código no es válido",
+    "couponExpired": "Este código ha caducado",
+    "couponLimitReached": "Este código ha alcanzado su límite de uso",
+    "sku": "SKU: {sku}",
+    "updateError": "No se ha podido actualizar la cantidad",
+    "removeError": "No se ha podido eliminar el artículo"
+  }
+}

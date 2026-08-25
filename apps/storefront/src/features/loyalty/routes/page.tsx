@@ -93,7 +93,7 @@ export default async function PointsPage() {
 
             {history.length === 0 ? (
                 <div className="text-center py-12">
-                    <p className="text-gray-500">{t('noPointsHistory')}</p>
+                    <p className="text-muted-foreground">{t('noPointsHistory')}</p>
                 </div>
             ) : (
                 <>
@@ -103,7 +103,7 @@ export default async function PointsPage() {
                             <div key={tx.id} className="border rounded-xl p-4 bg-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <Badge variant="secondary">{t(typeLabelKey(tx.type))}</Badge>
-                                    <span className={`font-semibold ${tx.points >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                                    <span className={`font-semibold ${tx.points >= 0 ? 'text-primary' : 'text-destructive'}`}>
                                         {tx.points >= 0 ? '+' : ''}{tx.points}
                                     </span>
                                 </div>
@@ -132,7 +132,7 @@ export default async function PointsPage() {
                                             <Badge variant="secondary">{t(typeLabelKey(tx.type))}</Badge>
                                         </TableCell>
                                         <TableCell className="text-muted-foreground">{tx.description}</TableCell>
-                                        <TableCell className={`text-right font-medium ${tx.points >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                                        <TableCell className={`text-right font-medium ${tx.points >= 0 ? 'text-primary' : 'text-destructive'}`}>
                                             {tx.points >= 0 ? '+' : ''}{tx.points}
                                         </TableCell>
                                     </TableRow>

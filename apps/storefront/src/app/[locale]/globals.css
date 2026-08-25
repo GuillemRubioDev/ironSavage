@@ -4,10 +4,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Iron Savage design tokens.
+ *
+ * Palette intent: deep black / graphite / white / metallic grays as the
+ * neutral base, with one intense red reserved for CTAs, promotions,
+ * highlights and active/price states — NOT a general decoration color.
+ * `--primary` carries that red because it's what drives buttons/links/CTAs
+ * throughout the existing component set; `--accent` (hover surfaces in
+ * menus/dropdowns, which fire constantly) stays a neutral metallic gray so
+ * the UI doesn't turn red on every hover.
+ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-oswald);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -38,6 +50,13 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Semantic status colors — used for stock/discount/success states and
+     loyalty deltas instead of raw Tailwind green/gray palette utilities,
+     so they stay correct in both themes. */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -45,72 +64,123 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.5rem;
+
+  /*
+   * Centralized fixed-header layout offsets — the single source of truth
+   * for the TopBar/Navbar stack height. Nothing else should hardcode these
+   * as pixel/rem values: TopBar and Navbar size and position themselves
+   * from these vars, and the single <main> wrapper in locale-layout.tsx
+   * applies `padding-top: var(--header-offset)` once for every page. No
+   * page should ever need its own mt-16/py-30/calc(100vh-Npx)-style
+   * compensation again — if the TopBar or Navbar's real height changes,
+   * change it here and every page adapts automatically.
+   */
+  --top-bar-h: 1.75rem;
+  --header-h: 4rem;
+  --header-offset: calc(var(--top-bar-h) + var(--header-h));
+
   --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.17 0.006 260);
+
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: oklch(0.17 0.006 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --popover-foreground: oklch(0.17 0.006 260);
+
+  /* Brand red — reserved for CTAs, prices/offers, active states. */
+  --primary: oklch(0.577 0.245 27.325);
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* Metallic gray surfaces. */
+  --secondary: oklch(0.95 0.003 260);
+  --secondary-foreground: oklch(0.2 0.006 260);
+  --muted: oklch(0.96 0.003 260);
+  --muted-foreground: oklch(0.5 0.008 260);
+  --accent: oklch(0.95 0.003 260);
+  --accent-foreground: oklch(0.2 0.006 260);
+
+  --destructive: oklch(0.55 0.22 30);
+  --border: oklch(0.9 0.004 260);
+  --input: oklch(0.9 0.004 260);
+  --ring: oklch(0.577 0.245 27.325 / 60%);
+
+  --success: oklch(0.6 0.15 145);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.75 0.16 80);
+  --warning-foreground: oklch(0.2 0.02 80);
+
+  --chart-1: oklch(0.577 0.245 27.325);
+  --chart-2: oklch(0.6 0.15 145);
+  --chart-3: oklch(0.5 0.008 260);
+  --chart-4: oklch(0.75 0.16 80);
+  --chart-5: oklch(0.65 0.2 300);
+
+  --sidebar: oklch(0.98 0.002 260);
+  --sidebar-foreground: oklch(0.17 0.006 260);
+  --sidebar-primary: oklch(0.577 0.245 27.325);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0.003 260);
+  --sidebar-accent-foreground: oklch(0.2 0.006 260);
+  --sidebar-border: oklch(0.9 0.004 260);
+  --sidebar-ring: oklch(0.577 0.245 27.325 / 60%);
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  /* Deep black background, graphite/anthracite surfaces — the flagship look
+     for this brand. */
+  --background: oklch(0.13 0.004 260);
+  --foreground: oklch(0.97 0.002 260);
+
+  --card: oklch(0.19 0.006 260);
+  --card-foreground: oklch(0.97 0.002 260);
+  --popover: oklch(0.19 0.006 260);
+  --popover-foreground: oklch(0.97 0.002 260);
+
+  --primary: oklch(0.63 0.23 27.325);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.26 0.006 260);
+  --secondary-foreground: oklch(0.97 0.002 260);
+  --muted: oklch(0.23 0.006 260);
+  --muted-foreground: oklch(0.68 0.01 260);
+  --accent: oklch(0.28 0.006 260);
+  --accent-foreground: oklch(0.97 0.002 260);
+
+  --destructive: oklch(0.65 0.2 30);
+  --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --ring: oklch(0.63 0.23 27.325 / 65%);
+
+  --success: oklch(0.68 0.16 145);
+  --success-foreground: oklch(0.13 0.02 145);
+  --warning: oklch(0.78 0.15 80);
+  --warning-foreground: oklch(0.15 0.02 80);
+
+  --chart-1: oklch(0.63 0.23 27.325);
+  --chart-2: oklch(0.68 0.16 145);
+  --chart-3: oklch(0.68 0.01 260);
+  --chart-4: oklch(0.78 0.15 80);
+  --chart-5: oklch(0.7 0.2 300);
+
+  --sidebar: oklch(0.16 0.005 260);
+  --sidebar-foreground: oklch(0.97 0.002 260);
+  --sidebar-primary: oklch(0.63 0.23 27.325);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.26 0.006 260);
+  --sidebar-accent-foreground: oklch(0.97 0.002 260);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.63 0.23 27.325 / 65%);
+}
+
+/* TopBar shows a single line on mobile and multiple messages side-by-side
+   from md up (see site/navigation/top-bar.tsx) — it's a little taller there
+   to match. --header-offset recomputes automatically; nothing else needs
+   to change for the layout to follow. */
+@media (min-width: 768px) {
+  :root {
+    --top-bar-h: 2rem;
+  }
 }
 
 @layer base {
@@ -120,6 +190,19 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  /* Uppercase, tightly-tracked display heading — the "sports brand" voice
+     used for hero/section titles. Body text and UI copy never use this. */
+  .text-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
   }
 }
 
@@ -136,4 +219,14 @@
 
 .animate-fade-up {
   animation: fade-up 0.4s ease-out both;
+}
+
+/* Cheap, GPU-only scroll parallax: a translateY set via JS on a CSS custom
+   property, applied only inside .parallax-layer. No animation/transition
+   libraries. Disabled outright under reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .parallax-layer {
+    transform: translateY(calc(var(--parallax-offset, 0) * 1px));
+    will-change: transform;
+  }
 }

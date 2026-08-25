@@ -1,0 +1,7 @@
+{
+  "Collection": {
+    "home": "Inicio",
+    "collectionNotFound": "Categoría no encontrada",
+    "browseCollectionAt": "Explora nuestra categoría {name} en {siteName}"
+  }
+}

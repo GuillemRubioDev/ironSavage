@@ -1,0 +1,27 @@
+{
+  "Common": {
+    "loading": "Cargando...",
+    "sending": "Enviando...",
+    "sku": "SKU",
+    "siteDescription": "Compra los mejores productos en {siteName}. Productos de calidad, precios competitivos y entrega rápida."
+  },
+  "Errors": {
+    "fieldsRequired": "Todos los campos son obligatorios",
+    "passwordsMismatch": "Las contraseñas no coinciden",
+    "unexpectedError": "Se ha producido un error inesperado. Inténtalo de nuevo.",
+    "emailPasswordRequired": "El correo electrónico y la contraseña son obligatorios",
+    "verifyEmailFirst": "Verifica tu correo electrónico antes de iniciar sesión.",
+    "invalidCredentials": "Correo electrónico o contraseña no válidos.",
+    "emailRequired": "El correo electrónico es obligatorio",
+    "firstLastNameRequired": "El nombre y los apellidos son obligatorios",
+    "passwordEmailRequired": "La contraseña y el nuevo correo electrónico son obligatorios",
+    "invalidEmail": "Introduce una dirección de correo válida",
+    "failedUpdateCustomer": "No se ha podido actualizar la información del cliente",
+    "newPasswordMustDiffer": "La nueva contraseña debe ser diferente de la actual",
+    "failedPasswordReset": "No se ha podido solicitar el restablecimiento de contraseña",
+    "verificationTokenRequired": "El token de verificación es obligatorio",
+    "failedAddToCart": "No se ha podido añadir el artículo al carrito",
+    "firstNameRequired": "El nombre es obligatorio",
+    "termsRequired": "Debes aceptar los términos y condiciones"
+  }
+}

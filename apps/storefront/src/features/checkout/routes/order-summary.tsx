@@ -71,7 +71,7 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
         {order.discounts && order.discounts.length > 0 && (
           <>
             {order.discounts.map((discount, index: number) => (
-              <div key={index} className="flex justify-between text-sm text-green-600">
+              <div key={index} className="flex justify-between text-sm text-primary font-medium">
                 <span>{discount.description}</span>
                 <span>
                   <Price value={discount.amountWithTax} currencyCode={order.currencyCode} />

@@ -55,7 +55,7 @@ export default async function NewsListPage({searchParams}: PageProps<'/[locale]/
     const totalPages = Math.ceil(data.articles.totalItems / ITEMS_PER_PAGE);
 
     return (
-        <div className="container mx-auto px-4 py-8 mt-16">
+        <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-10">{t('pageTitle')}</h1>
 
             {articles.length === 0 ? (

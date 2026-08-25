@@ -4,7 +4,16 @@ import {GetArticlesQuery} from '@/features/news/graphql';
 import {SITE_URL, localizedPath} from '@/config/metadata';
 import {routing} from '@/platform/i18n/routing';
 
-const STATIC_PATHS = ['/', '/productos', '/noticias'];
+const STATIC_PATHS = [
+    '/',
+    '/productos',
+    '/noticias',
+    '/aviso-legal',
+    '/politica-de-privacidad',
+    '/politica-de-cookies',
+    '/terminos-y-condiciones',
+    '/envios-y-devoluciones',
+];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = SITE_URL.replace(/\/$/, '');

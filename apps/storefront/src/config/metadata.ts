@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { routing } from '@/platform/i18n/routing';
 
-export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Vendure Store';
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Iron Savage';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
 /**

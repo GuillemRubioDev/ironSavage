@@ -16,7 +16,7 @@ export default async function NotFound() {
     }
 
     return (
-        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-16">
+        <div className="min-h-[calc(100vh-var(--header-offset))] flex items-center justify-center px-4 py-16">
             <div className="text-center space-y-8 max-w-lg">
                 <div className="flex justify-center">
                     <div className="rounded-full bg-muted p-6">

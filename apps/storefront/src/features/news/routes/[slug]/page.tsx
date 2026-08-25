@@ -71,7 +71,7 @@ export default async function ArticleDetailPage({params}: PageProps<'/[locale]/n
     const paragraphs = article.content.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
 
     return (
-        <article className="container mx-auto px-4 py-8 mt-16 max-w-3xl">
+        <article className="container mx-auto px-4 py-8 max-w-3xl">
             <Link href="/noticias" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
                 <ChevronLeft className="h-4 w-4" />
                 {t('backToNews')}

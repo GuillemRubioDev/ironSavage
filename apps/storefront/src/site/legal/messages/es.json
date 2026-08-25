@@ -1,0 +1,15 @@
+{
+  "Legal": {
+    "draftNotice": {
+      "title": "Borrador — pendiente de revisión legal",
+      "description": "Esta página es una plantilla. Los campos entre corchetes deben completarse con los datos legales reales y verificados de la empresa antes de utilizar esta página."
+    },
+    "pages": {
+      "legalNotice": "Aviso legal",
+      "privacyPolicy": "Política de privacidad",
+      "cookiePolicy": "Política de cookies",
+      "termsAndConditions": "Términos y condiciones",
+      "shippingReturns": "Envíos y devoluciones"
+    }
+  }
+}

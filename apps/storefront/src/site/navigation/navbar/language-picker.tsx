@@ -3,7 +3,7 @@
 import {useLocale} from 'next-intl';
 import {useRouter, usePathname} from '@/platform/i18n/navigation';
 import {routing, localeNames} from '@/platform/i18n/routing';
-import {Globe} from 'lucide-react';
+import {Check, Globe} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -34,7 +34,7 @@ export function LanguagePicker() {
                         onClick={() => handleLocaleChange(loc)}
                     >
                         <span>{localeNames[loc] ?? loc.toUpperCase()}</span>
-                        {locale === loc && <span className="ml-auto text-xs">✓</span>}
+                        {locale === loc && <Check className="ml-auto size-3.5" />}
                     </DropdownMenuItem>
                 ))}
             </DropdownMenuContent>

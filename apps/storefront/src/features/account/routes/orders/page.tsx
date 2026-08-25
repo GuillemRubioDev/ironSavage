@@ -68,7 +68,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/mi-cuenta/p
 
             {orders.length === 0 ? (
                 <div className="text-center py-12">
-                    <p className="text-gray-500">{t('noOrders')}</p>
+                    <p className="text-muted-foreground">{t('noOrders')}</p>
                 </div>
             ) : (
                 <>

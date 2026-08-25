@@ -6,11 +6,17 @@ import { Link } from '@/platform/i18n/navigation';
 import { CheckCircle } from 'lucide-react';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
+import {SITE_NAME, noIndexRobots} from '@/config/metadata';
 
-export const metadata: Metadata = {
-    title: 'Verification Pending',
-    description: 'Check your email to verify your account.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const locale = await getRouteLocale();
+    const t = await getTranslations({locale, namespace: 'Verify.pending'});
+    return {
+        title: `${t('title')} | ${SITE_NAME}`,
+        description: t('message'),
+        robots: noIndexRobots(),
+    };
+}
 
 async function VerifyPendingContent({searchParams}: {searchParams: Promise<Record<string, string | string[] | undefined>>}) {
     const locale = await getRouteLocale();
@@ -26,7 +32,7 @@ async function VerifyPendingContent({searchParams}: {searchParams: Promise<Recor
         <Card>
             <CardContent className="pt-6 space-y-4">
                 <div className="flex justify-center">
-                    <CheckCircle className="h-16 w-16 text-green-600" />
+                    <CheckCircle className="h-16 w-16 text-success" />
                 </div>
                 <div className="space-y-2 text-center">
                     <h1 className="text-2xl font-bold">{t('pending.title')}</h1>
@@ -55,7 +61,7 @@ export default async function VerifyPendingPage({searchParams}: PageProps<'/[loc
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Verify'});
     return (
-        <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="flex min-h-[calc(100vh-var(--header-offset))] items-center justify-center px-4">
             <div className="w-full max-w-md space-y-6">
                 <Suspense fallback={<div>{t('loading')}</div>}>
                     <VerifyPendingContent searchParams={searchParams} />

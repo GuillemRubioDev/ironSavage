@@ -12,16 +12,20 @@ import {
 } from 'lucide-react';
 import {useTranslations} from 'next-intl';
 
+// Mapped onto the brand's constrained token palette rather than one unique
+// hue per state (there is no palette room for 9 distinct colors without
+// inventing hues outside black/graphite/gray/red) — icon + label still
+// differentiate every state; color communicates broad status category.
 const STATUS_CONFIG: Record<string, { color: string; icon: LucideIcon }> = {
-    AddingItems: {color: 'bg-gray-100 text-gray-800', icon: ShoppingCart},
-    ArrangingPayment: {color: 'bg-yellow-100 text-yellow-800', icon: CreditCard},
-    PaymentAuthorized: {color: 'bg-blue-100 text-blue-800', icon: Clock},
-    PaymentSettled: {color: 'bg-green-100 text-green-800', icon: CheckCircle},
-    PartiallyShipped: {color: 'bg-indigo-100 text-indigo-800', icon: Package},
-    Shipped: {color: 'bg-purple-100 text-purple-800', icon: Truck},
-    PartiallyDelivered: {color: 'bg-cyan-100 text-cyan-800', icon: PackageCheck},
-    Delivered: {color: 'bg-emerald-100 text-emerald-800', icon: PackageCheck},
-    Cancelled: {color: 'bg-red-100 text-red-800', icon: XCircle},
+    AddingItems: {color: 'bg-muted text-muted-foreground', icon: ShoppingCart},
+    ArrangingPayment: {color: 'bg-warning/15 text-warning-foreground dark:text-warning', icon: CreditCard},
+    PaymentAuthorized: {color: 'bg-warning/15 text-warning-foreground dark:text-warning', icon: Clock},
+    PaymentSettled: {color: 'bg-success/10 text-success', icon: CheckCircle},
+    PartiallyShipped: {color: 'bg-secondary text-secondary-foreground', icon: Package},
+    Shipped: {color: 'bg-primary/10 text-primary', icon: Truck},
+    PartiallyDelivered: {color: 'bg-secondary text-secondary-foreground', icon: PackageCheck},
+    Delivered: {color: 'bg-success/10 text-success', icon: PackageCheck},
+    Cancelled: {color: 'bg-destructive/10 text-destructive', icon: XCircle},
 };
 
 interface OrderStatusBadgeProps {
@@ -30,7 +34,7 @@ interface OrderStatusBadgeProps {
 
 export function OrderStatusBadge({state}: OrderStatusBadgeProps) {
     const t = useTranslations('OrderStatus');
-    const config = STATUS_CONFIG[state] || {color: 'bg-gray-100 text-gray-800', icon: Clock};
+    const config = STATUS_CONFIG[state] || {color: 'bg-muted text-muted-foreground', icon: Clock};
     const Icon = config.icon;
     const label = state in STATUS_CONFIG ? t(state as 'AddingItems' | 'ArrangingPayment' | 'PaymentAuthorized' | 'PaymentSettled' | 'PartiallyShipped' | 'Shipped' | 'PartiallyDelivered' | 'Delivered' | 'Cancelled') : state;
 

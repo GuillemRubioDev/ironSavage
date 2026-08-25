@@ -1,21 +1,32 @@
 import type {Metadata, Viewport} from "next";
 import {locale as rootLocale} from "next/root-params";
 import {hasLocale, NextIntlClientProvider} from "next-intl";
-import {Geist, Geist_Mono} from "next/font/google";
+import {Geist_Mono, Inter, Oswald} from "next/font/google";
 import {getMessages, getTranslations, setRequestLocale} from "next-intl/server";
 import {notFound} from "next/navigation";
 import {routing} from "@/platform/i18n/routing";
 import {toOgLocale} from "@/platform/i18n/locale-utils";
 import {getRouteLocale} from "@/platform/i18n/server";
 import {Toaster} from "@/components/ui/sonner";
+import {TopBar} from '@/site/navigation/top-bar';
 import {Navbar} from '@/site/navigation/navbar';
 import {Footer} from "@/site/footer";
 import {ThemeProvider} from "@/site/providers/theme-provider";
+import {CookieConsentRoot} from "@/site/cookie-consent/cookie-consent-root";
 import {SITE_NAME, SITE_URL} from "@/config/metadata";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
+// Inter: highly legible UI/body text. Oswald: condensed, strong-weight
+// display font for headings — the "athletic" brand voice, never used for
+// body copy (see the `.text-display`/`h1..h6` rules in globals.css).
+const inter = Inter({
+    variable: "--font-inter",
     subsets: ["latin"],
+});
+
+const oswald = Oswald({
+    variable: "--font-oswald",
+    subsets: ["latin"],
+    weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -89,14 +100,23 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
     return (
         <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+                className={`${inter.variable} ${oswald.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
             >
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
-                        <Navbar />
-                        {children}
-                        <Footer/>
-                        <Toaster/>
+                        <CookieConsentRoot>
+                            <TopBar />
+                            <Navbar />
+                            {/* Single centralized offset for the fixed TopBar+Navbar
+                                stack — every page's content starts here, below the
+                                header, with no per-page compensation needed. See
+                                --header-offset in globals.css. */}
+                            <main className="flex-1 pt-[var(--header-offset)]">
+                                {children}
+                            </main>
+                            <Footer/>
+                            <Toaster/>
+                        </CookieConsentRoot>
                     </ThemeProvider>
                 </NextIntlClientProvider>
             </body>

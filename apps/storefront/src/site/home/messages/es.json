@@ -1,0 +1,49 @@
+{
+  "Hero": {
+    "title": "Entrena",
+    "titleHighlight": "Savage",
+    "subtitle": "Suplementación deportiva premium para atletas que entrenan duro y se recuperan más duro todavía.",
+    "shopNow": "Comprar ahora",
+    "viewCollections": "Ver categorías"
+  },
+  "Home": {
+    "pageTitle": "Suplementación deportiva premium",
+    "description": "Iron Savage: suplementación deportiva premium para atletas que entrenan duro. Proteína, creatina, pre-entreno y recuperación, con calidad real.",
+    "ogDescription": "Suplementación deportiva premium para atletas que entrenan duro y se recuperan más duro todavía.",
+    "whyShopWithUs": "Por qué entrenar con Iron Savage",
+    "features": {
+      "highQuality": {
+        "title": "Calidad rigurosa",
+        "description": "Cada lote seleccionado por pureza y rendimiento — sin atajos."
+      },
+      "bestPrices": {
+        "title": "Precios justos",
+        "description": "Suplementación premium sin el sobreprecio premium."
+      },
+      "fastDelivery": {
+        "title": "Entrega rápida",
+        "description": "Tu pedido enviado rápido, para que tu entrenamiento no espere."
+      }
+    },
+    "categories": {
+      "title": "Compra por categoría"
+    },
+    "carousel": {
+      "regionLabel": "Carrusel promocional",
+      "goToSlide": "Ir a la diapositiva {number}",
+      "pause": "Pausar carrusel",
+      "play": "Reproducir carrusel",
+      "previous": "Diapositiva anterior",
+      "next": "Diapositiva siguiente"
+    },
+    "loyalty": {
+      "title": "Iron Rewards",
+      "description": "Gana puntos en cada pedido y canjéalos por descuentos en tu próxima compra.",
+      "balanceLabel": "Tu saldo",
+      "pointsSuffix": "pts",
+      "cta": "Ver mis puntos",
+      "signedOutCta": "Inicia sesión para empezar a ganar",
+      "guestDescription": "Crea una cuenta para empezar a ganar puntos en cada pedido."
+    }
+  }
+}

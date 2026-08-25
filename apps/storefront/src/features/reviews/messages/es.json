@@ -1,0 +1,19 @@
+{
+  "Reviews": {
+    "title": "Reseñas",
+    "oneReview": "1 reseña",
+    "reviewCount": "{count} reseñas",
+    "noReviews": "Todavía no hay reseñas.",
+    "writeAReview": "Escribir una reseña",
+    "whichOrder": "¿Para qué pedido es esta reseña?",
+    "rating": "Valoración",
+    "reviewTitle": "Título",
+    "reviewComment": "Tu reseña",
+    "submitReview": "Enviar reseña",
+    "submitting": "Enviando...",
+    "submittedForModeration": "¡Gracias! Tu reseña se ha enviado y aparecerá una vez revisada.",
+    "signInToReview": "¿Has comprado este producto?",
+    "signIn": "Inicia sesión para escribir una reseña.",
+    "unexpectedError": "Se ha producido un error inesperado. Inténtalo de nuevo."
+  }
+}

@@ -1,8 +1,10 @@
 import type {Metadata} from "next";
 import {Suspense} from "react";
 import {getRouteLocale} from "@/platform/i18n/server";
-import {HeroSection} from "@/site/home/hero-section";
+import {PromoCarousel} from "@/site/home/promo-carousel";
+import {CategoriesShowcase} from '@/site/home/categories-showcase';
 import {FeaturedProducts} from '@/features/products/featured-products';
+import {LoyaltyTeaser} from '@/features/loyalty/components/loyalty-teaser';
 import {LatestNewsSection} from '@/features/news/components/latest-news-section';
 import {SITE_NAME, buildCanonicalUrl, localizedPath} from "@/config/metadata";
 import {BadgeCheck, Tag, Zap} from "lucide-react";
@@ -46,21 +48,29 @@ const featureKeys = [
 export default async function Home() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Home'});
+    const tHero = await getTranslations({locale, namespace: 'Hero'});
 
     return (
         <div className="min-h-screen">
-            <HeroSection/>
+            <PromoCarousel
+                heroTitle={tHero('title')}
+                heroTitleHighlight={tHero('titleHighlight')}
+                heroSubtitle={tHero('subtitle')}
+                heroCta={tHero('shopNow')}
+                heroCtaSecondary={tHero('viewCollections')}
+            />
+
+            <Suspense>
+                <CategoriesShowcase/>
+            </Suspense>
+
             <Suspense>
                 <FeaturedProducts/>
             </Suspense>
 
-            <Suspense>
-                <LatestNewsSection/>
-            </Suspense>
-
             <section className="py-16 md:py-24 bg-muted/30">
                 <div className="container mx-auto px-4">
-                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-center mb-12">
+                    <h2 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-tight text-center mb-12">
                         {t('whyShopWithUs')}
                     </h2>
                     <div className="grid md:grid-cols-3 gap-8">
@@ -79,6 +89,14 @@ export default async function Home() {
                     </div>
                 </div>
             </section>
+
+            <Suspense>
+                <LoyaltyTeaser/>
+            </Suspense>
+
+            <Suspense>
+                <LatestNewsSection/>
+            </Suspense>
         </div>
     );
 }

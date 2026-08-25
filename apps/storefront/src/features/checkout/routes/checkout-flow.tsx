@@ -149,12 +149,12 @@ export default function CheckoutFlow() {
                 <div className="flex items-center gap-3">
                   <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
                     completedSteps.has('contact')
-                      ? 'bg-green-500 text-white'
+                      ? 'bg-success text-success-foreground'
                       : currentStep === 'contact'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
                   }`}>
-                    {completedSteps.has('contact') ? '✓' : getStepNumber('contact')}
+                    {completedSteps.has('contact') ? <Check className="size-4" /> : getStepNumber('contact')}
                   </div>
                   <span className="text-lg font-semibold">{t('contactInformation')}</span>
                 </div>
@@ -179,12 +179,12 @@ export default function CheckoutFlow() {
               <div className="flex items-center gap-3">
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
                   completedSteps.has('shipping')
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-success text-success-foreground'
                     : currentStep === 'shipping'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground'
                 }`}>
-                  {completedSteps.has('shipping') ? '✓' : getStepNumber('shipping')}
+                  {completedSteps.has('shipping') ? <Check className="size-4" /> : getStepNumber('shipping')}
                 </div>
                 <span className="text-lg font-semibold">{t('shippingAddress')}</span>
               </div>
@@ -208,12 +208,12 @@ export default function CheckoutFlow() {
               <div className="flex items-center gap-3">
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
                   completedSteps.has('delivery')
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-success text-success-foreground'
                     : currentStep === 'delivery'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground'
                 }`}>
-                  {completedSteps.has('delivery') ? '✓' : getStepNumber('delivery')}
+                  {completedSteps.has('delivery') ? <Check className="size-4" /> : getStepNumber('delivery')}
                 </div>
                 <span className="text-lg font-semibold">{t('deliveryMethod')}</span>
               </div>
@@ -237,12 +237,12 @@ export default function CheckoutFlow() {
               <div className="flex items-center gap-3">
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
                   completedSteps.has('payment')
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-success text-success-foreground'
                     : currentStep === 'payment'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground'
                 }`}>
-                  {completedSteps.has('payment') ? '✓' : getStepNumber('payment')}
+                  {completedSteps.has('payment') ? <Check className="size-4" /> : getStepNumber('payment')}
                 </div>
                 <span className="text-lg font-semibold">{t('paymentMethod')}</span>
               </div>

@@ -45,7 +45,7 @@ export default async function InvoicesPage() {
             {invoices.length === 0 ? (
                 <div className="text-center py-12">
                     <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                    <p className="text-gray-500">{t('noInvoices')}</p>
+                    <p className="text-muted-foreground">{t('noInvoices')}</p>
                 </div>
             ) : (
                 <>
