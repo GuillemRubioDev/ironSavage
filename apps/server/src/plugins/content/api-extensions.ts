@@ -5,10 +5,13 @@ const commonTypes = gql`
         id: ID!
         createdAt: DateTime!
         updatedAt: DateTime!
-        title: String!
+        titleEs: String!
+        titleEn: String!
         slug: String!
-        excerpt: String!
-        content: String!
+        excerptEs: String!
+        excerptEn: String!
+        contentEs: String!
+        contentEn: String!
         coverImage: Asset
         status: String!
         publishedAt: DateTime
@@ -57,18 +60,24 @@ export const adminApiExtensions = gql`
     }
 
     input CreateContentArticleInput {
-        title: String!
+        titleEs: String!
+        titleEn: String!
         slug: String!
-        excerpt: String!
-        content: String!
+        excerptEs: String!
+        excerptEn: String!
+        contentEs: String!
+        contentEn: String!
         coverImageId: ID
     }
 
     input UpdateContentArticleInput {
-        title: String
+        titleEs: String
+        titleEn: String
         slug: String
-        excerpt: String
-        content: String
+        excerptEs: String
+        excerptEn: String
+        contentEs: String
+        contentEn: String
         coverImageId: ID
     }
 

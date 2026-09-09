@@ -1,0 +1,212 @@
+name: tienda-suple-prod
+
+# A production-shaped stack, meant to be verified locally before any real
+# deployment — see DOCKER_PRODUCTION.md for the full bring-up sequence and
+# why it's not a single `docker compose up -d --build`.
+#
+# Run with: docker compose -f docker-compose.prod.yml --env-file .env.prod ...
+# .env.prod is never committed (see .env.prod.example) — every value below
+# is a `${VAR}` substitution, never a literal secret.
+#
+# Each service lists only the env vars it actually needs (an explicit
+# `environment:` allowlist, not a blanket `env_file:`) — the storefront
+# container never sees COOKIE_SECRET, DB_PASSWORD, REDSYS_SECRET_KEY, etc.
+
+networks:
+  tienda-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  vendure_static:
+  caddy_data:
+  caddy_config:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    networks: [tienda-net]
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Deliberately no `ports:` — Postgres must not be reachable from outside
+    # the Docker network in production.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  vendure-server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    restart: unless-stopped
+    networks: [tienda-net]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV}
+      VENDURE_SERVER_PORT: "3000"
+      COOKIE_SECRET: ${COOKIE_SECRET}
+      SUPERADMIN_USERNAME: ${SUPERADMIN_USERNAME}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SCHEMA: ${DB_SCHEMA}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      ASSET_URL_PREFIX: ${ASSET_URL_PREFIX}
+      REDSYS_MERCHANT_CODE: ${REDSYS_MERCHANT_CODE}
+      REDSYS_TERMINAL: ${REDSYS_TERMINAL}
+      REDSYS_SECRET_KEY: ${REDSYS_SECRET_KEY}
+      REDSYS_ENVIRONMENT: ${REDSYS_ENVIRONMENT}
+      REDSYS_NOTIFICATION_URL: ${REDSYS_NOTIFICATION_URL}
+      STOREFRONT_URL: ${STOREFRONT_URL}
+      INVOICE_STORE_NAME: ${INVOICE_STORE_NAME}
+      INVOICE_STORE_TAX_ID: ${INVOICE_STORE_TAX_ID}
+      INVOICE_STORE_ADDRESS: ${INVOICE_STORE_ADDRESS}
+      INVOICE_STORE_EMAIL: ${INVOICE_STORE_EMAIL}
+      EMAIL_ENABLED: ${EMAIL_ENABLED}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER}
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+    # No `ports:` — only Caddy is reachable from the host; vendure-server is
+    # reached over the internal tienda-net network as `vendure-server:3000`.
+    volumes:
+      - vendure_static:/app/apps/server/static
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  vendure-worker:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    command: ["node", "dist/index-worker.js"]
+    restart: unless-stopped
+    networks: [tienda-net]
+    depends_on:
+      vendure-server:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV}
+      COOKIE_SECRET: ${COOKIE_SECRET}
+      SUPERADMIN_USERNAME: ${SUPERADMIN_USERNAME}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SCHEMA: ${DB_SCHEMA}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      ASSET_URL_PREFIX: ${ASSET_URL_PREFIX}
+      REDSYS_MERCHANT_CODE: ${REDSYS_MERCHANT_CODE}
+      REDSYS_TERMINAL: ${REDSYS_TERMINAL}
+      REDSYS_SECRET_KEY: ${REDSYS_SECRET_KEY}
+      REDSYS_ENVIRONMENT: ${REDSYS_ENVIRONMENT}
+      REDSYS_NOTIFICATION_URL: ${REDSYS_NOTIFICATION_URL}
+      STOREFRONT_URL: ${STOREFRONT_URL}
+      INVOICE_STORE_NAME: ${INVOICE_STORE_NAME}
+      INVOICE_STORE_TAX_ID: ${INVOICE_STORE_TAX_ID}
+      INVOICE_STORE_ADDRESS: ${INVOICE_STORE_ADDRESS}
+      INVOICE_STORE_EMAIL: ${INVOICE_STORE_EMAIL}
+      EMAIL_ENABLED: ${EMAIL_ENABLED}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER}
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+    # No static/ volume: in this project, asset uploads and invoice PDFs are
+    # only ever written by the HTTP-request-handling process (vendure-server)
+    # — nothing the worker's job queue does touches static/ today.
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f index-worker.js || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  storefront:
+    build:
+      context: .
+      dockerfile: apps/storefront/Dockerfile
+      # Must build on the same network as the already-running vendure-server
+      # — `next build` fetches from it while prerendering pages. See the
+      # note at the top of apps/storefront/Dockerfile. The literal, fully
+      # -qualified network name is required here (the `name:` at the top of
+      # this file plus the network key below) — also requires building with
+      # the legacy builder: DOCKER_BUILDKIT=0 docker compose build storefront
+      # (BuildKit's default builder rejects joining an arbitrary named
+      # network; only `host`/`none`/the special default are supported).
+      network: tienda-suple-prod_tienda-net
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME}
+        VENDURE_SHOP_API_URL: http://vendure-server:3000/shop-api
+        VENDURE_CHANNEL_TOKEN: ${VENDURE_CHANNEL_TOKEN}
+        API_DOMAIN: ${API_DOMAIN}
+    restart: unless-stopped
+    networks: [tienda-net]
+    depends_on:
+      vendure-server:
+        condition: service_healthy
+    environment:
+      VENDURE_SHOP_API_URL: http://vendure-server:3000/shop-api
+      VENDURE_CHANNEL_TOKEN: ${VENDURE_CHANNEL_TOKEN}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME}
+      REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+    # No `ports:` — only reachable from the host via Caddy, internally as
+    # `storefront:3001`.
+    healthcheck:
+      # 127.0.0.1, not localhost: busybox wget resolves localhost to ::1
+      # first, and the server only binds the IPv4 wildcard (see the
+      # HOSTNAME note in apps/storefront/Dockerfile) — ::1 gets refused.
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3001/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    networks: [tienda-net]
+    depends_on:
+      vendure-server:
+        condition: service_healthy
+      storefront:
+        condition: service_healthy
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN}
+      API_DOMAIN: ${API_DOMAIN}
+      CADDY_EMAIL: ${CADDY_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    # Runs as root (upstream default) to bind 80/443 and manage certs under
+    # /data — see DOCKER_PRODUCTION.md's "pendientes" section.

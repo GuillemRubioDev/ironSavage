@@ -27,6 +27,30 @@ export default defineConfig({
             // These types can be used in your dashboard extensions to provide
             // type safety when writing queries and mutations.
             gqlOutputPath: './src/gql',
+            // Iron Savage red as the Dashboard's accent color, via the
+            // official theme-override option (vendureDashboardPlugin's
+            // `theme.light`/`theme.dark`, since 3.5.1) — only the accent
+            // tokens are overridden, not layout/typography/radius, so the
+            // Dashboard keeps its own native look rather than mimicking the
+            // storefront. No global CSS overrides.
+            theme: {
+                light: {
+                    primary: 'oklch(0.577 0.245 27.325)',
+                    'primary-foreground': 'oklch(0.99 0 0)',
+                    ring: 'oklch(0.577 0.245 27.325)',
+                    'sidebar-primary': 'oklch(0.577 0.245 27.325)',
+                    'sidebar-primary-foreground': 'oklch(0.99 0 0)',
+                    'sidebar-ring': 'oklch(0.577 0.245 27.325)',
+                },
+                dark: {
+                    primary: 'oklch(0.63 0.23 27.325)',
+                    'primary-foreground': 'oklch(0.99 0 0)',
+                    ring: 'oklch(0.63 0.23 27.325)',
+                    'sidebar-primary': 'oklch(0.63 0.23 27.325)',
+                    'sidebar-primary-foreground': 'oklch(0.99 0 0)',
+                    'sidebar-ring': 'oklch(0.63 0.23 27.325)',
+                },
+            },
         }),
     ],
     resolve: {

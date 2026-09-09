@@ -127,7 +127,8 @@ export function ArticlesListPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Title</TableHead>
+                                    <TableHead className="w-16">Cover</TableHead>
+                                    <TableHead>Title (ES)</TableHead>
                                     <TableHead>Slug</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Published</TableHead>
@@ -137,26 +138,37 @@ export function ArticlesListPage() {
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                        <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                             Loading...
                                         </TableCell>
                                     </TableRow>
                                 ) : items.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                        <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                             No articles found.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     items.map(article => (
                                         <TableRow key={article.id}>
+                                            <TableCell>
+                                                {article.coverImage ? (
+                                                    <img
+                                                        src={article.coverImage.preview + '?preset=thumb'}
+                                                        alt=""
+                                                        className="h-10 w-10 rounded object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="h-10 w-10 rounded bg-muted" />
+                                                )}
+                                            </TableCell>
                                             <TableCell className="font-medium">
                                                 <Link
                                                     to="/content-articles/$id"
                                                     params={{ id: article.id }}
                                                     className="hover:underline"
                                                 >
-                                                    {article.title}
+                                                    {article.titleEs}
                                                 </Link>
                                             </TableCell>
                                             <TableCell className="text-muted-foreground">{article.slug}</TableCell>

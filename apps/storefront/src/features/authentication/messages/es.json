@@ -54,6 +54,8 @@
     "resettingPassword": "Restableciendo contraseña..."
   },
   "Verify": {
+    "pageTitle": "Verificar correo",
+    "pageDescription": "Verifica tu dirección de correo electrónico para completar el registro.",
     "invalidLink": "Enlace de verificación no válido",
     "invalidLinkMessage": "El enlace de verificación no es válido o le falta el token.",
     "createNewAccount": "Crear nueva cuenta",

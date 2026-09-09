@@ -46,6 +46,7 @@ import type { LoyaltyPluginOptions } from './types';
         schema: adminApiExtensions,
         resolvers: [LoyaltyAdminResolver],
     },
+    dashboard: './dashboard/index.tsx',
     compatibility: '^3.0.0',
 })
 export class LoyaltyPlugin {

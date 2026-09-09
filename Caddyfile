@@ -1,0 +1,20 @@
+# Reverse proxy for the production stack. Caddy handles HTTPS automatically:
+# real public domains (PUBLIC_DOMAIN/API_DOMAIN) get Let's Encrypt certs with
+# auto-renewal and an HTTP->HTTPS redirect for free; non-public/local names
+# (e.g. localhost, *.localhost) automatically fall back to Caddy's internal
+# CA instead — no separate dev config needed, see DOCKER_PRODUCTION.md.
+#
+# {$VAR} is Caddyfile's own env-var substitution, resolved from the
+# `caddy` service's `environment:` in docker-compose.prod.yml.
+
+{
+	email {$CADDY_EMAIL}
+}
+
+{$PUBLIC_DOMAIN} {
+	reverse_proxy storefront:3001
+}
+
+{$API_DOMAIN} {
+	reverse_proxy vendure-server:3000
+}

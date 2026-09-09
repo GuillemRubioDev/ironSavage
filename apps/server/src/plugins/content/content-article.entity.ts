@@ -10,17 +10,28 @@ export class ContentArticle extends VendureEntity {
     }
 
     @Column()
-    title: string;
+    titleEs: string;
 
+    @Column()
+    titleEn: string;
+
+    /** Shared across locales — the storefront's own URL convention for this
+     * whole project (see /productos, /carrito, etc.), not a translated slug. */
     @Index({ unique: true })
     @Column()
     slug: string;
 
     @Column('text')
-    excerpt: string;
+    excerptEs: string;
 
     @Column('text')
-    content: string;
+    excerptEn: string;
+
+    @Column('text')
+    contentEs: string;
+
+    @Column('text')
+    contentEn: string;
 
     /**
      * A plain, unidirectional reference to a native Vendure Asset — reuses

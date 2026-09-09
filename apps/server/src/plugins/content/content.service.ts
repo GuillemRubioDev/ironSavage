@@ -4,10 +4,13 @@ import { ID, PaginatedList, RequestContext, TransactionalConnection } from '@ven
 import { ContentArticle } from './content-article.entity';
 
 export interface ArticleInput {
-    title: string;
+    titleEs: string;
+    titleEn: string;
     slug: string;
-    excerpt: string;
-    content: string;
+    excerptEs: string;
+    excerptEn: string;
+    contentEs: string;
+    contentEn: string;
     coverImageId?: ID | null;
 }
 
@@ -29,10 +32,13 @@ export class ContentService {
         try {
             const article = await repo.save(
                 new ContentArticle({
-                    title: input.title.trim(),
+                    titleEs: input.titleEs.trim(),
+                    titleEn: input.titleEn.trim(),
                     slug: input.slug.trim(),
-                    excerpt: input.excerpt.trim(),
-                    content: input.content.trim(),
+                    excerptEs: input.excerptEs.trim(),
+                    excerptEn: input.excerptEn.trim(),
+                    contentEs: input.contentEs.trim(),
+                    contentEn: input.contentEn.trim(),
                     coverImageId: input.coverImageId ?? undefined,
                     status: 'DRAFT',
                 }),
@@ -54,10 +60,13 @@ export class ContentService {
         }
 
         const merged: ArticleInput = {
-            title: input.title ?? article.title,
+            titleEs: input.titleEs ?? article.titleEs,
+            titleEn: input.titleEn ?? article.titleEn,
             slug: input.slug ?? article.slug,
-            excerpt: input.excerpt ?? article.excerpt,
-            content: input.content ?? article.content,
+            excerptEs: input.excerptEs ?? article.excerptEs,
+            excerptEn: input.excerptEn ?? article.excerptEn,
+            contentEs: input.contentEs ?? article.contentEs,
+            contentEn: input.contentEn ?? article.contentEn,
             coverImageId: input.coverImageId !== undefined ? input.coverImageId : article.coverImageId,
         };
         const validationError = this.validate(merged);
@@ -65,10 +74,13 @@ export class ContentService {
             return { success: false, reason: validationError };
         }
 
-        article.title = merged.title.trim();
+        article.titleEs = merged.titleEs.trim();
+        article.titleEn = merged.titleEn.trim();
         article.slug = merged.slug.trim();
-        article.excerpt = merged.excerpt.trim();
-        article.content = merged.content.trim();
+        article.excerptEs = merged.excerptEs.trim();
+        article.excerptEn = merged.excerptEn.trim();
+        article.contentEs = merged.contentEs.trim();
+        article.contentEn = merged.contentEn.trim();
         article.coverImageId = merged.coverImageId ?? undefined;
 
         try {
@@ -133,7 +145,7 @@ export class ContentService {
         }
         const title = options?.filter?.title?.contains;
         if (title) {
-            qb.andWhere('article.title ILIKE :title', { title: `%${title}%` });
+            qb.andWhere('(article.titleEs ILIKE :title OR article.titleEn ILIKE :title)', { title: `%${title}%` });
         }
 
         const [items, totalItems] = await qb.getManyAndCount();
@@ -161,17 +173,17 @@ export class ContentService {
     }
 
     private validate(input: ArticleInput): string | null {
-        if (!input.title?.trim()) {
-            return 'Title is required';
+        if (!input.titleEs?.trim() || !input.titleEn?.trim()) {
+            return 'Title (Spanish and English) is required';
         }
         if (!input.slug?.trim() || !SLUG_PATTERN.test(input.slug.trim())) {
             return 'Slug is required and must be lowercase letters, numbers and hyphens only';
         }
-        if (!input.excerpt?.trim()) {
-            return 'Excerpt is required';
+        if (!input.excerptEs?.trim() || !input.excerptEn?.trim()) {
+            return 'Excerpt (Spanish and English) is required';
         }
-        if (!input.content?.trim()) {
-            return 'Content is required';
+        if (!input.contentEs?.trim() || !input.contentEn?.trim()) {
+            return 'Content (Spanish and English) is required';
         }
         return null;
     }

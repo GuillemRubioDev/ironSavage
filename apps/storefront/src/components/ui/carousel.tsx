@@ -143,7 +143,13 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
     >
       <div
         className={cn(
-          "flex",
+          // will-change-transform: Embla mutates this element's transform
+          // directly during drag; without this hint, a child that's on its
+          // own GPU layer (e.g. one with a `filter` for a glow effect) can
+          // round to a slightly different sub-pixel position than this
+          // container each frame, flickering a hairline seam against its
+          // siblings while dragging.
+          "flex will-change-transform",
           orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
           className
         )}

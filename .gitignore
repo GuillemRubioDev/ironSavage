@@ -1,6 +1,11 @@
 node_modules
 .env
 .env.local
+.env.prod
+!.env.prod.example
 *.log
 .DS_Store
 .claude
+
+# Backups (scripts/backup.sh) — contain real customer/order data, never committed.
+backups/

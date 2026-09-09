@@ -54,6 +54,8 @@
     "resettingPassword": "Resetting password..."
   },
   "Verify": {
+    "pageTitle": "Verify Email",
+    "pageDescription": "Verify your email address to complete registration.",
     "invalidLink": "Invalid Verification Link",
     "invalidLinkMessage": "The verification link is invalid or missing a token.",
     "createNewAccount": "Create New Account",

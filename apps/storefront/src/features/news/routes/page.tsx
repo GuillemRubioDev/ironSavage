@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import {cacheLife, cacheTag} from 'next/cache';
 import {query} from '@/platform/vendure/api';
-import {GetArticlesQuery} from '@/features/news/graphql';
+import {GetArticlesQuery, type ArticleListItem} from '@/features/news/graphql';
 import {ArticleCard} from '@/features/news/components/article-card';
 import {Pagination} from '@/features/products/components/pagination';
 import {SITE_NAME, buildCanonicalUrl, localizedPath} from '@/config/metadata';
@@ -51,7 +51,10 @@ export default async function NewsListPage({searchParams}: PageProps<'/[locale]/
     const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
     const {data} = await getArticles(locale, skip, ITEMS_PER_PAGE);
-    const articles = data.articles.items;
+    // gql.tada's local schema snapshot predates the bilingual titleEs/titleEn
+    // fields (same stale-CLI issue as banners-data.ts) — cast rather than
+    // chase the CLI, verified against the live server schema.
+    const articles = data.articles.items as ArticleListItem[];
     const totalPages = Math.ceil(data.articles.totalItems / ITEMS_PER_PAGE);
 
     return (

@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {Suspense} from "react";
 import {getRouteLocale} from "@/platform/i18n/server";
 import {PromoCarousel} from "@/site/home/promo-carousel";
+import {getActiveBanners} from "@/site/home/banners-data";
 import {CategoriesShowcase} from '@/site/home/categories-showcase';
 import {FeaturedProducts} from '@/features/products/featured-products';
 import {LoyaltyTeaser} from '@/features/loyalty/components/loyalty-teaser';
@@ -49,6 +50,7 @@ export default async function Home() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Home'});
     const tHero = await getTranslations({locale, namespace: 'Hero'});
+    const banners = await getActiveBanners();
 
     return (
         <div className="min-h-screen">
@@ -58,6 +60,7 @@ export default async function Home() {
                 heroSubtitle={tHero('subtitle')}
                 heroCta={tHero('shopNow')}
                 heroCtaSecondary={tHero('viewCollections')}
+                banners={banners}
             />
 
             <Suspense>

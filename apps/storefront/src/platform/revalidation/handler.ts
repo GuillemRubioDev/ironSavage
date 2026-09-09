@@ -9,6 +9,7 @@ type TagKind = 'locale-only' | 'currency-dependent';
 // pattern isn't shadowed by the broader collection pattern.
 const TAG_RULES: ReadonlyArray<{match: string | RegExp; kind: TagKind}> = [
     {match: 'collections', kind: 'locale-only'},
+    {match: 'banners', kind: 'locale-only'},
     {match: 'countries', kind: 'locale-only'},
     {match: 'featured', kind: 'currency-dependent'},
     {match: /^collection-meta-.+$/, kind: 'locale-only'},

@@ -221,6 +221,21 @@
   animation: fade-up 0.4s ease-out both;
 }
 
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
 /* Cheap, GPU-only scroll parallax: a translateY set via JS on a CSS custom
    property, applied only inside .parallax-layer. No animation/transition
    libraries. Disabled outright under reduced-motion. */
@@ -228,5 +243,113 @@
   .parallax-layer {
     transform: translateY(calc(var(--parallax-offset, 0) * 1px));
     will-change: transform;
+  }
+}
+
+/* Hero title letters "forming" in — each letter is its own span, staggered
+   via an inline animation-delay set by the component. One-shot, so left
+   unconditional like .animate-fade-up above (WCAG treats short non-looping
+   entrance motion as fine; only the looping glow below is gated). */
+@keyframes letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em) rotateX(-40deg);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+    filter: blur(0);
+  }
+}
+
+.animate-letter-in {
+  animation: letter-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Slow ambient glow pulse on the hero's highlighted word — purely
+   decorative and looping, so it's gated behind reduced-motion like the
+   parallax layer above; reduced-motion users get a static glow instead. */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 18px oklch(0.577 0.245 27.325 / 55%), 0 0 36px oklch(0.577 0.245 27.325 / 25%);
+  }
+  50% {
+    text-shadow: 0 0 28px oklch(0.577 0.245 27.325 / 80%), 0 0 54px oklch(0.577 0.245 27.325 / 40%);
+  }
+}
+
+.hero-glow {
+  text-shadow: 0 0 18px oklch(0.577 0.245 27.325 / 55%), 0 0 36px oklch(0.577 0.245 27.325 / 25%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-glow {
+    animation: glow-pulse 2.8s ease-in-out infinite;
+  }
+}
+
+/* Animated wordmark (site/brand/logo.tsx AnimatedWordmark): the real
+   logo_titulo.png asset used as a CSS mask (its alpha channel only — the
+   photographic metal/grunge texture painted into the PNG's pixels is
+   discarded), filled flat white/red, revealed with a left-to-right wipe. */
+@keyframes logo-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.animate-logo-wipe {
+  animation: logo-wipe 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.logo-glow-white {
+  filter: drop-shadow(0 0 10px oklch(0.99 0 0 / 45%));
+}
+
+.logo-glow-red {
+  filter: drop-shadow(0 0 14px oklch(0.577 0.245 27.325 / 70%));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Finite (not infinite): pulses a few times right after the reveal, then
+     settles back to the static .logo-glow-* value above (same 0%/100%
+     keyframe value, so there's no visible jump when it stops). A `filter`
+     forces this element onto its own GPU compositing layer — leaving the
+     animation running forever means it's *continuously* repainting on its
+     own clock, independent of (and slightly out of sync with) the
+     carousel's drag-transform repaints, which is what caused the hairline
+     seam reported against the adjacent text during a drag. Settling after
+     a few pulses removes that competing repaint clock for the rest of the
+     time the slide is on screen. */
+  .logo-glow-white {
+    animation: logo-glow-white-pulse 2.8s ease-in-out 3;
+  }
+  .logo-glow-red {
+    animation: logo-glow-red-pulse 2.8s ease-in-out 3;
+  }
+}
+
+@keyframes logo-glow-white-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px oklch(0.99 0 0 / 35%));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px oklch(0.99 0 0 / 55%));
+  }
+}
+
+@keyframes logo-glow-red-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px oklch(0.577 0.245 27.325 / 55%));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px oklch(0.577 0.245 27.325 / 85%));
   }
 }

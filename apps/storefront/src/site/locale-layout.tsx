@@ -1,7 +1,7 @@
 import type {Metadata, Viewport} from "next";
 import {locale as rootLocale} from "next/root-params";
 import {hasLocale, NextIntlClientProvider} from "next-intl";
-import {Geist_Mono, Inter, Oswald} from "next/font/google";
+import {Black_Ops_One, Geist_Mono, Inter, Oswald} from "next/font/google";
 import {getMessages, getTranslations, setRequestLocale} from "next-intl/server";
 import {notFound} from "next/navigation";
 import {routing} from "@/platform/i18n/routing";
@@ -32,6 +32,16 @@ const oswald = Oswald({
 const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
     subsets: ["latin"],
+});
+
+// Bold military-stencil face — angular cut terminals close to the real
+// IRON SAVAGE logo's own letterforms. Only for the homepage hero's
+// "ENTRENA" (site/home/promo-carousel.tsx), never the site-wide display
+// font: oswald above stays the "athletic" voice for regular headings.
+const blackOpsOne = Black_Ops_One({
+    variable: "--font-brand-display",
+    subsets: ["latin"],
+    weight: "400",
 });
 
 export function generateStaticParams() {
@@ -100,7 +110,7 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
     return (
         <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
             <body
-                className={`${inter.variable} ${oswald.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+                className={`${inter.variable} ${oswald.variable} ${geistMono.variable} ${blackOpsOne.variable} antialiased flex flex-col min-h-screen`}
             >
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>

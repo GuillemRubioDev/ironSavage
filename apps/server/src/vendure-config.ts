@@ -14,6 +14,9 @@ import { LoyaltyPlugin } from './plugins/loyalty/loyalty.plugin';
 import { InvoicingPlugin } from './plugins/invoicing/invoicing.plugin';
 import { ReviewsPlugin } from './plugins/reviews/reviews.plugin';
 import { ContentPlugin, contentPermission } from './plugins/content/content.plugin';
+import { DashboardExtrasPlugin } from './plugins/dashboard-extras/dashboard-extras.plugin';
+import { BannersPlugin } from './plugins/banners/banners.plugin';
+import { bannerPermission } from './plugins/banners/banner.permission';
 import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
 import { getAssetUrlPrefix, getCorsOrigin, runProductionSafetyChecks } from './production-safety';
@@ -58,8 +61,14 @@ export const config: VendureConfig = {
         },
         cookieOptions: {
           secret: process.env.COOKIE_SECRET,
+          // Vendure's own default leaves this unset (falsy) — behind the
+          // Caddy reverse proxy terminating TLS, the session cookie must be
+          // marked Secure outside dev so it's never sent over a plain HTTP
+          // hop. trustProxy above already tells Express to trust the one
+          // proxy hop's X-Forwarded-* headers.
+          secure: !IS_DEV,
         },
-        customPermissions: [contentPermission],
+        customPermissions: [contentPermission, bannerPermission],
     },
     dbConnectionOptions: {
         type: 'postgres',
@@ -153,5 +162,7 @@ export const config: VendureConfig = {
         TransactionalEmailPlugin,
         ReviewsPlugin,
         ContentPlugin,
+        DashboardExtrasPlugin,
+        BannersPlugin,
     ],
 };

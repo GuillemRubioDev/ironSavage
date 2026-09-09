@@ -6,8 +6,10 @@ import {ImageOff} from 'lucide-react';
 interface ArticleCardProps {
     article: {
         slug: string;
-        title: string;
-        excerpt: string;
+        titleEs: string;
+        titleEn: string;
+        excerptEs: string;
+        excerptEn: string;
         publishedAt: string | null;
         coverImage?: {preview: string} | null;
     };
@@ -15,6 +17,9 @@ interface ArticleCardProps {
 }
 
 export function ArticleCard({article, locale}: ArticleCardProps) {
+    const title = locale === 'es' ? article.titleEs : article.titleEn;
+    const excerpt = locale === 'es' ? article.excerptEs : article.excerptEn;
+
     return (
         <Link
             href={`/noticias/${article.slug}`}
@@ -24,7 +29,7 @@ export function ArticleCard({article, locale}: ArticleCardProps) {
                 {article.coverImage ? (
                     <Image
                         src={`${article.coverImage.preview}?preset=medium`}
-                        alt={article.title}
+                        alt={title}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
@@ -39,9 +44,9 @@ export function ArticleCard({article, locale}: ArticleCardProps) {
                     <p className="text-xs text-muted-foreground">{formatDate(article.publishedAt, 'long', locale)}</p>
                 )}
                 <h3 className="font-semibold text-lg leading-snug group-hover:text-primary transition-colors">
-                    {article.title}
+                    {title}
                 </h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2">{excerpt}</p>
             </div>
         </Link>
     );

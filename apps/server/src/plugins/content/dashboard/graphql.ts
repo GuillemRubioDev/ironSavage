@@ -5,11 +5,15 @@ export const adminArticleListDocument = graphql(`
         adminArticles(options: $options) {
             items {
                 id
-                title
+                titleEs
                 slug
                 status
                 publishedAt
                 updatedAt
+                coverImage {
+                    id
+                    preview
+                }
             }
             totalItems
         }
@@ -20,10 +24,13 @@ export const adminArticleDetailDocument = graphql(`
     query AdminArticleDetail($id: ID!) {
         adminArticle(id: $id) {
             id
-            title
+            titleEs
+            titleEn
             slug
-            excerpt
-            content
+            excerptEs
+            excerptEn
+            contentEs
+            contentEn
             status
             publishedAt
             coverImage {

@@ -1,0 +1,26 @@
+# Applies to any `docker build` run with the repo root as context (both
+# apps/server/Dockerfile and apps/storefront/Dockerfile use this).
+**/node_modules
+**/dist
+**/.next
+**/admin-ui
+.git
+.vscode
+.claude
+*.log
+
+# Never bake secrets or real config into an image layer.
+**/.env
+**/.env.local
+!**/.env.example
+
+# Runtime-written data — these belong in volumes, not image layers.
+apps/server/static/assets
+apps/server/static/email
+apps/server/static/invoices
+apps/server/static/transactional-emails
+
+# Not needed in a build context.
+**/*.md
+apps/storefront/tests
+apps/storefront/coverage

@@ -67,6 +67,7 @@ import type { InvoicingPluginOptions } from './types';
         schema: shopApiExtensions,
         resolvers: [InvoicingShopResolver],
     },
+    dashboard: './dashboard/index.tsx',
     compatibility: '^3.0.0',
 })
 export class InvoicingPlugin {

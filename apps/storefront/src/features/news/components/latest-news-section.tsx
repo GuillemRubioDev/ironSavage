@@ -1,6 +1,6 @@
 import {cacheLife, cacheTag} from 'next/cache';
 import {query} from '@/platform/vendure/api';
-import {GetArticlesQuery} from '@/features/news/graphql';
+import {GetArticlesQuery, type ArticleListItem} from '@/features/news/graphql';
 import {ArticleCard} from '@/features/news/components/article-card';
 import {Link} from '@/platform/i18n/navigation';
 import {getRouteLocale} from '@/platform/i18n/server';
@@ -14,7 +14,10 @@ async function getLatestArticles(locale: string) {
     cacheTag('news');
 
     const result = await query(GetArticlesQuery, {options: {skip: 0, take: 3}}, {languageCode: locale});
-    return result.data.articles.items;
+    // gql.tada's local schema snapshot predates the bilingual titleEs/titleEn
+    // fields (same stale-CLI issue documented in banners-data.ts) — cast
+    // rather than chase the CLI, verified against the live server schema.
+    return result.data.articles.items as ArticleListItem[];
 }
 
 export async function LatestNewsSection() {

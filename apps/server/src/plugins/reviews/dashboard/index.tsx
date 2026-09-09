@@ -25,6 +25,7 @@ import { graphql } from '@/gql';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StarIcon } from 'lucide-react';
 import { useState } from 'react';
+import { pendingReviewsWidget } from './pending-reviews-widget';
 
 /**
  * Deliberately NOT built on Vendure's <ListPage>/<PaginatedListDataTable>
@@ -237,7 +238,7 @@ function ReviewsListPage() {
 
 const reviewsList: DashboardRouteDefinition = {
     navMenuItem: {
-        sectionId: 'catalog',
+        sectionId: 'customers',
         id: 'product-reviews',
         url: '/product-reviews',
         title: 'Reviews',
@@ -249,4 +250,5 @@ const reviewsList: DashboardRouteDefinition = {
 
 defineDashboardExtension({
     routes: [reviewsList],
+    widgets: [pendingReviewsWidget],
 });
