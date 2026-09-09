@@ -4,5 +4,6 @@ import { config } from './vendure-config';
 runMigrations(config)
     .then(() => bootstrap(config))
     .catch(err => {
-        console.log(err);
+        console.error(err);
+        process.exit(1);
     });

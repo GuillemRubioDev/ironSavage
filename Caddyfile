@@ -12,9 +12,35 @@
 }
 
 {$PUBLIC_DOMAIN} {
+	# Access log to stdout (captured by `docker logs caddy`) — this is the
+	# only place a 502 (storefront/vendure-server unreachable) is visible,
+	# since neither upstream ever sees the request. The `query` filter
+	# strips the `token` query param before it's written: /verify and
+	# /reset-password pass the email-verification / password-reset token
+	# as `?token=...`, which must never end up in logs.
+	log {
+		format filter {
+			wrap console
+			fields {
+				request>uri query {
+					delete token
+				}
+			}
+		}
+	}
 	reverse_proxy storefront:3001
 }
 
 {$API_DOMAIN} {
+	log {
+		format filter {
+			wrap console
+			fields {
+				request>uri query {
+					delete token
+				}
+			}
+		}
+	}
 	reverse_proxy vendure-server:3000
 }
