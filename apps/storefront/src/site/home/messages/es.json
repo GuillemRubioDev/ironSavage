@@ -35,15 +35,6 @@
       "play": "Reproducir carrusel",
       "previous": "Diapositiva anterior",
       "next": "Diapositiva siguiente"
-    },
-    "loyalty": {
-      "title": "Iron Rewards",
-      "description": "Gana puntos en cada pedido y canjéalos por descuentos en tu próxima compra.",
-      "balanceLabel": "Tu saldo",
-      "pointsSuffix": "pts",
-      "cta": "Ver mis puntos",
-      "signedOutCta": "Inicia sesión para empezar a ganar",
-      "guestDescription": "Crea una cuenta para empezar a ganar puntos en cada pedido."
     }
   }
 }

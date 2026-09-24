@@ -35,15 +35,6 @@
       "play": "Play carousel",
       "previous": "Previous slide",
       "next": "Next slide"
-    },
-    "loyalty": {
-      "title": "Iron Rewards",
-      "description": "Earn points on every order and redeem them for discounts on your next one.",
-      "balanceLabel": "Your balance",
-      "pointsSuffix": "pts",
-      "cta": "View my points",
-      "signedOutCta": "Sign in to start earning",
-      "guestDescription": "Create an account to start earning points on every order."
     }
   }
 }

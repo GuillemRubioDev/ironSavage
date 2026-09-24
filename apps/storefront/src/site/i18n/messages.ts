@@ -3,6 +3,8 @@ import {authenticationMessageLoaders} from '@/features/authentication/messages';
 import {cartMessageLoaders} from '@/features/cart/messages';
 import {checkoutMessageLoaders} from '@/features/checkout/messages';
 import {collectionsMessageLoaders} from '@/features/collections/messages';
+import {invoicesMessageLoaders} from '@/features/invoices/messages';
+import {loyaltyMessageLoaders} from '@/features/loyalty/messages';
 import {newsMessageLoaders} from '@/features/news/messages';
 import {ordersMessageLoaders} from '@/features/orders/messages';
 import {productsMessageLoaders} from '@/features/products/messages';
@@ -26,6 +28,8 @@ const registrations: MessageLoaders[] = [
     cartMessageLoaders,
     checkoutMessageLoaders,
     collectionsMessageLoaders,
+    invoicesMessageLoaders,
+    loyaltyMessageLoaders,
     newsMessageLoaders,
     ordersMessageLoaders,
     productsMessageLoaders,

@@ -15,7 +15,7 @@ const ITEMS_PER_PAGE = 50;
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
-    const t = await getTranslations({locale, namespace: 'Account'});
+    const t = await getTranslations({locale, namespace: 'Invoices'});
     return {
         title: t('invoicesPageTitle'),
     };
@@ -34,7 +34,11 @@ export default async function InvoicesPage() {
         {options: {skip: 0, take: ITEMS_PER_PAGE}},
         {useAuthToken: true},
     );
-    const t = await getTranslations({locale, namespace: 'Account'});
+    const t = await getTranslations({locale, namespace: 'Invoices'});
+    // download/totalHeader are generic "my stuff" table vocabulary shared
+    // with the account feature's own orders table — genuinely reused, not
+    // invoices-owned content.
+    const tAccount = await getTranslations({locale, namespace: 'Account'});
 
     const invoices = data.myInvoices.items;
 
@@ -69,7 +73,7 @@ export default async function InvoicesPage() {
                                     {invoice.hasPdf && (
                                         <Button nativeButton={false} render={<a href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener noreferrer" />} variant="outline" size="sm">
                                             <Download className="h-4 w-4 mr-1"/>
-                                            {t('download')}
+                                            {tAccount('download')}
                                         </Button>
                                     )}
                                 </div>
@@ -84,8 +88,8 @@ export default async function InvoicesPage() {
                                 <TableRow>
                                     <TableHead>{t('invoiceNumber')}</TableHead>
                                     <TableHead>{t('issueDate')}</TableHead>
-                                    <TableHead className="text-right">{t('totalHeader')}</TableHead>
-                                    <TableHead className="text-right">{t('download')}</TableHead>
+                                    <TableHead className="text-right">{tAccount('totalHeader')}</TableHead>
+                                    <TableHead className="text-right">{tAccount('download')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

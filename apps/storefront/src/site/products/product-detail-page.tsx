@@ -1,6 +1,6 @@
 import {Suspense} from 'react';
-import ProductDetailPage, {generateMetadata} from '@/features/products/routes/page';
-import {ProductReviewsSection} from '@/features/reviews/components/product-reviews-section';
+import ProductDetailPage, {generateMetadata} from '@/features/products/product-detail-page';
+import {ProductReviewsSection} from '@/features/reviews/product-reviews-section';
 
 // Only "site" is allowed to depend on more than one feature at once — see
 // tests/architecture/boundaries.test.mjs. The product detail page and the

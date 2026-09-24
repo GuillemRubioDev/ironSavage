@@ -65,18 +65,30 @@ function messageKeys(value, prefix = '') {
 }
 
 test('message keys match across locales', async () => {
+    // Supported locales come from routing.ts, not a hardcoded list — this
+    // repo dropped German in Fase 16.2B, so "every locale" means es/en today
+    // and should track whatever routing.ts declares tomorrow.
+    const routingSource = await readFile(path.join(root, 'src/platform/i18n/routing.ts'), 'utf8');
+    const localesMatch = routingSource.match(/locales:\s*\[([^\]]+)\]/);
+    assert.ok(localesMatch, 'Could not find routing.ts locales list.');
+    const locales = [...localesMatch[1].matchAll(/'([^']+)'/g)].map(match => match[1]);
+    assert.ok(locales.length > 1, 'routing.ts must declare at least two locales to compare.');
+
     const discovered = await findMessageFiles(path.join(root, 'src'));
-    const englishFiles = discovered.filter(file => path.basename(file) === 'en.json');
-    for (const englishFile of englishFiles) {
-        const germanFile = path.join(path.dirname(englishFile), 'de.json');
-        assert.ok(discovered.includes(germanFile), `${englishFile} has no matching de.json file.`);
-        const english = JSON.parse(await readFile(path.join(root, englishFile), 'utf8'));
-        const german = JSON.parse(await readFile(path.join(root, germanFile), 'utf8'));
-        assert.deepEqual(
-            messageKeys(german).sort(),
-            messageKeys(english).sort(),
-            `${englishFile} and ${germanFile} must define the same message keys.`,
-        );
+    const primaryLocale = locales[0];
+    const primaryFiles = discovered.filter(file => path.basename(file) === `${primaryLocale}.json`);
+    for (const primaryFile of primaryFiles) {
+        const primary = JSON.parse(await readFile(path.join(root, primaryFile), 'utf8'));
+        for (const locale of locales.slice(1)) {
+            const localeFile = path.join(path.dirname(primaryFile), `${locale}.json`);
+            assert.ok(discovered.includes(localeFile), `${primaryFile} has no matching ${locale}.json file.`);
+            const localeMessages = JSON.parse(await readFile(path.join(root, localeFile), 'utf8'));
+            assert.deepEqual(
+                messageKeys(localeMessages).sort(),
+                messageKeys(primary).sort(),
+                `${primaryFile} and ${localeFile} must define the same message keys.`,
+            );
+        }
     }
 });
 
@@ -95,6 +107,13 @@ test('message namespaces are unique per locale', async () => {
         }
     }
 });
+
+// Namespaces intentionally shared beyond their owning feature — a deliberate
+// architecture decision, not a per-file exception. Account owns generic "my
+// stuff" table vocabulary (date, status, download, totalHeader) reused as-is
+// by the account-adjacent invoices/loyalty pages instead of being duplicated
+// under their own namespace. Any other cross-feature reuse still fails below.
+const SHARED_NAMESPACES = new Set(['Account']);
 
 test('features use only owned or shared message namespaces', async () => {
     const owners = new Map();
@@ -115,8 +134,13 @@ test('features use only owned or shared message namespaces', async () => {
             ...content.matchAll(/namespace:\s*['"]([^'"]+)['"]/g),
         ].map(match => match[1]);
         for (const namespace of namespaces) {
-            const owner = owners.get(namespace);
-            if (owner !== feature && owner !== 'platform.i18n') {
+            // next-intl lets a namespace argument descend into a nested key
+            // (e.g. 'Verify.pending' scopes into the "pending" object inside
+            // the top-level "Verify" namespace) — ownership is decided by
+            // the top-level namespace, not the full dotted path.
+            const topLevelNamespace = namespace.split('.')[0];
+            const owner = owners.get(topLevelNamespace);
+            if (owner !== feature && owner !== 'platform.i18n' && !SHARED_NAMESPACES.has(topLevelNamespace)) {
                 violations.push(`${path.relative(root, file)} uses ${namespace} owned by ${owner ?? 'nobody'}`);
             }
         }

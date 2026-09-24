@@ -1,0 +1,27 @@
+{
+  "Loyalty": {
+    "pointsPageTitle": "My Points",
+    "myPoints": "My Points",
+    "currentBalance": "Current Balance",
+    "pointsLifetimeEarned": "Points Earned",
+    "pointsLifetimeSpent": "Points Spent",
+    "pointsHistory": "History",
+    "noPointsHistory": "No point activity yet.",
+    "pointsTypeEarn": "Earned",
+    "pointsTypeSpend": "Redeemed",
+    "pointsTypeRefund": "Refund adjustment",
+    "pointsTypeAdjustment": "Manual adjustment",
+    "pointsTypeExpire": "Expired",
+    "pointsDescription": "Description",
+    "pointsAmount": "Points",
+    "teaser": {
+      "title": "Iron Rewards",
+      "description": "Earn points on every order and redeem them for discounts on your next one.",
+      "balanceLabel": "Your balance",
+      "pointsSuffix": "pts",
+      "cta": "View my points",
+      "signedOutCta": "Sign in to start earning",
+      "guestDescription": "Create an account to start earning points on every order."
+    }
+  }
+}

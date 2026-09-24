@@ -1,0 +1,9 @@
+{
+  "Invoices": {
+    "invoicesPageTitle": "My Invoices",
+    "myInvoices": "My Invoices",
+    "noInvoices": "You don't have any invoices yet. An invoice is generated automatically once an order is paid.",
+    "invoiceNumber": "Invoice Number",
+    "issueDate": "Issue Date"
+  }
+}

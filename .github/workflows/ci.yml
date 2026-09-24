@@ -106,6 +106,13 @@ jobs:
       - name: Typecheck storefront
         run: npm run check-types -w storefront
 
+      # ---- lint ----
+      # server has no lint script configured — only storefront does
+      # (apps/storefront/eslint.config.mjs enforces the app/site/features
+      # layering, including no-restricted-imports across feature boundaries).
+      - name: Lint storefront
+        run: npm run lint -w storefront
+
       # ---- tests (existing only — no new tests written for this pipeline) ----
       - name: Backend tests
         run: npm run test -w server

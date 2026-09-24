@@ -1,0 +1,9 @@
+{
+  "Invoices": {
+    "invoicesPageTitle": "Mis facturas",
+    "myInvoices": "Mis facturas",
+    "noInvoices": "Todavía no tienes facturas. Se genera una factura automáticamente cuando se paga un pedido.",
+    "invoiceNumber": "Número de factura",
+    "issueDate": "Fecha de emisión"
+  }
+}

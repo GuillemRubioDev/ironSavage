@@ -9,7 +9,7 @@ import {Star} from 'lucide-react';
 
 export async function LoyaltyTeaser() {
     const locale = await getRouteLocale();
-    const t = await getTranslations({locale, namespace: 'Home.loyalty'});
+    const t = await getTranslations({locale, namespace: 'Loyalty.teaser'});
     const customer = await getActiveCustomer();
 
     let balance: number | null = null;

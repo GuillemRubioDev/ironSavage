@@ -29,7 +29,7 @@ function typeLabelKey(type: string): PointsTypeLabelKey {
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
-    const t = await getTranslations({locale, namespace: 'Account'});
+    const t = await getTranslations({locale, namespace: 'Loyalty'});
     return {
         title: t('pointsPageTitle'),
     };
@@ -48,7 +48,11 @@ export default async function PointsPage() {
         {options: {skip: 0, take: HISTORY_PAGE_SIZE}},
         {useAuthToken: true},
     );
-    const t = await getTranslations({locale, namespace: 'Account'});
+    const t = await getTranslations({locale, namespace: 'Loyalty'});
+    // date/status are generic "my stuff" table vocabulary shared with the
+    // account feature's own orders table — genuinely reused, not
+    // loyalty-owned content.
+    const tAccount = await getTranslations({locale, namespace: 'Account'});
 
     const balance = data.loyaltyAccount?.balance ?? 0;
     const lifetimeEarned = data.loyaltyAccount?.lifetimeEarned ?? 0;
@@ -118,8 +122,8 @@ export default async function PointsPage() {
                         <Table>
                             <TableHeader className="bg-muted">
                                 <TableRow>
-                                    <TableHead>{t('date')}</TableHead>
-                                    <TableHead>{t('status')}</TableHead>
+                                    <TableHead>{tAccount('date')}</TableHead>
+                                    <TableHead>{tAccount('status')}</TableHead>
                                     <TableHead>{t('pointsDescription')}</TableHead>
                                     <TableHead className="text-right">{t('pointsAmount')}</TableHead>
                                 </TableRow>
