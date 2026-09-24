@@ -12,7 +12,22 @@ import { useCheckout } from './checkout-provider';
 import { Price } from '@/features/pricing/price';
 import {useTranslations} from 'next-intl';
 
+/**
+ * Vendure reports one taxSummary entry per (taxRate, taxCategory) pair, so a
+ * product tax line and a shipping tax line at the same 21% show up as two
+ * separate entries — confusing when displayed as-is ("IVA (21%)" twice).
+ * Combine entries that share a rate into one total before rendering.
+ */
+function combineTaxByRate(taxSummary: ReturnType<typeof useCheckout>['order']['taxSummary']) {
+  const byRate = new Map<number, number>();
+  for (const tax of taxSummary ?? []) {
+    byRate.set(tax.taxRate, (byRate.get(tax.taxRate) ?? 0) + tax.taxTotal);
+  }
+  return [...byRate.entries()].map(([taxRate, taxTotal]) => ({ taxRate, taxTotal }));
+}
+
 function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckout>['order']; t: ReturnType<typeof useTranslations<'Checkout'>> }) {
+  const combinedTax = combineTaxByRate(order.taxSummary);
   return (
     <div className="space-y-4">
       <div className="space-y-3">
@@ -60,11 +75,13 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
 
       <Separator />
 
+      <p className="text-xs text-muted-foreground -mt-1">{t('pricesIncludeTax')}</p>
+
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">{t('subtotal')}</span>
           <span>
-            <Price value={order.subTotal} currencyCode={order.currencyCode} />
+            <Price value={order.subTotalWithTax} currencyCode={order.currencyCode} />
           </span>
         </div>
 
@@ -92,21 +109,10 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
           <span className="text-muted-foreground">{t('shipping')}</span>
           <span>
             {order.shippingWithTax > 0
-              ? <Price value={order.shipping} currencyCode={order.currencyCode} />
+              ? <Price value={order.shippingWithTax} currencyCode={order.currencyCode} />
               : t('toBeCalculated')}
           </span>
         </div>
-
-        {order.taxSummary?.map((tax, index: number) => (
-          <div key={index} className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              {t('tax')} ({tax.taxRate}%)
-            </span>
-            <span>
-              <Price value={tax.taxTotal} currencyCode={order.currencyCode} />
-            </span>
-          </div>
-        ))}
       </div>
 
       <Separator />
@@ -117,6 +123,14 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
           <Price value={order.totalWithTax} currencyCode={order.currencyCode} />
         </span>
       </div>
+      {combinedTax.map((tax, index: number) => (
+        <div key={index} className="flex justify-between text-xs text-muted-foreground">
+          <span>{t('taxIncludedNote', {rate: tax.taxRate})}</span>
+          <span>
+            <Price value={tax.taxTotal} currencyCode={order.currencyCode} />
+          </span>
+        </div>
+      ))}
     </div>
   );
 }

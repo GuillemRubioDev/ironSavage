@@ -12,6 +12,7 @@
     "errorAddToCart": "Failed to add item to cart",
     "sku": "SKU: {sku}",
     "from": "From",
+    "taxIncluded": "VAT included",
     "noImage": "No image",
     "noImagesAvailable": "No images available",
     "featuredProducts": "Featured Products",

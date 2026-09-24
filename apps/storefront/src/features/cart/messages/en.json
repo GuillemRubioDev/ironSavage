@@ -11,6 +11,8 @@
     "tax": "Tax",
     "calculatedAtCheckout": "Calculated at checkout",
     "total": "Total",
+    "pricesIncludeTax": "All prices include VAT",
+    "taxIncludedNote": "Of which, VAT ({rate}%)",
     "proceedToCheckout": "Proceed to Checkout",
     "secureCheckout": "Secure Checkout",
     "promotionCode": "Promotion Code",

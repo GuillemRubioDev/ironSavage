@@ -7,7 +7,7 @@ import {getTranslations} from 'next-intl/server';
 type ActiveOrder = {
     id: string;
     currencyCode: string;
-    subTotal: number;
+    subTotalWithTax: number;
     shipping: number;
     shippingWithTax: number;
     totalWithTax: number;
@@ -22,17 +22,33 @@ type ActiveOrder = {
     }> | null;
 };
 
+/**
+ * Vendure reports one taxSummary entry per (taxRate, taxCategory) pair, so a
+ * product tax line and a shipping tax line at the same 21% show up as two
+ * separate entries — confusing when displayed as-is ("IVA (21%)" twice).
+ * Combine entries that share a rate into one total before rendering.
+ */
+function combineTaxByRate(taxSummary: ActiveOrder['taxSummary']) {
+    const byRate = new Map<number, number>();
+    for (const tax of taxSummary) {
+        byRate.set(tax.taxRate, (byRate.get(tax.taxRate) ?? 0) + tax.taxTotal);
+    }
+    return [...byRate.entries()].map(([taxRate, taxTotal]) => ({taxRate, taxTotal}));
+}
+
 export async function OrderSummary({activeOrder}: { activeOrder: ActiveOrder }) {
     const t = await getTranslations('Cart');
+    const combinedTax = combineTaxByRate(activeOrder.taxSummary ?? []);
     return (
         <div className="border rounded-xl p-6 bg-card sticky top-24 shadow-sm">
-            <h2 className="text-xl font-bold mb-4">{t('orderSummary')}</h2>
+            <h2 className="text-xl font-bold mb-1">{t('orderSummary')}</h2>
+            <p className="text-xs text-muted-foreground mb-4">{t('pricesIncludeTax')}</p>
 
             <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t('subtotal')}</span>
                     <span>
-                        <Price value={activeOrder.subTotal} currencyCode={activeOrder.currencyCode}/>
+                        <Price value={activeOrder.subTotalWithTax} currencyCode={activeOrder.currencyCode}/>
                     </span>
                 </div>
                 {activeOrder.discounts && activeOrder.discounts.length > 0 && (
@@ -51,18 +67,10 @@ export async function OrderSummary({activeOrder}: { activeOrder: ActiveOrder }) 
                     <span className="text-muted-foreground">{t('shipping')}</span>
                     <span>
                         {activeOrder.shippingWithTax > 0
-                            ? <Price value={activeOrder.shipping} currencyCode={activeOrder.currencyCode}/>
+                            ? <Price value={activeOrder.shippingWithTax} currencyCode={activeOrder.currencyCode}/>
                             : t('calculatedAtCheckout')}
                     </span>
                 </div>
-                {activeOrder.taxSummary?.map((tax, index) => (
-                    <div key={index} className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">{t('tax')} ({tax.taxRate}%)</span>
-                        <span>
-                            <Price value={tax.taxTotal} currencyCode={activeOrder.currencyCode}/>
-                        </span>
-                    </div>
-                ))}
             </div>
 
             <div className="border-t pt-4 mb-6">
@@ -72,6 +80,14 @@ export async function OrderSummary({activeOrder}: { activeOrder: ActiveOrder }) 
                         <Price value={activeOrder.totalWithTax} currencyCode={activeOrder.currencyCode}/>
                     </span>
                 </div>
+                {combinedTax.map((tax, index) => (
+                    <div key={index} className="flex justify-between text-xs text-muted-foreground mt-1">
+                        <span>{t('taxIncludedNote', {rate: tax.taxRate})}</span>
+                        <span>
+                            <Price value={tax.taxTotal} currencyCode={activeOrder.currencyCode}/>
+                        </span>
+                    </div>
+                ))}
             </div>
 
             <Button render={<Link href="/checkout" />} nativeButton={false} className="w-full" size="lg">{t('proceedToCheckout')}</Button>

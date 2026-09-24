@@ -12,6 +12,7 @@
     "errorAddToCart": "No se ha podido añadir el artículo al carrito",
     "sku": "SKU: {sku}",
     "from": "Desde",
+    "taxIncluded": "IVA incluido",
     "noImage": "Sin imagen",
     "noImagesAvailable": "No hay imágenes disponibles",
     "featuredProducts": "Productos destacados",

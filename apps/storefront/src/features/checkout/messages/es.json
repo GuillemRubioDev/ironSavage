@@ -81,6 +81,8 @@
     "tax": "Impuestos",
     "toBeCalculated": "Por calcular",
     "total": "Total",
+    "pricesIncludeTax": "Todos los precios incluyen IVA",
+    "taxIncludedNote": "De los cuales, IVA ({rate}%)",
     "item": "artículo",
     "items": "artículos"
   }

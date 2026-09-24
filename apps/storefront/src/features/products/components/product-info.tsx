@@ -89,9 +89,12 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
             <div className="space-y-2">
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{product.name}</h1>
                 {selectedVariant && (
-                    <p className="text-2xl md:text-3xl text-muted-foreground font-semibold mt-3">
-                        <Price value={selectedVariant.priceWithTax} currencyCode={currencyCode}/>
-                    </p>
+                    <>
+                        <p className="text-2xl md:text-3xl text-muted-foreground font-semibold mt-3">
+                            <Price value={selectedVariant.priceWithTax} currencyCode={currencyCode}/>
+                        </p>
+                        <p className="text-xs text-muted-foreground">{t('taxIncluded')}</p>
+                    </>
                 )}
             </div>
 

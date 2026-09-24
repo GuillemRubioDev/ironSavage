@@ -11,6 +11,8 @@
     "tax": "Impuestos",
     "calculatedAtCheckout": "Se calcula en el checkout",
     "total": "Total",
+    "pricesIncludeTax": "Todos los precios incluyen IVA",
+    "taxIncludedNote": "De los cuales, IVA ({rate}%)",
     "proceedToCheckout": "Finalizar compra",
     "secureCheckout": "Pago seguro",
     "promotionCode": "Código promocional",

@@ -81,6 +81,8 @@
     "tax": "Tax",
     "toBeCalculated": "To be calculated",
     "total": "Total",
+    "pricesIncludeTax": "All prices include VAT",
+    "taxIncludedNote": "Of which, VAT ({rate}%)",
     "item": "item",
     "items": "items"
   }

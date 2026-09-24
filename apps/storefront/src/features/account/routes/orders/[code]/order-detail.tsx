@@ -107,6 +107,7 @@ export function OrderDetail({orderPromise, invoicePromise}: OrderDetailProps) {
                     <Card>
                         <CardHeader>
                             <CardTitle>{t('orderSummary')}</CardTitle>
+                            <p className="text-xs text-muted-foreground">{t('pricesIncludeTax')}</p>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
