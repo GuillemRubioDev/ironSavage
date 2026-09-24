@@ -8,8 +8,12 @@ import {Price} from '@/features/pricing/price';
 import {notFound} from 'next/navigation';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
-import {query} from '@/platform/vendure/api';
+import {mutate, query} from '@/platform/vendure/api';
 import {graphql} from '@/platform/vendure/graphql';
+
+function firstValue(value: string | string[] | undefined): string | undefined {
+    return Array.isArray(value) ? value[0] : value;
+}
 
 const GetOrderByCodeQuery = graphql(`
     query GetOrderByCode($code: String!) {
@@ -50,14 +54,78 @@ const GetOrderByCodeQuery = graphql(`
     }
 `);
 
+const ConfirmRedsysPaymentMutation = graphql(`
+    mutation ConfirmRedsysPayment($input: ConfirmRedsysPaymentInput!) {
+        confirmRedsysPayment(input: $input) {
+            __typename
+            ... on RedsysConfirmation {
+                orderCode
+                alreadyProcessed
+            }
+            ... on RedsysConfirmationError {
+                errorCode
+                message
+            }
+        }
+    }
+`);
+
 interface OrderConfirmationProps {
     paramsPromise: Promise<{ locale: string; code: string }>;
+    searchParamsPromise: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export async function OrderConfirmation({paramsPromise}: OrderConfirmationProps) {
+export async function OrderConfirmation({paramsPromise, searchParamsPromise}: OrderConfirmationProps) {
     const {code} = await paramsPromise;
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'OrderConfirmation'});
+
+    // Redsys' redirect back to DS_MERCHANT_URLOK carries the same signed
+    // Ds_SignatureVersion/Ds_MerchantParameters/Ds_Signature it also sends
+    // server-to-server to the async notification endpoint. Processing it here
+    // too (best-effort — a missing/invalid/already-processed payload is a safe
+    // no-op, see confirmRedsysPayment) lets this page confirm payment on the
+    // very first render instead of only via the polling fallback below, which
+    // depended entirely on that separate notification having already arrived
+    // — something REDSYS_NOTIFICATION_URL being unreachable (e.g. plain
+    // localhost testing, no public tunnel) meant could never happen at all,
+    // leaving the customer stuck on "Confirmando tu pago..." indefinitely even
+    // though the card had genuinely been charged.
+    const searchParams = await searchParamsPromise;
+    const merchantParameters = firstValue(searchParams.Ds_MerchantParameters);
+    const signature = firstValue(searchParams.Ds_Signature);
+    if (merchantParameters && signature) {
+        try {
+            const confirmResult = await mutate(ConfirmRedsysPaymentMutation, {
+                input: {
+                    signatureVersion: firstValue(searchParams.Ds_SignatureVersion),
+                    merchantParameters,
+                    signature,
+                },
+            });
+            const outcome = confirmResult.data.confirmRedsysPayment;
+            if (outcome.__typename === 'RedsysConfirmationError') {
+                // Logged (not thrown) — the polling fallback below still covers
+                // this: a genuine failure/delay here just means the async
+                // notification has to win the race instead. But silently
+                // dropping this made a real invalid-payload/mismatch bug here
+                // indistinguishable from Redsys simply not having sent these
+                // params at all — see the `else` branch below.
+                console.error(`[Redsys] confirmRedsysPayment for order ${code} returned an error: ${outcome.message}`);
+            }
+        } catch (err) {
+            console.error(`[Redsys] confirmRedsysPayment request failed for order ${code}:`, err);
+        }
+    } else {
+        // Expected on a plain "view my order" visit (no Redsys params at all).
+        // But if this order is still ArrangingPayment and the customer *did*
+        // just come back from Redsys, this line is the signal that Redsys'
+        // redirect didn't carry Ds_MerchantParameters/Ds_Signature this time —
+        // a Redsys/environment-side behaviour, not something this page can fix
+        // — confirmation then depends entirely on the separate async
+        // notification (REDSYS_NOTIFICATION_URL) actually being reachable.
+        console.log(`[Redsys] order-confirmation for ${code} had no Ds_MerchantParameters/Ds_Signature in the URL.`);
+    }
 
     const {data} = await query(GetOrderByCodeQuery, {code}, {useAuthToken: true});
     const order = data.orderByCode;

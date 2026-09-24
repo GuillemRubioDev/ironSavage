@@ -22,7 +22,7 @@ export default async function OrderConfirmationPage(
 
     return (
         <Suspense fallback={<div className="container mx-auto px-4 py-16 text-center">{t('loading')}</div>}>
-            <OrderConfirmation paramsPromise={props.params} />
+            <OrderConfirmation paramsPromise={props.params} searchParamsPromise={props.searchParams} />
         </Suspense>
     );
 }

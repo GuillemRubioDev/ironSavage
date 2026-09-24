@@ -75,6 +75,21 @@ export const AddToCartMutation = graphql(`
     }
 `);
 
+export const ReopenStuckOrderMutation = graphql(`
+    mutation ReopenStuckOrder {
+        transitionOrderToState(state: "AddingItems") {
+            __typename
+            ... on Order {
+                id
+            }
+            ... on ErrorResult {
+                errorCode
+                message
+            }
+        }
+    }
+`);
+
 export const RemoveFromCartMutation = graphql(`
     mutation RemoveFromCart($lineId: ID!) {
         removeOrderLine(orderLineId: $lineId) {

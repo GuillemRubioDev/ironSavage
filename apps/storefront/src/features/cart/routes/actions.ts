@@ -1,31 +1,58 @@
 'use server';
 
 import {mutate} from '@/platform/vendure/api';
-import {RemoveFromCartMutation, AdjustCartItemMutation, ApplyPromotionCodeMutation, RemovePromotionCodeMutation} from '@/features/cart/graphql';
+import {RemoveFromCartMutation, AdjustCartItemMutation, ApplyPromotionCodeMutation, RemovePromotionCodeMutation, ReopenStuckOrderMutation} from '@/features/cart/graphql';
 import {getActiveCurrencyCode} from '@/features/currency/currency-server';
 import {updateTag} from 'next/cache';
 import {getTranslations} from 'next-intl/server';
 
 export type CartActionResult = {success: true} | {success: false; error: string};
 
+/**
+ * A previous checkout attempt that never finished (abandoned payment,
+ * declined Redsys attempt) leaves the order stuck in ArrangingPayment —
+ * Vendure then refuses any cart edit with ORDER_MODIFICATION_ERROR. This
+ * mirrors add-to-cart.ts's recovery for that same situation: reopen the
+ * order for editing and retry the mutation once. Any other error result is
+ * returned as-is.
+ */
+async function withStuckOrderRecovery<T extends {__typename: string; errorCode?: string}>(
+    attempt: () => Promise<T>,
+): Promise<T> {
+    const result = await attempt();
+    if (result.__typename !== 'Order' && result.errorCode === 'ORDER_MODIFICATION_ERROR') {
+        const reopened = await mutate(ReopenStuckOrderMutation, {}, {useAuthToken: true});
+        if (reopened.data.transitionOrderToState?.__typename === 'Order') {
+            return attempt();
+        }
+    }
+    return result;
+}
+
 export async function removeFromCart(lineId: string): Promise<CartActionResult> {
     const currencyCode = await getActiveCurrencyCode();
-    const result = await mutate(RemoveFromCartMutation, {lineId}, {useAuthToken: true, currencyCode});
+    const result = await withStuckOrderRecovery(async () => {
+        const r = await mutate(RemoveFromCartMutation, {lineId}, {useAuthToken: true, currencyCode});
+        return r.data.removeOrderLine;
+    });
     updateTag('cart');
 
-    if (result.data.removeOrderLine.__typename !== 'Order') {
-        return {success: false, error: result.data.removeOrderLine.message};
+    if (result.__typename !== 'Order') {
+        return {success: false, error: result.message};
     }
     return {success: true};
 }
 
 export async function adjustQuantity(lineId: string, quantity: number): Promise<CartActionResult> {
     const currencyCode = await getActiveCurrencyCode();
-    const result = await mutate(AdjustCartItemMutation, {lineId, quantity}, {useAuthToken: true, currencyCode});
+    const result = await withStuckOrderRecovery(async () => {
+        const r = await mutate(AdjustCartItemMutation, {lineId, quantity}, {useAuthToken: true, currencyCode});
+        return r.data.adjustOrderLine;
+    });
     updateTag('cart');
 
-    if (result.data.adjustOrderLine.__typename !== 'Order') {
-        return {success: false, error: result.data.adjustOrderLine.message};
+    if (result.__typename !== 'Order') {
+        return {success: false, error: result.message};
     }
     return {success: true};
 }
@@ -41,12 +68,15 @@ export async function applyPromotionCode(
 
     const t = await getTranslations('Cart');
     const currencyCode = await getActiveCurrencyCode();
-    const result = await mutate(ApplyPromotionCodeMutation, {couponCode: code}, {useAuthToken: true, currencyCode});
+    const applyResult = await withStuckOrderRecovery(async () => {
+        const r = await mutate(ApplyPromotionCodeMutation, {couponCode: code}, {useAuthToken: true, currencyCode});
+        return r.data.applyCouponCode;
+    });
 
-    if (result.data.applyCouponCode.__typename !== 'Order') {
-        const errorKey = result.data.applyCouponCode.__typename === 'CouponCodeExpiredError'
+    if (applyResult.__typename !== 'Order') {
+        const errorKey = applyResult.__typename === 'CouponCodeExpiredError'
             ? 'couponExpired'
-            : result.data.applyCouponCode.__typename === 'CouponCodeLimitError'
+            : applyResult.__typename === 'CouponCodeLimitError'
                 ? 'couponLimitReached'
                 : 'couponInvalid';
         return {success: false, error: t(errorKey)};
