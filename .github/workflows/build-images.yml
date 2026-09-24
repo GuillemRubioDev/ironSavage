@@ -1,0 +1,132 @@
+name: Build images
+
+# Validates that all three production Docker images actually build — the
+# storefront one in particular needs a real, reachable Vendure Shop API
+# during `next build` (see the note at the top of apps/storefront/Dockerfile),
+# so this workflow brings up a throwaway Postgres + vendure-server first,
+# the same way docker-compose.prod.yml / DOCKER_PRODUCTION.md's own "Cómo
+# arrancar" sequence does. No values used here are real credentials — see
+# the FASE 17 report's "secrets" section.
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: build-images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-images:
+    name: Build vendure + storefront images
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # packages: write is only needed for the (currently gated, see below)
+    # GHCR push steps — scoped to this job rather than repo-wide, matching
+    # ci.yml's plain `contents: read`.
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write CI env file
+        # .env.prod.example is committed with safe placeholder/sandbox values
+        # (Redsys' own published test merchant, no real secrets) — exactly
+        # what "docker compose config" and a throwaway bring-up need. Never
+        # used for anything reachable outside this job.
+        run: cp .env.prod.example .env.ci
+
+      - name: Validate docker-compose.prod.yml
+        run: docker compose -f docker-compose.prod.yml --env-file .env.ci config --quiet
+
+      - name: Build vendure-server image
+        run: docker compose -f docker-compose.prod.yml --env-file .env.ci build vendure-server
+
+      - name: Build vendure-worker image
+        # Same Dockerfile/image as vendure-server (docker-compose.prod.yml
+        # only overrides CMD) — this is a cache-hit, just confirming the
+        # compose service definition itself is buildable.
+        run: docker compose -f docker-compose.prod.yml --env-file .env.ci build vendure-worker
+
+      - name: Start postgres + vendure-server
+        run: docker compose -f docker-compose.prod.yml --env-file .env.ci up -d postgres vendure-server
+
+      - name: Wait for vendure-server to be healthy
+        run: |
+          for i in $(seq 1 30); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' tienda-suple-prod-vendure-server-1 2>/dev/null || echo "starting")
+            if [ "$status" = "healthy" ]; then
+              echo "vendure-server is healthy."
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "vendure-server did not become healthy in time."
+          docker compose -f docker-compose.prod.yml --env-file .env.ci logs vendure-server
+          exit 1
+
+      - name: Build storefront image
+        # Must build on the same Docker network as the now-healthy
+        # vendure-server, and with the legacy builder — see the `network:`
+        # comment on the storefront service in docker-compose.prod.yml for
+        # why (BuildKit's default builder rejects joining a named network).
+        # Identical to the command documented in DOCKER_PRODUCTION.md.
+        run: |
+          DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 \
+            docker compose -f docker-compose.prod.yml --env-file .env.ci build storefront
+
+      - name: Tear down
+        if: always()
+        run: |
+          docker compose -f docker-compose.prod.yml --env-file .env.ci down -v || true
+          rm -f .env.ci
+
+      # ---------------------------------------------------------------
+      # Publishing to GitHub Container Registry — prepared, not active.
+      #
+      # No registry is configured yet, so nothing below runs by default:
+      # it's gated behind the `PUBLISH_IMAGES` repository variable, which
+      # doesn't exist until someone deliberately creates it (Settings →
+      # Secrets and variables → Actions → Variables) and sets it to
+      # "true". Until then this job only ever validates that the images
+      # build, exactly like the rest of this workflow.
+      #
+      # Tagging strategy once enabled:
+      #   ghcr.io/<owner>/<repo>/vendure:<git-sha>      (+ :latest on main/master)
+      #   ghcr.io/<owner>/<repo>/storefront:<git-sha>   (+ :latest on main/master)
+      # `vendure` covers both vendure-server and vendure-worker — they are
+      # the same image, only the CMD differs (see docker-compose.prod.yml).
+      # ---------------------------------------------------------------
+      - name: Compute image tags
+        if: vars.PUBLISH_IMAGES == 'true' && github.event_name == 'push'
+        id: tags
+        run: |
+          repo_lc=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "vendure=ghcr.io/${repo_lc}/vendure" >> "$GITHUB_OUTPUT"
+          echo "storefront=ghcr.io/${repo_lc}/storefront" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        if: vars.PUBLISH_IMAGES == 'true' && github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and push vendure image
+        if: vars.PUBLISH_IMAGES == 'true' && github.event_name == 'push'
+        run: |
+          docker tag tienda-suple-prod-vendure-server "${{ steps.tags.outputs.vendure }}:${{ github.sha }}"
+          docker tag tienda-suple-prod-vendure-server "${{ steps.tags.outputs.vendure }}:latest"
+          docker push "${{ steps.tags.outputs.vendure }}:${{ github.sha }}"
+          docker push "${{ steps.tags.outputs.vendure }}:latest"
+
+      - name: Tag and push storefront image
+        if: vars.PUBLISH_IMAGES == 'true' && github.event_name == 'push'
+        run: |
+          docker tag tienda-suple-prod-storefront "${{ steps.tags.outputs.storefront }}:${{ github.sha }}"
+          docker tag tienda-suple-prod-storefront "${{ steps.tags.outputs.storefront }}:latest"
+          docker push "${{ steps.tags.outputs.storefront }}:${{ github.sha }}"
+          docker push "${{ steps.tags.outputs.storefront }}:latest"

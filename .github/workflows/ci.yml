@@ -1,0 +1,170 @@
+name: CI
+
+# Runs on every PR and on every push to main/master (this repo currently
+# uses "master" — both are listed so the workflow keeps working if it's ever
+# renamed to "main", which costs nothing while the branch doesn't exist).
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+# A new commit on the same PR/branch cancels whatever CI run is already in
+# flight for it — no point finishing a check on code that's already stale.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Matches the Node version used by every Dockerfile in this repo
+  # (node:20-alpine) — see apps/server/Dockerfile / apps/storefront/Dockerfile.
+  # No .nvmrc/engines field exists to read this from; keep it in sync with
+  # those Dockerfiles by hand if either changes.
+  NODE_VERSION: "20"
+
+jobs:
+  verify:
+    name: Typecheck, tests, builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Only needed for the migrations/seed/storefront-build steps below (the
+    # backend unit tests are pure in-memory mocks — see
+    # apps/server/src/plugins/redsys-payment/redsys.service.spec.ts — no spec
+    # file opens a real DB connection). Kept for the whole job anyway since a
+    # service container that nothing uses costs nothing.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: vendure
+          POSTGRES_USER: vendure
+          POSTGRES_PASSWORD: vendure-ci-dummy-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vendure -d vendure"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Dummy values only — see FASE 17 report's "secrets" section. None of
+    # these are real credentials; REDSYS_* below are Redsys' own published
+    # sandbox test merchant (the same ones already committed in
+    # .env.prod.example), safe to use as-is against sis-t.redsys.es.
+    env:
+      APP_ENV: dev
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DB_NAME: vendure
+      DB_USERNAME: vendure
+      DB_PASSWORD: vendure-ci-dummy-password
+      DB_SCHEMA: public
+      VENDURE_SERVER_PORT: "3000"
+      COOKIE_SECRET: ci-dummy-cookie-secret
+      SUPERADMIN_USERNAME: superadmin
+      SUPERADMIN_PASSWORD: ci-dummy-admin-password-1
+      REDSYS_MERCHANT_CODE: "999008881"
+      REDSYS_TERMINAL: "1"
+      REDSYS_SECRET_KEY: sq7HjrUOBfKmC576ILgskD5srU870gJ7
+      REDSYS_ENVIRONMENT: test
+      REDSYS_NOTIFICATION_URL: http://localhost:3000/payments/redsys/notify
+      STOREFRONT_URL: http://localhost:3001
+      INVOICE_STORE_NAME: CI Test Store
+      INVOICE_STORE_TAX_ID: B00000000
+      INVOICE_STORE_ADDRESS: Calle Ejemplo 1, 28001 Madrid, España
+      INVOICE_STORE_EMAIL: facturacion@example.com
+      EMAIL_ENABLED: "false"
+      EMAIL_PROVIDER: dev
+      EMAIL_FROM: "CI <no-reply@example.com>"
+      VENDURE_SHOP_API_URL: http://localhost:3000/shop-api
+      VENDURE_CHANNEL_TOKEN: __default_channel__
+      NEXT_PUBLIC_SITE_URL: http://localhost:3001
+      NEXT_PUBLIC_SITE_NAME: CI
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          # Caches ~/.npm keyed on package-lock.json — NOT node_modules itself
+          # (actions/setup-node's cache: npm never does that; it only restores
+          # npm's download cache, so `npm ci` still runs for real and can't
+          # serve a stale/tampered tree).
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ---- typecheck ----
+      - name: Typecheck server
+        run: npx tsc --noEmit -p apps/server/tsconfig.json
+
+      - name: Typecheck storefront
+        run: npm run check-types -w storefront
+
+      # ---- tests (existing only — no new tests written for this pipeline) ----
+      - name: Backend tests
+        run: npm run test -w server
+
+      - name: Storefront tests
+        run: npm run test -w storefront
+
+      # ---- builds ----
+      - name: Build server
+        run: npm run build:server -w server
+
+      - name: Build worker
+        run: npm run build:worker -w server
+
+      - name: Build dashboard
+        run: npm run build:dashboard -w server
+
+      # Applies every committed migration to a clean database, then boots the
+      # real compiled server — this is also what creates the superadmin user
+      # and default channel (Vendure's own first-bootstrap behaviour), which
+      # seed.ts requires to already exist.
+      - name: Run migrations and boot server against a clean DB
+        run: |
+          node apps/server/dist/index.js > server.log 2>&1 &
+          echo $! > server.pid
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000/health > /dev/null; then
+              echo "Server is healthy."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Server did not become healthy in time. Log:"
+          cat server.log
+          exit 1
+
+      - name: Run seed against the clean, migrated DB
+        run: npm run seed -w server
+
+      # Next.js prerenders several storefront pages at build time against a
+      # real Shop API (see the note at the top of apps/storefront/Dockerfile)
+      # — the server started above (now migrated + seeded) provides that.
+      - name: Build storefront
+        run: npm run build -w storefront
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill "$(cat server.pid)" 2>/dev/null || true
+          fi
+
+      - name: Show server log on failure
+        if: failure()
+        run: cat server.log 2>/dev/null || true
+
+      # ---- docker compose sanity ----
+      - name: Validate docker-compose.prod.yml
+        run: |
+          cp .env.prod.example .env.ci
+          docker compose -f docker-compose.prod.yml --env-file .env.ci config --quiet
+          rm -f .env.ci
