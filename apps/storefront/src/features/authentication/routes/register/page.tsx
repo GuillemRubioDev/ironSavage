@@ -5,7 +5,7 @@ import {getTranslations} from 'next-intl/server';
 import { RegistrationForm } from "./registration-form";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {Logo} from "@/site/brand/logo";
+import {Logo} from "@/components/brand/logo";
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();

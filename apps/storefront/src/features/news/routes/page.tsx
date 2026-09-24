@@ -3,7 +3,7 @@ import {cacheLife, cacheTag} from 'next/cache';
 import {query} from '@/platform/vendure/api';
 import {GetArticlesQuery, type ArticleListItem} from '@/features/news/graphql';
 import {ArticleCard} from '@/features/news/components/article-card';
-import {Pagination} from '@/features/products/components/pagination';
+import {Pagination} from '@/components/pagination';
 import {SITE_NAME, buildCanonicalUrl, localizedPath} from '@/config/metadata';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';

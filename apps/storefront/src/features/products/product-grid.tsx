@@ -1,6 +1,6 @@
 import {ResultOf, readFragment} from '@/platform/vendure/graphql';
 import {ProductCard} from './components/product-card';
-import {Pagination} from './components/pagination';
+import {Pagination} from '@/components/pagination';
 import {SortDropdown} from '@/features/search/sort-dropdown';
 import {SearchProductsQuery} from '@/features/search/graphql';
 import {ProductCardFragment} from '@/features/products/graphql';

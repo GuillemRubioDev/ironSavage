@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from '@/platform/i18n/navigation';
 import { query } from '@/platform/vendure/api';
 import {GetProductDetailQuery} from '@/features/products/graphql';
 import { ProductDetailClient } from '@/features/products/components/product-detail-client';
 import {getDisplayOptionGroups} from '@/features/products/product-options';
 import { RelatedProducts } from '@/features/products/components/related-products';
-import { ProductReviewsSection } from '@/features/reviews/components/product-reviews-section';
 import {
     Accordion,
     AccordionContent,
@@ -97,10 +96,22 @@ export async function generateMetadata({
     };
 }
 
+export interface ProductDetailPageProps extends PageProps<'/[locale]/productos/[slug]'> {
+    /**
+     * Reviews are their own feature (own GraphQL, own review-eligibility
+     * check) — this feature doesn't reach into reviews' internals directly,
+     * it just leaves a slot at the right spot in the layout for whoever
+     * composes this page (see site/products/product-detail-page.tsx) to
+     * fill in.
+     */
+    reviewsSlot?: (product: {productId: string; productSlug: string}) => ReactNode;
+}
+
 export default async function ProductDetailPage({
     params,
     searchParams,
-}: PageProps<'/[locale]/productos/[slug]'>) {
+    reviewsSlot,
+}: ProductDetailPageProps) {
     const { slug } = await params;
     const searchParamsResolved = await searchParams;
     const locale = await getRouteLocale();
@@ -175,12 +186,7 @@ export default async function ProductDetailPage({
                 </div>
             </section>
 
-            {/* Product Reviews — reads the auth cookie for a signed-in customer's own
-                review eligibility, so it's isolated in its own Suspense boundary rather
-                than blocking the surrounding statically-cached page content. */}
-            <Suspense fallback={<div className="py-16" />}>
-                <ProductReviewsSection productId={product.id} productSlug={product.slug} />
-            </Suspense>
+            {reviewsSlot?.({productId: product.id, productSlug: product.slug})}
 
             {/* Store FAQ Section */}
             <section className="py-16 bg-muted/30">

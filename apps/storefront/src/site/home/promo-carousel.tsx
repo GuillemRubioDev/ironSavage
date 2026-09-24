@@ -8,7 +8,7 @@ import {Pause, Play} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, type CarouselApi} from '@/components/ui/carousel';
 import {ParallaxLayer} from '@/components/parallax-layer';
-import {AnimatedWordmark, LogoWordCrop} from '@/site/brand/logo';
+import {AnimatedWordmark, LogoWordCrop} from '@/components/brand/logo';
 import {Link} from '@/platform/i18n/navigation';
 import {cn} from '@/lib/utils';
 import type {Locale} from '@/platform/i18n/routing';

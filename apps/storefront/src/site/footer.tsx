@@ -2,7 +2,7 @@ import {getRouteLocale} from '@/platform/i18n/server';
 import {cacheLife, cacheTag} from 'next/cache';
 import {getTopCollections} from '@/features/collections/data';
 import {NavigationLink} from '@/site/navigation/navigation-link';
-import {Logo} from '@/site/brand/logo';
+import {Logo} from '@/components/brand/logo';
 import {CookieSettingsLink} from '@/site/cookie-consent/cookie-settings-link';
 import {getTranslations} from 'next-intl/server';
 

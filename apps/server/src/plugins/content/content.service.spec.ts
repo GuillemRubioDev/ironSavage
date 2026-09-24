@@ -53,10 +53,13 @@ function createService() {
 
 function validInput(overrides: Record<string, unknown> = {}) {
     return {
-        title: 'Nuevo suplemento en la tienda',
+        titleEs: 'Nuevo suplemento en la tienda',
+        titleEn: 'New supplement in the store',
         slug: 'nuevo-suplemento-en-la-tienda',
-        excerpt: 'Un resumen breve del artículo.',
-        content: 'El contenido completo del artículo va aquí.',
+        excerptEs: 'Un resumen breve del artículo.',
+        excerptEn: 'A short summary of the article.',
+        contentEs: 'El contenido completo del artículo va aquí.',
+        contentEn: 'The full article content goes here.',
         ...overrides,
     };
 }

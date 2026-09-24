@@ -290,7 +290,7 @@
   }
 }
 
-/* Animated wordmark (site/brand/logo.tsx AnimatedWordmark): the real
+/* Animated wordmark (components/brand/logo.tsx AnimatedWordmark): the real
    logo_titulo.png asset used as a CSS mask (its alpha channel only — the
    photographic metal/grunge texture painted into the PNG's pixels is
    discarded), filled flat white/red, revealed with a left-to-right wipe. */

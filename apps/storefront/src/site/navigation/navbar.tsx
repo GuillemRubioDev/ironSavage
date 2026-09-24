@@ -1,4 +1,4 @@
-import {Logo} from '@/site/brand/logo';
+import {Logo} from '@/components/brand/logo';
 import {NavigationLink} from '@/site/navigation/navigation-link';
 import {NavbarCollections} from '@/site/navigation/navbar/navbar-collections';
 import {NavbarCart} from '@/site/navigation/navbar/navbar-cart';
