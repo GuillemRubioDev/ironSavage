@@ -167,6 +167,17 @@ export const GetOrderDetailQuery = graphql(`
     }
 `);
 
+export const GetInvoiceForOrderQuery = graphql(`
+    query GetInvoiceForOrder($orderId: ID!) {
+        myInvoiceForOrder(orderId: $orderId) {
+            id
+            formattedNumber
+            issueDate
+            hasPdf
+        }
+    }
+`);
+
 export const CreateCustomerAddressMutation = graphql(`
     mutation CreateCustomerAddress($input: CreateAddressInput!) {
         createCustomerAddress(input: $input) {

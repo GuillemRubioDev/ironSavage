@@ -52,4 +52,5 @@ export interface InvoiceLineData {
     taxRate: number;
     taxAmount: number;
     lineTotal: number;
+    imagePreview?: string;
 }

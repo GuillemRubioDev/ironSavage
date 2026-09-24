@@ -9,10 +9,15 @@ import { Column, Entity, Index } from 'typeorm';
  * orderId, so the partial unique index below only constrains the order-scoped
  * types (order-received/payment-confirmed/order-cancelled/invoice-available)
  * — a customer legitimately requesting a second password-reset email should
- * still get one.
+ * still get one. 'invoice-resend' is deliberately excluded too — an admin
+ * resending an already-generated invoice (e.g. to a different address) is
+ * meant to be repeatable, not deduped like the automatic sends above.
  */
 @Entity()
-@Index('IDX_email_log_type_order_unique', ['type', 'orderId'], { unique: true, where: `"orderId" IS NOT NULL AND "success" = true` })
+@Index('IDX_email_log_type_order_unique', ['type', 'orderId'], {
+    unique: true,
+    where: `"orderId" IS NOT NULL AND "success" = true AND "type" != 'invoice-resend'`,
+})
 export class EmailLog extends VendureEntity {
     constructor(input?: DeepPartial<EmailLog>) {
         super(input);

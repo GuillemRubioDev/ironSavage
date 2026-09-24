@@ -159,7 +159,14 @@ function createService() {
             return result;
         },
     };
-    return { service: new InvoicingService(connectionMock), db };
+    // Only ever touched when a line actually has an imagePreview set — none
+    // of this file's mock orders do (see createTestOrder), so readFileToBuffer
+    // is never really called; still provided so a future test that does set
+    // one doesn't crash on a missing mock.
+    const configServiceMock = {
+        assetOptions: { assetStorageStrategy: { readFileToBuffer: async () => Buffer.from([]) } },
+    };
+    return { service: new InvoicingService(connectionMock, configServiceMock), db };
 }
 
 test('generating an invoice for a settled order captures correct totals and tax', async () => {

@@ -1,12 +1,16 @@
-import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { Allow, Ctx, ID, Permission, RequestContext } from '@vendure/core';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Allow, Ctx, EventBus, ID, Permission, RequestContext, UserInputError } from '@vendure/core';
 
 import { Invoice } from './invoice.entity';
+import { InvoiceResendRequestedEvent } from './invoice-resend-event';
 import { InvoicingService } from './invoicing.service';
 
 @Resolver('Invoice')
 export class InvoicingAdminResolver {
-    constructor(private invoicingService: InvoicingService) {}
+    constructor(
+        private invoicingService: InvoicingService,
+        private eventBus: EventBus,
+    ) {}
 
     @Query()
     @Allow(Permission.ReadOrder)
@@ -24,6 +28,28 @@ export class InvoicingAdminResolver {
     @Allow(Permission.ReadOrder)
     invoiceForOrder(@Ctx() ctx: RequestContext, @Args('orderId') orderId: ID) {
         return this.invoicingService.findByOrderId(ctx, orderId);
+    }
+
+    @Mutation()
+    @Allow(Permission.ReadOrder)
+    async resendInvoice(
+        @Ctx() ctx: RequestContext,
+        @Args('invoiceId') invoiceId: ID,
+        @Args('emailAddress') emailAddress: string,
+    ): Promise<boolean> {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
+            throw new UserInputError(`"${emailAddress}" is not a valid email address`);
+        }
+        const invoice = await this.invoicingService.findById(ctx, invoiceId);
+        if (!invoice) {
+            throw new UserInputError(`No invoice with id ${invoiceId}`);
+        }
+        const [lines, pdfPath] = await Promise.all([
+            this.invoicingService.getLines(ctx, invoice.id),
+            this.invoicingService.ensurePdfFile(ctx, invoice),
+        ]);
+        this.eventBus.publish(new InvoiceResendRequestedEvent(ctx, invoice, lines, pdfPath, emailAddress));
+        return true;
     }
 
     @ResolveField()

@@ -8,6 +8,7 @@ import { InvoicingController } from './invoicing.controller';
 import { InvoicingEventSubscriber } from './invoicing-event-subscriber';
 import { InvoicingService } from './invoicing.service';
 export { InvoiceGeneratedEvent } from './invoice-generated-event';
+export { InvoiceResendRequestedEvent } from './invoice-resend-event';
 import { Invoice } from './invoice.entity';
 import { InvoiceLine } from './invoice-line.entity';
 import { InvoiceSequence } from './invoice-sequence.entity';

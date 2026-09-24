@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Injectable } from '@nestjs/common';
-import { ID, Logger, Order, PaginatedList, RequestContext, TransactionalConnection } from '@vendure/core';
+import { ConfigService, ID, Logger, Order, PaginatedList, RequestContext, TransactionalConnection } from '@vendure/core';
 import { Brackets } from 'typeorm';
 
 import { DEFAULT_INVOICE_SERIES, loggerCtx } from './constants';
@@ -10,13 +10,19 @@ import { generateInvoicePdfBuffer } from './invoice-pdf.generator';
 import { Invoice } from './invoice.entity';
 import { InvoiceLine } from './invoice-line.entity';
 import { InvoiceSequence } from './invoice-sequence.entity';
+import { LOGO_PNG_BASE64 } from './logo-base64';
 import { AddressSnapshot, CustomerSnapshot, InvoiceLineData } from './types';
 
 export type GenerateInvoiceResult = { created: boolean; invoice: Invoice };
 
+const LOGO_BUFFER = Buffer.from(LOGO_PNG_BASE64, 'base64');
+
 @Injectable()
 export class InvoicingService {
-    constructor(private connection: TransactionalConnection) {}
+    constructor(
+        private connection: TransactionalConnection,
+        private configService: ConfigService,
+    ) {}
 
     /**
      * Idempotent: if an Invoice already exists for this order (a unique index
@@ -153,7 +159,11 @@ export class InvoicingService {
         }
 
         const lines = await this.getLines(ctx, invoice.id);
-        const buffer = await generateInvoicePdfBuffer(invoice, lines, config);
+        const lineImages = await this.loadLineImages(lines);
+        const buffer = await generateInvoicePdfBuffer(invoice, lines, config, {
+            logoBuffer: LOGO_BUFFER,
+            lineImages,
+        });
         await fs.mkdir(config.pdfOutputDir, { recursive: true });
         await fs.writeFile(absolutePath, buffer);
 
@@ -162,6 +172,31 @@ export class InvoicingService {
             await this.connection.getRepository(ctx, Invoice).update(invoice.id, { pdfPath: fileName });
         }
         return absolutePath;
+    }
+
+    /**
+     * Best-effort: a missing/unreadable image (deleted asset, storage
+     * hiccup) just means that one line prints without a thumbnail — never
+     * blocks generating the actual fiscal document.
+     */
+    private async loadLineImages(lines: InvoiceLine[]): Promise<Map<string, Buffer>> {
+        const images = new Map<string, Buffer>();
+        const linesWithImage = lines.filter(line => line.imagePreview);
+        if (linesWithImage.length === 0) {
+            return images;
+        }
+        const storageStrategy = this.configService.assetOptions.assetStorageStrategy;
+        await Promise.all(
+            linesWithImage
+                .map(async line => {
+                    try {
+                        images.set(String(line.id), await storageStrategy.readFileToBuffer(line.imagePreview!));
+                    } catch (err) {
+                        Logger.warn(`Could not load image for invoice line ${line.id}: ${err}`, loggerCtx);
+                    }
+                }),
+        );
+        return images;
     }
 
     private buildCustomerSnapshot(order: Order): CustomerSnapshot {
@@ -209,6 +244,7 @@ export class InvoicingService {
             taxRate: line.taxRate,
             taxAmount: line.proratedLineTax,
             lineTotal: line.proratedLinePriceWithTax,
+            imagePreview: line.productVariant.product?.featuredAsset?.preview,
         }));
 
         for (const shippingLine of order.shippingLines) {

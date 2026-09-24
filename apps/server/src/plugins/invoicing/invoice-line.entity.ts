@@ -47,4 +47,15 @@ export class InvoiceLine extends VendureEntity {
     /** Minor units (cents), including tax — quantity * unitPrice + taxAmount. */
     @Column()
     lineTotal: number;
+
+    /**
+     * The product's featured asset `preview` identifier at the moment of
+     * invoicing (as used by AssetStorageStrategy.readFileToBuffer, NOT a
+     * public URL — see InvoicingService). Purely decorative (a small
+     * thumbnail next to the line on the PDF), so unlike productName/sku this
+     * is allowed to go stale or point at nothing if the asset is later
+     * deleted — the PDF generator already tolerates a missing/unreadable one.
+     */
+    @Column({ nullable: true })
+    imagePreview?: string;
 }

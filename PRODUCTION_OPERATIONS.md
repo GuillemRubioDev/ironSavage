@@ -138,7 +138,7 @@ $COMPOSE exec postgres psql -U <DB_USERNAME> -d <DB_NAME> \
 proveedor) — es la fuente funcional principal, sin tokens ni credenciales:
 ```bash
 $COMPOSE exec postgres psql -U <DB_USERNAME> -d <DB_NAME> \
-  -c "SELECT type, recipient, success, error, provider, created_at FROM email_log ORDER BY created_at DESC LIMIT 20;"
+  -c 'SELECT "type", "recipient", "orderId", "success", "error", "provider", "createdAt" FROM email_log ORDER BY "createdAt" DESC LIMIT 20;'
 ```
 También en el log de `vendure-server` bajo `[TransactionalEmailPlugin]`:
 ```bash

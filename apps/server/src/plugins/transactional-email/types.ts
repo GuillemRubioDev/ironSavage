@@ -74,6 +74,10 @@ export type EmailJob =
     | { type: 'payment-confirmed'; to: string; orderId: string; data: { order: OrderSummaryData } }
     | { type: 'order-cancelled'; to: string; orderId: string; data: { order: OrderSummaryData } }
     | { type: 'invoice-available'; to: string; orderId: string; data: { order: OrderSummaryData; invoiceNumber: string }; attachments?: EmailAttachment[] }
+    // Deliberately a distinct type from 'invoice-available', not a resend flag on it — sendTemplate()
+    // dedupes order-scoped emails by (type, orderId), and a resend (e.g. to a different address the
+    // customer asked for) must never be silently skipped as "already sent".
+    | { type: 'invoice-resend'; to: string; orderId: string; data: { order: OrderSummaryData; invoiceNumber: string }; attachments?: EmailAttachment[] }
     | { type: 'password-reset'; to: string; data: { customerName: string; resetUrl: string } };
 
 export type EmailType = EmailJob['type'];

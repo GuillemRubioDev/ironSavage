@@ -41,11 +41,17 @@ export class EmailService {
         }
     }
 
-    async sendTemplate(ctx: RequestContext, job: EmailJob): Promise<EmailSendResult> {
+    /**
+     * `skipDedupCheck`: for a deliberate, repeatable admin action (e.g.
+     * "resend this invoice to a different address") — order-scoped dedup
+     * exists to collapse *automatic* retries of the same transactional
+     * email, not to silently swallow a human asking for it again.
+     */
+    async sendTemplate(ctx: RequestContext, job: EmailJob, options?: { skipDedupCheck?: boolean }): Promise<EmailSendResult> {
         const config = getEmailConfig();
         const orderId = 'orderId' in job ? job.orderId : undefined;
 
-        if (orderId) {
+        if (orderId && !options?.skipDedupCheck) {
             const alreadySent = await this.connection
                 .getRepository(ctx, EmailLog)
                 .findOne({ where: { type: job.type, orderId, success: true } });

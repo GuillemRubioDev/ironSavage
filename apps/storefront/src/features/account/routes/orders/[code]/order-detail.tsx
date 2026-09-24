@@ -1,7 +1,7 @@
 'use client';
 
 import {use} from 'react';
-import {ChevronLeft} from 'lucide-react';
+import {ChevronLeft, Download} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Separator} from '@/components/ui/separator';
@@ -13,7 +13,7 @@ import {OrderStatusBadge} from '@/features/orders/order-status-badge';
 import {formatDate} from '@/platform/i18n/format';
 import {useLocale, useTranslations} from 'next-intl';
 import type {ResultOf} from '@/platform/vendure/graphql';
-import type {GetOrderDetailQuery} from '@/features/account/graphql';
+import type {GetInvoiceForOrderQuery, GetOrderDetailQuery} from '@/features/account/graphql';
 
 type OrderByCode = NonNullable<ResultOf<typeof GetOrderDetailQuery>['orderByCode']>;
 type OrderLineItem = OrderByCode['lines'][number];
@@ -23,13 +23,16 @@ type OrderShippingLine = NonNullable<OrderByCode['shippingLines']>[number];
 
 interface OrderDetailProps {
     orderPromise: Promise<{ data: ResultOf<typeof GetOrderDetailQuery>; token?: string }>;
+    invoicePromise: Promise<{ data: ResultOf<typeof GetInvoiceForOrderQuery>; token?: string } | null>;
 }
 
-export function OrderDetail({orderPromise}: OrderDetailProps) {
+export function OrderDetail({orderPromise, invoicePromise}: OrderDetailProps) {
     const {data} = use(orderPromise);
+    const invoiceResult = use(invoicePromise);
     const locale = useLocale();
     const t = useTranslations('Account');
     const order = data.orderByCode;
+    const invoice = invoiceResult?.data.myInvoiceForOrder;
 
     if (!order) {
         return null;
@@ -134,6 +137,33 @@ export function OrderDetail({orderPromise}: OrderDetailProps) {
                 </div>
 
                 <div className="space-y-6">
+                    {invoice && (
+                        <Card>
+                            <CardHeader><CardTitle>{t('invoices')}</CardTitle></CardHeader>
+                            <CardContent>
+                                <div className="flex items-center justify-between text-sm">
+                                    <div>
+                                        <p className="font-medium">{invoice.formattedNumber}</p>
+                                        <p className="text-muted-foreground">
+                                            {formatDate(invoice.issueDate, 'short', locale)}
+                                        </p>
+                                    </div>
+                                    {invoice.hasPdf && (
+                                        <Button
+                                            nativeButton={false}
+                                            render={<a href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener noreferrer" />}
+                                            variant="outline"
+                                            size="sm"
+                                        >
+                                            <Download className="h-4 w-4 mr-1"/>
+                                            {t('download')}
+                                        </Button>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
                     {order.shippingAddress && (
                         <Card>
                             <CardHeader><CardTitle>{t('shippingAddress')}</CardTitle></CardHeader>

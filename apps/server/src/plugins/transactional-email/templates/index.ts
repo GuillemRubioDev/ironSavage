@@ -5,6 +5,7 @@ import { renderOrderReceived } from './order-received';
 import { renderPaymentConfirmed } from './payment-confirmed';
 import { renderOrderCancelled } from './order-cancelled';
 import { renderInvoiceAvailable } from './invoice-available';
+import { renderInvoiceResend } from './invoice-resend';
 import { renderPasswordReset } from './password-reset';
 
 /** The one place that knows how to turn an EmailJob into subject+HTML. Add a new email type here and in EmailJob (types.ts). */
@@ -22,6 +23,8 @@ export function renderEmailJob(config: EmailConfig, job: EmailJob): RenderedEmai
             return renderOrderCancelled(config, job.data);
         case 'invoice-available':
             return renderInvoiceAvailable(config, job.data);
+        case 'invoice-resend':
+            return renderInvoiceResend(config, job.data);
         case 'password-reset':
             return renderPasswordReset(config, job.data);
     }

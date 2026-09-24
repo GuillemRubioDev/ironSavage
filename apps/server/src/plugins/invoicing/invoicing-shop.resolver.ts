@@ -1,5 +1,5 @@
 import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { Allow, Ctx, CustomerService, Permission, RequestContext } from '@vendure/core';
+import { Allow, Ctx, CustomerService, ID, Permission, RequestContext } from '@vendure/core';
 
 import { Invoice } from './invoice.entity';
 import { InvoicingService } from './invoicing.service';
@@ -27,6 +27,29 @@ export class InvoicingShopResolver {
             return { items: [], totalItems: 0 };
         }
         return this.invoicingService.list(ctx, { ...args.options, customerId: customer.id });
+    }
+
+    /**
+     * Scoped the same way myInvoices() is — resolved from the signed-in
+     * session, never from a client-supplied customer id — and additionally
+     * checks the invoice's own customerId, so passing another customer's
+     * orderId can't leak their invoice.
+     */
+    @Query()
+    @Allow(Permission.Owner)
+    async myInvoiceForOrder(@Ctx() ctx: RequestContext, @Args('orderId') orderId: ID) {
+        if (!ctx.activeUserId) {
+            return null;
+        }
+        const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
+        if (!customer) {
+            return null;
+        }
+        const invoice = await this.invoicingService.findByOrderId(ctx, orderId);
+        if (!invoice || String(invoice.customerId) !== String(customer.id)) {
+            return null;
+        }
+        return invoice;
     }
 
     @ResolveField()

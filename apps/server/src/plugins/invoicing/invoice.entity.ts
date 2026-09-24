@@ -29,6 +29,7 @@ export class Invoice extends VendureEntity {
     orderCode: string;
 
     /** Kept as a plain (non-FK) id for authorization checks — see types.ts CustomerSnapshot for the frozen display data. */
+    @Index()
     @EntityId()
     customerId: ID;
 

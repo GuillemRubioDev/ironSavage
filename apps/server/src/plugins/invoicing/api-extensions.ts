@@ -59,6 +59,11 @@ export const adminApiExtensions = gql`
         invoice(id: ID!): Invoice
         invoiceForOrder(orderId: ID!): Invoice
     }
+
+    extend type Mutation {
+        "Re-sends an already-generated invoice by email — to any address, not necessarily the customer's own."
+        resendInvoice(invoiceId: ID!, emailAddress: String!): Boolean!
+    }
 `;
 
 export const shopApiExtensions = gql`
@@ -67,5 +72,7 @@ export const shopApiExtensions = gql`
     extend type Query {
         "The active customer's own invoices. Never accepts a customer id from the client — always scoped to the signed-in session."
         myInvoices(options: InvoiceListOptions): InvoiceList!
+        "The invoice for one of the active customer's own orders (null before the order is paid, or if it belongs to someone else)."
+        myInvoiceForOrder(orderId: ID!): Invoice
     }
 `;

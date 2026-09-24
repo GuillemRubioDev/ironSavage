@@ -4,6 +4,20 @@ import { Invoice } from './invoice.entity';
 import { InvoiceLine } from './invoice-line.entity';
 import { InvoicingConfig } from './types';
 
+// Approximates the storefront's --primary brand red (oklch(0.577 0.245
+// 27.325), converted to sRGB) — PDFKit only takes RGB/hex, not oklch.
+const BRAND_RED = '#E7000B';
+const BRAND_RED_SOFT = '#FBE4E1';
+const INK = '#1C1A18';
+const INK_SOFT = '#5C5851';
+const LINE_GRAY = '#DDD9D2';
+
+interface RenderOptions {
+    logoBuffer?: Buffer;
+    /** Keyed by InvoiceLine.id (as a string). Missing/unreadable entries just render without a thumbnail. */
+    lineImages?: Map<string, Buffer>;
+}
+
 function formatMoney(cents: number, currencyCode: string): string {
     return `${(cents / 100).toFixed(2)} ${currencyCode}`;
 }
@@ -13,13 +27,17 @@ function formatDate(date: Date): string {
 }
 
 /**
- * Renders a simple, single-page-per-invoice PDF directly with pdfkit (no
- * HTML-to-PDF step, no headless browser) — deliberately plain: a header, a
- * bill-to block, a line-items table, and a totals block. Layout polish is
- * left for later; the numbers and snapshots are what matter for a first
- * fiscally-usable version.
+ * Renders a single-page-per-invoice PDF directly with pdfkit (no
+ * HTML-to-PDF step, no headless browser): a branded header (logo + accent
+ * color, matching the storefront), a bill-to block, a line-items table with
+ * a small product thumbnail per row where available, and a totals block.
  */
-export function generateInvoicePdfBuffer(invoice: Invoice, lines: InvoiceLine[], store: InvoicingConfig): Promise<Buffer> {
+export function generateInvoicePdfBuffer(
+    invoice: Invoice,
+    lines: InvoiceLine[],
+    store: InvoicingConfig,
+    options: RenderOptions = {},
+): Promise<Buffer> {
     return new Promise((resolve, reject) => {
         const doc = new PDFDocument({ size: 'A4', margin: 50 });
         const chunks: Buffer[] = [];
@@ -30,29 +48,42 @@ export function generateInvoicePdfBuffer(invoice: Invoice, lines: InvoiceLine[],
         const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
         const left = doc.page.margins.left;
 
-        // --- Store header ---
-        doc.fontSize(16).text(store.storeName, left, doc.y, { bold: true } as any);
-        doc.fontSize(9).fillColor('#444');
-        doc.text(`NIF/CIF: ${store.storeTaxId}`);
-        doc.text(store.storeAddress);
-        if (store.storeEmail) doc.text(store.storeEmail);
-        if (store.storePhone) doc.text(store.storePhone);
-        doc.fillColor('#000');
+        // --- Header: logo + store details (left), FACTURA + meta (right) ---
+        const headerTop = doc.y;
+        if (options.logoBuffer) {
+            try {
+                doc.image(options.logoBuffer, left, headerTop, { fit: [130, 48] });
+            } catch {
+                // A corrupt/unreadable logo buffer must never block the fiscal document itself.
+            }
+        }
+        const storeInfoY = options.logoBuffer ? headerTop + 54 : headerTop;
+        doc.fontSize(9).fillColor(INK_SOFT);
+        doc.text(store.storeName, left, storeInfoY, { width: 260 });
+        doc.text(`NIF/CIF: ${store.storeTaxId}`, { width: 260 });
+        doc.text(store.storeAddress, { width: 260 });
+        if (store.storeEmail) doc.text(store.storeEmail, { width: 260 });
+        if (store.storePhone) doc.text(store.storePhone, { width: 260 });
 
-        // --- Invoice title/meta, top right ---
         const invoiceNumber = `${invoice.series}-${String(invoice.number).padStart(6, '0')}`;
-        doc.fontSize(20).text('FACTURA', left, 50, { align: 'right', width: pageWidth });
-        doc.fontSize(10).text(`Nº: ${invoiceNumber}`, { align: 'right', width: pageWidth });
+        doc.fillColor(BRAND_RED).fontSize(22).font('Helvetica-Bold').text('FACTURA', left, headerTop, { align: 'right', width: pageWidth });
+        doc.font('Helvetica').fillColor(INK).fontSize(10);
+        doc.text(`Nº ${invoiceNumber}`, { align: 'right', width: pageWidth });
+        doc.fillColor(INK_SOFT);
         doc.text(`Fecha: ${formatDate(invoice.issueDate)}`, { align: 'right', width: pageWidth });
         doc.text(`Pedido: ${invoice.orderCode}`, { align: 'right', width: pageWidth });
+        doc.fillColor(INK);
 
-        doc.moveDown(2);
+        const afterHeaderY = Math.max(doc.y, storeInfoY + 70);
+        doc.moveTo(left, afterHeaderY).lineTo(left + pageWidth, afterHeaderY).lineWidth(2).strokeColor(BRAND_RED).stroke();
+        doc.lineWidth(1);
+        doc.y = afterHeaderY + 20;
 
         // --- Bill to ---
         const billTo = invoice.billingAddressSnapshot;
         const customer = invoice.customerSnapshot;
-        doc.fontSize(11).text('Facturar a:', left, doc.y, { underline: true });
-        doc.fontSize(10);
+        doc.fillColor(BRAND_RED).fontSize(10).font('Helvetica-Bold').text('FACTURAR A', left, doc.y);
+        doc.font('Helvetica').fillColor(INK).fontSize(10);
         doc.text(billTo.fullName || `${customer.firstName} ${customer.lastName}`.trim());
         if (billTo.company) doc.text(billTo.company);
         if (billTo.streetLine1) doc.text(billTo.streetLine1);
@@ -61,42 +92,55 @@ export function generateInvoicePdfBuffer(invoice: Invoice, lines: InvoiceLine[],
         if (cityLine) doc.text(cityLine);
         if (billTo.province) doc.text(billTo.province);
         if (billTo.country) doc.text(billTo.country);
-        doc.text(customer.emailAddress);
+        doc.fillColor(INK_SOFT).text(customer.emailAddress);
+        doc.fillColor(INK);
 
         doc.moveDown(1.5);
 
         // --- Line items table ---
-        const colX = { name: left, qty: left + 240, unit: left + 300, rate: left + 370, total: left + 430 };
+        const imgSize = 26;
+        const colX = { img: left, name: left + imgSize + 8, qty: left + 270, unit: left + 320, rate: left + 385, total: left + 440 };
         const tableWidth = pageWidth;
         let y = doc.y;
 
-        doc.fontSize(9).font('Helvetica-Bold');
-        doc.text('Producto', colX.name, y, { width: colX.qty - colX.name - 5 });
-        doc.text('Cant.', colX.qty, y, { width: colX.unit - colX.qty - 5 });
-        doc.text('Precio', colX.unit, y, { width: colX.rate - colX.unit - 5 });
-        doc.text('IVA', colX.rate, y, { width: colX.total - colX.rate - 5 });
-        doc.text('Total', colX.total, y, { width: left + tableWidth - colX.total, align: 'right' });
-        y += 14;
-        doc.moveTo(left, y).lineTo(left + tableWidth, y).strokeColor('#ccc').stroke();
-        y += 6;
+        doc.rect(left, y, tableWidth, 20).fill(BRAND_RED_SOFT);
+        doc.fillColor(INK).fontSize(9).font('Helvetica-Bold');
+        doc.text('Producto', colX.name, y + 6, { width: colX.qty - colX.name - 5 });
+        doc.text('Cant.', colX.qty, y + 6, { width: colX.unit - colX.qty - 5 });
+        doc.text('Precio', colX.unit, y + 6, { width: colX.rate - colX.unit - 5 });
+        doc.text('IVA', colX.rate, y + 6, { width: colX.total - colX.rate - 5 });
+        doc.text('Total', colX.total, y + 6, { width: left + tableWidth - colX.total, align: 'right' });
+        y += 26;
         doc.font('Helvetica');
 
         for (const line of lines) {
             doc.fontSize(9);
             const nameLines = doc.heightOfString(`${line.productName} (${line.sku})`, { width: colX.qty - colX.name - 5 });
-            doc.text(`${line.productName} (${line.sku})`, colX.name, y, { width: colX.qty - colX.name - 5 });
-            doc.text(String(line.quantity), colX.qty, y, { width: colX.unit - colX.qty - 5 });
-            doc.text(formatMoney(line.unitPrice, invoice.currencyCode), colX.unit, y, { width: colX.rate - colX.unit - 5 });
-            doc.text(`${line.taxRate}%`, colX.rate, y, { width: colX.total - colX.rate - 5 });
-            doc.text(formatMoney(line.lineTotal, invoice.currencyCode), colX.total, y, {
+            const rowHeight = Math.max(nameLines, imgSize, 12);
+
+            const imageBuffer = options.lineImages?.get(String(line.id));
+            if (imageBuffer) {
+                try {
+                    doc.image(imageBuffer, colX.img, y, { width: imgSize, height: imgSize, fit: [imgSize, imgSize] });
+                } catch {
+                    // A corrupt/unreadable thumbnail just means this one line has no image — never blocks the invoice.
+                }
+            }
+
+            const textY = y + (rowHeight - 10) / 2;
+            doc.fillColor(INK).text(`${line.productName} (${line.sku})`, colX.name, textY, { width: colX.qty - colX.name - 5 });
+            doc.text(String(line.quantity), colX.qty, textY, { width: colX.unit - colX.qty - 5 });
+            doc.text(formatMoney(line.unitPrice, invoice.currencyCode), colX.unit, textY, { width: colX.rate - colX.unit - 5 });
+            doc.text(`${line.taxRate}%`, colX.rate, textY, { width: colX.total - colX.rate - 5 });
+            doc.text(formatMoney(line.lineTotal, invoice.currencyCode), colX.total, textY, {
                 width: left + tableWidth - colX.total,
                 align: 'right',
             });
-            y += Math.max(nameLines, 12) + 6;
+            y += rowHeight + 10;
+            doc.moveTo(left, y - 5).lineTo(left + tableWidth, y - 5).strokeColor(LINE_GRAY).stroke();
         }
 
-        doc.moveTo(left, y).lineTo(left + tableWidth, y).strokeColor('#ccc').stroke();
-        y += 10;
+        y += 6;
 
         // --- Tax breakdown by rate ---
         const byRate = new Map<number, { base: number; tax: number }>();
@@ -106,7 +150,7 @@ export function generateInvoicePdfBuffer(invoice: Invoice, lines: InvoiceLine[],
             entry.tax += line.taxAmount;
             byRate.set(line.taxRate, entry);
         }
-        doc.fontSize(9).fillColor('#444');
+        doc.fontSize(9).fillColor(INK_SOFT);
         for (const [rate, { base, tax }] of [...byRate.entries()].sort((a, b) => a[0] - b[0])) {
             doc.text(
                 `Base ${formatMoney(base, invoice.currencyCode)} a IVA ${rate}% = ${formatMoney(tax, invoice.currencyCode)}`,
@@ -115,7 +159,7 @@ export function generateInvoicePdfBuffer(invoice: Invoice, lines: InvoiceLine[],
             );
             y += 12;
         }
-        doc.fillColor('#000');
+        doc.fillColor(INK);
         y += 6;
 
         // --- Totals ---
@@ -126,11 +170,12 @@ export function generateInvoicePdfBuffer(invoice: Invoice, lines: InvoiceLine[],
         y += 14;
         doc.text('IVA:', totalsX, y, { width: 100 });
         doc.text(formatMoney(invoice.tax, invoice.currencyCode), totalsX + 100, y, { width: 100, align: 'right' });
-        y += 14;
-        doc.fontSize(12).font('Helvetica-Bold');
-        doc.text('TOTAL:', totalsX, y, { width: 100 });
-        doc.text(formatMoney(invoice.total, invoice.currencyCode), totalsX + 100, y, { width: 100, align: 'right' });
-        doc.font('Helvetica');
+        y += 18;
+        doc.rect(totalsX - 8, y - 4, 208, 26).fill(BRAND_RED_SOFT);
+        doc.fillColor(BRAND_RED).fontSize(13).font('Helvetica-Bold');
+        doc.text('TOTAL', totalsX, y + 2, { width: 100 });
+        doc.text(formatMoney(invoice.total, invoice.currencyCode), totalsX + 100, y + 2, { width: 100, align: 'right' });
+        doc.font('Helvetica').fillColor(INK);
 
         doc.end();
     });

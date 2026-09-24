@@ -34,6 +34,7 @@ export class InvoicingEventSubscriber implements OnApplicationBootstrap {
     private async generateInvoice(event: OrderStateTransitionEvent): Promise<void> {
         const order = await this.orderService.findOne(event.ctx, event.order.id, [
             'lines.productVariant',
+            'lines.productVariant.product.featuredAsset',
             'shippingLines',
             'surcharges',
             'customer',

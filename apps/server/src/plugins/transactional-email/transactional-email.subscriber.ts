@@ -12,7 +12,7 @@ import {
     OrderStateTransitionEvent,
     PasswordResetEvent,
 } from '@vendure/core';
-import { InvoiceGeneratedEvent } from '../invoicing/invoicing.plugin';
+import { InvoiceGeneratedEvent, InvoiceResendRequestedEvent } from '../invoicing/invoicing.plugin';
 
 import { loggerCtx } from './constants';
 import { getEmailConfig } from './email-config';
@@ -48,6 +48,7 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
         this.eventBus.ofType(PasswordResetEvent).subscribe(event => this.guard('password-reset', () => this.onPasswordReset(event)));
         this.eventBus.ofType(OrderStateTransitionEvent).subscribe(event => this.guard('order-transition', () => this.onOrderStateTransition(event)));
         this.eventBus.ofType(InvoiceGeneratedEvent).subscribe(event => this.guard('invoice-available', () => this.onInvoiceGenerated(event)));
+        this.eventBus.ofType(InvoiceResendRequestedEvent).subscribe(event => this.guard('invoice-resend', () => this.onInvoiceResendRequested(event)));
     }
 
     private async guard(label: string, work: () => Promise<void>): Promise<void> {
@@ -132,11 +133,39 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
     }
 
     private async onInvoiceGenerated(event: InvoiceGeneratedEvent): Promise<void> {
-        const { invoice, lines } = event;
-        if (!invoice.customerSnapshot.emailAddress) {
+        if (!event.invoice.customerSnapshot.emailAddress) {
             return;
         }
-        const pdfBuffer = await fs.readFile(event.pdfPath);
+        await this.sendInvoiceEmail(
+            event.ctx,
+            event.invoice,
+            event.lines,
+            event.pdfPath,
+            event.invoice.customerSnapshot.emailAddress,
+            'invoice-available',
+        );
+    }
+
+    /**
+     * Same email as onInvoiceGenerated(), just to whatever address the admin
+     * typed in — see InvoiceResendRequestedEvent. Uses the distinct
+     * 'invoice-resend' type and skips the order-scoped dedup entirely: this
+     * is a deliberate, repeatable admin action (could be resent to several
+     * different addresses), not a retry of the original automatic send.
+     */
+    private async onInvoiceResendRequested(event: InvoiceResendRequestedEvent): Promise<void> {
+        await this.sendInvoiceEmail(event.ctx, event.invoice, event.lines, event.pdfPath, event.toEmail, 'invoice-resend');
+    }
+
+    private async sendInvoiceEmail(
+        ctx: InvoiceGeneratedEvent['ctx'],
+        invoice: InvoiceGeneratedEvent['invoice'],
+        lines: InvoiceGeneratedEvent['lines'],
+        pdfPath: string,
+        toEmail: string,
+        type: 'invoice-available' | 'invoice-resend',
+    ): Promise<void> {
+        const pdfBuffer = await fs.readFile(pdfPath);
         const invoiceNumber = `${invoice.series}-${String(invoice.number).padStart(6, '0')}`;
 
         const order: OrderSummaryData = {
@@ -152,13 +181,13 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
         };
 
         const job: EmailJob = {
-            type: 'invoice-available',
-            to: invoice.customerSnapshot.emailAddress,
+            type,
+            to: toEmail,
             orderId: String(invoice.orderId),
             data: { order, invoiceNumber },
             attachments: [{ filename: `Factura-${invoiceNumber}.pdf`, content: pdfBuffer, contentType: 'application/pdf' }],
         };
-        await this.emailService.sendTemplate(event.ctx, job);
+        await this.emailService.sendTemplate(ctx, job, { skipDedupCheck: type === 'invoice-resend' });
     }
 
     private buildOrderSummary(order: Order): OrderSummaryData {
