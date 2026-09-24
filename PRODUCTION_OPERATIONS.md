@@ -98,25 +98,38 @@ $COMPOSE logs vendure-server | grep RedsysPlugin
 Busca, por `orderCode`:
 - `"Built Redsys payment form for order <code>"` — el cliente inició el
   pago (se generó el formulario hacia Redsys).
-- `"Rejected Redsys notification with invalid signature for order <code>"`
+- `"Rejected Redsys notification with invalid signature for order <merchantOrder>"`
   — Redsys llamó al callback pero la firma no validó (revisa
   `REDSYS_SECRET_KEY`/`REDSYS_MERCHANT_CODE`/`REDSYS_TERMINAL` en
   `.env.prod` contra el panel de Redsys).
-- `"Redsys notification for unknown order <code>"` — llegó un callback para
-  un pedido que no existe en esta BD (normalmente entorno equivocado:
-  `REDSYS_ENVIRONMENT`).
+- `"Redsys notification for unknown merchant order <value>"` — llegó un
+  callback con un Ds_Merchant_Order que no corresponde a ningún intento de
+  pago propio (no debería ocurrir en condiciones normales).
+- `"Redsys notification for unknown order <code>"` — el intento sí se
+  reconoce, pero el pedido de Vendure al que apunta ya no existe.
 - `"payment approved/declined"` — el pago se procesó; si está `declined`,
-  el problema es del lado del banco/tarjeta, no del sistema.
-- Si no aparece **nada** para ese `orderCode`, Redsys nunca llamó al
-  callback — comprueba que `REDSYS_NOTIFICATION_URL` es alcanzable desde
-  fuera (`curl -I https://$API_DOMAIN/payments/redsys/notify`, ver
+  el problema es del lado del banco/tarjeta, no del sistema. Un pedido
+  puede tener varios intentos (p.ej. tarjeta rechazada y luego un reintento
+  aprobado) — cada intento usa un Ds_Merchant_Order distinto entre sí y
+  distinto del código de pedido de Vendure (ver nota más abajo).
+- Si no aparece **nada** para ese pedido, Redsys nunca llamó al callback —
+  comprueba que `REDSYS_NOTIFICATION_URL` es alcanzable desde fuera
+  (`curl -I https://$API_DOMAIN/payments/redsys/notify`, ver
   `DOCKER_PRODUCTION.md`).
 
+> Nota: el valor que Redsys usa como `Ds_Merchant_Order` (y por tanto el que
+> aparece en su panel/soporte) **no** es el código de pedido de Vendure —
+> Redsys rechaza reutilizar el mismo número en un reintento, así que cada
+> intento de pago genera uno nuevo. La tabla `redsys_payment_attempt`
+> mapea cada uno de vuelta al pedido real; `redsys_transaction.orderCode`
+> ya lo incluye para no tener que hacer el cruce a mano.
+
 Para inspeccionar el registro persistido (sin la firma completa, ya que
-`rawResponse` se guarda intencionalmente curado, no el payload íntegro):
+`rawResponse` se guarda intencionalmente curado, no el payload íntegro —
+recuerda que las columnas son camelCase y necesitan comillas dobles en psql):
 ```bash
 $COMPOSE exec postgres psql -U <DB_USERNAME> -d <DB_NAME> \
-  -c "SELECT order_code, ds_response, created_at FROM redsys_transaction ORDER BY created_at DESC LIMIT 20;"
+  -c 'SELECT "orderCode", "merchantOrder", "responseCode", "approved", "createdAt" FROM redsys_transaction ORDER BY "createdAt" DESC LIMIT 20;'
 ```
 
 ## E) Un email no llega

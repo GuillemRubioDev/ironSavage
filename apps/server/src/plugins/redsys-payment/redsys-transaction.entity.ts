@@ -3,7 +3,11 @@ import { Column, Entity, Index } from 'typeorm';
 
 /**
  * Records every Redsys notification that has been successfully verified and
- * processed, keyed uniquely by the order code (== Ds_Merchant_Order).
+ * processed, keyed uniquely by the per-attempt Ds_Merchant_Order
+ * (`merchantOrder`) — NOT the Vendure order code, since a single order can
+ * have several distinct Redsys attempts (e.g. a declined card followed by a
+ * successful retry), each with its own Ds_Merchant_Order. `orderCode` is
+ * kept as a plain (non-unique) indexed column for lookups/audit.
  *
  * This exists purely to make notification processing idempotent at the
  * database level: Redsys retries notifications that don't get a fast enough
@@ -19,6 +23,10 @@ export class RedsysTransaction extends VendureEntity {
     }
 
     @Index({ unique: true })
+    @Column()
+    merchantOrder: string;
+
+    @Index()
     @Column()
     orderCode: string;
 

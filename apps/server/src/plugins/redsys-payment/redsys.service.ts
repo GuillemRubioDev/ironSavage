@@ -19,6 +19,8 @@ import {
     REDSYS_TRANSACTION_TYPE_AUTHORIZATION,
     loggerCtx,
 } from './constants';
+import { RedsysPaymentAttempt } from './redsys-payment-attempt.entity';
+import { generateRedsysOrderNumber } from './redsys-order-number';
 import { RedsysTransaction } from './redsys-transaction.entity';
 import {
     decodeMerchantParameters,
@@ -71,9 +73,19 @@ export class RedsysService {
             return { success: false, message: `Unsupported currency for Redsys: ${order.currencyCode}` };
         }
 
+        // Redsys rejects a new authorization request that reuses an order number
+        // it has already seen ("SIS0051 - Número de pedido repetido"), even if the
+        // earlier attempt was declined — so every attempt (including a retry of
+        // the same Vendure order after a declined card) gets its own fresh
+        // Ds_Merchant_Order, mapped back to the real order via RedsysPaymentAttempt.
+        const merchantOrder = generateRedsysOrderNumber();
+        await this.connection
+            .getRepository(ctx, RedsysPaymentAttempt)
+            .insert({ merchantOrder, orderCode: order.code });
+
         const params: RedsysMerchantParameters = {
             DS_MERCHANT_AMOUNT: String(order.totalWithTax),
-            DS_MERCHANT_ORDER: order.code,
+            DS_MERCHANT_ORDER: merchantOrder,
             DS_MERCHANT_MERCHANTCODE: config.merchantCode,
             DS_MERCHANT_CURRENCY: currencyNumeric,
             DS_MERCHANT_TRANSACTIONTYPE: REDSYS_TRANSACTION_TYPE_AUTHORIZATION,
@@ -84,9 +96,12 @@ export class RedsysService {
         };
 
         const merchantParameters = encodeMerchantParameters(params);
-        const signature = signMerchantParameters(config.secretKey, order.code, merchantParameters);
+        const signature = signMerchantParameters(config.secretKey, merchantOrder, merchantParameters);
 
-        Logger.info(`Built Redsys payment form for order ${order.code} (amount ${order.totalWithTax})`, loggerCtx);
+        Logger.info(
+            `Built Redsys payment form for order ${order.code} (attempt ${merchantOrder}, amount ${order.totalWithTax})`,
+            loggerCtx,
+        );
 
         return {
             success: true,
@@ -122,22 +137,24 @@ export class RedsysService {
 
         const config = getRedsysConfig();
         const params = decodeMerchantParameters(merchantParameters) as RedsysResponseParameters;
-        const orderCode = params.Ds_Order;
+        // Ds_Order is Redsys' echo of the Ds_Merchant_Order we sent — the
+        // per-attempt value from buildPaymentForm(), not the Vendure order code.
+        const merchantOrder = params.Ds_Order;
         const responseCode = params.Ds_Response;
 
-        if (!orderCode || typeof orderCode !== 'string') {
+        if (!merchantOrder || typeof merchantOrder !== 'string') {
             throw new Error('Notification is missing Ds_Order');
         }
         if (responseCode == null) {
-            throw new Error(`Notification for order ${orderCode} is missing Ds_Response`);
+            throw new Error(`Notification for order ${merchantOrder} is missing Ds_Response`);
         }
 
         // Signature MUST be verified before anything in `params` is trusted.
-        const isValid = verifyMerchantParametersSignature(config.secretKey, orderCode, merchantParameters, signature);
+        const isValid = verifyMerchantParametersSignature(config.secretKey, merchantOrder, merchantParameters, signature);
         if (!isValid) {
             // Deliberately no param values in this log — the signature didn't check out,
             // so nothing in the payload is trustworthy.
-            Logger.error(`Rejected Redsys notification with invalid signature for order ${orderCode}`, loggerCtx);
+            Logger.error(`Rejected Redsys notification with invalid signature for order ${merchantOrder}`, loggerCtx);
             throw new Error('Invalid Redsys signature');
         }
 
@@ -150,24 +167,36 @@ export class RedsysService {
         // rather than relying on the `@Transaction()` decorator, which only
         // attaches to the ctx it can see, not to a freshly-constructed one.
         return this.connection.withTransaction(adminCtx, async ctx => {
+            const attempt = await this.connection
+                .getRepository(ctx, RedsysPaymentAttempt)
+                .findOne({ where: { merchantOrder } });
+            if (!attempt) {
+                Logger.error(`Redsys notification for unknown merchant order ${merchantOrder}`, loggerCtx);
+                throw new Error(`No payment attempt found for merchant order ${merchantOrder}`);
+            }
+            const orderCode = attempt.orderCode;
+
             const order = await this.orderService.findOneByCode(ctx, orderCode);
             if (!order) {
                 Logger.error(`Redsys notification for unknown order ${orderCode}`, loggerCtx);
                 throw new Error(`No order found with code ${orderCode}`);
             }
 
-            // Idempotency: the unique index on orderCode makes this insert atomic —
-            // a retried/duplicate notification for the same order fails here and is
-            // treated as already handled, without a second addPaymentToOrder call.
+            // Idempotency: the unique index on merchantOrder makes this insert
+            // atomic — a retried/duplicate notification for the same attempt fails
+            // here and is treated as already handled, without a second
+            // addPaymentToOrder call. Keyed per-attempt (not per Vendure order) so
+            // a genuine retry after a decline — which is a *different* attempt —
+            // still gets processed.
             //
             // The row is only inserted once recordPayment() has actually succeeded
             // (see below) — a notification that fails partway through must NOT be
             // marked as processed, or a legitimate Redsys retry would be silently
             // and permanently ignored.
             const repository = this.connection.getRepository(ctx, RedsysTransaction);
-            const alreadyExists = await repository.findOne({ where: { orderCode } });
+            const alreadyExists = await repository.findOne({ where: { merchantOrder } });
             if (alreadyExists) {
-                Logger.info(`Ignoring duplicate Redsys notification for order ${orderCode}`, loggerCtx);
+                Logger.info(`Ignoring duplicate Redsys notification for attempt ${merchantOrder} (order ${orderCode})`, loggerCtx);
                 return { orderCode, alreadyProcessed: true };
             }
 
@@ -175,6 +204,7 @@ export class RedsysService {
 
             try {
                 await repository.insert({
+                    merchantOrder,
                     orderCode,
                     responseCode,
                     approved,
@@ -182,7 +212,7 @@ export class RedsysService {
                     // Explicitly not persisting `params` wholesale: Redsys' redirect flow never
                     // sends full card data, but we only keep the fields we actually use.
                     rawResponse: JSON.stringify({
-                        Ds_Order: orderCode,
+                        Ds_Order: merchantOrder,
                         Ds_Response: responseCode,
                         Ds_Amount: params.Ds_Amount,
                         Ds_Currency: params.Ds_Currency,
@@ -196,7 +226,7 @@ export class RedsysService {
                     // Lost a race against a concurrent duplicate that also passed the check
                     // above — the payment was still only recorded once, since recordPayment()
                     // itself is guarded by order state (see below). Nothing more to do.
-                    Logger.info(`Redsys notification for order ${orderCode} was a concurrent duplicate`, loggerCtx);
+                    Logger.info(`Redsys notification for attempt ${merchantOrder} (order ${orderCode}) was a concurrent duplicate`, loggerCtx);
                 } else {
                     throw err;
                 }

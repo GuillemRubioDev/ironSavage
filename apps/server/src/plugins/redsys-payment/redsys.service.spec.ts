@@ -11,6 +11,8 @@ process.env.STOREFRONT_URL = 'http://localhost:3001';
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { RedsysService } = require('./redsys.service');
 const { encodeMerchantParameters, signMerchantParameters } = require('./redsys-signature');
+const { RedsysTransaction } = require('./redsys-transaction.entity');
+const { RedsysPaymentAttempt } = require('./redsys-payment-attempt.entity');
 const { Order } = require('@vendure/core');
 
 const SECRET_KEY = process.env.REDSYS_SECRET_KEY!;
@@ -32,19 +34,39 @@ function buildNotificationBody(order: string, responseCode: string, authorisatio
 }
 
 function createFakeRedsysTransactionRepository() {
-    // Minimal in-memory stand-in for the TypeORM repository, keyed by orderCode
-    // like the real unique index — enough to exercise the findOne-then-insert
-    // idempotency dance without a real database.
-    const rows = new Map<string, {orderCode: string}>();
+    // Minimal in-memory stand-in for the TypeORM repository, keyed by
+    // merchantOrder like the real unique index — enough to exercise the
+    // findOne-then-insert idempotency dance without a real database.
+    const rows = new Map<string, {merchantOrder: string}>();
     return {
-        findOne: mock.fn(async ({where: {orderCode}}: {where: {orderCode: string}}) => rows.get(orderCode) ?? null),
-        insert: mock.fn(async (row: {orderCode: string}) => {
-            if (rows.has(row.orderCode)) {
+        findOne: mock.fn(async ({where: {merchantOrder}}: {where: {merchantOrder: string}}) => rows.get(merchantOrder) ?? null),
+        insert: mock.fn(async (row: {merchantOrder: string}) => {
+            if (rows.has(row.merchantOrder)) {
                 const err: any = new Error('duplicate key value violates unique constraint');
                 err.code = '23505';
                 throw err;
             }
-            rows.set(row.orderCode, row);
+            rows.set(row.merchantOrder, row);
+        }),
+    };
+}
+
+/**
+ * Minimal in-memory stand-in for RedsysPaymentAttempt, keyed by merchantOrder
+ * like the real unique index. Pre-seeded with `merchantOrder === orderCode`
+ * for the given order, so tests that build a notification body directly
+ * (bypassing buildPaymentForm, which is what normally creates this mapping)
+ * still resolve to the right order — matching how notification tests
+ * already use order.code as the attempt identifier.
+ */
+function createFakeAttemptRepository(order: { code: string }) {
+    const rows = new Map<string, {merchantOrder: string; orderCode: string}>([
+        [order.code, { merchantOrder: order.code, orderCode: order.code }],
+    ]);
+    return {
+        findOne: mock.fn(async ({where: {merchantOrder}}: {where: {merchantOrder: string}}) => rows.get(merchantOrder) ?? null),
+        insert: mock.fn(async (row: {merchantOrder: string; orderCode: string}) => {
+            rows.set(row.merchantOrder, row);
         }),
     };
 }
@@ -67,8 +89,10 @@ function createService(order: { id: string; code: string; state: string }) {
     // marker here so this test doesn't need to construct a real TypeORM entity.
     const orderServiceMock = { addPaymentToOrder, transitionToState, findOneByCode };
     const fakeRepository = createFakeRedsysTransactionRepository();
+    const fakeAttemptRepository = createFakeAttemptRepository(order);
     const connectionMock = {
-        getRepository: () => fakeRepository,
+        getRepository: (_ctx: unknown, entity: unknown) =>
+            entity === RedsysPaymentAttempt ? fakeAttemptRepository : fakeRepository,
         // Real withTransaction opens/commits/rolls back a DB transaction; the fake
         // just runs the callback with the same ctx, which is enough to exercise
         // this service's own logic (idempotency, ordering, error propagation).
@@ -83,7 +107,7 @@ function createService(order: { id: string; code: string; state: string }) {
     };
 
     const service = new RedsysService(connectionMock, orderServiceMock, channelServiceMock, paymentMethodServiceMock);
-    return { service, addPaymentToOrder, transitionToState, findOneByCode, connectionMock, fakeRepository };
+    return { service, addPaymentToOrder, transitionToState, findOneByCode, connectionMock, fakeRepository, fakeAttemptRepository };
 }
 
 test('buildPaymentForm takes the amount from the Order, not any external input', async () => {
@@ -101,7 +125,31 @@ test('buildPaymentForm takes the amount from the Order, not any external input',
 
     const decoded = JSON.parse(Buffer.from(result.form.merchantParameters, 'base64').toString('utf8'));
     assert.equal(decoded.DS_MERCHANT_AMOUNT, '4999');
-    assert.equal(decoded.DS_MERCHANT_ORDER, '1234ABCD5678');
+    // DS_MERCHANT_ORDER is a fresh per-attempt value (not the Vendure order
+    // code itself) — see RedsysPaymentAttempt: Redsys rejects a resend of the
+    // same order number, so each attempt needs a distinct one, in Redsys'
+    // required format (4 numeric + 8 alphanumeric).
+    assert.match(decoded.DS_MERCHANT_ORDER, /^\d{4}[0-9A-Z]{8}$/);
+    assert.notEqual(decoded.DS_MERCHANT_ORDER, '1234ABCD5678');
+});
+
+test('buildPaymentForm records the attempt so a notification can be traced back to the order', async () => {
+    const { service, fakeAttemptRepository } = createService({ id: '1', code: '1234ABCD5678', state: 'ArrangingPayment' });
+    const order = {
+        code: '1234ABCD5678',
+        currencyCode: 'EUR',
+        totalWithTax: 4999,
+        lines: [{ id: '1' }],
+    };
+
+    const result = await service.buildPaymentForm({}, order);
+    assert.equal(result.success, true);
+
+    const decoded = JSON.parse(Buffer.from(result.form.merchantParameters, 'base64').toString('utf8'));
+    assert.equal(fakeAttemptRepository.insert.mock.callCount(), 1);
+    const [insertedRow] = fakeAttemptRepository.insert.mock.calls[0].arguments as [{merchantOrder: string; orderCode: string}];
+    assert.equal(insertedRow.merchantOrder, decoded.DS_MERCHANT_ORDER);
+    assert.equal(insertedRow.orderCode, order.code);
 });
 
 test('buildPaymentForm rejects an order with no lines', async () => {
@@ -175,6 +223,36 @@ test('handleNotification is idempotent: a duplicate notification is not processe
     assert.equal(addPaymentToOrder.mock.callCount(), 1);
 });
 
+test('a second, distinct payment attempt for the same order (e.g. retry after a decline) is processed, not swallowed as a duplicate', async () => {
+    // Regression test for the real-world bug this fixes: a declined card
+    // followed by a successful retry of the *same Vendure order* must each be
+    // treated as their own attempt — not collapsed by orderCode-keyed
+    // idempotency, which would silently drop the successful retry.
+    const order = { id: '1', code: '0006FFFFFFFF', state: 'ArrangingPayment' };
+    const { service, addPaymentToOrder, fakeAttemptRepository } = createService(order);
+
+    // First attempt (declined) — distinct merchantOrder from the second.
+    const firstAttemptOrder = '0006AAAAAAAA';
+    await fakeAttemptRepository.insert({ merchantOrder: firstAttemptOrder, orderCode: order.code });
+    const declinedBody = buildNotificationBody(firstAttemptOrder, '0180');
+    const declinedResult = await service.handleNotification(declinedBody, FAKE_REQ);
+    assert.equal(declinedResult.alreadyProcessed, false);
+
+    // Second, later attempt (approved) — a different merchantOrder, same order.
+    const secondAttemptOrder = '0006BBBBBBBB';
+    await fakeAttemptRepository.insert({ merchantOrder: secondAttemptOrder, orderCode: order.code });
+    const approvedBody = buildNotificationBody(secondAttemptOrder, '0000');
+    const approvedResult = await service.handleNotification(approvedBody, FAKE_REQ);
+    assert.equal(approvedResult.alreadyProcessed, false);
+    assert.equal(approvedResult.orderCode, order.code);
+
+    assert.equal(addPaymentToOrder.mock.callCount(), 2);
+    const [, , declinedInput] = addPaymentToOrder.mock.calls[0].arguments as [unknown, unknown, { metadata: { approved: boolean } }];
+    const [, , approvedInput] = addPaymentToOrder.mock.calls[1].arguments as [unknown, unknown, { metadata: { approved: boolean } }];
+    assert.equal(declinedInput.metadata.approved, false);
+    assert.equal(approvedInput.metadata.approved, true);
+});
+
 test('a notification is NOT marked as processed if addPaymentToOrder fails, so a retry can still succeed', async () => {
     // Regression test: an earlier version of this code recorded the dedup row
     // *before* calling addPaymentToOrder, so a downstream failure (e.g. a missing
@@ -189,7 +267,7 @@ test('a notification is NOT marked as processed if addPaymentToOrder fails, so a
 
     const body = buildNotificationBody(order.code, '0000');
     await assert.rejects(() => service.handleNotification(body, FAKE_REQ));
-    assert.equal(await fakeRepository.findOne({ where: { orderCode: order.code } }), null);
+    assert.equal(await fakeRepository.findOne({ where: { merchantOrder: order.code } }), null);
 
     // Retry should be attempted again, not silently dropped as a duplicate.
     const retry = await service.handleNotification(body, FAKE_REQ);

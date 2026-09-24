@@ -4,7 +4,8 @@ import { shopApiExtensions } from './api-extensions';
 import { redsysPaymentHandler } from './redsys-payment-method.handler';
 import { RedsysOrderCodeStrategy } from './redsys-order-code.strategy';
 import { RedsysController } from './redsys.controller';
-import { RedsysShopResolver } from './redsys-shop.resolver';
+import { RedsysPaymentAttempt } from './redsys-payment-attempt.entity';
+import { RedsysConfirmationTypeResolver, RedsysShopResolver } from './redsys-shop.resolver';
 import { RedsysService } from './redsys.service';
 import { RedsysTransaction } from './redsys-transaction.entity';
 
@@ -42,7 +43,7 @@ import { RedsysTransaction } from './redsys-transaction.entity';
     imports: [PluginCommonModule],
     controllers: [RedsysController],
     providers: [RedsysService],
-    entities: [RedsysTransaction],
+    entities: [RedsysTransaction, RedsysPaymentAttempt],
     configuration: config => {
         config.paymentOptions.paymentMethodHandlers.push(redsysPaymentHandler);
         config.orderOptions.orderCodeStrategy = new RedsysOrderCodeStrategy();
@@ -50,7 +51,7 @@ import { RedsysTransaction } from './redsys-transaction.entity';
     },
     shopApiExtensions: {
         schema: shopApiExtensions,
-        resolvers: [RedsysShopResolver],
+        resolvers: [RedsysShopResolver, RedsysConfirmationTypeResolver],
     },
     compatibility: '^3.0.0',
 })
