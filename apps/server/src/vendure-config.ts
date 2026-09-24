@@ -16,6 +16,7 @@ import { ReviewsPlugin } from './plugins/reviews/reviews.plugin';
 import { ContentPlugin, contentPermission } from './plugins/content/content.plugin';
 import { DashboardExtrasPlugin } from './plugins/dashboard-extras/dashboard-extras.plugin';
 import { BannersPlugin } from './plugins/banners/banners.plugin';
+import { OrderToolsPlugin } from './plugins/order-tools/order-tools.plugin';
 import { bannerPermission } from './plugins/banners/banner.permission';
 import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
@@ -164,5 +165,6 @@ export const config: VendureConfig = {
         ContentPlugin,
         DashboardExtrasPlugin,
         BannersPlugin,
+        OrderToolsPlugin,
     ],
 };

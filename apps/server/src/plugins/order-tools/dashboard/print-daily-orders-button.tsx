@@ -1,0 +1,11 @@
+import { Button } from '@vendure/dashboard';
+import { ClipboardList } from 'lucide-react';
+
+export function PrintDailyOrdersButton() {
+    return (
+        <Button variant="outline" size="sm" onClick={() => window.open('/order-tools/daily-orders', '_blank')}>
+            <ClipboardList className="mr-2 h-4 w-4" />
+            Pedidos de hoy
+        </Button>
+    );
+}
