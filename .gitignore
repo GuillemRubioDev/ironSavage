@@ -9,3 +9,16 @@ node_modules
 
 # Backups (scripts/backup.sh) — contain real customer/order data, never committed.
 backups/
+
+# Vendure CLI's own local machine id, used only for its anonymous telemetry
+# ping — regenerated automatically, never meant to be shared across machines.
+/.vendure/
+
+# TanStack Router's local temp/cache dir, generated while building/serving
+# the @vendure/dashboard admin UI (apps/server) — safe to delete, regenerated
+# on the next build/dev run.
+apps/server/.tanstack/
+
+# Scratch capture of browser network/console output from local debugging —
+# never meant to be committed.
+/_debug-postbodies.txt
