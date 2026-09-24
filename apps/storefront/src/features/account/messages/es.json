@@ -48,6 +48,7 @@
     "subtotal": "Subtotal",
     "shipping": "Envío",
     "total": "Total",
+    "pricesIncludeTax": "Todos los precios incluyen IVA",
     "shippingAddress": "Dirección de envío",
     "billingAddress": "Dirección de facturación",
     "payment": "Pago",

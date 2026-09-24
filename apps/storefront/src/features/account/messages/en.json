@@ -48,6 +48,7 @@
     "subtotal": "Subtotal",
     "shipping": "Shipping",
     "total": "Total",
+    "pricesIncludeTax": "All prices include VAT",
     "shippingAddress": "Shipping Address",
     "billingAddress": "Billing Address",
     "payment": "Payment",
