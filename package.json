@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "concurrently -n server,storefront -c blue,magenta \"npm run dev -w server\" \"npm run dev -w storefront\"",
     "dev:server": "npm run dev -w server",
     "dev:storefront": "npm run dev -w storefront",
@@ -14,9 +15,15 @@
     "start:storefront": "npm run start -w storefront"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "patch-package": "^8.0.1"
   },
   "workspaces": [
     "apps/*"
-  ]
+  ],
+  "overrides": {
+    "ws": "^8.21.3",
+    "lodash": "^4.18.1",
+    "sharp": "^0.35.4"
+  }
 }

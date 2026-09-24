@@ -1,0 +1,183 @@
+diff --git a/node_modules/@vendure/dashboard/src/app/main.tsx b/node_modules/@vendure/dashboard/src/app/main.tsx
+index 6bbeaad..e4207ec 100644
+--- a/node_modules/@vendure/dashboard/src/app/main.tsx
++++ b/node_modules/@vendure/dashboard/src/app/main.tsx
+@@ -5,7 +5,6 @@ import {
+     clearCustomFieldsMap,
+     setCustomFieldsMap,
+ } from '@/vdb/framework/document-introspection/add-custom-fields.js';
+-import { executeDashboardExtensionCallbacks } from '@/vdb/framework/extension-api/define-dashboard-extension.js';
+ import { useDashboardExtensions } from '@/vdb/framework/extension-api/use-dashboard-extensions.js';
+ import { useExtendedRouter } from '@/vdb/framework/page/use-extended-router.js';
+ import { useAuth } from '@/vdb/hooks/use-auth.js';
+@@ -106,11 +105,21 @@ function InnerApp() {
+     }, [isRTL]);
+ 
+     const isReady = hasSetCustomFieldsMap || auth.status === 'unauthenticated';
++    // PATCHED (patch-package, see /patches): hardening fix, not the root
++    // cause. This object was rebuilt on every InnerApp render and handed
++    // straight to RouterProvider's `context` prop; TanStack Router treats a
++    // changed context reference as a signal to re-run the matched route's
++    // beforeLoad. Memoizing avoids that spurious re-validation. The actual
++    // blank-dashboard bug (login page renders then unmounts to blank ~300ms
++    // later, no error) was in useDashboardExtensions
++    // (lib/framework/extension-api/use-dashboard-extensions.ts) — see the
++    // fix there for the real explanation.
++    const routerContext = React.useMemo(() => ({ auth, queryClient }), [auth]);
+     return (
+         <>
+             <DirectionProvider direction={isRTL ? 'rtl' : 'ltr'}>
+                 {isReady ? (
+-                    <RouterProvider router={router} context={{ auth, queryClient }} />
++                    <RouterProvider router={router} context={routerContext} />
+                 ) : (
+                     <BootSplash />
+                 )}
+@@ -144,11 +153,11 @@ function App() {
+         registerDefaults();
+     }, []);
+ 
+-    useEffect(() => {
+-        if (extensionsLoaded) {
+-            executeDashboardExtensionCallbacks();
+-        }
+-    }, [extensionsLoaded]);
++    // PATCHED (patch-package, see /patches): executeDashboardExtensionCallbacks()
++    // (registers every plugin's routes/pageBlocks/navSections) now runs once,
++    // synchronously, from inside useDashboardExtensions' own cached load — see
++    // lib/framework/extension-api/use-dashboard-extensions.ts. Calling it again here
++    // would double-register every plugin's extensions.
+ 
+     if (!i18nLoaded || !extensionsLoaded) {
+         // Show a minimal full-screen splash so the user sees that the app is
+diff --git a/node_modules/@vendure/dashboard/src/lib/framework/extension-api/use-dashboard-extensions.ts b/node_modules/@vendure/dashboard/src/lib/framework/extension-api/use-dashboard-extensions.ts
+index 62306e5..6ee4f9e 100644
+--- a/node_modules/@vendure/dashboard/src/lib/framework/extension-api/use-dashboard-extensions.ts
++++ b/node_modules/@vendure/dashboard/src/lib/framework/extension-api/use-dashboard-extensions.ts
+@@ -1,7 +1,41 @@
+ import { useEffect, useState } from 'react';
+ import { runDashboardExtensions } from 'virtual:dashboard-extensions';
+ 
+-import { onExtensionSourceChange } from './define-dashboard-extension.js';
++import { executeDashboardExtensionCallbacks, onExtensionSourceChange } from './define-dashboard-extension.js';
++
++// PATCHED (patch-package, see /patches): this hook is called from more than
++// one place that renders concurrently (App, and InnerApp indirectly via
++// useExtendedRouter). Each call site used to own an independent
++// useState(false) and independently invoke runDashboardExtensions(), so the
++// site that mounted later (InnerApp's, one render after App's already
++// gated on extensionsLoaded=true) started its own false->true cycle from
++// scratch. That later flip changed useExtendedRouter's useMemo dependency
++// well after the app had already rendered and navigated to /login,
++// producing a brand-new router instance mid-flight. Handing RouterProvider
++// a new `router` reference collapses the whole route tree to blank with no
++// error and no second beforeLoad call (confirmed via instrumentation: the
++// router identity change lines up exactly with the final, unrecovered
++// LoginPage unmount). Caching the load in module scope means every call
++// site shares one outcome, so a site mounting after extensions are already
++// loaded initializes as loaded immediately instead of re-triggering a
++// second, independently-timed transition.
++//
++// That fix uncovered a second, previously-hidden bug: executeDashboardExtensionCallbacks()
++// (which actually registers each plugin's routes/pageBlocks/navSections — see
++// define-dashboard-extension.ts) used to run from a separate useEffect in
++// app/main.tsx keyed on App's own extensionsLoaded. Before this fix, useExtendedRouter's
++// hook instance always started at false and only flipped true on a LATER, independently
++// timed re-render — by which point that other effect had already run and routes were
++// registered. Now that every instance reads the shared cached value immediately, the
++// very first router build can happen before that separate effect ever runs, silently
++// building a router with none of the plugins' custom routes (e.g. /invoices, /banners
++// clicking through to "not found"). Running the registration callbacks synchronously,
++// once, as part of this same cached load removes the dependency on that ordering
++// entirely: by the time any consumer's extensionsLoaded is true, routes are already
++// registered. The separate call in app/main.tsx's App effect was removed to avoid
++// double-registering every plugin's routes/pageBlocks/navSections.
++let cachedExtensionsPromise: Promise<void> | null = null;
++let cachedExtensionsLoaded = false;
+ 
+ /**
+  * @description
+@@ -11,11 +45,17 @@ import { onExtensionSourceChange } from './define-dashboard-extension.js';
+  * It should be used in any component whose rendering depends on the content of the dashboard extensions.
+  */
+ export function useDashboardExtensions() {
+-    const [extensionsLoaded, setExtensionsLoaded] = useState(false);
++    const [extensionsLoaded, setExtensionsLoaded] = useState(cachedExtensionsLoaded);
+     const [reloadCount, setReloadCount] = useState(0);
+ 
+     useEffect(() => {
+-        void runDashboardExtensions().then(() => setExtensionsLoaded(true));
++        if (!cachedExtensionsPromise) {
++            cachedExtensionsPromise = runDashboardExtensions().then(() => {
++                executeDashboardExtensionCallbacks();
++                cachedExtensionsLoaded = true;
++            });
++        }
++        void cachedExtensionsPromise.then(() => setExtensionsLoaded(true));
+         onExtensionSourceChange(() => {
+             // Setting this state var is only really done
+             // in order to force a re-render of components using this hook.
+diff --git a/node_modules/@vendure/dashboard/src/lib/providers/auth.tsx b/node_modules/@vendure/dashboard/src/lib/providers/auth.tsx
+index 1b2b7de..6198955 100644
+--- a/node_modules/@vendure/dashboard/src/lib/providers/auth.tsx
++++ b/node_modules/@vendure/dashboard/src/lib/providers/auth.tsx
+@@ -269,26 +269,42 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode
+         }
+     }, [isLoading, currentUserData, currentUserError, status, isLoginLogoutInProgress]);
+ 
+-    const refreshCurrentUser = () => {
++    const refreshCurrentUser = React.useCallback(() => {
+         queryClient.invalidateQueries({
+             queryKey: ['currentUser'],
+         });
+-    };
++    }, [queryClient]);
+ 
+-    return (
+-        <AuthContext.Provider
+-            value={{
+-                isAuthenticated,
+-                authenticationError,
+-                status,
+-                user: currentUserData?.activeAdministrator,
+-                channels: currentUserData?.me?.channels,
+-                login,
+-                logout,
+-                refreshCurrentUser,
+-            }}
+-        >
+-            {children}
+-        </AuthContext.Provider>
++    // PATCHED (patch-package, see /patches): hardening fix, not the root
++    // cause of the blank-dashboard bug (see
++    // lib/framework/extension-api/use-dashboard-extensions.ts for that).
++    // This object literal was rebuilt on every render and handed straight
++    // to RouterProvider as its `context` prop (see app/main.tsx), which
++    // made TanStack Router re-run the matched route's beforeLoad on every
++    // AuthProvider/InnerApp render. Memoizing so the reference is stable
++    // unless a value actually changed removes that spurious re-validation.
++    const contextValue = React.useMemo(
++        () => ({
++            isAuthenticated,
++            authenticationError,
++            status,
++            user: currentUserData?.activeAdministrator,
++            channels: currentUserData?.me?.channels,
++            login,
++            logout,
++            refreshCurrentUser,
++        }),
++        [
++            isAuthenticated,
++            authenticationError,
++            status,
++            currentUserData?.activeAdministrator,
++            currentUserData?.me?.channels,
++            login,
++            logout,
++            refreshCurrentUser,
++        ],
+     );
++
++    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+ }

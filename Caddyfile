@@ -11,7 +11,30 @@
 	email {$CADDY_EMAIL}
 }
 
+# Applied to both sites below: zstd/gzip response compression (neither
+# storefront's own Next.js server nor vendure-server compress on their own —
+# see PRODUCTION_OPERATIONS.md's "Rendimiento" section) and a conservative
+# set of security headers safe to set blindly at the proxy without knowing
+# every script/style source the app loads (HSTS, MIME-sniffing, clickjacking,
+# referrer leakage, legacy browser features). Content-Security-Policy is
+# deliberately NOT set here — a wrong CSP silently breaks the app (blocked
+# scripts/styles/images) and needs to be authored against the actual set of
+# origins each app loads from; see the same doc section for that as a
+# pending, deliberately-not-guessed item.
+(common_headers) {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+}
+
 {$PUBLIC_DOMAIN} {
+	import common_headers
 	# Access log to stdout (captured by `docker logs caddy`) — this is the
 	# only place a 502 (storefront/vendure-server unreachable) is visible,
 	# since neither upstream ever sees the request. The `query` filter
@@ -32,6 +55,7 @@
 }
 
 {$API_DOMAIN} {
+	import common_headers
 	log {
 		format filter {
 			wrap console
