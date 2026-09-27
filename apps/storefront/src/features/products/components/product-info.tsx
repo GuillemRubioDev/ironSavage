@@ -83,18 +83,29 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
     const isInStock = selectedVariant && selectedVariant.stockLevel !== 'OUT_OF_STOCK';
     const canAddToCart = selectedVariant && isInStock;
 
+    const buttonLabel = isAdded
+        ? t('addedToCart')
+        : isPending
+            ? t('adding')
+            : !selectedVariant && product.optionGroups.length > 0
+                ? t('selectOptions')
+                : !isInStock
+                    ? t('outOfStock')
+                    : t('addToCart');
+
     return (
+        <>
         <div className="space-y-6">
             {/* Product Title & Price */}
-            <div className="space-y-2">
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{product.name}</h1>
+            <div className="space-y-3">
+                <h1 className="text-display text-3xl md:text-4xl font-bold">{product.name}</h1>
                 {selectedVariant && (
-                    <>
-                        <p className="text-2xl md:text-3xl text-muted-foreground font-semibold mt-3">
+                    <div>
+                        <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums">
                             <Price value={selectedVariant.priceWithTax} currencyCode={currencyCode}/>
                         </p>
-                        <p className="text-xs text-muted-foreground">{t('taxIncluded')}</p>
-                    </>
+                        <p className="text-xs text-muted-foreground mt-1">{t('taxIncluded')}</p>
+                    </div>
                 )}
             </div>
 
@@ -110,14 +121,14 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
                 <div className="space-y-5">
                     {product.optionGroups.map((group) => (
                         <div key={group.id} className="space-y-3">
-                            <Label className="text-base font-semibold">
+                            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 {group.name}
                             </Label>
                             <RadioGroup
                                 value={selectedOptions[group.id] || ''}
                                 onValueChange={(value) => onOptionChange(group.id, value)}
                             >
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <div className="flex flex-wrap gap-2">
                                     {group.options.map((option) => (
                                         <div key={option.id}>
                                             <RadioGroupItem
@@ -127,7 +138,7 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
                                             />
                                             <Label
                                                 htmlFor={option.id}
-                                                className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover px-4 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground peer-data-[checked]:border-primary peer-data-[checked]:ring-2 peer-data-[checked]:ring-primary/20 peer-data-[checked]:bg-primary/5 cursor-pointer transition-all"
+                                                className="flex items-center justify-center border border-border bg-popover px-5 py-2.5 text-sm font-medium hover:border-foreground/40 peer-data-[checked]:border-primary peer-data-[checked]:bg-primary peer-data-[checked]:text-primary-foreground cursor-pointer transition-colors"
                                             >
                                                 {option.name}
                                             </Label>
@@ -157,40 +168,50 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
                 </div>
             )}
 
-            {/* Add to Cart Button */}
-            <div className="pt-2 space-y-3">
+            {/* Add to Cart Button — hidden on mobile, where the sticky bar below takes over */}
+            <div className="hidden lg:block pt-2">
                 <Button
                     size="lg"
-                    className="w-full h-12 text-base font-semibold rounded-lg"
+                    className="w-full h-12 text-base font-semibold"
                     disabled={!canAddToCart || isPending}
                     onClick={handleAddToCart}
                 >
-                    {isAdded ? (
-                        <>
-                            <CheckCircle2 className="mr-2 h-5 w-5"/>
-                            {t('addedToCart')}
-                        </>
-                    ) : (
-                        <>
-                            <ShoppingCart className="mr-2 h-5 w-5"/>
-                            {isPending
-                                ? t('adding')
-                                : !selectedVariant && product.optionGroups.length > 0
-                                    ? t('selectOptions')
-                                    : !isInStock
-                                        ? t('outOfStock')
-                                        : t('addToCart')}
-                        </>
-                    )}
+                    {isAdded ? <CheckCircle2 className="mr-2 h-5 w-5"/> : <ShoppingCart className="mr-2 h-5 w-5"/>}
+                    {buttonLabel}
                 </Button>
             </div>
 
             {/* SKU */}
             {selectedVariant && (
-                <div className="text-xs text-muted-foreground">
+                <div className="font-mono text-xs text-muted-foreground">
                     {t('sku', {sku: selectedVariant.sku})}
                 </div>
             )}
         </div>
+
+        {/* Mobile: fixed bottom buy bar, so the primary action stays reachable
+            with one thumb regardless of scroll position — a plain inline
+            button (the desktop treatment above) would get scrolled out of
+            reach past the description/options/FAQ content on a long PDP. */}
+        <div
+            className="lg:hidden fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-md px-4 py-3 flex items-center gap-3"
+            style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}
+        >
+            {selectedVariant && (
+                <p className="font-mono text-lg font-semibold tabular-nums shrink-0">
+                    <Price value={selectedVariant.priceWithTax} currencyCode={currencyCode}/>
+                </p>
+            )}
+            <Button
+                size="lg"
+                className="flex-1 h-12 text-base font-semibold"
+                disabled={!canAddToCart || isPending}
+                onClick={handleAddToCart}
+            >
+                {isAdded ? <CheckCircle2 className="mr-2 h-5 w-5"/> : <ShoppingCart className="mr-2 h-5 w-5"/>}
+                {buttonLabel}
+            </Button>
+        </div>
+        </>
     );
 }

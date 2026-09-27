@@ -71,22 +71,17 @@ export default async function Home() {
                 <FeaturedProducts/>
             </Suspense>
 
-            <section className="py-16 md:py-24 bg-muted/30">
+            <section className="section-spotlight py-16 md:py-28">
                 <div className="container mx-auto px-4">
-                    <h2 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-tight text-center mb-12">
+                    <h2 className="text-display text-3xl md:text-5xl font-bold text-white max-w-2xl mb-12 md:mb-16">
                         {t('whyShopWithUs')}
                     </h2>
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className="grid sm:grid-cols-3 gap-10 sm:gap-6">
                         {featureKeys.map((feature) => (
-                            <div
-                                key={feature.key}
-                                className="group relative text-center space-y-4 rounded-xl border border-transparent bg-card p-8 transition-all duration-300 hover:border-border hover:shadow-lg hover:-translate-y-1"
-                            >
-                                <div className="w-14 h-14 mx-auto bg-primary/10 rounded-full flex items-center justify-center transition-colors duration-300 group-hover:bg-primary/20">
-                                    <feature.icon className="size-6 text-primary" />
-                                </div>
-                                <h3 className="text-xl font-semibold">{t(`features.${feature.key}.title`)}</h3>
-                                <p className="text-muted-foreground leading-relaxed">{t(`features.${feature.key}.description`)}</p>
+                            <div key={feature.key} className="border-t border-white/15 pt-6 space-y-3">
+                                <feature.icon className="size-6 text-primary" strokeWidth={1.75} />
+                                <h3 className="text-lg font-semibold text-white">{t(`features.${feature.key}.title`)}</h3>
+                                <p className="text-white/60 leading-relaxed">{t(`features.${feature.key}.description`)}</p>
                             </div>
                         ))}
                     </div>

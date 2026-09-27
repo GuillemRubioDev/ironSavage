@@ -35,29 +35,29 @@ function FilterContent({
 }) {
     const t = useTranslations('Filters');
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-lg">{t('title')}</h2>
+        <div className="space-y-1">
+            <div className="flex items-center justify-between pb-4 border-b border-border">
+                <h2 className="text-display text-lg font-bold">{t('title')}</h2>
                 {hasActiveFilters && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters}>
+                    <Button variant="ghost" size="sm" onClick={clearFilters} className="h-auto p-0 text-xs font-medium uppercase tracking-wide text-primary hover:bg-transparent hover:text-primary/80">
                         {t('clearAll')}
                     </Button>
                 )}
             </div>
 
             {Object.entries(facetGroups).map(([facetName, facet]) => (
-                <Collapsible key={facet.id} defaultOpen>
-                    <div className="space-y-2">
-                        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-medium hover:text-foreground transition-colors">
+                <Collapsible key={facet.id} defaultOpen className="border-b border-border last:border-b-0">
+                    <div className="py-4">
+                        <CollapsibleTrigger className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wide">
                             {facetName}
                             <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform [[data-panel-open]_&]:rotate-180" />
                         </CollapsibleTrigger>
                         <CollapsibleContent>
-                            <div className="space-y-2 pb-2">
+                            <div className="space-y-3 pt-4">
                                 {facet.values.map((value) => {
                                     const isChecked = selectedFacets.includes(value.id);
                                     return (
-                                        <div key={value.id} className="flex items-center space-x-2">
+                                        <div key={value.id} className="flex items-center gap-2.5">
                                             <Checkbox
                                                 id={`filter-${value.id}`}
                                                 checked={isChecked}
@@ -65,10 +65,10 @@ function FilterContent({
                                             />
                                             <Label
                                                 htmlFor={`filter-${value.id}`}
-                                                className="text-sm font-normal cursor-pointer flex items-center gap-2"
+                                                className="text-sm font-medium cursor-pointer flex items-center gap-1.5"
                                             >
                                                 {value.name}
-                                                <span className="text-xs text-muted-foreground">
+                                                <span className="font-mono text-xs text-muted-foreground">
                                                     ({value.count})
                                                 </span>
                                             </Label>
@@ -178,10 +178,10 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
                         }
                     />
                     <SheetContent side="left" className="overflow-y-auto p-6">
-                        <SheetHeader>
+                        <SheetHeader className="sr-only">
                             <SheetTitle>{t('title')}</SheetTitle>
                         </SheetHeader>
-                        <div className="mt-4">
+                        <div>
                             <FilterContent {...filterContentProps} />
                         </div>
                     </SheetContent>

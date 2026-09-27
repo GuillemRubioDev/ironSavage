@@ -18,6 +18,7 @@ import {
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { routing } from '@/platform/i18n/routing';
+import Image from 'next/image';
 import {
     SITE_NAME,
     truncateDescription,
@@ -119,29 +120,55 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
 
     const productDataPromise = getCollectionProducts(slug, searchParamsResolved, currencyCode);
     const collectionResult = await getCollectionMetadata(slug);
-    const collectionName = collectionResult.data.collection?.name ?? slug;
+    const collection = collectionResult.data.collection;
+    const collectionName = collection?.name ?? slug;
+    const bannerImage = collection?.featuredAsset?.preview;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            {/* Breadcrumbs */}
-            <Breadcrumb className="mb-6">
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink render={<Link href="/" />}>{t('home')}</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>{collectionName}</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+        <div>
+            {/* Collection banner — the same photography-forward treatment as the
+                homepage's category tiles, so arriving here from one doesn't feel
+                like a downgrade to a plain text header. */}
+            {bannerImage ? (
+                <div className="relative h-48 md:h-64 w-full overflow-hidden">
+                    {/* These collection posters are portrait-composed artwork (their
+                        own baked-in title sits roughly a third of the way down), not
+                        photography shot for a short wide strip — object-center crops
+                        into the lower feature-icon band instead, clipping it at wide
+                        viewports where the crop window widens well past the source's
+                        own aspect ratio. Anchoring higher keeps the poster's own title
+                        centered in the crop instead. */}
+                    <Image src={bannerImage} alt="" fill className="object-cover object-[50%_33%]" sizes="100vw" priority />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+                    <div className="absolute inset-0 flex items-end">
+                        <div className="container mx-auto px-4 pb-6">
+                            <h1 className="text-display text-3xl md:text-5xl font-bold text-white">{collectionName}</h1>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
 
-            {/* Collection Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">{collectionName}</h1>
-            </div>
+            <div className="container mx-auto px-4 py-8">
+                {/* Breadcrumbs */}
+                <Breadcrumb className="mb-6">
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink render={<Link href="/" />}>{t('home')}</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>{collectionName}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {!bannerImage && (
+                    <div className="mb-8">
+                        <h1 className="text-display text-3xl md:text-4xl font-bold">{collectionName}</h1>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* Filters Sidebar */}
                 <aside className="lg:col-span-1">
                     <Suspense fallback={<div className="h-64 animate-pulse bg-muted rounded-lg" />}>
@@ -154,6 +181,7 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
                     <Suspense fallback={<ProductGridSkeleton />}>
                         <ProductGrid productDataPromise={productDataPromise} currentPage={page} take={12} />
                     </Suspense>
+                </div>
                 </div>
             </div>
         </div>

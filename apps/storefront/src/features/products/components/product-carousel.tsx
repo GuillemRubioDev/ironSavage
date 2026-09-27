@@ -17,7 +17,7 @@ export function ProductCarousel({title, products}: ProductCarouselClientProps) {
     return (
         <section className="py-12 md:py-16">
             <div className="container mx-auto px-4">
-                <h2 className="text-3xl md:text-4xl font-bold mb-8">{title}</h2>
+                <h2 className="text-display text-2xl md:text-4xl font-bold mb-8">{title}</h2>
                 <Carousel
                     opts={{
                         align: "start",
@@ -33,8 +33,14 @@ export function ProductCarousel({title, products}: ProductCarouselClientProps) {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious className="hidden md:flex"/>
-                    <CarouselNext className="hidden md:flex"/>
+                    {/* left-2/right-2 (not the primitive's default -left-12/-right-12,
+                        which sits outside the carousel's own box): those only fit
+                        inside a section with generous outer margin, which this
+                        container-width carousel doesn't have — at exactly the md
+                        breakpoint (768px, where these appear) they poked past the
+                        viewport edge and caused horizontal page scroll. */}
+                    <CarouselPrevious className="hidden md:flex left-2"/>
+                    <CarouselNext className="hidden md:flex right-2"/>
                 </Carousel>
             </div>
         </section>

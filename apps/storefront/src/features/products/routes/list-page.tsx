@@ -84,7 +84,7 @@ export default async function ProductListPage({ searchParams }: PageProps<'/[loc
             </Breadcrumb>
 
             <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">{t('allProducts')}</h1>
+                <h1 className="text-display text-3xl md:text-4xl font-bold">{t('allProducts')}</h1>
             </div>
 
             <Suspense fallback={<ProductGridSkeleton />}>

@@ -183,7 +183,13 @@ function CarouselPrevious({
   size = "icon-sm",
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { orientation, scrollPrev, canScrollPrev } = useCarousel()
+  const { orientation, scrollPrev, canScrollPrev, canScrollNext } = useCarousel()
+
+  // Nothing to scroll either direction (e.g. fewer items than fit in one
+  // view) — a permanently-disabled arrow is just visual noise sitting away
+  // from the (fully visible) content, not a real control. Hide both arrows
+  // rather than show one that can never be clicked.
+  if (!canScrollPrev && !canScrollNext) return null
 
   return (
     <Button
@@ -213,7 +219,9 @@ function CarouselNext({
   size = "icon-sm",
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { orientation, scrollNext, canScrollNext } = useCarousel()
+  const { orientation, scrollNext, canScrollNext, canScrollPrev } = useCarousel()
+
+  if (!canScrollPrev && !canScrollNext) return null
 
   return (
     <Button

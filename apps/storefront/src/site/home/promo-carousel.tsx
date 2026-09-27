@@ -76,7 +76,15 @@ function buildAnimatedHeroTitle(title: string, highlight: string) {
         return {
             heading: (
                 <h1
-                    className="text-display text-6xl md:text-8xl lg:text-9xl font-bold text-white flex flex-wrap items-center justify-center gap-x-4 gap-y-2 [transform:translateZ(0)]"
+                    // The SAVAGE crop is a fixed-aspect-ratio image (~5.36:1) sized
+                    // purely off this element's font-size (height: 1.15em, width
+                    // follows from the ratio) — at a flat text-6xl (60px) its
+                    // rendered width (~370px) exceeds the available content width
+                    // below ~430px viewports and got clipped by the slide's
+                    // overflow-hidden. A fluid clamp keeps it flat at the original
+                    // 60px from ~430px up (unchanged from before) but shrinks
+                    // continuously below that so the crop always fits.
+                    className="text-display text-[clamp(2.5rem,14vw,3.75rem)] md:text-8xl lg:text-9xl font-bold text-white flex flex-wrap items-center justify-center gap-x-4 gap-y-2 [transform:translateZ(0)]"
                     aria-label={`${title} ${highlight}`}
                 >
                     {/* No matching glyph for a "T" exists in the real logo art

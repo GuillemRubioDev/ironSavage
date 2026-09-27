@@ -36,7 +36,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
         return (
             <div className="container mx-auto px-4 py-16">
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold mb-4">{t('empty')}</h1>
+                    <h1 className="text-display text-3xl font-bold mb-4">{t('empty')}</h1>
                     <p className="text-muted-foreground mb-8">
                         {t('emptyMessage')}
                     </p>
@@ -47,11 +47,11 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
     }
 
     return (
-        <div className="lg:col-span-2 divide-y divide-border">
+        <div className="lg:col-span-2 divide-y divide-border border-t border-border">
             {activeOrder.lines.map((line) => (
                 <div
                     key={line.id}
-                    className="flex flex-col sm:flex-row gap-4 p-4 first:rounded-t-xl last:rounded-b-xl border-x first:border-t last:border-b bg-card transition-colors duration-200 hover:bg-muted/30"
+                    className="flex flex-col sm:flex-row gap-4 py-5"
                 >
                     {line.productVariant.product.featuredAsset && (
                         <Link
@@ -63,7 +63,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                                 alt={line.productVariant.name}
                                 width={120}
                                 height={120}
-                                className="rounded-xl object-cover w-full sm:w-[120px] h-[120px]"
+                                className="rounded-md object-cover w-full sm:w-[100px] h-[100px]"
                             />
                         </Link>
                     )}
@@ -71,7 +71,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                     <div className="flex-grow min-w-0">
                         <Link
                             href={`/productos/${line.productVariant.product.slug}`}
-                            className="font-semibold hover:underline block"
+                            className="text-display font-semibold hover:text-primary transition-colors block"
                         >
                             {line.productVariant.product.name}
                         </Link>
@@ -96,7 +96,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                             <QuantityControl lineId={line.id} quantity={line.quantity}/>
 
                             <div className="sm:hidden ml-auto">
-                                <p className="font-semibold text-lg">
+                                <p className="font-mono font-semibold text-lg tabular-nums">
                                     <Price value={line.discountedLinePriceWithTax}
                                            currencyCode={activeOrder.currencyCode}/>
                                 </p>
@@ -105,7 +105,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                     </div>
 
                     <div className="hidden sm:block text-right flex-shrink-0">
-                        <p className="font-semibold text-lg">
+                        <p className="font-mono font-semibold text-lg tabular-nums">
                             <Price value={line.discountedLinePriceWithTax} currencyCode={activeOrder.currencyCode}/>
                         </p>
                         <p className="text-sm text-muted-foreground mt-1 flex items-center justify-end gap-2">

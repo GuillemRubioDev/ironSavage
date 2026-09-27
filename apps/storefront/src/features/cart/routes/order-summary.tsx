@@ -40,8 +40,8 @@ export async function OrderSummary({activeOrder}: { activeOrder: ActiveOrder }) 
     const t = await getTranslations('Cart');
     const combinedTax = combineTaxByRate(activeOrder.taxSummary ?? []);
     return (
-        <div className="border rounded-xl p-6 bg-card sticky top-24 shadow-sm">
-            <h2 className="text-xl font-bold mb-1">{t('orderSummary')}</h2>
+        <div className="border border-border rounded-md p-6 bg-card sticky top-[calc(var(--header-offset)+1.5rem)]">
+            <h2 className="text-display text-xl font-bold mb-1">{t('orderSummary')}</h2>
             <p className="text-xs text-muted-foreground mb-4">{t('pricesIncludeTax')}</p>
 
             <div className="space-y-2 mb-4">
@@ -76,7 +76,7 @@ export async function OrderSummary({activeOrder}: { activeOrder: ActiveOrder }) 
             <div className="border-t pt-4 mb-6">
                 <div className="flex justify-between items-baseline text-lg font-bold">
                     <span>{t('total')}</span>
-                    <span className="text-2xl">
+                    <span className="font-mono text-2xl tabular-nums">
                         <Price value={activeOrder.totalWithTax} currencyCode={activeOrder.currencyCode}/>
                     </span>
                 </div>

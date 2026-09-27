@@ -64,7 +64,10 @@
 }
 
 :root {
-  --radius: 0.5rem;
+  /* Slightly tighter than the shadcn default (0.5rem) — a more angular,
+     industrial edge that matches the brand's condensed/cut-corner logo
+     mark better than a soft SaaS-style rounded corner. */
+  --radius: 0.375rem;
 
   /*
    * Centralized fixed-header layout offsets — the single source of truth
@@ -204,6 +207,17 @@
     letter-spacing: -0.01em;
     text-transform: uppercase;
   }
+
+  /* For the mobile horizontal snap-scroll rows (category tiles, etc.) — the
+     scroll itself is the affordance, a visible scrollbar underneath it just
+     adds noise. Scrolling still works identically, only the bar is hidden. */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes fade-up {
@@ -288,6 +302,44 @@
   .hero-glow {
     animation: glow-pulse 2.8s ease-in-out infinite;
   }
+}
+
+/* Reusable version of the hero's own "dark arena" treatment (promo-carousel.tsx)
+   — extracted so sections beyond the hero (proof/rewards) can share the exact
+   same fixed near-black backdrop + faint red glow + grid-line texture instead
+   of each falling back to a plain bg-muted/white section, which is what made
+   the brand identity feel like it stopped after the hero. Fixed color values
+   (not theme tokens) on purpose: this must read the same in light and dark
+   mode, exactly like the hero. */
+.section-spotlight {
+  position: relative;
+  background-color: oklch(0.13 0.004 260);
+  isolation: isolate;
+}
+
+.section-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(ellipse 70% 60% at 50% 0%, oklch(0.577 0.245 27.325 / 16%), transparent);
+}
+
+.section-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(to right, white 1px, transparent 1px),
+    linear-gradient(to bottom, white 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  opacity: 0.035;
+}
+
+.section-spotlight > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Animated wordmark (components/brand/logo.tsx AnimatedWordmark): the real

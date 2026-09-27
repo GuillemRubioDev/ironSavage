@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import { Link, useRouter } from '@/platform/i18n/navigation';
 import {Menu, Search, ShoppingBag, User, Package, MapPin, FileText, Star, Newspaper} from 'lucide-react';
 import {Button} from '@/components/ui/button';
@@ -14,6 +14,8 @@ import {
     SheetClose,
 } from '@/components/ui/sheet';
 import {useTranslations} from 'next-intl';
+import {LanguagePicker} from '@/site/navigation/navbar/language-picker';
+import {ThemeSwitcher} from '@/site/navigation/navbar/theme-switcher';
 
 interface Collection {
     id: string;
@@ -23,9 +25,12 @@ interface Collection {
 
 interface MobileNavProps {
     collections: Collection[];
+    /** Server-rendered (needs store currency data) — passed down rather than
+     * imported directly, since this component is a client component. */
+    currencyPicker?: ReactNode;
 }
 
-export function MobileNav({collections}: MobileNavProps) {
+export function MobileNav({collections, currencyPicker}: MobileNavProps) {
     const t = useTranslations('Navigation');
     const [open, setOpen] = useState(false);
     const [searchValue, setSearchValue] = useState('');
@@ -44,7 +49,7 @@ export function MobileNav({collections}: MobileNavProps) {
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden" />}>
+            <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden" />}>
                 <Menu className="size-5" />
                 <span className="sr-only">{t('openMenu')}</span>
             </SheetTrigger>
@@ -198,6 +203,20 @@ export function MobileNav({collections}: MobileNavProps) {
                                 {t('addresses')}
                             </SheetClose>
                         </nav>
+                    </div>
+
+                    {/* Preferences — language/currency/theme live only here on mobile;
+                        the main header hides them below md to leave room for the
+                        collections it actually needs (see navbar.tsx). */}
+                    <div>
+                        <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            {t('preferences')}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 px-3">
+                            <LanguagePicker />
+                            {currencyPicker}
+                            <ThemeSwitcher />
+                        </div>
                     </div>
                 </div>
             </SheetContent>

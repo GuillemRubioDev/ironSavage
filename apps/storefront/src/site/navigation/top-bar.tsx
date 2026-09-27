@@ -14,15 +14,18 @@ export async function TopBar() {
     if (!topBarMessages.length) return null;
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-50 h-[var(--top-bar-h)] border-b border-border bg-muted/95 backdrop-blur-sm">
+        <div className="fixed top-0 left-0 right-0 z-50 h-[var(--top-bar-h)] bg-[oklch(0.13_0.004_260)]">
             <div className="container mx-auto h-full px-4 flex items-center justify-center">
                 {/* All messages on md+, just the first on mobile — no JS rotation needed. */}
-                <div className="hidden md:flex items-center gap-6 text-xs text-muted-foreground">
-                    {topBarMessages.map((msg) => (
-                        <span key={msg.id}>{msg.text[locale]}</span>
+                <div className="hidden md:flex items-center gap-3 text-[11px] font-medium uppercase tracking-wide text-white/70">
+                    {topBarMessages.map((msg, i) => (
+                        <span key={msg.id} className="flex items-center gap-3">
+                            {i > 0 && <span className="text-primary" aria-hidden="true">/</span>}
+                            {msg.text[locale]}
+                        </span>
                     ))}
                 </div>
-                <div className="md:hidden text-xs text-muted-foreground">
+                <div className="md:hidden text-[11px] font-medium uppercase tracking-wide text-white/70">
                     {topBarMessages[0].text[locale]}
                 </div>
             </div>

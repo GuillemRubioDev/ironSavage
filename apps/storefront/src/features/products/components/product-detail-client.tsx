@@ -121,8 +121,8 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
     }, [selectedVariant, product.assets]);
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            <div className="lg:sticky lg:top-20 lg:self-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-8 lg:gap-16">
+            <div className="lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)] lg:self-start">
                 <ProductImageCarousel key={selectedVariant?.id ?? 'default'} images={images} />
             </div>
             <div>

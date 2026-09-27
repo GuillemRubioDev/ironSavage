@@ -20,20 +20,23 @@ export async function LoyaltyTeaser() {
     }
 
     return (
-        <section className="py-16 md:py-24">
-            <div className="container mx-auto px-4">
-                <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                    <div className="flex size-16 md:size-20 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                        <Star className="size-8 md:size-10 text-primary" fill="currentColor" />
-                    </div>
-                    <div className="flex-1 text-center md:text-left">
-                        <h2 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-tight">{t('title')}</h2>
-                        <p className="mt-2 text-muted-foreground leading-relaxed max-w-xl">
+        <section className="relative overflow-hidden bg-[oklch(0.13_0.004_260)] py-16 md:py-24">
+            <Star
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-10 top-1/2 size-64 md:size-96 -translate-y-1/2 text-primary/10"
+                fill="currentColor"
+                strokeWidth={0}
+            />
+            <div className="container relative mx-auto px-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+                    <div className="max-w-xl">
+                        <h2 className="text-display text-3xl md:text-5xl font-bold text-white">{t('title')}</h2>
+                        <p className="mt-3 text-white/60 leading-relaxed">
                             {customer ? t('description') : t('guestDescription')}
                         </p>
                         {customer && balance !== null && (
-                            <p className="mt-3 text-sm text-muted-foreground">
-                                {t('balanceLabel')}: <span className="text-primary font-display font-bold text-lg">{balance}</span> {t('pointsSuffix')}
+                            <p className="mt-4 text-sm text-white/60">
+                                {t('balanceLabel')}: <span className="font-mono text-primary font-bold text-2xl tabular-nums">{balance}</span> {t('pointsSuffix')}
                             </p>
                         )}
                     </div>

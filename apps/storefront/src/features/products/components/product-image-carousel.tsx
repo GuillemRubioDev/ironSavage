@@ -20,7 +20,7 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
 
     if (!images || images.length === 0) {
         return (
-            <div className="aspect-square bg-muted rounded-xl flex items-center justify-center">
+            <div className="aspect-[4/5] bg-muted rounded-md flex items-center justify-center">
                 <span className="text-muted-foreground">{t('noImagesAvailable')}</span>
             </div>
         );
@@ -35,15 +35,15 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3">
             {/* Main Image */}
-            <div className="relative aspect-square bg-muted rounded-xl overflow-hidden group cursor-crosshair">
+            <div className="relative aspect-[4/5] bg-muted rounded-md overflow-hidden group cursor-crosshair">
                 <Image
                     src={images[currentIndex].source}
                     alt={`Product image ${currentIndex + 1}`}
                     fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 55vw"
                     priority={currentIndex === 0}
                 />
 
@@ -53,7 +53,7 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute left-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background shadow-sm opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                            className="absolute left-0 top-1/2 -translate-y-1/2 h-12 w-9 rounded-none bg-background/70 hover:bg-background text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={goToPrevious}
                         >
                             <ChevronLeft className="h-5 w-5" />
@@ -61,7 +61,7 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background shadow-sm opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 h-12 w-9 rounded-none bg-background/70 hover:bg-background text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={goToNext}
                         >
                             <ChevronRight className="h-5 w-5" />
@@ -71,23 +71,23 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
 
                 {/* Image Counter */}
                 {images.length > 1 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium">
+                    <div className="absolute bottom-3 right-3 bg-background/85 px-2 py-0.5 text-xs font-mono tabular-nums">
                         {currentIndex + 1} / {images.length}
                     </div>
                 )}
             </div>
 
-            {/* Thumbnail Grid */}
+            {/* Thumbnail Strip */}
             {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-5 gap-2">
                     {images.map((image, index) => (
                         <button
                             key={image.id}
                             onClick={() => setCurrentIndex(index)}
-                            className={`aspect-square relative rounded-lg overflow-hidden transition-all duration-200 ${
+                            className={`aspect-square relative overflow-hidden border-b-2 transition-colors duration-200 ${
                                 index === currentIndex
-                                    ? 'ring-2 ring-primary ring-offset-2 scale-105'
-                                    : 'ring-1 ring-border hover:ring-muted-foreground opacity-70 hover:opacity-100'
+                                    ? 'border-primary'
+                                    : 'border-transparent opacity-60 hover:opacity-100'
                             }`}
                         >
                             <Image
@@ -95,7 +95,7 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
                                 alt={`Thumbnail ${index + 1}`}
                                 fill
                                 className="object-cover"
-                                sizes="25vw"
+                                sizes="20vw"
                             />
                         </button>
                     ))}

@@ -21,7 +21,7 @@ export default async function CartPage() {
 
     return (
         <div className="container mx-auto px-4 py-20">
-            <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
+            <h1 className="text-display text-3xl md:text-4xl font-bold mb-8">{t('title')}</h1>
 
             <Suspense fallback={<CartSkeleton />}>
                 <Cart/>
