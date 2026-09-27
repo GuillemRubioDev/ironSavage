@@ -20,6 +20,7 @@ import { OrderToolsPlugin } from './plugins/order-tools/order-tools.plugin';
 import { bannerPermission } from './plugins/banners/banner.permission';
 import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
+import { posixAssetStorageStrategyFactory } from './posix-asset-storage-strategy-factory';
 import { getAssetUrlPrefix, getCorsOrigin, runProductionSafetyChecks } from './production-safety';
 import { graphqlRateLimitMiddleware } from './plugins/security/graphql-rate-limit.middleware';
 import { redsysNotifyRateLimitMiddleware } from './plugins/security/redsys-rate-limit.middleware';
@@ -147,6 +148,10 @@ export const config: VendureConfig = {
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
             namingStrategy: new PosixAssetNamingStrategy(),
+            // namingStrategy alone isn't enough on Windows — see
+            // posix-asset-storage-strategy-factory.ts for why the default
+            // LocalAssetStorageStrategy still re-introduces backslashes.
+            storageStrategyFactory: posixAssetStorageStrategyFactory,
             // In dev, letting Vendure guess this from the request works fine.
             // In production it must be set explicitly via ASSET_URL_PREFIX —
             // see production-safety.ts for why this used to be a hardcoded
