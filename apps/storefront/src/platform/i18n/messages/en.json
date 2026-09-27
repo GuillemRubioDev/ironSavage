@@ -22,6 +22,7 @@
     "verificationTokenRequired": "Verification token is required",
     "failedAddToCart": "Failed to add item to cart",
     "firstNameRequired": "First name is required",
-    "termsRequired": "You must accept the terms and conditions"
+    "termsRequired": "You must accept the terms and conditions",
+    "tooManyAttempts": "Too many attempts. Please wait a few minutes before trying again."
   }
 }

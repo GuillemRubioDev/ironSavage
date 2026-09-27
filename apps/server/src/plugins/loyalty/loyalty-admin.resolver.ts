@@ -2,6 +2,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Allow, Ctx, ID, Permission, RequestContext } from '@vendure/core';
 
 import { LoyaltyService } from './loyalty.service';
+import { logSecurityEvent } from '../security/security-events';
 
 interface AdjustLoyaltyPointsInput {
     customerId: ID;
@@ -31,7 +32,13 @@ export class LoyaltyAdminResolver {
 
     @Mutation()
     @Allow(Permission.UpdateCustomer)
-    adjustLoyaltyPoints(@Ctx() ctx: RequestContext, @Args('input') input: AdjustLoyaltyPointsInput) {
-        return this.loyaltyService.adjustBalance(ctx, input.customerId, input.points, input.description);
+    async adjustLoyaltyPoints(@Ctx() ctx: RequestContext, @Args('input') input: AdjustLoyaltyPointsInput) {
+        const result = await this.loyaltyService.adjustBalance(ctx, input.customerId, input.points, input.description);
+        logSecurityEvent('admin_adjust_loyalty_points', {
+            adminUserId: ctx.activeUserId ? String(ctx.activeUserId) : undefined,
+            customerId: String(input.customerId),
+            points: input.points,
+        });
+        return result;
     }
 }

@@ -26,6 +26,16 @@ interface VendureResponse<T> {
     errors?: Array<{ message: string; [key: string]: unknown }>;
 }
 
+/** Thrown when the Vendure API responds with a non-2xx status — carries the
+ * status so callers can distinguish e.g. a 429 (rate limited) from a genuine
+ * failure, without every call site having to re-parse a generic Error message. */
+export class VendureHttpError extends Error {
+    constructor(public status: number, message: string) {
+        super(message);
+        this.name = 'VendureHttpError';
+    }
+}
+
 /**
  * Extract the Vendure auth token from response headers
  */
@@ -91,7 +101,7 @@ export async function query<TResult, TVariables>(
     });
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new VendureHttpError(response.status, `HTTP error! status: ${response.status}`);
     }
 
     const result: VendureResponse<TResult> = await response.json();

@@ -1,6 +1,6 @@
 'use server';
 
-import {mutate} from '@/platform/vendure/api';
+import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {RequestPasswordResetMutation} from '@/features/authentication/graphql';
 import {getTranslations} from 'next-intl/server';
 
@@ -24,7 +24,10 @@ export async function requestPasswordResetAction(prevState: { error?: string; su
         }
 
         return {success: true};
-    } catch {
+    } catch (err) {
+        if (err instanceof VendureHttpError && err.status === 429) {
+            return {error: t('tooManyAttempts')};
+        }
         return {error: t('unexpectedError')};
     }
 }

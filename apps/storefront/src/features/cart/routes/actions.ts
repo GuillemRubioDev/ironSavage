@@ -1,6 +1,6 @@
 'use server';
 
-import {mutate} from '@/platform/vendure/api';
+import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {RemoveFromCartMutation, AdjustCartItemMutation, ApplyPromotionCodeMutation, RemovePromotionCodeMutation, ReopenStuckOrderMutation} from '@/features/cart/graphql';
 import {getActiveCurrencyCode} from '@/features/currency/currency-server';
 import {updateTag} from 'next/cache';
@@ -68,10 +68,19 @@ export async function applyPromotionCode(
 
     const t = await getTranslations('Cart');
     const currencyCode = await getActiveCurrencyCode();
-    const applyResult = await withStuckOrderRecovery(async () => {
-        const r = await mutate(ApplyPromotionCodeMutation, {couponCode: code}, {useAuthToken: true, currencyCode});
-        return r.data.applyCouponCode;
-    });
+    let applyResult;
+    try {
+        applyResult = await withStuckOrderRecovery(async () => {
+            const r = await mutate(ApplyPromotionCodeMutation, {couponCode: code}, {useAuthToken: true, currencyCode});
+            return r.data.applyCouponCode;
+        });
+    } catch (err) {
+        if (err instanceof VendureHttpError && err.status === 429) {
+            const tErrors = await getTranslations('Errors');
+            return {success: false, error: tErrors('tooManyAttempts')};
+        }
+        throw err;
+    }
 
     if (applyResult.__typename !== 'Order') {
         const errorKey = applyResult.__typename === 'CouponCodeExpiredError'

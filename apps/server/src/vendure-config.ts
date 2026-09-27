@@ -21,6 +21,8 @@ import { bannerPermission } from './plugins/banners/banner.permission';
 import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
 import { getAssetUrlPrefix, getCorsOrigin, runProductionSafetyChecks } from './production-safety';
+import { graphqlRateLimitMiddleware } from './plugins/security/graphql-rate-limit.middleware';
+import { redsysNotifyRateLimitMiddleware } from './plugins/security/redsys-rate-limit.middleware';
 import { getAppEnv, includeDummyPaymentHandler } from './app-environment';
 import 'dotenv/config';
 import path from 'path';
@@ -53,9 +55,23 @@ export const config: VendureConfig = {
             adminApiDebug: true,
             shopApiDebug: true,
         } : {}),
+        middleware: [
+            // Per-mutation rate limiting for both APIs — see the security
+            // plugin's own doc comments for the exact rules and why this is
+            // done by inspecting the GraphQL body rather than the route
+            // (both APIs multiplex every operation through one endpoint).
+            { route: 'shop-api', handler: graphqlRateLimitMiddleware() },
+            { route: 'admin-api', handler: graphqlRateLimitMiddleware() },
+            { route: 'payments/redsys/notify', handler: redsysNotifyRateLimitMiddleware() },
+        ],
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
+        // Vendure's own default is '1y' — a leaked/forgotten token would stay
+        // valid for a year. 30 days is a more reasonable ceiling; this also
+        // bounds the damage from the logout fix (see auth-token.ts /
+        // logout.ts) actually invalidating sessions server-side now.
+        sessionDuration: '30d',
         superadminCredentials: {
             identifier: process.env.SUPERADMIN_USERNAME,
             password: process.env.SUPERADMIN_PASSWORD,

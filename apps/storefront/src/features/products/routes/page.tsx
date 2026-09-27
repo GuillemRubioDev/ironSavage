@@ -5,6 +5,7 @@ import { query } from '@/platform/vendure/api';
 import {GetProductDetailQuery} from '@/features/products/graphql';
 import { ProductDetailClient } from '@/features/products/components/product-detail-client';
 import {getDisplayOptionGroups} from '@/features/products/product-options';
+import {sanitizeRichText} from '@/platform/security/sanitize-html';
 import { RelatedProducts } from '@/features/products/components/related-products';
 import {
     Accordion,
@@ -131,7 +132,14 @@ export default async function ProductDetailPage({
 
     // Hide options that belong to a shared option group but have no variant on
     // this product (Vendure 3.6 shared/global option groups).
-    const productForDisplay = {...product, optionGroups: getDisplayOptionGroups(product)};
+    // product.description is admin-authored rich HTML rendered via
+    // dangerouslySetInnerHTML in product-info.tsx (a client component) — sanitize
+    // it here, server-side, before it ever reaches that render.
+    const productForDisplay = {
+        ...product,
+        description: sanitizeRichText(product.description),
+        optionGroups: getDisplayOptionGroups(product),
+    };
 
     return (
         <>

@@ -1,6 +1,6 @@
 'use server';
 
-import {mutate} from '@/platform/vendure/api';
+import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {RegisterCustomerAccountMutation} from '@/features/authentication/graphql';
 import {redirect} from '@/platform/i18n/navigation';
 import {getLocale, getTranslations} from 'next-intl/server';
@@ -28,15 +28,23 @@ export async function registerAction(prevState: { error?: string } | undefined, 
     }
 
 
-    const result = await mutate(RegisterCustomerAccountMutation, {
-        input: {
-            emailAddress,
-            firstName: firstName || undefined,
-            lastName: lastName || undefined,
-            phoneNumber: phoneNumber || undefined,
-            password,
+    let result;
+    try {
+        result = await mutate(RegisterCustomerAccountMutation, {
+            input: {
+                emailAddress,
+                firstName: firstName || undefined,
+                lastName: lastName || undefined,
+                phoneNumber: phoneNumber || undefined,
+                password,
+            }
+        });
+    } catch (err) {
+        if (err instanceof VendureHttpError && err.status === 429) {
+            return {error: t('tooManyAttempts')};
         }
-    });
+        throw err;
+    }
 
     const registerResult = result.data.registerCustomerAccount;
 

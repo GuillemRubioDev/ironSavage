@@ -4,6 +4,7 @@ import { Allow, Ctx, EventBus, ID, Permission, RequestContext, UserInputError } 
 import { Invoice } from './invoice.entity';
 import { InvoiceResendRequestedEvent } from './invoice-resend-event';
 import { InvoicingService } from './invoicing.service';
+import { logSecurityEvent } from '../security/security-events';
 
 @Resolver('Invoice')
 export class InvoicingAdminResolver {
@@ -49,6 +50,11 @@ export class InvoicingAdminResolver {
             this.invoicingService.ensurePdfFile(ctx, invoice),
         ]);
         this.eventBus.publish(new InvoiceResendRequestedEvent(ctx, invoice, lines, pdfPath, emailAddress));
+        logSecurityEvent('admin_resend_invoice', {
+            adminUserId: ctx.activeUserId ? String(ctx.activeUserId) : undefined,
+            invoiceId: String(invoiceId),
+            toEmail: emailAddress,
+        });
         return true;
     }
 

@@ -1,6 +1,6 @@
 'use server';
 
-import {mutate} from '@/platform/vendure/api';
+import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {LoginMutation} from '@/features/authentication/graphql';
 import {setAuthToken} from '@/platform/vendure/auth-token';
 import {redirect} from '@/platform/i18n/navigation';
@@ -13,10 +13,18 @@ export async function loginAction(prevState: { error?: string } | undefined, for
     const password = formData.get('password') as string;
     const redirectTo = formData.get('redirectTo') as string | null;
 
-    const result = await mutate(LoginMutation, {
-        username,
-        password,
-    }, { useAuthToken: true });
+    let result;
+    try {
+        result = await mutate(LoginMutation, {
+            username,
+            password,
+        }, { useAuthToken: true });
+    } catch (err) {
+        if (err instanceof VendureHttpError && err.status === 429) {
+            return { error: t('tooManyAttempts') };
+        }
+        throw err;
+    }
 
     const loginResult = result.data.login;
 

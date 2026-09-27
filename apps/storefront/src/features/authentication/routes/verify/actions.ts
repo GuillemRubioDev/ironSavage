@@ -1,6 +1,6 @@
 'use server';
 
-import {mutate} from '@/platform/vendure/api';
+import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {VerifyCustomerAccountMutation} from '@/features/authentication/graphql';
 import {setAuthToken} from '@/platform/vendure/auth-token';
 import {getTranslations} from 'next-intl/server';
@@ -30,7 +30,10 @@ export async function verifyAccountAction(token: string, password?: string) {
         }
 
         return {success: true};
-    } catch {
+    } catch (err) {
+        if (err instanceof VendureHttpError && err.status === 429) {
+            return {error: t('tooManyAttempts')};
+        }
         return {error: t('unexpectedError')};
     }
 }

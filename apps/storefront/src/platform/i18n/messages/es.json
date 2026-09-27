@@ -22,6 +22,7 @@
     "verificationTokenRequired": "El token de verificación es obligatorio",
     "failedAddToCart": "No se ha podido añadir el artículo al carrito",
     "firstNameRequired": "El nombre es obligatorio",
-    "termsRequired": "Debes aceptar los términos y condiciones"
+    "termsRequired": "Debes aceptar los términos y condiciones",
+    "tooManyAttempts": "Demasiados intentos. Espera unos minutos antes de volver a intentarlo."
   }
 }

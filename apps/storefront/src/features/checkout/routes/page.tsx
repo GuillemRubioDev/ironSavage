@@ -13,6 +13,7 @@ import {getActiveCustomer} from '@/features/account/customer';
 import {getAvailableCountriesCached} from '@/features/checkout/countries';
 import {Alert, AlertDescription} from '@/components/ui/alert';
 import {AlertCircle} from 'lucide-react';
+import {sanitizeRichText} from '@/platform/security/sanitize-html';
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
@@ -55,8 +56,11 @@ export default async function CheckoutPage({searchParams}: PageProps<'/[locale]/
 
     const addresses = addressesRes.data.activeCustomer?.addresses || [];
     const shippingMethods = shippingMethodsRes.data.eligibleShippingMethods || [];
-    const paymentMethods =
-        paymentMethodsRes.data.eligiblePaymentMethods?.filter((m) => m.isEligible) || [];
+    // description is admin-authored rich HTML rendered via dangerouslySetInnerHTML
+    // in payment-step.tsx/review-step.tsx (both client components) — sanitize it
+    // here, server-side, before it ever reaches those renders.
+    const paymentMethods = (paymentMethodsRes.data.eligiblePaymentMethods?.filter((m) => m.isEligible) || [])
+        .map((m) => ({...m, description: sanitizeRichText(m.description)}));
 
     return (
         <div className="container mx-auto px-4 py-8">
