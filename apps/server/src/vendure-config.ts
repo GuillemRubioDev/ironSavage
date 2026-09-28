@@ -17,6 +17,8 @@ import { ContentPlugin, contentPermission } from './plugins/content/content.plug
 import { DashboardExtrasPlugin } from './plugins/dashboard-extras/dashboard-extras.plugin';
 import { BannersPlugin } from './plugins/banners/banners.plugin';
 import { OrderToolsPlugin } from './plugins/order-tools/order-tools.plugin';
+import { AthletesPlugin, athletePermission } from './plugins/athletes/athletes.plugin';
+import { CustomerAccountsPlugin } from './plugins/customer-accounts/customer-accounts.plugin';
 import { bannerPermission } from './plugins/banners/banner.permission';
 import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
@@ -86,7 +88,7 @@ export const config: VendureConfig = {
           // proxy hop's X-Forwarded-* headers.
           secure: !IS_DEV,
         },
-        customPermissions: [contentPermission, bannerPermission],
+        customPermissions: [contentPermission, bannerPermission, athletePermission],
     },
     dbConnectionOptions: {
         type: 'postgres',
@@ -174,6 +176,8 @@ export const config: VendureConfig = {
             minRedeemablePoints: 100,
             maxDiscountPerOrderCents: 2000,
         }),
+        // Writes athlete rewards into LoyaltyPlugin's points ledger (see athletes.plugin.ts).
+        AthletesPlugin,
         InvoicingPlugin.init({
             storeName: process.env.INVOICE_STORE_NAME,
             storeTaxId: process.env.INVOICE_STORE_TAX_ID,
@@ -182,6 +186,7 @@ export const config: VendureConfig = {
             storePhone: process.env.INVOICE_STORE_PHONE,
         }),
         TransactionalEmailPlugin,
+        CustomerAccountsPlugin,
         ReviewsPlugin,
         ContentPlugin,
         DashboardExtrasPlugin,

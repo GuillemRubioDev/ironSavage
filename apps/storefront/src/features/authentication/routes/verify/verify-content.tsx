@@ -4,6 +4,7 @@ import {use, useEffect, useRef, useState} from 'react';
 import {VerifyResult, type VerifyResultValue} from './verify-result';
 import {VerifyLoading} from './verify-loading';
 import {verifyAccountAction} from './actions';
+import {SetPasswordForm} from './set-password-form';
 import {Card, CardContent} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import { Link } from '@/platform/i18n/navigation';
@@ -75,7 +76,11 @@ export function VerifyContent({searchParams}: VerifyContentProps) {
         );
     }
 
-    return settled?.token === token
-        ? <VerifyResult result={settled.result}/>
-        : <VerifyLoading/>;
+    if (settled?.token !== token) {
+        return <VerifyLoading/>;
+    }
+    if (settled.result.needsPassword) {
+        return <SetPasswordForm token={token} onSettled={result => setSettled({token, result})}/>;
+    }
+    return <VerifyResult result={settled.result}/>;
 }

@@ -1,19 +1,11 @@
 import type {Metadata} from 'next';
 import {Suspense} from 'react';
 import {noIndexRobots} from '@/config/metadata';
-import {AccountNavLinks} from '@/features/account/components/account-nav-links';
+import {AccountNav} from '@/features/account/components/account-nav';
 
 export const metadata: Metadata = {
     robots: noIndexRobots(),
 };
-
-const navItems = [
-    {href: '/mi-cuenta/pedidos', labelKey: 'orders', icon: 'Package'},
-    {href: '/mi-cuenta/facturas', labelKey: 'invoices', icon: 'FileText'},
-    {href: '/mi-cuenta/puntos', labelKey: 'points', icon: 'Star'},
-    {href: '/mi-cuenta/addresses', labelKey: 'addresses', icon: 'MapPin'},
-    {href: '/mi-cuenta/profile', labelKey: 'profile', icon: 'User'},
-];
 
 export default async function AccountLayout({children}: LayoutProps<'/[locale]/mi-cuenta'>) {
     return (
@@ -21,7 +13,7 @@ export default async function AccountLayout({children}: LayoutProps<'/[locale]/m
             {/* Mobile: horizontal tab bar */}
             <div className="md:hidden mb-6">
                 <Suspense>
-                    <AccountNavLinks items={navItems} layout="horizontal" />
+                    <AccountNav layout="horizontal" />
                 </Suspense>
             </div>
 
@@ -29,7 +21,7 @@ export default async function AccountLayout({children}: LayoutProps<'/[locale]/m
                 {/* Desktop: sidebar */}
                 <aside className="hidden md:block w-64 shrink-0">
                     <Suspense>
-                        <AccountNavLinks items={navItems} layout="vertical" />
+                        <AccountNav layout="vertical" />
                     </Suspense>
                 </aside>
                 <main className="flex-1 min-w-0">

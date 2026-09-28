@@ -13,7 +13,14 @@ import {Star, TrendingUp, TrendingDown} from 'lucide-react';
 
 const HISTORY_PAGE_SIZE = 50;
 
-type PointsTypeLabelKey = 'pointsTypeEarn' | 'pointsTypeSpend' | 'pointsTypeRefund' | 'pointsTypeAdjustment' | 'pointsTypeExpire';
+type PointsTypeLabelKey =
+    | 'pointsTypeEarn'
+    | 'pointsTypeSpend'
+    | 'pointsTypeRefund'
+    | 'pointsTypeAdjustment'
+    | 'pointsTypeExpire'
+    | 'pointsTypeAthleteReward'
+    | 'pointsTypeAthleteRewardReversal';
 
 const TYPE_LABEL_KEYS: Record<string, PointsTypeLabelKey> = {
     EARN: 'pointsTypeEarn',
@@ -21,6 +28,8 @@ const TYPE_LABEL_KEYS: Record<string, PointsTypeLabelKey> = {
     REFUND: 'pointsTypeRefund',
     ADJUSTMENT: 'pointsTypeAdjustment',
     EXPIRE: 'pointsTypeExpire',
+    ATHLETE_REWARD: 'pointsTypeAthleteReward',
+    ATHLETE_REWARD_REVERSAL: 'pointsTypeAthleteRewardReversal',
 };
 
 function typeLabelKey(type: string): PointsTypeLabelKey {

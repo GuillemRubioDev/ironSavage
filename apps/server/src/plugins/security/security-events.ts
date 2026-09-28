@@ -7,7 +7,10 @@ export type SecurityEventType =
     | 'auth_succeeded'
     | 'rate_limit_blocked'
     | 'admin_resend_invoice'
-    | 'admin_adjust_loyalty_points';
+    | 'admin_adjust_loyalty_points'
+    | 'admin_athlete_change'
+    | 'admin_revert_athlete_reward'
+    | 'admin_customer_account_action';
 
 /**
  * Single choke point for security-relevant logging. Deliberately takes a

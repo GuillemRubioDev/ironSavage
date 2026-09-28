@@ -22,6 +22,38 @@
       "cta": "Ver mis puntos",
       "signedOutCta": "Inicia sesión para empezar a ganar",
       "guestDescription": "Crea una cuenta para empezar a ganar puntos en cada pedido."
+    },
+    "pointsTypeAthleteReward": "Recompensa de atleta",
+    "pointsTypeAthleteRewardReversal": "Recompensa anulada",
+    "athlete": {
+      "pageTitle": "Panel de atleta",
+      "title": "Panel de atleta",
+      "intro": "Ganas puntos cada vez que otra persona compra usando tu código. Tus propias compras no suman puntos, pero puedes canjear los que acumules en tus pedidos como cualquier cliente.",
+      "disabledNotice": "Tu perfil de atleta está desactivado: tus códigos no se pueden usar y no generan nuevas recompensas. Los puntos que ya tienes siguen disponibles.",
+      "availablePoints": "Puntos disponibles",
+      "netRewardPoints": "Puntos obtenidos con tu código",
+      "rewardedOrders": "Pedidos con recompensa",
+      "revertedHint": "{reverted} anulados por cancelaciones o devoluciones",
+      "myCodes": "Mis códigos",
+      "noCodes": "Todavía no tienes ningún código asignado.",
+      "codeActive": "Activo",
+      "codeInactive": "Inactivo",
+      "customerDiscount": "Descuento para quien lo use",
+      "yourReward": "Tu recompensa",
+      "rewardPercentage": "{value}% del pedido en puntos",
+      "rewardFixed": "{value} puntos por pedido",
+      "rewardsHistory": "Historial de recompensas",
+      "noRewards": "Todavía nadie ha comprado con tu código.",
+      "order": "Pedido",
+      "code": "Código",
+      "base": "Importe",
+      "points": "Puntos",
+      "status": "Estado",
+      "statusActive": "Confirmada",
+      "statusPartiallyReverted": "Anulada parcialmente",
+      "statusReverted": "Anulada",
+      "revertedPoints": "{points} anulados",
+      "footnote": "Las recompensas se confirman cuando se completa el pago del pedido y se anulan si el pedido se cancela o se devuelve."
     }
   }
 }
