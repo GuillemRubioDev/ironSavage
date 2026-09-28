@@ -1,10 +1,11 @@
 import type { EmailConfig, OrderSummaryData, RenderedEmail } from '../types';
-import { escapeHtml, renderLayout } from './layout';
+import { escapeHtml, MUTED_COLOR, renderEyebrow, renderLayout } from './layout';
 import { renderOrderLinesTable } from './order-lines-table';
 
 export function renderOrderCancelled(config: EmailConfig, data: { order: OrderSummaryData }): RenderedEmail {
     const { order } = data;
     const bodyHtml = `
+${renderEyebrow('Pedido cancelado', MUTED_COLOR)}
 <p>Hola ${escapeHtml(order.customerName)},</p>
 <p>Tu pedido <strong>#${escapeHtml(order.code)}</strong> ha sido cancelado. Si tenías un pago realizado, se procesará el reembolso correspondiente.</p>
 ${renderOrderLinesTable(order)}

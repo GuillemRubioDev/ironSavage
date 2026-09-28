@@ -1,10 +1,11 @@
 import type { EmailConfig, OrderSummaryData, RenderedEmail } from '../types';
-import { escapeHtml, renderLayout } from './layout';
+import { escapeHtml, renderEyebrow, renderLayout } from './layout';
 import { renderOrderLinesTable } from './order-lines-table';
 
 export function renderPaymentConfirmed(config: EmailConfig, data: { order: OrderSummaryData }): RenderedEmail {
     const { order } = data;
     const bodyHtml = `
+${renderEyebrow('Pago confirmado')}
 <p>Hola ${escapeHtml(order.customerName)},</p>
 <p>Hemos confirmado el pago de tu pedido <strong>#${escapeHtml(order.code)}</strong>. ¡Gracias por tu compra!</p>
 ${renderOrderLinesTable(order)}

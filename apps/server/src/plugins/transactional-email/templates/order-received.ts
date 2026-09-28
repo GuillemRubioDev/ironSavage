@@ -1,10 +1,11 @@
 import type { EmailConfig, OrderSummaryData, RenderedEmail } from '../types';
-import { escapeHtml, renderLayout } from './layout';
+import { escapeHtml, renderEyebrow, renderLayout } from './layout';
 import { renderOrderLinesTable } from './order-lines-table';
 
 export function renderOrderReceived(config: EmailConfig, data: { order: OrderSummaryData }): RenderedEmail {
     const { order } = data;
     const bodyHtml = `
+${renderEyebrow('Pedido recibido')}
 <p>Hola ${escapeHtml(order.customerName)},</p>
 <p>Hemos recibido tu pedido <strong>#${escapeHtml(order.code)}</strong> y lo estamos procesando. Te avisaremos en cuanto se confirme el pago.</p>
 ${renderOrderLinesTable(order)}`;
