@@ -1,6 +1,10 @@
 export const loggerCtx = 'LoyaltyPlugin';
 
-export const LOYALTY_TRANSACTION_TYPES = ['EARN', 'SPEND', 'REFUND', 'ADJUSTMENT', 'EXPIRE'] as const;
+// ATHLETE_REWARD / ATHLETE_REWARD_REVERSAL are written by the AthletesPlugin
+// (points an athlete earns when someone else buys with their code, and their
+// reversal on cancellation/refund). They live in this same ledger so an
+// athlete spends them through the exact same redemption flow as any customer.
+export const LOYALTY_TRANSACTION_TYPES = ['EARN', 'SPEND', 'REFUND', 'ADJUSTMENT', 'EXPIRE', 'ATHLETE_REWARD', 'ATHLETE_REWARD_REVERSAL'] as const;
 export type LoyaltyTransactionType = (typeof LOYALTY_TRANSACTION_TYPES)[number];
 
 /** Sensible defaults, overridable via `LoyaltyPlugin.init({...})`. */

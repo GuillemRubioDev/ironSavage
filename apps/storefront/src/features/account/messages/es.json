@@ -112,6 +112,7 @@
       "errorMessage": "Inténtalo de nuevo más tarde o contacta con soporte si el problema persiste.",
       "verifying": "Verificando correo...",
       "verifyingDesc": "Espera mientras verificamos tu dirección de correo."
-    }
+    },
+    "athlete": "Atleta"
   }
 }

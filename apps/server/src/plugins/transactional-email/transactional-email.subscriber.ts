@@ -11,7 +11,9 @@ import {
     OrderState,
     OrderStateTransitionEvent,
     PasswordResetEvent,
+    TransactionalConnection,
 } from '@vendure/core';
+import { userHasPassword } from '../customer-accounts/user-has-password';
 import { InvoiceGeneratedEvent, InvoiceResendRequestedEvent } from '../invoicing/invoicing.plugin';
 
 import { loggerCtx } from './constants';
@@ -40,6 +42,7 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
         private emailService: EmailService,
         private orderService: OrderService,
         private customerService: CustomerService,
+        private connection: TransactionalConnection,
     ) {}
 
     onApplicationBootstrap(): void {
@@ -74,6 +77,8 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
             data: {
                 customerName: customer?.firstName || identifier,
                 verificationUrl: `${config.storefrontUrl}/verify?token=${encodeURIComponent(verificationToken)}`,
+                // Accounts created without a password choose it from this same link.
+                needsPassword: !(await userHasPassword(this.connection, event.ctx, event.user.id)),
             },
         };
         await this.emailService.sendTemplate(event.ctx, job);
@@ -102,6 +107,7 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
             data: {
                 customerName: customer?.firstName || identifier,
                 resetUrl: `${config.storefrontUrl}/reset-password?token=${encodeURIComponent(resetToken)}`,
+                isSetup: !(await userHasPassword(this.connection, event.ctx, event.user.id)),
             },
         };
         await this.emailService.sendTemplate(event.ctx, job);

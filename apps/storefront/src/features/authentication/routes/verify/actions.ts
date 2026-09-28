@@ -4,8 +4,9 @@ import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {VerifyCustomerAccountMutation} from '@/features/authentication/graphql';
 import {setAuthToken} from '@/platform/vendure/auth-token';
 import {getTranslations} from 'next-intl/server';
+import type {VerifyResultValue} from './verify-result';
 
-export async function verifyAccountAction(token: string, password?: string) {
+export async function verifyAccountAction(token: string, password?: string): Promise<VerifyResultValue> {
     const t = await getTranslations('Errors');
 
     if (!token) {
@@ -21,6 +22,12 @@ export async function verifyAccountAction(token: string, password?: string) {
         const verifyResult = result.data.verifyCustomerAccount;
 
         if (verifyResult.__typename !== 'CurrentUser') {
+            // Accounts created by the store (e.g. an athlete registered from
+            // the Dashboard) have no password yet: Vendure asks for one here
+            // without consuming the token, so the page can collect it and retry.
+            if (verifyResult.errorCode === 'MISSING_PASSWORD_ERROR') {
+                return {needsPassword: true};
+            }
             return {error: verifyResult.message};
         }
 

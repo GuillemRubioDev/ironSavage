@@ -70,6 +70,12 @@
       "spamNote": "¿No ves el correo? Revisa tu carpeta de spam o solicita un nuevo enlace de verificación.",
       "goToSignIn": "Ir a iniciar sesión"
     },
-    "loading": "Cargando..."
+    "loading": "Cargando...",
+    "setPassword": {
+      "title": "Crea tu contraseña",
+      "message": "Tu cuenta ya está creada. Elige una contraseña para activarla y poder iniciar sesión.",
+      "submit": "Activar mi cuenta",
+      "submitting": "Activando..."
+    }
   }
 }

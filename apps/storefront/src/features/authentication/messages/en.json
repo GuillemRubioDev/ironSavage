@@ -70,6 +70,12 @@
       "spamNote": "Don't see the email? Check your spam folder or request a new verification link.",
       "goToSignIn": "Go to Sign In"
     },
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "setPassword": {
+      "title": "Create your password",
+      "message": "Your account has already been created. Choose a password to activate it and sign in.",
+      "submit": "Activate my account",
+      "submitting": "Activating..."
+    }
   }
 }

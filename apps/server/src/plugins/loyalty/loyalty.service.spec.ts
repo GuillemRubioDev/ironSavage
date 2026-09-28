@@ -239,3 +239,28 @@ test('concurrent EARN attempts for the same order only credit points once', asyn
     const account = await db.accountRepo.findOne({ where: { customerId: 'cust-6' } });
     assert.equal(account.balance, 100);
 });
+
+test('an earn policy can exclude an order from regular EARN without affecting other customers', async () => {
+    const { service, db } = createService();
+    // Mirrors the AthletesPlugin policy: this customer is an athlete.
+    service.registerEarnPolicy({ name: 'test-athletes', canEarnForOrder: async (_ctx: unknown, order: any) => order.customerId !== 'athlete-1' });
+
+    const athleteResult = await service.earnForOrder({}, { id: '9', code: 'ORDER009', customerId: 'athlete-1', totalWithTax: 10000 });
+    const customerResult = await service.earnForOrder({}, { id: '10', code: 'ORDER010', customerId: 'cust-7', totalWithTax: 10000 });
+
+    assert.equal(athleteResult.processed, false);
+    assert.equal(await db.accountRepo.findOne({ where: { customerId: 'athlete-1' } }), null);
+    assert.equal(customerResult.processed, true);
+    assert.equal(customerResult.points, 100, 'normal customers still earn exactly as before');
+});
+
+test('debitPointsUpTo never debits more than the current balance', async () => {
+    const { service, db } = createService();
+    await service.creditPoints({}, 'cust-8', 120, 'ATHLETE_REWARD', '11', 'reward');
+
+    const result = await service.debitPointsUpTo({}, 'cust-8', 500, 'ATHLETE_REWARD_REVERSAL', '11', 'reversal');
+
+    assert.equal(result.debited, 120);
+    const account = await db.accountRepo.findOne({ where: { customerId: 'cust-8' } });
+    assert.equal(account.balance, 0);
+});

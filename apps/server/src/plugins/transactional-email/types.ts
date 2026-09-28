@@ -69,7 +69,12 @@ export interface OrderSummaryData {
  */
 export type EmailJob =
     | { type: 'registration-confirmation'; to: string; data: { customerName: string } }
-    | { type: 'email-verification'; to: string; data: { customerName: string; verificationUrl: string } }
+    | {
+          type: 'email-verification';
+          to: string;
+          /** needsPassword: the account was created without a password (e.g. by an admin) and the link is also where it's chosen. */
+          data: { customerName: string; verificationUrl: string; needsPassword?: boolean };
+      }
     | { type: 'order-received'; to: string; orderId: string; data: { order: OrderSummaryData } }
     | { type: 'payment-confirmed'; to: string; orderId: string; data: { order: OrderSummaryData } }
     | { type: 'order-cancelled'; to: string; orderId: string; data: { order: OrderSummaryData } }
@@ -78,7 +83,12 @@ export type EmailJob =
     // dedupes order-scoped emails by (type, orderId), and a resend (e.g. to a different address the
     // customer asked for) must never be silently skipped as "already sent".
     | { type: 'invoice-resend'; to: string; orderId: string; data: { order: OrderSummaryData; invoiceNumber: string }; attachments?: EmailAttachment[] }
-    | { type: 'password-reset'; to: string; data: { customerName: string; resetUrl: string } };
+    | {
+          type: 'password-reset';
+          to: string;
+          /** isSetup: the account has no password yet (e.g. verified by an admin), so the email asks to *create* one. */
+          data: { customerName: string; resetUrl: string; isSetup?: boolean };
+      };
 
 export type EmailType = EmailJob['type'];
 
