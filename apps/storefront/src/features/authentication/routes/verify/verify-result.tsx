@@ -6,7 +6,10 @@ import { Link } from '@/platform/i18n/navigation';
 import {CheckCircle, XCircle} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 
-export type VerifyResultValue = {success: boolean; error?: undefined} | {error: string; success?: undefined};
+export type VerifyResultValue =
+    | {success: boolean; error?: undefined; needsPassword?: undefined}
+    | {error: string; success?: undefined; needsPassword?: undefined}
+    | {needsPassword: true; success?: undefined; error?: undefined};
 
 interface VerifyResultProps {
     result: VerifyResultValue;

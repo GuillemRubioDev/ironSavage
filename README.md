@@ -161,6 +161,8 @@ cd ../..
 
 Es seguro ejecutar estos dos comandos más de una vez — no duplican nada si ya se habían ejecutado antes.
 
+Para actualizar una base de datos existente tras un `git pull`, y para el detalle de cada cambio de esquema, ver [docs/database-migrations.md](docs/database-migrations.md).
+
 ### Paso 6 — Arrancar todo
 
 Desde la raíz del proyecto:

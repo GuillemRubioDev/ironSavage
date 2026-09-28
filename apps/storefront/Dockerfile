@@ -17,13 +17,18 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/server/package.json apps/server/package.json
 COPY apps/storefront/package.json apps/storefront/package.json
-RUN npm ci
+# npm installs a workspace's own versions under apps/storefront/node_modules
+# when they differ from the root's (e.g. recharts, lucide-react, typescript —
+# the root has other versions pulled in by @vendure/dashboard). The build
+# stage copies those too; mkdir keeps that COPY valid if they're ever hoisted.
+RUN npm ci && mkdir -p apps/storefront/node_modules
 
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY apps/storefront apps/storefront
+COPY --from=deps /app/apps/storefront/node_modules ./apps/storefront/node_modules
 # Only NEXT_PUBLIC_* values are actually baked into the client bundle;
 # everything else the app reads is a normal runtime env var (see
 # docker-compose.prod.yml) and does not need to be present at build time.

@@ -22,6 +22,38 @@
       "cta": "View my points",
       "signedOutCta": "Sign in to start earning",
       "guestDescription": "Create an account to start earning points on every order."
+    },
+    "pointsTypeAthleteReward": "Athlete reward",
+    "pointsTypeAthleteRewardReversal": "Reward reversed",
+    "athlete": {
+      "pageTitle": "Athlete dashboard",
+      "title": "Athlete dashboard",
+      "intro": "You earn points every time someone else buys using your code. Your own purchases don't earn points, but you can redeem the ones you collect on your orders like any customer.",
+      "disabledNotice": "Your athlete profile is disabled: your codes can't be used and don't generate new rewards. The points you already have are still available.",
+      "availablePoints": "Available points",
+      "netRewardPoints": "Points earned with your code",
+      "rewardedOrders": "Rewarded orders",
+      "revertedHint": "{reverted} reversed due to cancellations or returns",
+      "myCodes": "My codes",
+      "noCodes": "You don't have any code assigned yet.",
+      "codeActive": "Active",
+      "codeInactive": "Inactive",
+      "customerDiscount": "Discount for whoever uses it",
+      "yourReward": "Your reward",
+      "rewardPercentage": "{value}% of the order in points",
+      "rewardFixed": "{value} points per order",
+      "rewardsHistory": "Reward history",
+      "noRewards": "Nobody has bought with your code yet.",
+      "order": "Order",
+      "code": "Code",
+      "base": "Amount",
+      "points": "Points",
+      "status": "Status",
+      "statusActive": "Confirmed",
+      "statusPartiallyReverted": "Partially reversed",
+      "statusReverted": "Reversed",
+      "revertedPoints": "{points} reversed",
+      "footnote": "Rewards are confirmed once the order's payment completes and are reversed if the order is cancelled or returned."
     }
   }
 }

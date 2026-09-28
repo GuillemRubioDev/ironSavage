@@ -37,6 +37,9 @@ import type { LoyaltyPluginOptions } from './types';
 @VendurePlugin({
     imports: [PluginCommonModule],
     providers: [LoyaltyService, LoyaltyEventSubscriber],
+    // Exported so plugins that grant points through their own rules (the
+    // AthletesPlugin) write to this same ledger instead of duplicating it.
+    exports: [LoyaltyService],
     entities: [LoyaltyAccount, LoyaltyTransaction],
     shopApiExtensions: {
         schema: shopApiExtensions,

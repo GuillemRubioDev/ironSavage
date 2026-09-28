@@ -5,6 +5,7 @@ import { loggerCtx, LoyaltyTransactionType } from './constants';
 import { getLoyaltyConfig } from './loyalty-config';
 import { LoyaltyAccount } from './loyalty-account.entity';
 import { LoyaltyTransaction } from './loyalty-transaction.entity';
+import type { LoyaltyEarnPolicy } from './types';
 
 /** Sku used to tag the Surcharge that represents an active points redemption, so it can be found again to cancel/remove it. */
 export const LOYALTY_SURCHARGE_SKU = 'LOYALTY_POINTS_DISCOUNT';
@@ -19,10 +20,17 @@ export type RedeemPointsResult =
 
 @Injectable()
 export class LoyaltyService {
+    private earnPolicies: LoyaltyEarnPolicy[] = [];
+
     constructor(
         private connection: TransactionalConnection,
         private orderService: OrderService,
     ) {}
+
+    /** See LoyaltyEarnPolicy. Called by other plugins during bootstrap. */
+    registerEarnPolicy(policy: LoyaltyEarnPolicy): void {
+        this.earnPolicies.push(policy);
+    }
 
     async getAccountForCustomer(ctx: RequestContext, customerId: ID): Promise<LoyaltyAccount | null> {
         const account = await this.connection.getRepository(ctx, LoyaltyAccount).findOne({ where: { customerId } });
@@ -63,6 +71,13 @@ export class LoyaltyService {
         if (!customerId) {
             Logger.warn(`Order ${order.code} has no customer; skipping loyalty EARN`, loggerCtx);
             return { processed: false };
+        }
+
+        for (const policy of this.earnPolicies) {
+            if (!(await policy.canEarnForOrder(ctx, order))) {
+                Logger.info(`Order ${order.code} is excluded from loyalty EARN by policy "${policy.name}"`, loggerCtx);
+                return { processed: false };
+            }
         }
 
         const points = this.calculateEarnedPoints(order);
@@ -249,6 +264,64 @@ export class LoyaltyService {
             }
             return result.transaction;
         });
+    }
+
+    /**
+     * Credits points to a customer's account under an arbitrary ledger type,
+     * for other plugins that grant points through their own rules (e.g.
+     * ATHLETE_REWARD). Runs in the caller's transaction when `ctx` carries
+     * one, so the caller can keep its own records and this ledger row atomic.
+     */
+    async creditPoints(
+        ctx: RequestContext,
+        customerId: ID,
+        points: number,
+        type: LoyaltyTransactionType,
+        orderId: ID | undefined,
+        description: string,
+    ): Promise<LoyaltyTransaction> {
+        if (!Number.isInteger(points) || points <= 0) {
+            throw new Error('Credited points must be a positive integer');
+        }
+        const account = await this.getOrCreateAccount(ctx, customerId);
+        const result = await this.credit(ctx, account.id, points, type, orderId, description);
+        if (!result.success) {
+            throw new Error(`Failed to credit ${points} points to customer ${customerId}`);
+        }
+        return result.transaction;
+    }
+
+    /**
+     * Debits up to `points` from a customer's account — never more than the
+     * current balance, following the same "balance never goes negative, the
+     * store absorbs the shortfall" rule as `revertForRefund`. The account row
+     * is locked first so a concurrent redemption can't slip in between the
+     * balance read and the conditional UPDATE. Must run inside a transaction.
+     */
+    async debitPointsUpTo(
+        ctx: RequestContext,
+        customerId: ID,
+        points: number,
+        type: LoyaltyTransactionType,
+        orderId: ID | undefined,
+        description: string,
+    ): Promise<{ debited: number; transaction?: LoyaltyTransaction }> {
+        if (!Number.isInteger(points) || points <= 0) {
+            return { debited: 0 };
+        }
+        const account = await this.getOrCreateAccount(ctx, customerId);
+        const locked = await this.connection
+            .getRepository(ctx, LoyaltyAccount)
+            .findOne({ where: { id: account.id }, lock: { mode: 'pessimistic_write' } });
+        const toDebit = Math.min(points, locked?.balance ?? 0);
+        if (toDebit <= 0) {
+            return { debited: 0 };
+        }
+        const result = await this.debit(ctx, account.id, toDebit, type, orderId, description);
+        if (!result.success) {
+            return { debited: 0 };
+        }
+        return { debited: toDebit, transaction: result.transaction };
     }
 
     private calculateEarnedPoints(order: Order): number {
