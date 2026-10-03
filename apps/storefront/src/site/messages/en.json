@@ -20,7 +20,12 @@
     "cookiePolicy": "Cookie Policy",
     "termsAndConditions": "Terms & Conditions",
     "shippingReturns": "Shipping & Returns",
+    "aiTransparency": "Use of AI",
+    "accessibility": "Accessibility",
     "cookieSettings": "Cookie Settings",
-    "copyright": "Iron Savage. All rights reserved."
+    "copyright": "Iron Savage. All rights reserved.",
+    "aiNotice": "This site was built with the help of artificial intelligence tools.",
+    "aiNoticeLink": "Learn more",
+    "version": "Version {version}"
   }
 }

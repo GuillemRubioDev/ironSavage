@@ -8,21 +8,19 @@ import { renderEmailJob } from './templates';
 import type { EmailJob, EmailMessage, EmailProvider, EmailSendResult } from './types';
 
 /**
- * The only thing the rest of the app talks to. `send()` is the low-level
- * primitive (hands a fully-formed message to whichever EmailProvider is
- * configured); `sendTemplate()` is what event subscribers actually call —
- * it renders the right template, dedups order-scoped emails, and always
- * records the attempt, success or failure, before returning.
+ * Lo único con lo que habla el resto de la aplicación. `send()` es la primitiva de
+ * bajo nivel (entrega un mensaje completo al EmailProvider configurado);
+ * `sendTemplate()` es lo que llaman los suscriptores de eventos: genera la plantilla
+ * adecuada, evita duplicar emails de pedido y siempre registra el intento, vaya bien
+ * o mal, antes de volver.
  *
- * Never throws: a provider failure or a template error is caught, logged,
- * and returned as `{success: false}` — the caller (an event subscriber
- * reacting to an already-committed order transition) must never be able to
- * fail because of this.
+ * Nunca lanza errores: un fallo del proveedor o de la plantilla se captura, se anota
+ * en el log y se devuelve como `{success: false}`. Quien llama (un suscriptor que
+ * reacciona a una transición de pedido ya confirmada) nunca debe fallar por esto.
  *
- * The provider is injected (see EMAIL_PROVIDER in transactional-email.plugin.ts)
- * rather than constructed here — swapping dev/smtp/a future provider is a
- * one-line change to that provider registration, never to this class, and it
- * makes EmailService trivially testable with a fake provider.
+ * El proveedor se inyecta (ver EMAIL_PROVIDER en transactional-email.plugin.ts) en
+ * vez de crearse aquí: cambiar entre dev/smtp/otro futuro es una línea en ese
+ * registro, nunca en esta clase, y permite testear EmailService con un proveedor falso.
  */
 @Injectable()
 export class EmailService {
@@ -42,10 +40,10 @@ export class EmailService {
     }
 
     /**
-     * `skipDedupCheck`: for a deliberate, repeatable admin action (e.g.
-     * "resend this invoice to a different address") — order-scoped dedup
-     * exists to collapse *automatic* retries of the same transactional
-     * email, not to silently swallow a human asking for it again.
+     * `skipDedupCheck`: para una acción deliberada y repetible de un administrador (p.
+     * ej. «reenviar esta factura a otra dirección»). La deduplicación por pedido existe
+     * para agrupar reintentos *automáticos* del mismo email, no para descartar en
+     * silencio a una persona que lo vuelve a pedir.
      */
     async sendTemplate(ctx: RequestContext, job: EmailJob, options?: { skipDedupCheck?: boolean }): Promise<EmailSendResult> {
         const config = getEmailConfig();
@@ -108,9 +106,9 @@ export class EmailService {
             if (!this.isUniqueViolation(err)) {
                 Logger.error(`Failed to write email log for "${job.type}": ${err}`, loggerCtx);
             }
-            // A unique-violation here means a concurrent send for the same
-            // (type, orderId) already logged success first — this attempt
-            // just lost the race, nothing further to do.
+            // Una violación de unicidad aquí significa que un envío simultáneo del mismo
+            // (tipo, orderId) ya registró el éxito: este intento perdió la carrera y no
+            // hay nada más que hacer.
         }
     }
 

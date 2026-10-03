@@ -6,9 +6,10 @@ import { renderPaymentConfirmed } from './payment-confirmed';
 import { renderOrderCancelled } from './order-cancelled';
 import { renderInvoiceAvailable } from './invoice-available';
 import { renderInvoiceResend } from './invoice-resend';
+import { renderCreditNoteAvailable } from './credit-note-available';
 import { renderPasswordReset } from './password-reset';
 
-/** The one place that knows how to turn an EmailJob into subject+HTML. Add a new email type here and in EmailJob (types.ts). */
+/** El único sitio que sabe convertir un EmailJob en asunto + HTML. Para añadir un tipo de email, hazlo aquí y en EmailJob (types.ts). */
 export function renderEmailJob(config: EmailConfig, job: EmailJob): RenderedEmail {
     switch (job.type) {
         case 'registration-confirmation':
@@ -25,6 +26,8 @@ export function renderEmailJob(config: EmailConfig, job: EmailJob): RenderedEmai
             return renderInvoiceAvailable(config, job.data);
         case 'invoice-resend':
             return renderInvoiceResend(config, job.data);
+        case 'credit-note-available':
+            return renderCreditNoteAvailable(config, job.data);
         case 'password-reset':
             return renderPasswordReset(config, job.data);
     }

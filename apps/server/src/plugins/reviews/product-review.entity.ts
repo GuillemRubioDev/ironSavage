@@ -4,9 +4,9 @@ import { Column, Entity, Index } from 'typeorm';
 import { REVIEW_STATUSES, ReviewStatus } from './constants';
 
 /**
- * One review per (customer, product, order) — a customer who bought the
- * same product in two separate orders may leave one review per purchase,
- * but never two for the same purchase (enforced by the unique index below).
+ * Una reseña por (cliente, producto, pedido): quien compró el mismo producto en dos
+ * pedidos puede dejar una reseña por compra, pero nunca dos de la misma compra (lo
+ * impone el índice único de abajo).
  */
 @Entity()
 @Index('IDX_review_customer_product_order', ['customerId', 'productId', 'orderId'], { unique: true })

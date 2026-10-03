@@ -4,10 +4,10 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { Invoice } from './invoice.entity';
 
 /**
- * One row per Order line (plus one for shipping) at the moment of invoicing.
- * `productName`/`sku` are frozen snapshots — never joined back to Product/
- * ProductVariant — because the product may later be renamed, re-priced, or
- * deleted without affecting a previously issued invoice.
+ * Una fila por línea del pedido (más una del envío) en el momento de facturar.
+ * `productName`/`sku` son copias congeladas, nunca se cruzan con Product/
+ * ProductVariant: el producto puede renombrarse, cambiar de precio o borrarse más
+ * adelante sin afectar a una factura ya emitida.
  */
 @Entity()
 export class InvoiceLine extends VendureEntity {
@@ -32,29 +32,28 @@ export class InvoiceLine extends VendureEntity {
     @Column()
     quantity: number;
 
-    /** Minor units (cents), excluding tax. */
+    /** En céntimos, sin IVA. */
     @Column()
     unitPrice: number;
 
-    /** Percentage, e.g. 21 for 21%. */
+    /** Porcentaje, p. ej. 21 para el 21 %. */
     @Column('float')
     taxRate: number;
 
-    /** Minor units (cents). */
+    /** En céntimos. */
     @Column()
     taxAmount: number;
 
-    /** Minor units (cents), including tax — quantity * unitPrice + taxAmount. */
+    /** En céntimos, con IVA: cantidad * unitPrice + taxAmount. */
     @Column()
     lineTotal: number;
 
     /**
-     * The product's featured asset `preview` identifier at the moment of
-     * invoicing (as used by AssetStorageStrategy.readFileToBuffer, NOT a
-     * public URL — see InvoicingService). Purely decorative (a small
-     * thumbnail next to the line on the PDF), so unlike productName/sku this
-     * is allowed to go stale or point at nothing if the asset is later
-     * deleted — the PDF generator already tolerates a missing/unreadable one.
+     * Identificador `preview` de la imagen destacada del producto al facturar (el que
+     * usa AssetStorageStrategy.readFileToBuffer, NO una URL pública; ver
+     * InvoicingService). Es solo decorativo (una miniatura junto a la línea en el
+     * PDF), así que, a diferencia de productName/sku, puede quedar desfasado o no
+     * apuntar a nada si se borra la imagen: el generador del PDF ya lo tolera.
      */
     @Column({ nullable: true })
     imagePreview?: string;

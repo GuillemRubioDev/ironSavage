@@ -2,13 +2,13 @@ import { RequestContext } from '@vendure/core';
 import { HashedAssetNamingStrategy } from '@vendure/asset-server-plugin';
 
 /**
- * HashedAssetNamingStrategy builds its file names with `path.join()`, which emits
- * backslashes on Windows. That string is stored verbatim as the asset's `source`/
- * `preview` value and reused as the URL path, so uploads made on a Windows host
- * produce asset URLs like `/assets/preview\ab\file.jpg` — invalid as a URL, since
- * browsers only treat `/` as a path separator (fetch/proxy requests don't get the
- * same backslash-tolerant normalization full page navigations do). Force forward
- * slashes regardless of host OS.
+ * HashedAssetNamingStrategy construye los nombres de archivo con `path.join()`, que
+ * en Windows genera barras invertidas. Ese texto se guarda tal cual como `source`/
+ * `preview` del recurso y se reutiliza como ruta de la URL, así que lo subido desde
+ * Windows da URLs como `/assets/preview\ab\file.jpg`, que no son válidas: los
+ * navegadores solo usan `/` como separador (las peticiones fetch/proxy no normalizan
+ * las barras invertidas como sí lo hace una navegación normal). Se fuerzan barras
+ * normales sea cual sea el sistema operativo.
  */
 export class PosixAssetNamingStrategy extends HashedAssetNamingStrategy {
     generateSourceFileName(ctx: RequestContext, originalFileName: string, conflictFileName?: string): string {

@@ -11,25 +11,25 @@ import { LoyaltyService } from './loyalty.service';
 import type { LoyaltyPluginOptions } from './types';
 
 /**
- * Loyalty points program: customers earn points on settled payments and can
- * redeem them as an order discount. Entirely self-contained — no core
- * Vendure behaviour is modified. The discount is applied via the native
- * `OrderService.addSurchargeToOrder` mechanism (a negative-price surcharge),
- * so Vendure's own Promotions/pricing engine is never duplicated.
+ * Programa de puntos de fidelización: los clientes ganan puntos con los pagos
+ * cobrados y pueden canjearlos como descuento en un pedido. Totalmente
+ * independiente: no modifica nada del núcleo de Vendure. El descuento se aplica con
+ * el mecanismo nativo `OrderService.addSurchargeToOrder` (un recargo de precio
+ * negativo), así que nunca se duplica el motor de promociones y precios de Vendure.
  *
- * Rules enforced by this plugin (see LoyaltyService for details):
- * - Every balance change is recorded as a LoyaltyTransaction; the ledger is
- *   the audit source of truth, `LoyaltyAccount.balance` is a cache of it.
- * - Points are only earned once an order reaches PaymentSettled (a DB unique
- *   index makes this idempotent even under duplicate events).
- * - Redemption is always a deliberate customer action — never automatic.
- * - Balance can never go negative (enforced by an atomic conditional UPDATE).
- * - A refund reverts a proportional, capped share of the points earned on
- *   that order.
+ * Reglas que impone este plugin (detalles en LoyaltyService):
+ * - Todo cambio de saldo se registra como LoyaltyTransaction; el libro de
+ *   movimientos es la fuente de verdad y `LoyaltyAccount.balance` es su caché.
+ * - Los puntos solo se ganan cuando el pedido llega a PaymentSettled (un índice
+ *   único en la base de datos lo hace idempotente aunque haya eventos duplicados).
+ * - El canje es siempre una acción deliberada del cliente, nunca automática.
+ * - El saldo nunca puede ser negativo (lo impone un UPDATE condicional atómico).
+ * - Un reembolso revierte una parte proporcional, con tope, de los puntos ganados
+ *   con ese pedido.
  *
- * ## Setup
+ * ## Configuración
  *
- * Register with optional config, e.g.:
+ * Se registra con configuración opcional, p. ej.:
  * ```ts
  * LoyaltyPlugin.init({ pointsPerEuro: 1, pointValueInCents: 1, minRedeemablePoints: 100, maxDiscountPerOrderCents: 2000 })
  * ```
@@ -37,8 +37,8 @@ import type { LoyaltyPluginOptions } from './types';
 @VendurePlugin({
     imports: [PluginCommonModule],
     providers: [LoyaltyService, LoyaltyEventSubscriber],
-    // Exported so plugins that grant points through their own rules (the
-    // AthletesPlugin) write to this same ledger instead of duplicating it.
+    // Se exporta para que los plugins que dan puntos con sus propias reglas
+    // (AthletesPlugin) escriban en este mismo libro en vez de duplicarlo.
     exports: [LoyaltyService],
     entities: [LoyaltyAccount, LoyaltyTransaction],
     shopApiExtensions: {

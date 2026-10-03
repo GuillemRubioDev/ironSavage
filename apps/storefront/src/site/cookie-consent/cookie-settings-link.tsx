@@ -3,8 +3,8 @@
 import {useTranslations} from "next-intl";
 import {useCookieConsent} from "./consent-context";
 
-/** The persistent "Configurar cookies" entry point required in the footer,
- * for revoking/changing consent after the initial banner is gone. */
+/** El acceso permanente «Configurar cookies» que debe estar en el pie, para retirar
+ * o cambiar el consentimiento cuando el banner inicial ya no está. */
 export function CookieSettingsLink({className}: {className?: string}) {
     const t = useTranslations("Cookies");
     const {openPreferences} = useCookieConsent();

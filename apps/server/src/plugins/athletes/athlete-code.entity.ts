@@ -6,21 +6,21 @@ import { ATHLETE_DISCOUNT_TYPES, ATHLETE_REWARD_TYPES, AthleteDiscountType, Athl
 import { decimalTransformer } from './decimal.transformer';
 
 /**
- * A promotional code owned by an athlete, with its own, independent terms:
- * what the customer gets (discount) and what the athlete gets (reward).
+ * Código promocional de un atleta, con sus propias condiciones independientes:
+ * qué recibe el cliente (descuento) y qué recibe el atleta (recompensa).
  *
- * The customer-facing discount is not re-implemented here: every code is
- * backed by a regular Vendure `Promotion` (coupon code + built-in discount
- * action + the `athlete_code` condition), kept in sync by AthleteService, so
- * cart/checkout apply it through Vendure's own `applyCouponCode` flow like
- * any other coupon. This row is the source of truth for the terms; the
- * Promotion is a projection of it.
+ * El descuento del cliente no se reimplementa aquí: cada código tiene detrás una
+ * `Promotion` normal de Vendure (código de cupón + acción de descuento estándar +
+ * la condición `athlete_code`), que AthleteService mantiene sincronizada, así que
+ * el carrito y el checkout la aplican con el flujo `applyCouponCode` de Vendure
+ * como cualquier cupón. Esta fila es la fuente de verdad de las condiciones; la
+ * Promotion es un reflejo de ella.
  *
- * Its own entity (not columns on Athlete) so an athlete can have more than
- * one code, e.g. per campaign, each with different terms.
+ * Es una entidad propia (y no columnas de Athlete) para que un atleta pueda tener
+ * varios códigos, p. ej. uno por campaña, cada uno con sus condiciones.
  */
 @Entity()
-// DB-level guards mirroring validateAthleteCodeInput, so no write path can store invalid terms.
+// Restricciones en la base de datos equivalentes a validateAthleteCodeInput, para que ninguna vía de escritura guarde condiciones inválidas.
 @Check('CHK_athlete_code_canonical', `"code" = UPPER("code")`)
 @Check('CHK_athlete_code_types', `"discountType" IN ('PERCENTAGE', 'FIXED_AMOUNT') AND "rewardType" IN ('PERCENTAGE', 'FIXED_POINTS')`)
 @Check(
@@ -40,7 +40,7 @@ export class AthleteCode extends VendureEntity {
     @JoinColumn()
     athlete: Athlete;
 
-    /** Canonical upper-case form (see normalizeAthleteCode), so the unique index rejects case-only duplicates. */
+    /** Forma canónica en mayúsculas (ver normalizeAthleteCode), para que el índice único rechace duplicados que solo cambian mayúsculas/minúsculas. */
     @Index({ unique: true })
     @Column({ length: 32 })
     code: string;
@@ -51,14 +51,14 @@ export class AthleteCode extends VendureEntity {
     @Column({ type: 'varchar', enum: ATHLETE_DISCOUNT_TYPES, default: 'PERCENTAGE' })
     discountType: AthleteDiscountType;
 
-    /** Percentage (0-100, two decimals) or a fixed amount in cents, depending on discountType. */
+    /** Porcentaje (0-100, dos decimales) o importe fijo en céntimos, según discountType. */
     @Column({ type: 'numeric', precision: 10, scale: 2, transformer: decimalTransformer })
     discountValue: number;
 
     @Column({ type: 'varchar', enum: ATHLETE_REWARD_TYPES, default: 'PERCENTAGE' })
     rewardType: AthleteRewardType;
 
-    /** Percentage (0-100, two decimals) or a fixed number of points, depending on rewardType. */
+    /** Porcentaje (0-100, dos decimales) o número fijo de puntos, según rewardType. */
     @Column({ type: 'numeric', precision: 10, scale: 2, transformer: decimalTransformer })
     rewardValue: number;
 

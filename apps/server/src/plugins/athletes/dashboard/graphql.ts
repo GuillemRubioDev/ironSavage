@@ -220,8 +220,8 @@ export const revertAthleteRewardDocument = graphql(`
     }
 `);
 
-// Reuses the LoyaltyPlugin's existing manual-adjustment mutation rather than
-// adding an athlete-specific one: athlete points live in the same ledger.
+// Reutiliza la mutación de ajuste manual de LoyaltyPlugin en vez de crear una propia
+// de atletas: los puntos de los atletas están en el mismo libro de movimientos.
 export const adjustAthletePointsDocument = graphql(`
     mutation AdjustAthletePoints($input: AdjustLoyaltyPointsInput!) {
         adjustLoyaltyPoints(input: $input) {

@@ -1,9 +1,9 @@
 import { CrudPermissionDefinition } from '@vendure/core';
 
 /**
- * Native, role-assignable permission (registered via
- * `authOptions.customPermissions` in vendure-config.ts). Creates
- * CreateAthlete/ReadAthlete/UpdateAthlete/DeleteAthlete. Customers and
- * athletes never hold it — they only reach the Owner-scoped Shop API queries.
+ * Permiso nativo, asignable a roles (registrado con
+ * `authOptions.customPermissions` en vendure-config.ts). Crea
+ * CreateAthlete/ReadAthlete/UpdateAthlete/DeleteAthlete. Los clientes y los atletas
+ * nunca lo tienen: solo acceden a las consultas de la Shop API limitadas a su propio usuario.
  */
 export const athletePermission = new CrudPermissionDefinition('Athlete', operation => `Allows ${operation} access to athletes, their codes and rewards`);

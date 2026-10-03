@@ -24,7 +24,7 @@ after(async () => {
     await fs.rm(pdfOutputDir, { recursive: true, force: true });
 });
 
-/** Duck-typed Order mock: InvoicingService only ever reads plain properties, never `instanceof Order`. */
+/** Mock de Order por forma: InvoicingService solo lee propiedades, nunca usa `instanceof Order`. */
 function createTestOrder(overrides: Record<string, unknown> = {}) {
     return {
         id: '1',
@@ -52,7 +52,7 @@ function createTestOrder(overrides: Record<string, unknown> = {}) {
             },
         ],
         shippingLines: [{ discountedPrice: 500, discountedPriceWithTax: 605, taxRate: 21 }],
-        total: 4500, // (2000 * 2) + 500, excl. tax
+        total: 4500, // (2000 * 2) + 500, sin IVA
         totalWithTax: 5445, // 4840 + 605
         ...overrides,
     };
@@ -75,7 +75,10 @@ function createFakeDb() {
         },
         save: async (input: any) => {
             for (const invoice of invoices.values()) {
-                if (String(invoice.orderId) === String(input.orderId)) {
+                // Igual que la base de datos: una factura ORDINARY por pedido (índice único parcial) y una por reembolso.
+                const sameOrdinaryOrder = String(invoice.orderId) === String(input.orderId) && invoice.type === 'ORDINARY' && input.type === 'ORDINARY';
+                const sameRefund = input.refundId != null && String(invoice.refundId) === String(input.refundId);
+                if (sameOrdinaryOrder || sameRefund) {
                     const err: any = new Error('duplicate key value violates unique constraint');
                     err.code = '23505';
                     throw err;
@@ -159,10 +162,10 @@ function createService() {
             return result;
         },
     };
-    // Only ever touched when a line actually has an imagePreview set — none
-    // of this file's mock orders do (see createTestOrder), so readFileToBuffer
-    // is never really called; still provided so a future test that does set
-    // one doesn't crash on a missing mock.
+    // Solo se usa cuando una línea tiene imagePreview, y ningún pedido de prueba de
+    // este archivo la tiene (ver createTestOrder), así que readFileToBuffer nunca se
+    // llama de verdad; se deja para que un test futuro que la use no falle por falta
+    // del mock.
     const configServiceMock = {
         assetOptions: { assetStorageStrategy: { readFileToBuffer: async () => Buffer.from([]) } },
     };
@@ -266,4 +269,103 @@ test('generates a real PDF file on disk for the invoice', async () => {
     const buffer = await fs.readFile(filePath);
     assert.ok(buffer.length > 100, 'expected a non-trivial PDF file');
     assert.equal(buffer.subarray(0, 5).toString('ascii'), '%PDF-');
+});
+
+function refundOf(total: number, extra: Record<string, unknown> = {}) {
+    return { id: `refund-${total}-${Math.random()}`, total, shipping: 0, lines: [], reason: '', ...extra };
+}
+
+test('a settled refund gets a factura rectificativa: series R, negative amounts, reference to the original', async () => {
+    const { service } = createService();
+    const order = createTestOrder({ id: '50', code: 'REFUND1' });
+    const original = (await service.generateForOrder({}, order)).invoice;
+
+    const refund = refundOf(2420, { lines: [{ orderLineId: undefined, quantity: 0 }], reason: 'Producto dañado' });
+    const result = await service.generateRectifyingForRefund({}, order, refund);
+
+    assert.equal(result.created, true);
+    const r = result.invoice;
+    assert.equal(r.type, 'RECTIFYING');
+    assert.equal(r.series, 'R');
+    assert.equal(r.number, 1);
+    assert.equal(r.total, -2420);
+    assert.equal(r.subtotal + r.tax, -2420);
+    assert.equal(r.rectifiedInvoiceNumber, 'A-000001');
+    assert.equal(String(r.rectifiesInvoiceId), String(original.id));
+    assert.equal(r.reason, 'Producto dañado');
+    await fs.access(path.join(pdfOutputDir, 'R-000001.pdf'));
+});
+
+test('rectifying invoices are idempotent per refund, and each partial refund gets its own', async () => {
+    const { service } = createService();
+    const order = createTestOrder({ id: '51', code: 'REFUND2' });
+    await service.generateForOrder({}, order);
+
+    const first = refundOf(1000);
+    const a = await service.generateRectifyingForRefund({}, order, first);
+    const again = await service.generateRectifyingForRefund({}, order, first);
+    const b = await service.generateRectifyingForRefund({}, order, refundOf(500));
+
+    assert.equal(again.created, false);
+    assert.equal(again.invoice.id, a.invoice.id);
+    assert.deepEqual([a.invoice.number, b.invoice.number], [1, 2]);
+    // La factura ordinaria sigue siendo la que corresponde al pedido.
+    assert.equal((await service.findByOrderId({}, order.id)).series, 'A');
+});
+
+test('no rectifying invoice for an order that was never invoiced', async () => {
+    const { service } = createService();
+    const result = await service.generateRectifyingForRefund({}, createTestOrder({ id: '52' }), refundOf(1000));
+    assert.equal(result, null);
+});
+
+test('Veri*Factu hook: the provider gets the invoice data and its QR/legend are stored', async () => {
+    const received: any[] = [];
+    setInvoicingConfig({
+        storeName: 'Test Store SL', storeTaxId: 'B12345678', storeAddress: 'Calle Test 1', pdfOutputDir,
+        fiscalRegistration: {
+            name: 'fake-verifactu',
+            register: async (data: any) => {
+                received.push(data);
+                return { reference: 'HUELLA-123', legend: 'VERI*FACTU', qrPngBase64: undefined };
+            },
+        },
+    });
+    try {
+        const { service } = createService();
+        const order = createTestOrder({ id: '53', code: 'FISCAL1' });
+        const invoice = (await service.generateForOrder({}, order)).invoice;
+
+        assert.equal(received.length, 1);
+        assert.equal(received[0].number, 'A-000001');
+        assert.deepEqual(received[0].issuer, { name: 'Test Store SL', taxId: 'B12345678' });
+        assert.equal(received[0].total, 5445);
+        assert.deepEqual(received[0].taxBreakdown, [{ rate: 21, base: 4500, tax: 945 }]);
+        assert.equal(invoice.fiscalRegistration.status, 'REGISTERED');
+        assert.equal(invoice.fiscalRegistration.reference, 'HUELLA-123');
+        assert.equal(invoice.fiscalRegistration.provider, 'fake-verifactu');
+
+        const credit = (await service.generateRectifyingForRefund({}, order, refundOf(605))).invoice;
+        assert.equal(received[1].type, 'RECTIFYING');
+        assert.equal(received[1].rectifies.number, 'A-000001');
+        assert.equal(credit.fiscalRegistration.status, 'REGISTERED');
+    } finally {
+        setInvoicingConfig({ storeName: 'Test Store SL', storeTaxId: 'B12345678', storeAddress: 'Calle Test 1, 28001 Madrid', storeEmail: 'facturacion@test.example', pdfOutputDir });
+    }
+});
+
+test('Veri*Factu hook: a provider failure never blocks issuing the invoice', async () => {
+    setInvoicingConfig({
+        storeName: 'Test Store SL', storeTaxId: 'B12345678', storeAddress: 'Calle Test 1', pdfOutputDir,
+        fiscalRegistration: { name: 'down', register: async () => { throw new Error('AEAT no disponible'); } },
+    });
+    try {
+        const { service } = createService();
+        const result = await service.generateForOrder({}, createTestOrder({ id: '54', code: 'FISCAL2' }));
+        assert.equal(result.created, true);
+        assert.equal(result.invoice.fiscalRegistration.status, 'FAILED');
+        assert.match(result.invoice.fiscalRegistration.error, /AEAT no disponible/);
+    } finally {
+        setInvoicingConfig({ storeName: 'Test Store SL', storeTaxId: 'B12345678', storeAddress: 'Calle Test 1, 28001 Madrid', storeEmail: 'facturacion@test.example', pdfOutputDir });
+    }
 });

@@ -4,7 +4,7 @@ import {query} from '@/platform/vendure/api';
 import {GetArticlesQuery, type ArticleListItem} from '@/features/news/graphql';
 import {ArticleCard} from '@/features/news/components/article-card';
 import {Pagination} from '@/components/pagination';
-import {SITE_NAME, buildCanonicalUrl, localizedPath} from '@/config/metadata';
+import {DEFAULT_OG_IMAGES, SITE_NAME, buildCanonicalUrl, localizedPath} from '@/config/metadata';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
 import {routing} from '@/platform/i18n/routing';
@@ -28,6 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
             description: t('metaDescription', {siteName: SITE_NAME}),
             type: 'website',
             url,
+            images: DEFAULT_OG_IMAGES,
         },
     };
 }
@@ -51,9 +52,9 @@ export default async function NewsListPage({searchParams}: PageProps<'/[locale]/
     const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
     const {data} = await getArticles(locale, skip, ITEMS_PER_PAGE);
-    // gql.tada's local schema snapshot predates the bilingual titleEs/titleEn
-    // fields (same stale-CLI issue as banners-data.ts) — cast rather than
-    // chase the CLI, verified against the live server schema.
+    // La copia local del esquema de gql.tada es anterior a los campos bilingües
+    // titleEs/titleEn (el mismo problema de CLI que en banners-data.ts): se fuerza el
+    // tipo en vez de pelearse con la CLI, comprobado contra el esquema real.
     const articles = data.articles.items as ArticleListItem[];
     const totalPages = Math.ceil(data.articles.totalItems / ITEMS_PER_PAGE);
 

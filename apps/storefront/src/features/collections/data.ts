@@ -18,16 +18,16 @@ export interface CollectionWithImage {
     imageUrl: string | null;
 }
 
-// How many of a collection's products to sample when it has no featuredAsset
-// of its own — small and bounded, not a full catalog scan.
+// Cuántos productos de una colección se miran cuando no tiene featuredAsset propio:
+// pocos y acotados, no un recorrido por todo el catálogo.
 const FALLBACK_SAMPLE_SIZE = 5;
 
 /**
- * Deterministic string -> non-negative int hash (djb2 variant). Used to pick
- * a stable "representative" product per collection instead of the same one
- * every time — stable across requests/renders since it's computed once here
- * on the server from the collection's own slug, never re-picked client-side
- * (so there's no SSR/hydration mismatch to worry about).
+ * Hash determinista de texto a entero no negativo (variante de djb2). Sirve para
+ * elegir un producto «representativo» estable por colección en vez de siempre el
+ * mismo. Es estable entre peticiones porque se calcula una vez aquí, en el servidor,
+ * a partir del slug de la colección, y nunca se vuelve a elegir en el navegador (así
+ * no hay desajustes entre SSR e hidratación).
  */
 function stableHash(input: string): number {
     let hash = 5381;
@@ -38,12 +38,12 @@ function stableHash(input: string): number {
 }
 
 /**
- * Top-level collections with a resolved display image: the collection's own
- * featuredAsset if it has one, otherwise a deterministically-chosen image
- * from a small sample of its real products, otherwise null (caller falls
- * back to a brand visual). Only issues a products query for collections that
- * actually lack an image — bounded by the (small) number of top-level
- * collections, not an N+1 over the whole catalog.
+ * Colecciones de primer nivel con su imagen resuelta: el featuredAsset de la
+ * colección si lo tiene; si no, una imagen elegida de forma determinista entre unos
+ * pocos de sus productos reales; si no, null (quien llama usa una imagen de marca).
+ * Solo consulta productos de las colecciones que no tienen imagen, así que está
+ * acotado por el (pequeño) número de colecciones de primer nivel, no es un N+1
+ * sobre todo el catálogo.
  */
 export async function getTopCollectionsWithImages(locale: string): Promise<CollectionWithImage[]> {
     'use cache';
@@ -79,8 +79,9 @@ export interface CollectionSummary {
 }
 
 /**
- * Maps collection id -> {name, slug} so product cards can show a category
- * label without an N+1 query per card (SearchResult only exposes collectionIds).
+ * Relaciona id de colección -> {name, slug} para que las tarjetas de producto
+ * muestren la categoría sin una consulta por tarjeta (SearchResult solo expone
+ * collectionIds).
  */
 export async function getCollectionsMap(locale: string): Promise<Map<string, CollectionSummary>> {
     'use cache';

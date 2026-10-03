@@ -7,11 +7,10 @@ import { logSecurityEvent } from './security-events';
 const limiter = new RateLimiter();
 
 /**
- * Inspects a raw GraphQL POST body to decide whether the mutation being
- * invoked matches one of RATE_LIMIT_RULES — Shop API and Admin API both
- * multiplex every operation through a single endpoint, so per-mutation
- * limiting has to happen by looking at the query text/variables rather
- * than the route itself.
+ * Examina el cuerpo de un POST GraphQL para decidir si la mutación invocada coincide
+ * con alguna de RATE_LIMIT_RULES. La Shop API y la Admin API pasan todas las
+ * operaciones por un único endpoint, así que limitar por mutación exige mirar el
+ * texto de la consulta y sus variables, no la ruta.
  */
 export function graphqlRateLimitMiddleware() {
     return function rateLimit(req: Request, res: Response, next: NextFunction): void {
@@ -67,7 +66,7 @@ export function graphqlRateLimitMiddleware() {
                         identifier,
                     });
                 } catch {
-                    // Logging must never break the actual response.
+                    // El log nunca debe romper la respuesta real.
                 }
                 return originalJson(body);
             }) as Response['json'];

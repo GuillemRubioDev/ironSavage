@@ -81,7 +81,7 @@ export async function requestEmailUpdateAction(prevState: { error?: string; succ
         return {error: t('passwordEmailRequired')};
     }
 
-    // Basic email validation
+    // Validación básica del email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmailAddress)) {
         return {error: t('invalidEmail')};

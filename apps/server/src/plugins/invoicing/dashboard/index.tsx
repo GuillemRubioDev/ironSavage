@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { DashboardRouteDefinition, defineDashboardExtension } from '@vendure/dashboard';
 
 import { InvoicesPage } from './invoices-page';
@@ -8,10 +9,10 @@ const invoicesRoute: DashboardRouteDefinition = {
         sectionId: 'sales',
         id: 'invoices',
         url: '/invoices',
-        title: 'Invoices',
+        title: /* i18n*/ 'Invoices',
     },
     path: '/invoices',
-    loader: () => ({ breadcrumb: 'Invoices' }),
+    loader: () => ({ breadcrumb: <Trans>Invoices</Trans> }),
     component: () => <InvoicesPage />,
 };
 
@@ -20,7 +21,7 @@ defineDashboardExtension({
     pageBlocks: [
         {
             id: 'order-invoice',
-            title: 'Invoice',
+            title: <Trans>Invoice</Trans>,
             location: { pageId: 'order-detail', column: 'side', position: { blockId: 'customer', order: 'after' } },
             component: ({ context }) => <OrderInvoiceBlock context={context} />,
         },

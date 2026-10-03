@@ -1,10 +1,12 @@
-# Storefront upgrades
+# Actualizaciones del storefront
 
-The upgrade workflow preserves developer ownership of the source. Deterministic scripts prepare and verify context; an agent or human performs semantic reconciliation.
+El flujo de actualización respeta que el código es propiedad del equipo. Los scripts, deterministas, preparan y
+verifican el contexto; un agente o una persona hace la conciliación de fondo.
 
-## New storefront initialization
+## Inicializar un storefront nuevo
 
-The first managed release is `v1.0.0`. After creating a storefront from an immutable release tag, initialize exact provenance:
+La primera versión gestionada es `v1.0.0`. Tras crear un storefront desde una etiqueta de versión inmutable, inicializa
+su procedencia exacta:
 
 ```bash
 npm run upgrade:init
@@ -12,75 +14,94 @@ git add .vendure/storefront.json
 git commit -m "chore: initialize storefront provenance"
 ```
 
-The checked-in template cannot contain its own Git commit hash, so initialization resolves the release tag once, verifies that its tree exactly matches `HEAD`, and records it. Initialization fails if the storefront was created from another branch or commit.
+La plantilla no puede contener su propio hash de commit, así que la inicialización resuelve la etiqueta una vez,
+comprueba que su árbol coincide exactamente con `HEAD` y lo registra. Falla si el storefront se creó desde otra rama o
+commit.
 
-## Managed upgrade
+## Actualización gestionada
 
-Begin from a clean worktree on a dedicated upgrade branch:
+Empieza con el árbol de trabajo limpio, en una rama dedicada a la actualización:
 
 ```bash
 npm run upgrade:prepare -- 1.1.0
 ```
 
-Preparation does not modify storefront source. It creates a gitignored workspace under `.vendure/upgrade-workspace/` containing old and new upstream snapshots, the upstream patch, ordered release guides, and `INTEGRATION.md`.
+La preparación no modifica el código del storefront. Crea un espacio de trabajo (ignorado por git) en
+`.vendure/upgrade-workspace/` con las instantáneas antigua y nueva de la plantilla, el parche de la plantilla, las guías
+de versión ordenadas e `INTEGRATION.md`.
 
-Read the integration brief, reconcile upstream intent with downstream customizations, and write the required report path named by the brief. Downstream intent wins by default. If an upstream invariant and a customization cannot coexist, record the tradeoff rather than silently discarding either side.
+Lee las instrucciones de integración, concilia la intención de la plantilla con las personalizaciones propias y escribe
+el informe en la ruta que indican esas instrucciones. Por defecto manda la intención del código propio. Si una regla de
+la plantilla y una personalización no pueden convivir, deja constancia del compromiso en vez de descartar una de las dos
+sin avisar.
 
-Then run:
+Después ejecuta:
 
 ```bash
 npm run upgrade:verify
 npm run upgrade:finalize
 ```
 
-Verification runs the commands configured in `.vendure/storefront.json` and fingerprints the reviewed worktree. Finalization refuses changes made after verification, advances provenance, and removes the temporary workspace. Commit the source, upgrade report, and provenance update together.
+La verificación ejecuta los comandos configurados en `.vendure/storefront.json` y toma la huella del árbol revisado. La
+finalización rechaza los cambios hechos después de verificar, avanza la procedencia y borra el espacio de trabajo
+temporal. Sube juntos al repositorio el código, el informe de actualización y la nueva procedencia.
 
-Release tags are expected to be immutable. If an upstream tag was intentionally moved, preparation stops with the recorded baseline hash. After independently verifying the incident and confirming that hash is still available locally, acknowledge that exact baseline explicitly:
+Las etiquetas de versión deben ser inmutables. Si una etiqueta de la plantilla se movió a propósito, la preparación se
+detiene mostrando el hash de la base registrada. Tras verificar el incidente por tu cuenta y confirmar que ese hash sigue
+disponible en local, acepta esa base exacta explícitamente:
 
 ```bash
-npm run upgrade:prepare -- 1.1.0 --allow-moved-baseline <recorded-commit>
+npm run upgrade:prepare -- 1.1.0 --allow-moved-baseline <commit-registrado>
 ```
 
-This keeps the recorded commit as the three-way baseline; it does not silently trust the replacement tag.
+Así se mantiene el commit registrado como base de la fusión a tres bandas, sin confiar sin avisar en la etiqueta nueva.
 
-## Legacy onboarding
+## Incorporar un storefront antiguo
 
-Storefronts created before `v1.0.0` have no reliable three-way baseline. Their one-time onboarding is explicitly best effort:
+Los storefronts creados antes de `v1.0.0` no tienen una base fiable para la fusión a tres bandas. Su incorporación, que
+se hace una sola vez, es explícitamente «lo mejor posible»:
 
 ```bash
 npm run upgrade:prepare -- 1.0.0 --legacy
 ```
 
-Because those repositories predate the protocol scripts, first copy the upgrade-support files and npm scripts from the immutable `v1.0.0` tag or ask an agent to bootstrap them. After semantic reconciliation, reporting, verification, and finalization, later upgrades use exact baseline and target snapshots.
+Como esos repositorios son anteriores a los scripts del protocolo, primero hay que copiar los archivos de soporte y los
+scripts de npm desde la etiqueta inmutable `v1.0.0`, o pedir a un agente que los prepare. Tras la conciliación, el
+informe, la verificación y la finalización, las actualizaciones siguientes usan instantáneas exactas de base y destino.
 
-## Authoring an upstream change
+## Escribir un cambio en la plantilla
 
-Copy `.upgrades/changes/_example.md` to a unique filename and record:
+Copia `.upgrades/changes/_example.md` con un nombre único y anota:
 
-- Intent
-- Affected module areas
-- Behavioral invariants
-- Integration guidance
-- Focused verification
+- Intención
+- Zonas de módulos afectadas
+- Reglas de comportamiento que deben mantenerse
+- Cómo integrarlo
+- Verificación concreta
 
-`type: major` identifies a breaking change; a separate `breaking` field is intentionally not used.
+`type: major` indica un cambio incompatible; a propósito no se usa un campo `breaking` aparte.
 
-Use a `.none.md` file only when a downstream-impacting diff genuinely has no downstream impact, and explain why. CI requires the pull request to add a note or exemption; modifying or deleting an existing note does not satisfy the gate. Added notes must declare every module area inferred from the impactful paths. CI validates the note or exemption:
+Usa un archivo `.none.md` solo cuando un diff que en principio afecta al código propio de verdad no lo afecta, y explica
+por qué. La CI exige que el pull request añada una nota o una exención; modificar o borrar una nota existente no cuenta.
+Las notas añadidas deben declarar todas las zonas de módulos que se deducen de las rutas afectadas. La CI valida la nota
+o la exención:
 
 ```bash
 npm run upgrade:validate
 ```
 
-Prepare the first managed baseline without creating its tag:
+Para preparar la primera base gestionada sin crear su etiqueta:
 
 ```bash
 npm run upgrade:release -- 1.0.0 --initial
 ```
 
-Prepare later releases without `--initial`:
+Las versiones siguientes se preparan sin `--initial`:
 
 ```bash
 npm run upgrade:release -- 1.1.0
 ```
 
-The release command requires a clean Git worktree, validates all inputs before mutation, aggregates and consumes pending notes, updates the starter version, and generates `.upgrades/releases/v1.1.0/manifest.json` plus `guide.md`. Review and commit those artifacts before creating the immutable `v1.1.0` tag.
+El comando de versión exige un árbol de Git limpio, valida todas las entradas antes de modificar nada, agrupa y consume
+las notas pendientes, actualiza la versión de la plantilla y genera `.upgrades/releases/v1.1.0/manifest.json` y
+`guide.md`. Revisa y sube esos archivos antes de crear la etiqueta inmutable `v1.1.0`.

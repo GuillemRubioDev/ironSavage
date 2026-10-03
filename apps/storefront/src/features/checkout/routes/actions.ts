@@ -1,7 +1,8 @@
 'use server';
 
 import {mutate} from '@/platform/vendure/api';
-import {SetOrderShippingAddressMutation, SetOrderBillingAddressMutation, SetOrderShippingMethodMutation, AddPaymentToOrderMutation, TransitionOrderToStateMutation, SetCustomerForOrderMutation, CreateRedsysPaymentFormMutation} from '@/features/checkout/graphql';
+import {SetOrderShippingAddressMutation, SetOrderBillingAddressMutation, SetOrderShippingMethodMutation, AddPaymentToOrderMutation, TransitionOrderToStateMutation, SetCustomerForOrderMutation, CreateRedsysPaymentFormMutation, AcceptTermsForActiveOrderMutation} from '@/features/checkout/graphql';
+import {LEGAL_VERSION} from '@/config/legal';
 import {CreateCustomerAddressMutation} from '@/features/account/graphql';
 import {revalidatePath, updateTag} from 'next/cache';
 import {redirect} from '@/platform/i18n/navigation';
@@ -76,6 +77,18 @@ export async function createCustomerAddress(address: AddressInput) {
     return result.data.createCustomerAddress;
 }
 
+/**
+ * El cliente marcó «Acepto las condiciones» y pulsó «Pagar pedido»: se guarda esa
+ * aceptación (hora del servidor + LEGAL_VERSION) en el pedido. El servidor no deja
+ * pasar a pago un pedido de la tienda sin ella.
+ */
+async function acceptTerms(termsAccepted: boolean) {
+    if (termsAccepted !== true) {
+        throw new Error('The terms and conditions must be accepted before paying');
+    }
+    await mutate(AcceptTermsForActiveOrderMutation, {version: LEGAL_VERSION}, {useAuthToken: true});
+}
+
 export async function transitionToArrangingPayment() {
     const result = await mutate(
         TransitionOrderToStateMutation,
@@ -85,11 +98,11 @@ export async function transitionToArrangingPayment() {
 
     if (result.data.transitionOrderToState?.__typename === 'OrderStateTransitionError') {
         const errorResult = result.data.transitionOrderToState;
-        // A retry (e.g. the customer went back after a declined/cancelled Redsys
-        // attempt, or double-clicked) finds the order already in ArrangingPayment.
-        // Vendure's state machine rejects a state->itself "transition", but that's
-        // exactly the state this function is trying to ensure — treat it as success
-        // rather than surfacing a spurious error.
+        // Un reintento (p. ej. el cliente volvió tras un intento de Redsys denegado o
+        // cancelado, o hizo doble clic) encuentra el pedido ya en ArrangingPayment. La
+        // máquina de estados de Vendure rechaza la «transición» de un estado a sí mismo,
+        // pero es justo el estado que esta función quiere asegurar: se trata como éxito
+        // en vez de mostrar un error falso.
         const alreadyThere = errorResult.fromState === 'ArrangingPayment' && errorResult.toState === 'ArrangingPayment';
         if (!alreadyThere) {
             throw new Error(
@@ -110,15 +123,16 @@ export interface RedsysPaymentForm {
 }
 
 /**
- * Redsys is a redirect gateway: unlike `placeOrder`, this does not call
- * addPaymentToOrder — it only asks the backend for a signed redirect form.
- * The order is only actually paid once Redsys' server-to-server notification
- * has been verified (see RedsysPlugin), so the order must stay retryable
- * (ArrangingPayment) until then.
+ * Redsys es una pasarela por redirección: a diferencia de `placeOrder`, esto no llama
+ * a addPaymentToOrder; solo pide al backend un formulario de redirección firmado. El
+ * pedido solo queda pagado cuando se verifica la notificación de servidor a servidor
+ * de Redsys (ver RedsysPlugin), así que hasta entonces debe poder reintentarse
+ * (ArrangingPayment).
  */
-export async function getRedsysPaymentForm(): Promise<
+export async function getRedsysPaymentForm(termsAccepted: boolean): Promise<
     {success: true; form: RedsysPaymentForm} | {success: false; error: string}
 > {
+    await acceptTerms(termsAccepted);
     await transitionToArrangingPayment();
 
     const result = await mutate(CreateRedsysPaymentFormMutation, {}, {useAuthToken: true});
@@ -139,21 +153,22 @@ export async function getRedsysPaymentForm(): Promise<
     };
 }
 
-export async function placeOrder(paymentMethodCode: string) {
-    // First, transition the order to ArrangingPayment state
+export async function placeOrder(paymentMethodCode: string, termsAccepted: boolean) {
+    await acceptTerms(termsAccepted);
+    // Después, pasa el pedido al estado ArrangingPayment
     await transitionToArrangingPayment();
 
-    // Prepare metadata based on payment method
+    // Prepara los metadatos según el método de pago
     const metadata: Record<string, unknown> = {};
 
-    // For standard payment, include the required fields
+    // Para el pago estándar, incluye los campos obligatorios
     if (paymentMethodCode === 'standard-payment') {
         metadata.shouldDecline = false;
         metadata.shouldError = false;
         metadata.shouldErrorOnSettle = false;
     }
 
-    // Add payment to the order
+    // Añade el pago al pedido
     const result = await mutate(
         AddPaymentToOrderMutation,
         {
@@ -174,7 +189,7 @@ export async function placeOrder(paymentMethodCode: string) {
 
     const orderCode = result.data.addPaymentToOrder.code;
 
-    // Update the cart tag to immediately invalidate cached cart data
+    // Actualiza la etiqueta del carrito para invalidar al momento sus datos en caché
     updateTag('cart');
     updateTag('active-order');
 

@@ -1,5 +1,6 @@
 import {Star} from 'lucide-react';
 import {cn} from '@/lib/utils';
+import {useTranslations} from 'next-intl';
 
 interface StarRatingProps {
     rating: number;
@@ -14,11 +15,13 @@ const SIZE_CLASSES = {
 };
 
 export function StarRating({rating, size = 'md', className}: StarRatingProps) {
+    const t = useTranslations('Reviews');
     return (
-        <div className={cn('flex items-center gap-0.5', className)} aria-label={`${rating} out of 5 stars`}>
+        <div className={cn('flex items-center gap-0.5', className)} role="img" aria-label={t('starsLabel', {rating: Math.round(rating * 10) / 10})}>
             {[1, 2, 3, 4, 5].map(value => (
                 <Star
                     key={value}
+                    aria-hidden="true"
                     className={cn(
                         SIZE_CLASSES[size],
                         value <= Math.round(rating) ? 'fill-primary text-primary' : 'fill-none text-muted-foreground'

@@ -21,8 +21,8 @@ export async function registerAction(prevState: { error?: string } | undefined, 
     if (!firstName) {
         return {error: t('firstNameRequired')};
     }
-    // The client already blocks submission without this checked — this is
-    // only a backstop against a request built by hand, bypassing the form.
+    // El navegador ya impide enviar sin marcar esto; esto es solo una red de seguridad
+    // ante una petición construida a mano, saltándose el formulario.
     if (termsAccepted !== 'true') {
         return {error: t('termsRequired')};
     }
@@ -52,7 +52,7 @@ export async function registerAction(prevState: { error?: string } | undefined, 
         return {error: registerResult.message};
     }
 
-    // Redirect to verification pending page, preserving redirectTo if present
+    // Redirige a la página de verificación pendiente, conservando redirectTo si lo hay
     const verifyUrl = redirectTo
         ? `/verify-pending?redirectTo=${encodeURIComponent(redirectTo)}`
         : '/verify-pending';

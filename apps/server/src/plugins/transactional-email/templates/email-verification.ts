@@ -6,8 +6,8 @@ export function renderEmailVerification(
     data: { customerName: string; verificationUrl: string; needsPassword?: boolean },
 ): RenderedEmail {
     if (data.needsPassword) {
-        // Account created for the customer (e.g. an athlete registered from the
-        // Dashboard): the same link verifies the email and lets them choose a password.
+        // Cuenta creada para el cliente (p. ej. un atleta dado de alta desde el
+        // dashboard): el mismo enlace verifica el email y le deja elegir contraseña.
         const bodyHtml = `
 <p>Hola ${escapeHtml(data.customerName)},</p>
 <p>Te hemos creado una cuenta en <strong>${escapeHtml(config.storeName)}</strong>. Para activarla, confirma tu email y elige tu contraseña:</p>

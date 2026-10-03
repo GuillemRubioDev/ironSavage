@@ -2,11 +2,11 @@ import { DeepPartial, VendureEntity } from '@vendure/core';
 import { Column, Entity, Index } from 'typeorm';
 
 /**
- * One row per series, holding the last-issued number. Incremented via a
- * single atomic `UPDATE ... SET "lastNumber" = "lastNumber" + 1 ... RETURNING`
- * (see InvoicingService.allocateNextNumber) so Postgres' own row lock
- * serializes concurrent invoice generation — no gaps, no duplicates, no
- * read-then-write race, without needing an application-level lock.
+ * Una fila por serie con el último número emitido. Se incrementa con un único
+ * `UPDATE ... SET "lastNumber" = "lastNumber" + 1 ... RETURNING` atómico (ver
+ * InvoicingService.allocateNextNumber), así el bloqueo de fila de Postgres
+ * serializa las facturas simultáneas: sin huecos, sin duplicados y sin carreras de
+ * leer y luego escribir, sin necesidad de un bloqueo en la aplicación.
  */
 @Entity()
 export class InvoiceSequence extends VendureEntity {

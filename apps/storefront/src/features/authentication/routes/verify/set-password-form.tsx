@@ -16,9 +16,9 @@ interface SetPasswordFormProps {
 }
 
 /**
- * Shown when the verification link belongs to an account created by the
- * store without a password: the same token verifies the email and sets the
- * password in one step (Vendure's verifyCustomerAccount(token, password)).
+ * Se muestra cuando el enlace de verificación es de una cuenta creada por la tienda
+ * sin contraseña: el mismo token verifica el email y fija la contraseña en un solo
+ * paso (verifyCustomerAccount(token, password) de Vendure).
  */
 export function SetPasswordForm({token, onSettled}: SetPasswordFormProps) {
     const t = useTranslations('Verify.setPassword');
@@ -43,7 +43,7 @@ export function SetPasswordForm({token, onSettled}: SetPasswordFormProps) {
         const result = await verifyAccountAction(token, password).catch((): VerifyResultValue => ({error: ''}));
         setPending(false);
         if (result.error !== undefined && result.error !== '') {
-            // e.g. a password policy error: keep the form so they can retry.
+            // p. ej. un error de política de contraseñas: se mantiene el formulario para reintentar.
             setError(result.error);
             return;
         }

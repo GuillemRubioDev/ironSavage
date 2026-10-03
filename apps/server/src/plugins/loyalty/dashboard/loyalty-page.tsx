@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
     api,
     Badge,
@@ -28,19 +29,30 @@ import { adjustLoyaltyPointsDocument, customerLoyaltyDocument, searchCustomersDo
 const HISTORY_PAGE_SIZE = 20;
 
 /**
- * Simple, single-screen loyalty admin: search a customer, view balance +
- * history (both via the already-existing customerLoyaltyAccount/History
- * queries), and adjust the balance via the existing adjustLoyaltyPoints
- * mutation. No new loyalty rules/calculations — this is a UI over the
- * plugin's existing Admin API surface.
+ * Gestión de puntos sencilla en una sola pantalla: buscar un cliente, ver saldo e
+ * historial (con las consultas customerLoyaltyAccount/History ya existentes) y
+ * ajustar el saldo con la mutación adjustLoyaltyPoints. Sin reglas ni cálculos
+ * nuevos: es solo una interfaz sobre la Admin API del plugin.
  */
 export function LoyaltyPage() {
+    const { t } = useLingui();
     const [searchTerm, setSearchTerm] = useState('');
     const [submittedTerm, setSubmittedTerm] = useState('');
     const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
     const [adjustPoints, setAdjustPoints] = useState('');
     const [adjustReason, setAdjustReason] = useState('');
     const queryClient = useQueryClient();
+
+    // Tipos de movimiento (LoyaltyTransaction.type) con una etiqueta legible.
+    const typeLabel: Record<string, string> = {
+        EARN: t`Earned`,
+        SPEND: t`Redeemed`,
+        REFUND: t`Refund reversal`,
+        ADJUSTMENT: t`Manual adjustment`,
+        EXPIRE: t`Expired`,
+        ATHLETE_REWARD: t`Athlete reward`,
+        ATHLETE_REWARD_REVERSAL: t`Athlete reward reversed`,
+    };
 
     const { data: searchData, isLoading: isSearching } = useQuery({
         queryKey: ['loyalty-customer-search', submittedTerm],
@@ -85,12 +97,16 @@ export function LoyaltyPage() {
 
     return (
         <Page pageId="loyalty">
-            <PageTitle>Loyalty</PageTitle>
+            <PageTitle>
+                <Trans>Loyalty</Trans>
+            </PageTitle>
             <PageLayout>
                 <FullWidthPageBlock blockId="loyalty-search">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Find a customer</CardTitle>
+                            <CardTitle>
+                                <Trans>Find a customer</Trans>
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <form
@@ -102,34 +118,44 @@ export function LoyaltyPage() {
                                 }}
                             >
                                 <Input
-                                    placeholder="Search by name or email..."
+                                    placeholder={t`Search by name or email...`}
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                     className="max-w-sm"
                                 />
                                 <Button type="submit" variant="outline">
                                     <Search className="mr-2 h-4 w-4" />
-                                    Search
+                                    <Trans>Search</Trans>
                                 </Button>
                             </form>
 
-                            {isSearching && <p className="text-sm text-muted-foreground">Searching…</p>}
+                            {isSearching && (
+                                <p className="text-sm text-muted-foreground">
+                                    <Trans>Searching…</Trans>
+                                </p>
+                            )}
 
                             {submittedTerm && !isSearching && (
                                 <div className="border rounded-lg">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>Name</TableHead>
-                                                <TableHead>Email</TableHead>
-                                                <TableHead className="text-right">Actions</TableHead>
+                                                <TableHead>
+                                                    <Trans>Name</Trans>
+                                                </TableHead>
+                                                <TableHead>
+                                                    <Trans>Email</Trans>
+                                                </TableHead>
+                                                <TableHead className="text-right">
+                                                    <Trans>Actions</Trans>
+                                                </TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {customers.length === 0 ? (
                                                 <TableRow>
                                                     <TableCell colSpan={3} className="h-16 text-center text-muted-foreground">
-                                                        No customers found.
+                                                        <Trans>No customers found.</Trans>
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (
@@ -141,7 +167,7 @@ export function LoyaltyPage() {
                                                         <TableCell className="text-muted-foreground">{customer.emailAddress}</TableCell>
                                                         <TableCell className="text-right">
                                                             <Button size="sm" variant="outline" onClick={() => setSelectedCustomerId(customer.id)}>
-                                                                View loyalty
+                                                                <Trans>View loyalty</Trans>
                                                             </Button>
                                                         </TableCell>
                                                     </TableRow>
@@ -160,30 +186,40 @@ export function LoyaltyPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle>
-                                    {selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : 'Loyalty account'}
+                                    {selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : <Trans>Loyalty account</Trans>}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 {isLoadingLoyalty ? (
-                                    <p className="text-sm text-muted-foreground">Loading…</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        <Trans>Loading…</Trans>
+                                    </p>
                                 ) : !account ? (
-                                    <p className="text-sm text-muted-foreground">This customer has no loyalty account yet.</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        <Trans>This customer has no loyalty account yet.</Trans>
+                                    </p>
                                 ) : (
                                     <>
                                         <div className="grid grid-cols-3 gap-4">
                                             <div className="rounded-lg border p-4">
-                                                <p className="text-xs text-muted-foreground">Current balance</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    <Trans>Current balance</Trans>
+                                                </p>
                                                 <p className="text-2xl font-bold flex items-center gap-1.5">
                                                     <Star className="size-5 text-primary" fill="currentColor" />
                                                     {account.balance}
                                                 </p>
                                             </div>
                                             <div className="rounded-lg border p-4">
-                                                <p className="text-xs text-muted-foreground">Lifetime earned</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    <Trans>Lifetime earned</Trans>
+                                                </p>
                                                 <p className="text-2xl font-bold">{account.lifetimeEarned}</p>
                                             </div>
                                             <div className="rounded-lg border p-4">
-                                                <p className="text-xs text-muted-foreground">Lifetime spent</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    <Trans>Lifetime spent</Trans>
+                                                </p>
                                                 <p className="text-2xl font-bold">{account.lifetimeSpent}</p>
                                             </div>
                                         </div>
@@ -196,47 +232,61 @@ export function LoyaltyPage() {
                                             }}
                                         >
                                             <div className="space-y-1">
-                                                <Label htmlFor="adjust-points">Adjustment (+/-)</Label>
+                                                <Label htmlFor="adjust-points">
+                                                    <Trans>Adjustment (+/-)</Trans>
+                                                </Label>
                                                 <Input
                                                     id="adjust-points"
                                                     type="number"
                                                     className="w-32"
                                                     value={adjustPoints}
                                                     onChange={e => setAdjustPoints(e.target.value)}
-                                                    placeholder="e.g. -50"
+                                                    placeholder={t`e.g. -50`}
                                                 />
                                             </div>
-                                            <div className="space-y-1 flex-1 min-w-[200px]">
-                                                <Label htmlFor="adjust-reason">Reason</Label>
+                                            <div className="space-y-1 flex-1 min-w-50">
+                                                <Label htmlFor="adjust-reason">
+                                                    <Trans>Reason</Trans>
+                                                </Label>
                                                 <Input
                                                     id="adjust-reason"
                                                     value={adjustReason}
                                                     onChange={e => setAdjustReason(e.target.value)}
-                                                    placeholder="Required — shown in the customer's history"
+                                                    placeholder={t`Required — shown in the customer's history`}
                                                 />
                                             </div>
                                             <Button type="submit" disabled={!canSubmitAdjustment || adjustMutation.isPending}>
-                                                {adjustMutation.isPending ? 'Applying…' : 'Apply manual adjustment'}
+                                                {adjustMutation.isPending ? <Trans>Applying…</Trans> : <Trans>Apply manual adjustment</Trans>}
                                             </Button>
                                         </form>
 
                                         <div>
-                                            <h3 className="text-sm font-medium mb-2">Recent history</h3>
+                                            <h3 className="text-sm font-medium mb-2">
+                                                <Trans>Recent history</Trans>
+                                            </h3>
                                             <div className="border rounded-lg">
                                                 <Table>
                                                     <TableHeader>
                                                         <TableRow>
-                                                            <TableHead>Date</TableHead>
-                                                            <TableHead>Type</TableHead>
-                                                            <TableHead>Description</TableHead>
-                                                            <TableHead className="text-right">Points</TableHead>
+                                                            <TableHead>
+                                                                <Trans>Date</Trans>
+                                                            </TableHead>
+                                                            <TableHead>
+                                                                <Trans>Type</Trans>
+                                                            </TableHead>
+                                                            <TableHead>
+                                                                <Trans>Description</Trans>
+                                                            </TableHead>
+                                                            <TableHead className="text-right">
+                                                                <Trans>Points</Trans>
+                                                            </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
                                                         {history.length === 0 ? (
                                                             <TableRow>
                                                                 <TableCell colSpan={4} className="h-16 text-center text-muted-foreground">
-                                                                    No history yet.
+                                                                    <Trans>No history yet.</Trans>
                                                                 </TableCell>
                                                             </TableRow>
                                                         ) : (
@@ -246,7 +296,7 @@ export function LoyaltyPage() {
                                                                         {new Date(tx.createdAt).toLocaleDateString()}
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <Badge variant="secondary">{tx.type}</Badge>
+                                                                        <Badge variant="secondary">{typeLabel[tx.type] ?? tx.type}</Badge>
                                                                     </TableCell>
                                                                     <TableCell>{tx.description}</TableCell>
                                                                     <TableCell className={`text-right font-medium ${tx.points >= 0 ? 'text-primary' : 'text-destructive'}`}>

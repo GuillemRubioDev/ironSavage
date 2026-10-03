@@ -5,17 +5,17 @@ export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Iron Savage';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
 /**
- * Prefix a path with its locale, unless it's the default locale under an
- * 'as-needed' localePrefix policy — that locale is served (and canonicalized)
- * unprefixed, and an explicit `/en/...` URL 307s to the unprefixed form.
+ * Antepone el idioma a una ruta, salvo que sea el idioma por defecto con la política
+ * localePrefix 'as-needed': ese idioma se sirve (y se canonicaliza) sin prefijo, y
+ * una URL explícita con su prefijo redirige con 307 a la forma sin prefijo.
  */
 export function localizedPath(locale: string, path: string): string {
   return locale === routing.defaultLocale ? path : `/${locale}${path}`;
 }
 
 /**
- * Truncate text to a maximum length while preserving word boundaries.
- * Strips HTML tags and is ideal for meta descriptions (recommended 150-160 chars).
+ * Recorta un texto a una longitud máxima sin partir palabras.
+ * Quita las etiquetas HTML; ideal para meta descripciones (se recomiendan 150-160 caracteres).
  */
 export function truncateDescription(
   text: string | null | undefined,
@@ -23,12 +23,12 @@ export function truncateDescription(
 ): string {
   if (!text) return '';
 
-  // Strip HTML tags if present
+  // Quita las etiquetas HTML si las hay
   const cleanText = text.replace(/<[^>]*>/g, '').trim();
 
   if (cleanText.length <= maxLength) return cleanText;
 
-  // Find the last space before maxLength to avoid cutting words
+  // Busca el último espacio antes de maxLength para no cortar palabras
   const truncated = cleanText.substring(0, maxLength);
   const lastSpaceIndex = truncated.lastIndexOf(' ');
 
@@ -38,22 +38,32 @@ export function truncateDescription(
 }
 
 /**
- * Build a canonical URL for a given path.
+ * Construye la URL canónica de una ruta.
  */
 export function buildCanonicalUrl(path: string): string {
-  const baseUrl = SITE_URL.replace(/\/$/, ''); // Remove trailing slash
+  const baseUrl = SITE_URL.replace(/\/$/, ''); // Quita la barra final
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${baseUrl}${cleanPath}`;
 }
 
 /**
- * Build Open Graph image array from an image URL.
+ * Imagen que se muestra al compartir una página (WhatsApp, redes sociales…) que no
+ * tiene imagen propia: public/og-image.png, 1200×630. Para cambiarla, sustituye ese
+ * archivo.
+ */
+export const DEFAULT_OG_IMAGES = [
+  {url: '/og-image.png', width: 1200, height: 630, alt: `${SITE_NAME} — suplementación deportiva`},
+];
+
+/**
+ * Construye el array de imágenes Open Graph a partir de una URL de imagen; si no hay,
+ * usa la imagen por defecto (una página que define `openGraph` sustituye la del layout).
  */
 export function buildOgImages(
   imageUrl: string | null | undefined,
   alt?: string
 ): NonNullable<Metadata['openGraph']>['images'] {
-  if (!imageUrl) return undefined;
+  if (!imageUrl) return DEFAULT_OG_IMAGES;
 
   return [
     {
@@ -64,7 +74,7 @@ export function buildOgImages(
 }
 
 /**
- * Create noindex/nofollow robots config for protected pages.
+ * Configuración robots noindex/nofollow para páginas protegidas.
  */
 export function noIndexRobots(): Metadata['robots'] {
   return {

@@ -8,17 +8,29 @@ import { placeOrder as placeOrderAction, getRedsysPaymentForm, type RedsysPaymen
 import { Price } from '@/features/pricing/price';
 import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Link } from '@/platform/i18n/navigation';
+
+/** Abre un texto legal en una pestaña nueva para no perder el checkout en curso. */
+function LegalLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-primary">
+      {children}
+    </Link>
+  );
+}
 
 interface ReviewStepProps {
   onEditStep: (step: 'contact' | 'shipping' | 'delivery' | 'payment') => void;
 }
 
-// Matches the `code` of the PaymentMethod created in the Admin UI for RedsysPlugin's
-// handler. Only this code triggers the redirect-to-Redsys flow; any other eligible
-// method (e.g. the dev-only dummy handler) goes through the normal placeOrder flow.
+// Coincide con el `code` del método de pago creado en el dashboard para el handler de
+// RedsysPlugin. Solo este código lanza la redirección a Redsys; cualquier otro método
+// válido (p. ej. el handler de prueba de desarrollo) usa el flujo normal de placeOrder.
 const REDSYS_PAYMENT_METHOD_CODE = 'redsys';
 
-/** Redsys' "Conexión por Redirección" requires a real browser POST navigation. */
+/** La «Conexión por Redirección» de Redsys exige una navegación POST real del navegador. */
 function submitRedsysRedirect(form: RedsysPaymentForm) {
   const formEl = document.createElement('form');
   formEl.method = 'POST';
@@ -43,29 +55,30 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
   const t = useTranslations('Checkout');
   const { order, paymentMethods, selectedPaymentMethodCode, isGuest } = useCheckout();
   const [loading, setLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const selectedPaymentMethod = paymentMethods.find(
     (method) => method.code === selectedPaymentMethodCode
   );
 
   const handlePlaceOrder = async () => {
-    if (!selectedPaymentMethodCode) return;
+    if (!selectedPaymentMethodCode || !termsAccepted) return;
 
     setLoading(true);
     try {
       if (selectedPaymentMethodCode === REDSYS_PAYMENT_METHOD_CODE) {
-        const result = await getRedsysPaymentForm();
+        const result = await getRedsysPaymentForm(termsAccepted);
         if (!result.success) {
           toast.error(t('unexpectedError'), { description: result.error });
           setLoading(false);
           return;
         }
         submitRedsysRedirect(result.form);
-        // Browser is navigating away to Redsys now — stay in the loading state.
+        // El navegador se va ahora a Redsys: se mantiene el estado de carga.
         return;
       }
 
-      await placeOrderAction(selectedPaymentMethodCode);
+      await placeOrderAction(selectedPaymentMethodCode, termsAccepted);
     } catch (error) {
       if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
         throw error;
@@ -108,7 +121,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
           </div>
         )}
 
-        {/* Shipping Address */}
+        {/* Dirección de envío */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-muted-foreground" />
@@ -142,7 +155,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
           )}
         </div>
 
-        {/* Delivery Method */}
+        {/* Método de envío */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-muted-foreground" />
@@ -172,7 +185,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
           )}
         </div>
 
-        {/* Payment Method */}
+        {/* Método de pago */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-muted-foreground" />
@@ -201,9 +214,26 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
         </div>
       </div>
 
+      {/* LSSI-CE art. 27 / TRLGDCU art. 98: las condiciones generales deben estar disponibles y aceptarse antes de pagar. */}
+      <div className="flex items-start gap-2">
+        <Checkbox
+          id="checkout-terms"
+          checked={termsAccepted}
+          onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+          disabled={loading}
+        />
+        <Label htmlFor="checkout-terms" className="block font-normal leading-snug">
+          {t.rich('termsAcceptance', {
+            terms: (chunks) => <LegalLink href="/terminos-y-condiciones">{chunks}</LegalLink>,
+            returns: (chunks) => <LegalLink href="/envios-y-devoluciones">{chunks}</LegalLink>,
+            privacy: (chunks) => <LegalLink href="/politica-de-privacidad">{chunks}</LegalLink>,
+          })}
+        </Label>
+      </div>
+
       <Button
         onClick={handlePlaceOrder}
-        disabled={loading || !order.shippingAddress || !order.shippingLines?.length || !selectedPaymentMethodCode}
+        disabled={loading || !termsAccepted || !order.shippingAddress || !order.shippingLines?.length || !selectedPaymentMethodCode}
         size="lg"
         className="w-full"
       >
@@ -211,9 +241,13 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
         {t('placeOrder')}
       </Button>
 
-      {(!order.shippingAddress || !order.shippingLines?.length || !selectedPaymentMethodCode) && (
+      {(!order.shippingAddress || !order.shippingLines?.length || !selectedPaymentMethodCode) ? (
         <p className="text-sm text-destructive text-center">
           {t('completeAllSteps')}
+        </p>
+      ) : !termsAccepted && (
+        <p className="text-sm text-muted-foreground text-center">
+          {t('termsRequired')}
         </p>
       )}
     </div>

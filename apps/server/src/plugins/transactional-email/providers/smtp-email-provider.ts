@@ -5,10 +5,10 @@ import { loggerCtx } from '../constants';
 import type { EmailConfig, EmailMessage, EmailProvider, EmailSendResult } from '../types';
 
 /**
- * Real delivery via SMTP. Deliberately generic (no vendor-specific SDK) so
- * swapping to any transactional-email service (SES, Sendgrid, Resend's SMTP
- * relay, a company mail server, ...) is a config change, not a code change —
- * they all speak SMTP.
+ * Envío real por SMTP. Genérico a propósito (sin SDK de ningún proveedor) para que
+ * cambiar a cualquier servicio de email transaccional (SES, Sendgrid, el relay SMTP
+ * de Resend, el servidor de correo de la empresa...) sea un cambio de configuración y
+ * no de código: todos hablan SMTP.
  */
 export class SmtpEmailProvider implements EmailProvider {
     private transporter: Transporter;
@@ -38,8 +38,8 @@ export class SmtpEmailProvider implements EmailProvider {
             });
             return { success: true };
         } catch (err) {
-            // Never throw out of a provider — a delivery failure must never propagate
-            // back into whatever triggered the email (an order transition, a signup).
+            // Un proveedor nunca lanza errores: un fallo de envío nunca debe llegar a lo que
+            // provocó el email (una transición de pedido, un registro).
             const error = err instanceof Error ? err.message : String(err);
             Logger.error(`SmtpEmailProvider failed to send to ${message.to}: ${error}`, loggerCtx);
             return { success: false, error };

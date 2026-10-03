@@ -2,16 +2,15 @@ import { LanguageCode, Logger, PaymentMethodHandler } from '@vendure/core';
 import { loggerCtx, REDSYS_PAYMENT_HANDLER_CODE } from './constants';
 
 /**
- * This handler never talks to Redsys itself — by the time it runs, the outcome
- * has already been determined and cryptographically verified by
- * RedsysService.handleNotification(). It only exists to record that verified
- * outcome as a Vendure Payment.
+ * Este handler nunca habla con Redsys: cuando se ejecuta, el resultado ya lo ha
+ * determinado y verificado criptográficamente RedsysService.handleNotification().
+ * Solo existe para registrar ese resultado verificado como un Payment de Vendure.
  *
- * Guarded so it can only be invoked from trusted server-side code (our own
- * notification webhook, which runs with an internally-constructed admin
- * RequestContext) — never directly from a customer's Shop API session, which
- * would otherwise let a client fake a "Settled" payment by calling
- * `addPaymentToOrder` with a crafted metadata payload.
+ * Está protegido para que solo pueda invocarse desde código de servidor de
+ * confianza (nuestro webhook de notificación, que usa un RequestContext de
+ * administrador creado internamente) y nunca desde la sesión de un cliente en la
+ * Shop API; si no, un cliente podría falsificar un pago «Settled» llamando a
+ * `addPaymentToOrder` con unos metadatos inventados.
  */
 export const redsysPaymentHandler = new PaymentMethodHandler({
     code: REDSYS_PAYMENT_HANDLER_CODE,

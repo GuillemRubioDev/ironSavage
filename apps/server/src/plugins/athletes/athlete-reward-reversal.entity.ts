@@ -5,13 +5,13 @@ import { AthleteReward } from './athlete-reward.entity';
 import { ATHLETE_REVERSAL_REASONS, AthleteReversalReason } from './constants';
 
 /**
- * One reversal applied to an AthleteReward (order cancelled, a refund
- * settled, or a manual admin reversal). Kept as its own rows rather than
- * just decrementing a counter, so the reward's full history is auditable.
+ * Una reversión aplicada a un AthleteReward (pedido cancelado, reembolso
+ * liquidado o reversión manual de un administrador). Se guarda en filas propias,
+ * en vez de solo restar de un contador, para poder auditar todo el historial.
  *
- * The two partial unique indexes make reversals idempotent: a given refund
- * can revert a reward only once, and so can the order's cancellation, even
- * if the triggering event is delivered more than once.
+ * Los dos índices únicos parciales hacen las reversiones idempotentes: un mismo
+ * reembolso solo puede revertir una recompensa una vez, y lo mismo la cancelación
+ * del pedido, aunque el evento que lo provoca llegue más de una vez.
  */
 @Entity()
 @Check('CHK_athlete_reward_reversal_points', `"points" > 0 AND "debitedPoints" >= 0 AND "debitedPoints" <= "points"`)
@@ -37,11 +37,11 @@ export class AthleteRewardReversal extends VendureEntity {
     @EntityId({ nullable: true })
     refundId: ID | null;
 
-    /** Points this reversal takes back from the reward. */
+    /** Puntos que esta reversión retira de la recompensa. */
     @Column()
     points: number;
 
-    /** Points actually debited from the athlete's balance (less than `points` if they had already been spent). */
+    /** Puntos realmente descontados del saldo del atleta (menos que `points` si ya los había gastado). */
     @Column()
     debitedPoints: number;
 
@@ -51,7 +51,7 @@ export class AthleteRewardReversal extends VendureEntity {
     @Column({ type: 'varchar', nullable: true })
     note: string | null;
 
-    /** Administrator who triggered a MANUAL reversal. */
+    /** Administrador que hizo una reversión MANUAL. */
     @EntityId({ nullable: true })
     administratorUserId: ID | null;
 }

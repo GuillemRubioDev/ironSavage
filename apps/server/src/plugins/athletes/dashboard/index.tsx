@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { DashboardRouteDefinition, defineDashboardExtension } from '@vendure/dashboard';
 
 import { AthleteDetailPage } from './athlete-detail';
@@ -5,30 +6,32 @@ import { AthleteNewPage } from './athlete-new';
 import { AthletesListPage } from './athletes-list';
 import { CustomerAthleteBlock } from './customer-athlete-block';
 
-// Under "Customers", next to Loyalty: an athlete is a customer with a
-// different way of earning points.
+// Dentro de «Clientes», junto a Fidelización: un atleta es un cliente que gana
+// puntos de otra manera.
 const athletesList: DashboardRouteDefinition = {
     navMenuItem: {
         sectionId: 'customers',
         id: 'athletes',
         url: '/athletes',
-        title: 'Athletes',
+        // `/* i18n*/` marca un mensaje con id explícito: el menú traduce los títulos
+        // con i18n.t(title), igual que las entradas propias del dashboard.
+        title: /* i18n*/ 'Athletes',
         requiresPermission: 'ReadAthlete',
     },
     path: '/athletes',
-    loader: () => ({ breadcrumb: 'Athletes' }),
+    loader: () => ({ breadcrumb: <Trans>Athletes</Trans> }),
     component: () => <AthletesListPage />,
 };
 
 const athleteNew: DashboardRouteDefinition = {
     path: '/athletes/new',
-    loader: () => ({ breadcrumb: 'New athlete' }),
+    loader: () => ({ breadcrumb: <Trans>New athlete</Trans> }),
     component: () => <AthleteNewPage />,
 };
 
 const athleteDetail: DashboardRouteDefinition = {
     path: '/athletes/$id',
-    loader: () => ({ breadcrumb: 'Athlete' }),
+    loader: () => ({ breadcrumb: <Trans>Athlete</Trans> }),
     component: () => <AthleteDetailPage />,
 };
 
@@ -37,9 +40,9 @@ defineDashboardExtension({
     pageBlocks: [
         {
             id: 'customer-athlete',
-            title: 'Athlete',
-            // After "Customer groups": account management (a customer-level
-            // concern, see the customer-accounts plugin) stays right under Status.
+            title: <Trans>Athlete</Trans>,
+            // Tras «Grupos de clientes»: la gestión de la cuenta (cosa del cliente, ver
+            // el plugin customer-accounts) queda justo debajo del Estado.
             location: { pageId: 'customer-detail', column: 'side', position: { blockId: 'groups', order: 'after' } },
             component: ({ context }) => (context.entity?.id ? <CustomerAthleteBlock customerId={context.entity.id} /> : null),
             requiresPermission: 'ReadAthlete',

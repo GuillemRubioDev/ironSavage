@@ -28,9 +28,9 @@ export interface AthleteCodeInput extends AthleteCodeTerms {
 }
 
 export interface CreateAthleteInput {
-    /** Convert an existing customer... */
+    /** Convertir un cliente existente… */
     customerId?: ID;
-    /** ...or create a brand-new one (they can register a login later with the same email). */
+    /** …o crear uno nuevo (podrá registrar su acceso más tarde con el mismo email). */
     customer?: { firstName: string; lastName: string; emailAddress: string; phoneNumber?: string };
     enabled?: boolean;
     notes?: string | null;
@@ -57,9 +57,9 @@ export class AthleteService implements OnApplicationBootstrap {
     ) {}
 
     onApplicationBootstrap(): void {
-        // Athletes don't earn regular points on their own purchases — they earn
-        // through their codes instead (see AthleteRewardService). A disabled
-        // athlete is treated as a regular customer again.
+        // Los atletas no ganan puntos normales por sus compras: los ganan con sus
+        // códigos (ver AthleteRewardService). Un atleta desactivado vuelve a tratarse
+        // como cliente normal.
         this.loyaltyService.registerEarnPolicy({
             name: 'athletes-do-not-earn-on-own-purchases',
             canEarnForOrder: async (ctx, order) => !(await this.isActiveAthleteCustomer(ctx, order)),
@@ -139,9 +139,9 @@ export class AthleteService implements OnApplicationBootstrap {
                 if (existing && !existing.deletedAt) {
                     throw new AthleteValidationError('This customer is already an athlete');
                 }
-                // A customer whose athlete role was removed can be made an athlete
-                // again: the same row is restored, so their reward history stays
-                // attached. Their old codes stay disabled until re-enabled.
+                // Un cliente al que se le quitó el rol de atleta puede volver a serlo: se
+                // restaura la misma fila, así que conserva su historial de recompensas.
+                // Sus códigos antiguos siguen desactivados hasta que se reactiven.
                 const saved = await this.connection.getRepository(txCtx, Athlete).save(
                     existing
                         ? Object.assign(existing, { deletedAt: null, enabled: input.enabled ?? true, notes: input.notes?.trim() || existing.notes })
@@ -186,9 +186,9 @@ export class AthleteService implements OnApplicationBootstrap {
     }
 
     /**
-     * Admin action: the customer stays a regular customer, but stops being an
-     * athlete. Their points and reward history are kept; making them an
-     * athlete again later restores this same record.
+     * Acción de administración: el cliente sigue siendo cliente, pero deja de ser
+     * atleta. Conserva sus puntos y su historial de recompensas; si más adelante
+     * vuelve a ser atleta, se restaura este mismo registro.
      */
     async removeRole(ctx: RequestContext, id: ID): Promise<{ success: true } | { success: false; reason: string }> {
         const removed = await this.connection.withTransaction(ctx, async txCtx => {
@@ -201,9 +201,9 @@ export class AthleteService implements OnApplicationBootstrap {
     }
 
     /**
-     * Called when Vendure deletes a customer (a soft delete — see
-     * Athlete.deletedAt): an athlete can't outlive its customer, and its codes
-     * must stop giving discounts immediately.
+     * Se llama cuando Vendure borra un cliente (borrado lógico, ver
+     * Athlete.deletedAt): un atleta no puede existir sin su cliente y sus códigos
+     * deben dejar de dar descuento en el acto.
      */
     async removeForDeletedCustomer(ctx: RequestContext, customerId: ID): Promise<boolean> {
         return this.connection.withTransaction(ctx, async txCtx => {
@@ -252,8 +252,8 @@ export class AthleteService implements OnApplicationBootstrap {
     }
 
     /**
-     * Changing a code's terms only affects future orders: rewards already
-     * granted keep their own snapshot (see AthleteReward).
+     * Cambiar las condiciones de un código solo afecta a los pedidos futuros: las
+     * recompensas ya concedidas conservan su copia (ver AthleteReward).
      */
     async updateCode(ctx: RequestContext, id: ID, input: Partial<AthleteCodeInput>): Promise<AthleteCodeResult> {
         try {
@@ -313,9 +313,9 @@ export class AthleteService implements OnApplicationBootstrap {
     }
 
     /**
-     * A code must be unique among athlete codes *and* among every other live
-     * coupon code in the store — otherwise applying "PEDRO10" could resolve to
-     * an unrelated promotion. Compared case-insensitively, like Vendure does.
+     * Un código debe ser único entre los códigos de atleta *y* entre todos los demás
+     * cupones activos de la tienda; si no, aplicar "PEDRO10" podría activar otra
+     * promoción. Se compara sin distinguir mayúsculas, como hace Vendure.
      */
     private async assertCodeIsAvailable(ctx: RequestContext, normalizedCode: string, current?: AthleteCode): Promise<void> {
         const clash = await this.connection.getRepository(ctx, AthleteCode).findOne({
@@ -338,9 +338,9 @@ export class AthleteService implements OnApplicationBootstrap {
     }
 
     /**
-     * Projects an AthleteCode onto its backing Vendure Promotion, creating it
-     * if missing (or if an admin soft-deleted it from the Promotions list).
-     * The promotion is only enabled while both the athlete and the code are.
+     * Refleja un AthleteCode en su Promotion de Vendure, creándola si falta (o si un
+     * administrador la borró de la lista de promociones). La promoción solo está
+     * activa mientras lo estén el atleta y el código.
      */
     private async syncPromotion(ctx: RequestContext, athlete: Athlete, code: AthleteCode): Promise<void> {
         const customer = athlete.customer ?? (await this.connection.getRepository(ctx, Customer).findOne({ where: { id: athlete.customerId } }));
@@ -414,8 +414,8 @@ export class AthleteService implements OnApplicationBootstrap {
             return { success: false, reason: err.message };
         }
         if (typeof err === 'object' && err !== null && (err as { code?: unknown }).code === '23505') {
-            // Lost a race against a concurrent create with the same code/customer —
-            // the unique indexes are the last line of defence.
+            // Otra creación simultánea con el mismo código o cliente ganó la carrera:
+            // los índices únicos son la última línea de defensa.
             return { success: false, reason: 'That code or customer is already registered as an athlete' };
         }
         throw err;

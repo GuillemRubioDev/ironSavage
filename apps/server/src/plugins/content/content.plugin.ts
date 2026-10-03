@@ -9,18 +9,17 @@ import { ContentService } from './content.service';
 export { contentPermission } from './content.permission';
 
 /**
- * Simple news/content article plugin: admins manage articles (draft, edit,
- * publish/unpublish, set a cover image, delete) from the Dashboard; only
- * PUBLISHED articles are ever exposed via the Shop API. Entirely
- * self-contained — no core Vendure behaviour modified, and it doesn't touch
- * the Redsys, Loyalty, Invoicing, or Reviews plugins.
+ * Plugin sencillo de noticias/artículos: los administradores gestionan los
+ * artículos desde el dashboard (borrador, edición, publicar/despublicar, portada,
+ * borrar); por la Shop API solo se exponen los PUBLICADOS. Totalmente independiente:
+ * no modifica nada del núcleo de Vendure ni toca los plugins de Redsys,
+ * fidelización, facturación o reseñas.
  *
- * Cover images reuse Vendure's own Asset entity/storage (a plain relation,
- * `ContentArticle.coverImage`) — never a DB blob.
+ * Las portadas reutilizan la entidad y el almacenamiento Asset de Vendure (una
+ * relación simple, `ContentArticle.coverImage`), nunca un blob en la base de datos.
  *
- * Requires `contentPermission` to be registered in `authOptions.customPermissions`
- * in vendure-config.ts (see that file), so it can be assigned to Roles in the
- * Admin UI like any built-in permission.
+ * Necesita `contentPermission` registrado en `authOptions.customPermissions` de
+ * vendure-config.ts, para poder asignarlo a roles como cualquier permiso estándar.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

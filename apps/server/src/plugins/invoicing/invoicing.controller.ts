@@ -7,20 +7,17 @@ import { Invoice } from './invoice.entity';
 import { InvoicingService } from './invoicing.service';
 
 /**
- * Plain REST (not GraphQL) so the response can stream a PDF binary directly —
- * matches how RedsysController is also a REST route for a non-GraphQL-shaped
- * concern.
+ * REST simple (no GraphQL) para poder devolver el PDF en binario directamente,
+ * igual que RedsysController es una ruta REST para algo que no encaja en GraphQL.
  *
- * No `@Allow()` here, deliberately: Vendure's `getApiType()` returns
- * `'custom'` for any request with no GraphQL `info` (i.e. every plain REST
- * controller), and the default `EntityAccessControlStrategy.canAccess()`
- * checks declared permissions against that apiType — so a declarative
- * `@Allow(Permission.Authenticated)` here rejects even a genuinely logged-in
- * admin or customer. `@Ctx()` still resolves the real session from the
- * cookie regardless of apiType (session lookup doesn't depend on it), so
- * `ctx.userHasPermissions()` / `ctx.activeUserId` inside the handler are
- * exactly as reliable as they'd be in a resolver — only the *guard's own*
- * declarative gate is unusable here. See `assertCanDownload` for the real check.
+ * Sin `@Allow()` a propósito: `getApiType()` de Vendure devuelve `'custom'` en
+ * cualquier petición sin `info` de GraphQL (es decir, en todo controlador REST), y
+ * `EntityAccessControlStrategy.canAccess()` comprueba los permisos declarados contra
+ * ese apiType, así que un `@Allow(Permission.Authenticated)` aquí rechazaría incluso
+ * a un administrador o cliente con la sesión iniciada. `@Ctx()` sigue obteniendo la
+ * sesión real de la cookie sea cual sea el apiType, así que `ctx.userHasPermissions()`
+ * y `ctx.activeUserId` son tan fiables como en un resolver: solo la barrera
+ * declarativa del guard no sirve aquí. La comprobación real está en `assertCanDownload`.
  */
 @Controller('invoices')
 export class InvoicingController {
@@ -45,9 +42,9 @@ export class InvoicingController {
     }
 
     /**
-     * Admin/staff users are identified by an actual ReadOrder permission
-     * grant (not by apiType, which is unreliable here — see class doc);
-     * shop customers are identified by owning the order the invoice belongs to.
+     * El personal de administración se reconoce por tener de verdad el permiso
+     * ReadOrder (no por el apiType, que aquí no es fiable; ver el comentario de la
+     * clase); los clientes de la tienda, por ser dueños del pedido de la factura.
      */
     private async assertCanDownload(ctx: RequestContext, invoice: Invoice): Promise<void> {
         if (ctx.userHasPermissions([Permission.ReadOrder])) {

@@ -4,8 +4,8 @@ import { ErrorCode } from '@vendure/common/lib/generated-types';
 
 import { RedsysService } from './redsys.service';
 
-// 'REDSYS_PAYMENT_ERROR' is added to the ErrorCode enum via this plugin's schema
-// extension (see api-extensions.ts); the generated TS enum doesn't know about it.
+// 'REDSYS_PAYMENT_ERROR' se añade al enum ErrorCode con la extensión de esquema de
+// este plugin (ver api-extensions.ts); el enum TS generado no lo conoce.
 const REDSYS_PAYMENT_ERROR = 'REDSYS_PAYMENT_ERROR' as ErrorCode;
 
 class RedsysPaymentFormError {
@@ -59,13 +59,13 @@ export class RedsysShopResolver {
     }
 
     /**
-     * Fed by the order-confirmation page with the Ds_SignatureVersion/
-     * Ds_MerchantParameters/Ds_Signature query params Redsys' redirect lands the
-     * browser back with — the exact same signed payload Redsys also POSTs
-     * server-to-server to RedsysController.notify(). Reuses handleNotification()
-     * as-is: correctness here depends entirely on that signature check, not on
-     * who's calling, so this is deliberately public (no Vendure session/active
-     * order is guaranteed to still exist by the time this page loads).
+     * Lo llama la página de confirmación del pedido con los parámetros
+     * Ds_SignatureVersion/Ds_MerchantParameters/Ds_Signature con los que vuelve el
+     * navegador desde Redsys: exactamente el mismo contenido firmado que Redsys envía
+     * por POST a RedsysController.notify(). Reutiliza handleNotification() tal cual:
+     * aquí la seguridad depende por completo de esa comprobación de firma, no de
+     * quién llama, así que es público a propósito (no está garantizado que la sesión
+     * de Vendure o el pedido activo sigan existiendo cuando carga esta página).
      */
     @Mutation()
     @Allow(Permission.Public)
@@ -87,13 +87,13 @@ export class RedsysShopResolver {
 
 }
 
-// A second resolver class, purely so its type-resolver method can also be
-// named `__resolveType` — NestJS/graphql-tools requires that literal method
-// name to register a union's resolveType (the `@Resolver('TypeName')`
-// decorator alone isn't enough), and a class can't have two same-named
-// methods, so RedsysPaymentFormResult and RedsysConfirmationResult each need
-// their own class. Registered alongside RedsysShopResolver in
-// redsys-payment.plugin.ts's shopApiExtensions.resolvers.
+// Una segunda clase de resolver solo para que su método de resolución de tipo
+// también pueda llamarse `__resolveType`: NestJS/graphql-tools necesita ese nombre
+// exacto para registrar el resolveType de una unión (no basta con el decorador
+// `@Resolver('TypeName')`), y una clase no puede tener dos métodos con el mismo
+// nombre, así que RedsysPaymentFormResult y RedsysConfirmationResult necesitan cada
+// uno su clase. Se registra junto a RedsysShopResolver en
+// shopApiExtensions.resolvers de redsys-payment.plugin.ts.
 @Resolver()
 export class RedsysConfirmationTypeResolver {
     @ResolveField()

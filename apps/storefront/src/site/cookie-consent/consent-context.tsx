@@ -41,15 +41,15 @@ function writeStoredConsent(consent: ConsentState) {
     try {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify({version: STORAGE_VERSION, consent} satisfies StoredConsent));
     } catch {
-        // Storage unavailable (private mode, disabled) — consent just won't
-        // persist across visits; the banner will show again next time.
+        // Almacenamiento no disponible (modo privado, desactivado): el consentimiento no
+        // se guardará entre visitas y el banner volverá a salir la próxima vez.
     }
 }
 
 interface CookieConsentContextValue {
     consent: ConsentState;
-    /** Undetermined until the client mounts and reads localStorage — never
-     * assume "no answer yet" means consent was granted. */
+    /** Sin determinar hasta que el cliente se monta y lee localStorage: nunca supongas
+     * que «aún sin respuesta» significa consentimiento concedido. */
     hasResponded: boolean;
     isPreferencesOpen: boolean;
     acceptAll: () => void;
@@ -106,11 +106,10 @@ export function useCookieConsent(): CookieConsentContextValue {
 }
 
 /**
- * Gate for future analytics/marketing scripts: render children only once the
- * visitor has actually granted that category. Nothing in this project uses
- * it yet — there are no analytics/marketing trackers to gate — but this is
- * the hook a future GA/Meta pixel integration should render through instead
- * of loading unconditionally.
+ * Barrera para la interfaz de analítica/marketing: pinta los hijos solo cuando el
+ * visitante ha concedido esa categoría. (Google Analytics reacciona directamente a
+ * `consent`, ver site/analytics/google-analytics.tsx, porque también tiene que
+ * apagarse cuando se retira el consentimiento.)
  */
 export function ConsentGate({category, children}: {category: ConsentCategory; children: React.ReactNode}) {
     const {consent} = useCookieConsent();

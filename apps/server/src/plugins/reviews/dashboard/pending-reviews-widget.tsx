@@ -2,6 +2,7 @@ import { api, DashboardBaseWidget, DashboardWidgetDefinition } from '@vendure/da
 import { graphql } from '@/gql';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { StarIcon } from 'lucide-react';
 
 const pendingReviewsWidgetQuery = graphql(`
@@ -21,6 +22,7 @@ const pendingReviewsWidgetQuery = graphql(`
 export const WIDGET_ID = 'pending-reviews-widget';
 
 export function PendingReviewsWidget() {
+    const { t } = useLingui();
     const { data, isLoading } = useQuery({
         queryKey: ['pending-reviews-widget'],
         queryFn: () => api.query(pendingReviewsWidgetQuery),
@@ -31,11 +33,11 @@ export function PendingReviewsWidget() {
     const totalItems = data?.adminProductReviews.totalItems ?? 0;
 
     return (
-        <DashboardBaseWidget id={WIDGET_ID} title="Reviews awaiting moderation" description={`${totalItems} pending`}>
+        <DashboardBaseWidget id={WIDGET_ID} title={t`Reviews awaiting moderation`} description={t`${totalItems} pending`}>
             {isLoading ? (
-                <div className="text-sm text-muted-foreground">Loading…</div>
+                <div className="text-sm text-muted-foreground"><Trans>Loading…</Trans></div>
             ) : items.length === 0 ? (
-                <div className="text-sm text-muted-foreground">No reviews waiting for moderation.</div>
+                <div className="text-sm text-muted-foreground"><Trans>No reviews waiting for moderation.</Trans></div>
             ) : (
                 <ul className="divide-y divide-border">
                     {items.map(review => (
@@ -53,7 +55,7 @@ export function PendingReviewsWidget() {
                 </ul>
             )}
             <Link to="/product-reviews" className="mt-3 inline-block text-sm text-primary hover:underline">
-                View all reviews
+                <Trans>View all reviews</Trans>
             </Link>
         </DashboardBaseWidget>
     );
@@ -61,7 +63,7 @@ export function PendingReviewsWidget() {
 
 export const pendingReviewsWidget: DashboardWidgetDefinition = {
     id: WIDGET_ID,
-    name: 'Reviews awaiting moderation',
+    name: /* i18n*/ 'Reviews awaiting moderation',
     component: PendingReviewsWidget,
     defaultSize: { w: 6, h: 5, x: 0, y: 7 },
     minSize: { w: 4, h: 4 },

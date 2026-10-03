@@ -17,6 +17,9 @@ import { ContentPlugin, contentPermission } from './plugins/content/content.plug
 import { DashboardExtrasPlugin } from './plugins/dashboard-extras/dashboard-extras.plugin';
 import { BannersPlugin } from './plugins/banners/banners.plugin';
 import { OrderToolsPlugin } from './plugins/order-tools/order-tools.plugin';
+import { LegalAcceptancePlugin } from './plugins/legal-acceptance/legal-acceptance.plugin';
+import { productFoodInformationFields, variantFoodInformationFields } from './product-food-information';
+import { SpainTerritoriesPlugin } from './plugins/spain-territories/spain-territories.plugin';
 import { AthletesPlugin, athletePermission } from './plugins/athletes/athletes.plugin';
 import { CustomerAccountsPlugin } from './plugins/customer-accounts/customer-accounts.plugin';
 import { bannerPermission } from './plugins/banners/banner.permission';
@@ -31,8 +34,8 @@ import 'dotenv/config';
 import path from 'path';
 
 const IS_DEV = getAppEnv() === 'dev';
-// PORT wins because hosting platforms inject it into the environment at runtime, and that
-// must take precedence over any value baked into the .env file at scaffold time.
+// PORT tiene prioridad porque las plataformas de hosting la inyectan en ejecución, y debe
+// ganar a cualquier valor que quedara en el .env al generar el proyecto.
 const serverPort = +process.env.PORT || +process.env.VENDURE_SERVER_PORT || 3000;
 
 runProductionSafetyChecks(IS_DEV);
@@ -43,26 +46,25 @@ export const config: VendureConfig = {
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
         trustProxy: IS_DEV ? false : 1,
-        // Vendure's own default (`{origin: true, credentials: true}`) reflects
-        // any request Origin while allowing cookies — fine in dev, but in
-        // production that would let any website make credentialed requests
-        // against a signed-in session. See production-safety.ts.
+        // El valor por defecto de Vendure (`{origin: true, credentials: true}`)
+        // acepta cualquier Origin y permite cookies: vale en desarrollo, pero en
+        // producción dejaría a cualquier web hacer peticiones con la sesión
+        // iniciada de un usuario. Ver production-safety.ts.
         cors: {
             origin: getCorsOrigin(IS_DEV),
             credentials: true,
         },
-        // The following options are useful in development mode,
-        // but are best turned off for production for security
-        // reasons.
+        // Estas opciones son útiles en desarrollo, pero por seguridad es mejor
+        // desactivarlas en producción.
         ...(IS_DEV ? {
             adminApiDebug: true,
             shopApiDebug: true,
         } : {}),
         middleware: [
-            // Per-mutation rate limiting for both APIs — see the security
-            // plugin's own doc comments for the exact rules and why this is
-            // done by inspecting the GraphQL body rather than the route
-            // (both APIs multiplex every operation through one endpoint).
+            // Límite de peticiones por mutación en las dos APIs. Los comentarios del
+            // plugin de seguridad explican las reglas exactas y por qué se mira el
+            // cuerpo GraphQL y no la ruta (las dos APIs pasan todas las operaciones
+            // por un único endpoint).
             { route: 'shop-api', handler: graphqlRateLimitMiddleware() },
             { route: 'admin-api', handler: graphqlRateLimitMiddleware() },
             { route: 'payments/redsys/notify', handler: redsysNotifyRateLimitMiddleware() },
@@ -70,10 +72,10 @@ export const config: VendureConfig = {
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
-        // Vendure's own default is '1y' — a leaked/forgotten token would stay
-        // valid for a year. 30 days is a more reasonable ceiling; this also
-        // bounds the damage from the logout fix (see auth-token.ts /
-        // logout.ts) actually invalidating sessions server-side now.
+        // Vendure usa '1y' por defecto: un token filtrado u olvidado seguiría
+        // valiendo un año. 30 días es un límite más razonable; además acota el
+        // daño ahora que cerrar sesión invalida de verdad la sesión en el
+        // servidor (ver auth-token.ts / logout.ts).
         sessionDuration: '30d',
         superadminCredentials: {
             identifier: process.env.SUPERADMIN_USERNAME,
@@ -81,19 +83,19 @@ export const config: VendureConfig = {
         },
         cookieOptions: {
           secret: process.env.COOKIE_SECRET,
-          // Vendure's own default leaves this unset (falsy) — behind the
-          // Caddy reverse proxy terminating TLS, the session cookie must be
-          // marked Secure outside dev so it's never sent over a plain HTTP
-          // hop. trustProxy above already tells Express to trust the one
-          // proxy hop's X-Forwarded-* headers.
+          // Vendure lo deja sin definir por defecto. Detrás del proxy Caddy, que
+          // termina el TLS, la cookie de sesión debe marcarse Secure fuera de
+          // desarrollo para que nunca viaje por HTTP sin cifrar. El trustProxy de
+          // arriba ya indica a Express que confíe en las cabeceras X-Forwarded-*
+          // del proxy.
           secure: !IS_DEV,
         },
         customPermissions: [contentPermission, bannerPermission, athletePermission],
     },
     dbConnectionOptions: {
         type: 'postgres',
-        // See the README.md "Migrations" section for an explanation of
-        // the `synchronize` and `migrations` options.
+        // La sección «Migraciones» del README.md explica las opciones
+        // `synchronize` y `migrations`.
         synchronize: false,
         migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
         logging: false,
@@ -105,17 +107,17 @@ export const config: VendureConfig = {
         password: process.env.DB_PASSWORD,
     },
     paymentOptions: {
-        // The dummy handler is wired up in dev/test, so nothing simulates a
-        // successful card payment without a gateway in production. seed.ts
-        // only creates a PaymentMethod referencing this handler under the
-        // same condition (see environment.ts) — the two must stay in sync,
-        // or a seeded PaymentMethod row could reference an unregistered
-        // handler. RedsysPlugin registers its own handler via its
-        // `configuration` hook below, unconditionally.
+        // El método de pago de pruebas solo se registra en dev/test, para que en
+        // producción nada simule un pago con tarjeta correcto sin pasarela. seed.ts
+        // solo crea el método de pago que lo usa en las mismas condiciones (ver
+        // app-environment.ts): los dos deben ir a la par, o el seed podría crear un
+        // método de pago que apunte a un handler no registrado. RedsysPlugin
+        // registra el suyo siempre, con su hook `configuration` de abajo.
         paymentMethodHandlers: includeDummyPaymentHandler() ? [dummyPaymentHandler] : [],
     },
-    // When adding or altering custom field definitions, the database will
-    // need to be updated. See the "Migrations" section in README.md.
+    // Al añadir o cambiar campos personalizados hay que actualizar la base de
+    // datos con una migración. Ver la sección «Migraciones» del README.md y
+    // docs/database-migrations.md.
     customFields: {
         Product: [
             {
@@ -139,25 +141,26 @@ export const config: VendureConfig = {
                     },
                 ],
             },
+            ...productFoodInformationFields,
         ],
+        ProductVariant: [...variantFoodInformationFields],
     },
     plugins: [
-        // Interactive GraphQL IDE for both APIs — dev-only. Auth is still
-        // required for anything sensitive, but there's no reason to expose
-        // the schema-exploration tooling itself in production.
+        // IDE interactivo de GraphQL para las dos APIs, solo en desarrollo. Lo
+        // sensible sigue pidiendo autenticación, pero no hay motivo para exponer
+        // la herramienta de exploración del esquema en producción.
         ...(IS_DEV ? [GraphiqlPlugin.init()] : []),
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
             namingStrategy: new PosixAssetNamingStrategy(),
-            // namingStrategy alone isn't enough on Windows — see
-            // posix-asset-storage-strategy-factory.ts for why the default
-            // LocalAssetStorageStrategy still re-introduces backslashes.
+            // namingStrategy no basta en Windows: posix-asset-storage-strategy-factory.ts
+            // explica por qué el LocalAssetStorageStrategy por defecto vuelve a
+            // meter barras invertidas.
             storageStrategyFactory: posixAssetStorageStrategyFactory,
-            // In dev, letting Vendure guess this from the request works fine.
-            // In production it must be set explicitly via ASSET_URL_PREFIX —
-            // see production-safety.ts for why this used to be a hardcoded
-            // placeholder domain here.
+            // En desarrollo basta con que Vendure lo deduzca de la petición. En
+            // producción hay que fijarlo con ASSET_URL_PREFIX; production-safety.ts
+            // explica por qué aquí había antes un dominio de ejemplo fijo.
             assetUrlPrefix: getAssetUrlPrefix(IS_DEV),
         }),
         DefaultSchedulerPlugin.init(),
@@ -176,7 +179,7 @@ export const config: VendureConfig = {
             minRedeemablePoints: 100,
             maxDiscountPerOrderCents: 2000,
         }),
-        // Writes athlete rewards into LoyaltyPlugin's points ledger (see athletes.plugin.ts).
+        // Anota las recompensas de los atletas en el libro de puntos de LoyaltyPlugin (ver athletes.plugin.ts).
         AthletesPlugin,
         InvoicingPlugin.init({
             storeName: process.env.INVOICE_STORE_NAME,
@@ -184,6 +187,7 @@ export const config: VendureConfig = {
             storeAddress: process.env.INVOICE_STORE_ADDRESS,
             storeEmail: process.env.INVOICE_STORE_EMAIL,
             storePhone: process.env.INVOICE_STORE_PHONE,
+            storeRegistry: process.env.INVOICE_STORE_REGISTRY,
         }),
         TransactionalEmailPlugin,
         CustomerAccountsPlugin,
@@ -192,5 +196,9 @@ export const config: VendureConfig = {
         DashboardExtrasPlugin,
         BannersPlugin,
         OrderToolsPlugin,
+        // Prueba de aceptación de los términos (cuándo y qué versión) en cada pedido de la tienda.
+        LegalAcceptancePlugin,
+        // Canarias, Ceuta y Melilla fuera del IVA + métodos de envío por territorio.
+        SpainTerritoriesPlugin,
     ],
 };

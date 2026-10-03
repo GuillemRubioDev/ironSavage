@@ -50,6 +50,74 @@ index 6bbeaad..e4207ec 100644
  
      if (!i18nLoaded || !extensionsLoaded) {
          // Show a minimal full-screen splash so the user sees that the app is
+diff --git a/node_modules/@vendure/dashboard/src/app/routes/_authenticated/_customers/components/customer-order-table.tsx b/node_modules/@vendure/dashboard/src/app/routes/_authenticated/_customers/components/customer-order-table.tsx
+index 4fc82de..ca93bb8 100644
+--- a/node_modules/@vendure/dashboard/src/app/routes/_authenticated/_customers/components/customer-order-table.tsx
++++ b/node_modules/@vendure/dashboard/src/app/routes/_authenticated/_customers/components/customer-order-table.tsx
+@@ -1,8 +1,7 @@
+ import { Money } from '@/vdb/components/data-display/money.js';
+ import { PaginatedListDataTable } from '@/vdb/components/shared/paginated-list-data-table.js';
+-import { Badge } from '@/vdb/components/ui/badge.js';
++import { OrderStateCell } from '@/vdb/components/shared/table-cell/order-table-cell-components.js';
+ import { Button } from '@/vdb/components/ui/button.js';
+-import { getTypeForState, stateTypeToBadgeVariant } from '@/vdb/utils/state-type.js';
+ import { Link } from '@tanstack/react-router';
+ import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
+ import { useState } from 'react';
+@@ -35,9 +34,11 @@ export function CustomerOrderTable({ customerId }: Readonly<CustomerOrderTablePr
+                 currencyCode: false,
+                 total: false,
+             }}
++            // Patched (patches/@vendure+dashboard+*.patch): upstream hard-coded English
++            // headers and raw state names here; the default headers are translated
++            // (fieldName.*) and OrderStateCell translates states (orderState.*).
+             customizeColumns={{
+                 total: {
+-                    header: 'Total',
+                     cell: ({ cell, row }) => {
+                         const value = cell.getValue();
+                         const currencyCode = row.original.currencyCode;
+@@ -45,7 +46,6 @@ export function CustomerOrderTable({ customerId }: Readonly<CustomerOrderTablePr
+                     },
+                 },
+                 totalWithTax: {
+-                    header: 'Total with Tax',
+                     cell: ({ cell, row }) => {
+                         const value = cell.getValue();
+                         const currencyCode = row.original.currencyCode;
+@@ -53,17 +53,9 @@ export function CustomerOrderTable({ customerId }: Readonly<CustomerOrderTablePr
+                     },
+                 },
+                 state: {
+-                    header: 'State',
+-                    cell: ({ cell }) => {
+-                        const value = cell.getValue() as string | undefined;
+-                        if (!value) {
+-                            return null;
+-                        }
+-                        return <Badge variant={stateTypeToBadgeVariant(getTypeForState(value))}>{value}</Badge>;
+-                    },
++                    cell: OrderStateCell,
+                 },
+                 code: {
+-                    header: 'Code',
+                     cell: ({ cell, row }) => {
+                         const value = cell.getValue() as string;
+                         const id = row.original.id;
+diff --git a/node_modules/@vendure/dashboard/src/lib/components/layout/nav-main.tsx b/node_modules/@vendure/dashboard/src/lib/components/layout/nav-main.tsx
+index d87064e..6081a1d 100644
+--- a/node_modules/@vendure/dashboard/src/lib/components/layout/nav-main.tsx
++++ b/node_modules/@vendure/dashboard/src/lib/components/layout/nav-main.tsx
+@@ -335,7 +335,8 @@ export function NavMain({ items }: Readonly<{ items: Array<NavMenuSection | NavM
+             {/* Bottom sections - will be pushed to the bottom by CSS */}
+             {bottomSections.length ? (
+                 <SidebarGroup className="mt-auto">
+-                    <SidebarGroupLabel>Administration</SidebarGroupLabel>
++                    {/* Patched (patches/@vendure+dashboard+*.patch): hard-coded upstream; translated like menu titles. */}
++                    <SidebarGroupLabel>{i18n.t('Administration')}</SidebarGroupLabel>
+                     <SidebarMenu>
+                         {bottomSections.map(item =>
+                             renderSection(
 diff --git a/node_modules/@vendure/dashboard/src/lib/framework/extension-api/use-dashboard-extensions.ts b/node_modules/@vendure/dashboard/src/lib/framework/extension-api/use-dashboard-extensions.ts
 index 62306e5..6ee4f9e 100644
 --- a/node_modules/@vendure/dashboard/src/lib/framework/extension-api/use-dashboard-extensions.ts
@@ -181,3 +249,30 @@ index 1b2b7de..6198955 100644
 +
 +    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
  }
+diff --git a/node_modules/@vendure/dashboard/src/lib/providers/user-settings.tsx b/node_modules/@vendure/dashboard/src/lib/providers/user-settings.tsx
+index ba362b4..f3165a6 100644
+--- a/node_modules/@vendure/dashboard/src/lib/providers/user-settings.tsx
++++ b/node_modules/@vendure/dashboard/src/lib/providers/user-settings.tsx
+@@ -8,6 +8,7 @@ import {
+     setSettingsStoreValueDocument,
+ } from '../graphql/settings-store-operations.js';
+ import { Theme } from './theme-provider.js';
++import { uiConfig } from 'virtual:vendure-ui-config';
+ 
+ export interface TableSettings {
+     columnVisibility?: Record<string, boolean>;
+@@ -30,9 +31,12 @@ export interface UserSettings {
+     widgetLayout?: Record<string, { x: number; y: number; w: number; h: number }>;
+ }
+ 
++// Patched (patches/@vendure+dashboard+*.patch): start from the configured
++// vendureDashboardPlugin({ i18n: { defaultLanguage, defaultLocale } }) instead
++// of a hard-coded 'en'. Each administrator can still pick another language.
+ const defaultSettings: UserSettings = {
+-    displayLanguage: 'en',
+-    displayLocale: undefined,
++    displayLanguage: uiConfig.i18n.defaultLanguage ?? 'en',
++    displayLocale: uiConfig.i18n.defaultLocale ?? undefined,
+     contentLanguage: 'en',
+     theme: 'system',
+     displayUiExtensionPoints: false,

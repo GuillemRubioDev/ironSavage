@@ -3,13 +3,13 @@ import type { Response } from 'express';
 import { Ctx, Permission, RequestContext } from '@vendure/core';
 
 import { OrderToolsService } from './order-tools.service';
+import { ORDER_STATES_TO_PREPARE } from './warehouse-order-process';
 
 /**
- * Plain REST (not GraphQL) so a plain `window.open(url)` from the Dashboard
- * can hand the browser a standalone printable HTML page — same reasoning as
- * InvoicingController being REST for its PDF stream. See that controller's
- * doc comment for why `@Allow()` doesn't work here and permissions are
- * checked manually instead.
+ * REST simple (no GraphQL) para que un `window.open(url)` desde el dashboard abra
+ * en el navegador una página HTML imprimible independiente, por el mismo motivo por
+ * el que InvoicingController es REST para su PDF. El comentario de ese controlador
+ * explica por qué `@Allow()` no funciona aquí y los permisos se comprueban a mano.
  */
 @Controller('order-tools')
 export class OrderToolsController {
@@ -36,7 +36,8 @@ export class OrderToolsController {
     ): Promise<void> {
         this.assertCanReadOrders(ctx);
         const day = dateParam ? new Date(dateParam) : new Date();
-        const orders = await this.orderToolsService.getOrdersForDay(ctx, day, state ?? 'PaymentSettled');
+        // Por defecto: todos los pedidos pagados aún sin enviar (pagado, preparando, preparado).
+        const orders = await this.orderToolsService.getOrdersForDay(ctx, day, state ? [state] : [...ORDER_STATES_TO_PREPARE]);
         const methodNames = await this.orderToolsService.resolveShippingMethodNames(ctx, orders);
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(this.orderToolsService.renderDailyOrdersPage(orders, day, methodNames));

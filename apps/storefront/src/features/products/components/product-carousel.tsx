@@ -33,12 +33,11 @@ export function ProductCarousel({title, products}: ProductCarouselClientProps) {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    {/* left-2/right-2 (not the primitive's default -left-12/-right-12,
-                        which sits outside the carousel's own box): those only fit
-                        inside a section with generous outer margin, which this
-                        container-width carousel doesn't have — at exactly the md
-                        breakpoint (768px, where these appear) they poked past the
-                        viewport edge and caused horizontal page scroll. */}
+                    {/* left-2/right-2 (no el -left-12/-right-12 por defecto del componente base,
+                        que queda fuera de la caja del carrusel): esos solo caben en una
+                        sección con mucho margen exterior, y este carrusel ocupa el ancho
+                        del contenedor. Justo en el punto md (768px, donde aparecen) se
+                        salían de la pantalla y provocaban scroll horizontal. */}
                     <CarouselPrevious className="hidden md:flex left-2"/>
                     <CarouselNext className="hidden md:flex right-2"/>
                 </Carousel>

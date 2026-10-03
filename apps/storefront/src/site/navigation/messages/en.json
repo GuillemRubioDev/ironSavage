@@ -24,6 +24,10 @@
       "light": "Light",
       "dark": "Dark",
       "system": "System"
-    }
+    },
+    "search": "Search",
+    "mainNavigation": "Main navigation",
+    "skipToContent": "Skip to main content",
+    "announcements": "Store announcements"
   }
 }

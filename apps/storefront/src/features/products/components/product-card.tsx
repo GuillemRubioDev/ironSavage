@@ -40,11 +40,10 @@ export function ProductCard({product: productProp, categoryName}: ProductCardPro
                     </span>
                 )}
             </div>
-            {/* Horizontal padding matters here even though the image above is
-                edge-to-edge: this card is reused inside ProductCarousel,
-                where the first slide's content sits at zero margin against
-                the carousel's own overflow-hidden viewport edge — no padding
-                here clipped that first card's title/price against it. */}
+            {/* El relleno horizontal importa aunque la imagen de arriba ocupe todo el
+                ancho: esta tarjeta se reutiliza en ProductCarousel, donde el contenido
+                de la primera diapositiva queda pegado al borde con overflow-hidden del
+                carrusel; sin relleno, se cortaban el título y el precio de esa tarjeta. */}
             <div className="pt-3 px-4 space-y-1">
                 {categoryName && (
                     <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">

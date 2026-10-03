@@ -3,12 +3,12 @@ import {ProductGridSkeleton} from '@/features/products/product-grid-skeleton';
 export function SearchResultsSkeleton() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Filters Sidebar */}
+            {/* Barra lateral de filtros */}
             <aside className="lg:col-span-1">
                 <div className="h-64 animate-pulse bg-muted rounded-lg" />
             </aside>
 
-            {/* Product Grid */}
+            {/* Rejilla de productos */}
             <div className="lg:col-span-3">
                 <ProductGridSkeleton />
             </div>

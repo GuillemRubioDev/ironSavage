@@ -5,8 +5,8 @@ import {getActiveChannel} from '@/platform/vendure/channel';
 
 type TagKind = 'locale-only' | 'currency-dependent';
 
-// Order matters: `collection-meta-` must precede `collection-` so the meta
-// pattern isn't shadowed by the broader collection pattern.
+// El orden importa: `collection-meta-` debe ir antes que `collection-` para que el
+// patrón más general de colección no tape al de meta.
 const TAG_RULES: ReadonlyArray<{match: string | RegExp; kind: TagKind}> = [
     {match: 'collections', kind: 'locale-only'},
     {match: 'banners', kind: 'locale-only'},
@@ -31,7 +31,7 @@ function classifyTag(tag: string): TagKind | null {
 }
 
 export async function POST(request: NextRequest) {
-    // Verify the secret token
+    // Comprueba el token secreto
     const authHeader = request.headers.get('authorization');
     const expectedToken = process.env.REVALIDATION_SECRET;
 
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
                 results,
                 timestamp: Date.now(),
             },
-            {status: allSuccessful ? 200 : 207} // 207 = Multi-Status
+            {status: allSuccessful ? 200 : 207} // 207 = Multi-Status (varios resultados)
         );
     } catch {
         return NextResponse.json(

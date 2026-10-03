@@ -12,7 +12,7 @@ export default async function NotFound() {
     try {
         collections = await getTopCollections(locale);
     } catch {
-        // Gracefully handle if collections can't be fetched
+        // Si no se pueden cargar las colecciones, se sigue sin ellas
     }
 
     return (

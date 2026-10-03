@@ -7,12 +7,11 @@ import type { InvoicingConfig, InvoicingPluginOptions } from './types';
 let cached: InvoicingConfig | undefined;
 
 /**
- * Store fiscal identity is business/legal configuration (like the loyalty
- * program's rules), not a secret — so like LoyaltyPlugin this is set via
- * `InvoicingPlugin.init({...})` rather than read directly from env vars here.
- * vendure-config.ts is expected to source the values it passes in from
- * `process.env` (see .env.example), which satisfies "configurable via
- * configuration/env" without this module needing two separate mechanisms.
+ * La identidad fiscal de la tienda es configuración de negocio/legal (como las
+ * reglas del programa de fidelización), no un secreto: igual que en LoyaltyPlugin,
+ * se pasa con `InvoicingPlugin.init({...})` y no se lee aquí de las variables de
+ * entorno. vendure-config.ts toma los valores de `process.env` (ver .env.example),
+ * con lo que es configurable por entorno sin que este módulo tenga dos mecanismos.
  */
 export function setInvoicingConfig(options: InvoicingPluginOptions): void {
     const placeholders = {
@@ -21,11 +20,13 @@ export function setInvoicingConfig(options: InvoicingPluginOptions): void {
         storeAddress: !options.storeAddress,
     };
     cached = {
-        storeName: options.storeName ?? 'Tienda Suple (nombre fiscal pendiente de configurar)',
+        storeName: options.storeName ?? 'Razón social pendiente de configurar',
         storeTaxId: options.storeTaxId ?? 'NIF/CIF PENDIENTE',
         storeAddress: options.storeAddress ?? 'Dirección fiscal pendiente de configurar',
         storeEmail: options.storeEmail ?? 'facturacion@example.com',
         storePhone: options.storePhone,
+        storeRegistry: options.storeRegistry || undefined,
+        fiscalRegistration: options.fiscalRegistration,
         pdfOutputDir: options.pdfOutputDir ?? path.join(__dirname, '../../../static/invoices'),
     };
     if (Object.values(placeholders).some(Boolean)) {

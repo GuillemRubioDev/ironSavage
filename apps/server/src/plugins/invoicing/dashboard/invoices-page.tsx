@@ -16,6 +16,7 @@ import {
 } from '@vendure/dashboard';
 import { useLocalFormat } from '@vendure/dashboard';
 import { useQuery } from '@tanstack/react-query';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
 import { Download } from 'lucide-react';
 import { useState } from 'react';
@@ -23,13 +24,14 @@ import { useState } from 'react';
 import { adminInvoiceListDocument } from './graphql';
 
 /**
- * Deliberately a plain manual fetch + table, not <ListPage>/
- * <PaginatedListDataTable> — see the Reviews plugin's dashboard extension
- * for why (same custom-paginated-list issue applies to this plugin's type).
+ * Carga manual y tabla simple a propósito, sin <ListPage>/<PaginatedListDataTable>.
+ * La extensión del dashboard del plugin de reseñas explica por qué (el mismo
+ * problema de lista paginada propia afecta al tipo de este plugin).
  */
 const PAGE_SIZE = 20;
 
 export function InvoicesPage() {
+    const { t } = useLingui();
     const [skip, setSkip] = useState(0);
     const [search, setSearch] = useState('');
     const { formatCurrency } = useLocalFormat();
@@ -48,12 +50,12 @@ export function InvoicesPage() {
 
     return (
         <Page pageId="invoice-list">
-            <PageTitle>Invoices</PageTitle>
+            <PageTitle><Trans>Invoices</Trans></PageTitle>
             <PageLayout>
                 <FullWidthPageBlock blockId="list-table">
                     <div className="flex flex-wrap items-center gap-3 mb-4">
                         <Input
-                            placeholder="Search by order code or invoice number..."
+                            placeholder={t`Search by order code or invoice number...`}
                             value={search}
                             onChange={e => {
                                 setSkip(0);
@@ -67,10 +69,10 @@ export function InvoicesPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Number</TableHead>
-                                    <TableHead>Order</TableHead>
-                                    <TableHead>Issue date</TableHead>
-                                    <TableHead className="text-right">Total</TableHead>
+                                    <TableHead><Trans>Number</Trans></TableHead>
+                                    <TableHead><Trans>Order</Trans></TableHead>
+                                    <TableHead><Trans>Issue date</Trans></TableHead>
+                                    <TableHead className="text-right"><Trans>Total</Trans></TableHead>
                                     <TableHead className="text-right">PDF</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -78,13 +80,13 @@ export function InvoicesPage() {
                                 {isLoading ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                            Loading...
+                                            <Trans>Loading...</Trans>
                                         </TableCell>
                                     </TableRow>
                                 ) : items.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                            No invoices found.
+                                            <Trans>No invoices found.</Trans>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -108,7 +110,7 @@ export function InvoicesPage() {
                                                         <Download className="h-3.5 w-3.5" />
                                                     </Button>
                                                 ) : (
-                                                    <Badge variant="secondary">Not generated</Badge>
+                                                    <Badge variant="secondary"><Trans>Not generated</Trans></Badge>
                                                 )}
                                             </TableCell>
                                         </TableRow>
@@ -120,11 +122,11 @@ export function InvoicesPage() {
 
                     <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
                         <span>
-                            {totalItems === 0 ? 0 : skip + 1}-{Math.min(skip + PAGE_SIZE, totalItems)} of {totalItems}
+                            <Trans>{totalItems === 0 ? 0 : skip + 1}-{Math.min(skip + PAGE_SIZE, totalItems)} of {totalItems}</Trans>
                         </span>
                         <div className="space-x-2">
                             <Button size="sm" variant="outline" disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - PAGE_SIZE))}>
-                                Previous
+                                <Trans>Previous</Trans>
                             </Button>
                             <Button
                                 size="sm"
@@ -132,7 +134,7 @@ export function InvoicesPage() {
                                 disabled={skip + PAGE_SIZE >= totalItems}
                                 onClick={() => setSkip(skip + PAGE_SIZE)}
                             >
-                                Next
+                                <Trans>Next</Trans>
                             </Button>
                         </div>
                     </div>

@@ -20,14 +20,14 @@ export function buildSearchInput({ searchParams, collectionSlug }: BuildSearchIn
     const sort = (searchParams.sort as string) || 'name-asc';
     const searchTerm = searchParams.q as string;
 
-    // Extract facet value IDs from search params
+    // Extrae los IDs de valores de filtro de los parámetros de búsqueda
     const facetValueIds = searchParams.facets
         ? Array.isArray(searchParams.facets)
             ? searchParams.facets
             : [searchParams.facets]
         : [];
 
-    // Map sort parameter to Vendure SearchResultSortParameter
+    // Convierte el parámetro de orden al SearchResultSortParameter de Vendure
     const sortMapping: Record<string, { name?: 'ASC' | 'DESC'; price?: 'ASC' | 'DESC' }> = {
         'name-asc': { name: 'ASC' },
         'name-desc': { name: 'DESC' },

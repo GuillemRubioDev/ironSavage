@@ -1,12 +1,12 @@
 name: Build images
 
-# Validates that all three production Docker images actually build — the
-# storefront one in particular needs a real, reachable Vendure Shop API
-# during `next build` (see the note at the top of apps/storefront/Dockerfile),
-# so this workflow brings up a throwaway Postgres + vendure-server first,
-# the same way docker-compose.prod.yml / DOCKER_PRODUCTION.md's own "Cómo
-# arrancar" sequence does. No values used here are real credentials — see
-# the FASE 17 report's "secrets" section.
+# Comprueba que las tres imágenes Docker de producción compilan. La del
+# storefront necesita una Shop API de Vendure real y accesible durante
+# `next build` (ver la nota al principio de apps/storefront/Dockerfile), así que
+# este flujo levanta primero un Postgres y un vendure-server desechables, igual
+# que la secuencia «Cómo arrancar» de docker-compose.prod.yml / DOCKER_PRODUCTION.md.
+# Ningún valor de aquí es una credencial real (ver la sección «secrets» del
+# informe de la FASE 17).
 on:
   pull_request:
   push:
@@ -21,9 +21,9 @@ jobs:
     name: Build vendure + storefront images
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    # packages: write is only needed for the (currently gated, see below)
-    # GHCR push steps — scoped to this job rather than repo-wide, matching
-    # ci.yml's plain `contents: read`.
+    # packages: write solo hace falta para los pasos de publicación en GHCR
+    # (hoy desactivados, ver abajo); se limita a este job y no a todo el repo,
+    # igual que el `contents: read` de ci.yml.
     permissions:
       contents: read
       packages: write
@@ -32,10 +32,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Write CI env file
-        # .env.prod.example is committed with safe placeholder/sandbox values
-        # (Redsys' own published test merchant, no real secrets) — exactly
-        # what "docker compose config" and a throwaway bring-up need. Never
-        # used for anything reachable outside this job.
+        # .env.prod.example está en el repo con valores de ejemplo y de pruebas
+        # (el comercio de pruebas de Redsys, ningún secreto real): justo lo que
+        # necesitan "docker compose config" y un arranque desechable. Nunca se usa
+        # para nada accesible fuera de este job.
         run: cp .env.prod.example .env.ci
 
       - name: Validate docker-compose.prod.yml
@@ -45,9 +45,9 @@ jobs:
         run: docker compose -f docker-compose.prod.yml --env-file .env.ci build vendure-server
 
       - name: Build vendure-worker image
-        # Same Dockerfile/image as vendure-server (docker-compose.prod.yml
-        # only overrides CMD) — this is a cache-hit, just confirming the
-        # compose service definition itself is buildable.
+        # Mismo Dockerfile e imagen que vendure-server (docker-compose.prod.yml solo
+        # cambia el CMD): sale de la caché; solo confirma que la definición del
+        # servicio en compose compila.
         run: docker compose -f docker-compose.prod.yml --env-file .env.ci build vendure-worker
 
       - name: Start postgres + vendure-server
@@ -68,11 +68,11 @@ jobs:
           exit 1
 
       - name: Build storefront image
-        # Must build on the same Docker network as the now-healthy
-        # vendure-server, and with the legacy builder — see the `network:`
-        # comment on the storefront service in docker-compose.prod.yml for
-        # why (BuildKit's default builder rejects joining a named network).
-        # Identical to the command documented in DOCKER_PRODUCTION.md.
+        # Debe compilarse en la misma red Docker que el vendure-server ya sano y con
+        # el builder antiguo; el comentario de `network:` del servicio storefront en
+        # docker-compose.prod.yml explica por qué (el builder por defecto de BuildKit
+        # no permite unirse a una red con nombre). Es el mismo comando que
+        # documenta DOCKER_PRODUCTION.md.
         run: |
           DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 \
             docker compose -f docker-compose.prod.yml --env-file .env.ci build storefront
@@ -84,20 +84,19 @@ jobs:
           rm -f .env.ci
 
       # ---------------------------------------------------------------
-      # Publishing to GitHub Container Registry — prepared, not active.
+      # Publicación en GitHub Container Registry: preparada, no activa.
       #
-      # No registry is configured yet, so nothing below runs by default:
-      # it's gated behind the `PUBLISH_IMAGES` repository variable, which
-      # doesn't exist until someone deliberately creates it (Settings →
-      # Secrets and variables → Actions → Variables) and sets it to
-      # "true". Until then this job only ever validates that the images
-      # build, exactly like the rest of this workflow.
+      # Aún no hay registro configurado, así que por defecto no se ejecuta nada
+      # de lo de abajo: depende de la variable de repositorio `PUBLISH_IMAGES`,
+      # que no existe hasta que alguien la cree (Settings → Secrets and
+      # variables → Actions → Variables) con el valor "true". Hasta entonces
+      # este job solo comprueba que las imágenes compilan, como el resto del flujo.
       #
-      # Tagging strategy once enabled:
-      #   ghcr.io/<owner>/<repo>/vendure:<git-sha>      (+ :latest on main/master)
-      #   ghcr.io/<owner>/<repo>/storefront:<git-sha>   (+ :latest on main/master)
-      # `vendure` covers both vendure-server and vendure-worker — they are
-      # the same image, only the CMD differs (see docker-compose.prod.yml).
+      # Etiquetas cuando se active:
+      #   ghcr.io/<owner>/<repo>/vendure:<git-sha>      (+ :latest en main/master)
+      #   ghcr.io/<owner>/<repo>/storefront:<git-sha>   (+ :latest en main/master)
+      # `vendure` cubre vendure-server y vendure-worker: son la misma imagen,
+      # solo cambia el CMD (ver docker-compose.prod.yml).
       # ---------------------------------------------------------------
       - name: Compute image tags
         if: vars.PUBLISH_IMAGES == 'true' && github.event_name == 'push'

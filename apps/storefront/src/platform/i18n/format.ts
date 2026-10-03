@@ -3,10 +3,10 @@ import {toIntlLocale} from '@/platform/i18n/locale-utils';
 type DateFormat = 'short' | 'long';
 
 /**
- * Format a date string
- * @param dateString ISO date string
- * @param format 'short' (Jan 15, 2024) or 'long' (January 15, 2024)
- * @param locale App locale code (e.g. 'es', 'en')
+ * Formatea una fecha en texto
+ * @param dateString fecha en formato ISO
+ * @param format 'short' (15 ene 2024) o 'long' (15 de enero de 2024)
+ * @param locale código de idioma de la app (p. ej. 'es', 'en')
  */
 export function formatDate(dateString: string, format: DateFormat = 'short', locale: string = 'es'): string {
     const options: Intl.DateTimeFormatOptions = format === 'long'

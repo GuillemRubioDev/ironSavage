@@ -47,13 +47,13 @@ export default async function AthletePage() {
 
     const profile = await getMyAthleteProfile();
     if (!profile) {
-        // Regular customers have no athlete section — send them to their points.
+        // Los clientes normales no tienen sección de atleta: se les manda a sus puntos.
         return redirect({href: '/mi-cuenta/puntos', locale});
     }
 
     const [{data: rewardsData}, {data: loyaltyData}] = await Promise.all([
         query(GetMyAthleteRewardsQuery, {options: {skip: 0, take: HISTORY_PAGE_SIZE}}, {useAuthToken: true}),
-        // take: 0 — only the running balance is needed here.
+        // take: 0: aquí solo hace falta el saldo.
         query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true}),
     ]);
     const t = await getTranslations({locale, namespace: 'Loyalty.athlete'});
@@ -150,7 +150,7 @@ export default async function AthletePage() {
                 </div>
             ) : (
                 <>
-                    {/* Mobile: Card-based layout */}
+                    {/* Móvil: diseño en tarjetas */}
                     <div className="md:hidden space-y-3">
                         {rewards.map((reward) => (
                             <div key={reward.id} className="border rounded-xl p-4 bg-card">
@@ -173,7 +173,7 @@ export default async function AthletePage() {
                         ))}
                     </div>
 
-                    {/* Desktop: Table layout */}
+                    {/* Escritorio: diseño en tabla */}
                     <div className="hidden md:block border rounded-lg">
                         <Table>
                             <TableHeader className="bg-muted">

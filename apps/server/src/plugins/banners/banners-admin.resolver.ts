@@ -5,8 +5,8 @@ import { Allow, Ctx, ID, RequestContext } from '@vendure/core';
 import { bannerPermission } from './banner.permission';
 import { BannerInput, BannerMutationResult, BannersService } from './banners.service';
 
-// Vendure auto-derives this ErrorCode value from the `BannerError` type
-// name (see api-extensions.ts) — the generated TS enum doesn't know about it.
+// Vendure deduce este valor de ErrorCode del nombre del tipo `BannerError`
+// (ver api-extensions.ts); el enum de TypeScript generado no lo conoce.
 const BANNER_ERROR = 'BANNER_ERROR' as ErrorCode;
 
 class BannerError {

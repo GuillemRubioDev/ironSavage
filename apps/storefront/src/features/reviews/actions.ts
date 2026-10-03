@@ -9,12 +9,11 @@ export interface CreateReviewResult {
 }
 
 /**
- * Deliberately does NOT revalidate the product page after a successful
- * submission: the new review is PENDING, so it wouldn't change anything
- * publicly visible yet, and revalidating would re-render the (now
- * ineligible) parent Server Component, unmounting this client form before
- * the "submitted, awaiting moderation" confirmation could ever be seen. The
- * page reflects the updated eligibility naturally on the next real visit.
+ * A propósito NO revalida la página del producto tras enviar: la reseña nueva está
+ * PENDING, así que aún no cambia nada visible, y revalidar volvería a renderizar el
+ * Server Component padre (que ya no permite reseñar), desmontando este formulario
+ * antes de que se vea la confirmación «enviada, pendiente de moderación». La página
+ * reflejará el cambio en la próxima visita.
  */
 export async function createReviewAction(
     input: {productId: string; orderId: string; rating: number; title: string; comment: string},

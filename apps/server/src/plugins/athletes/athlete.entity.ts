@@ -4,16 +4,16 @@ import { Column, Entity, Index, JoinColumn, OneToMany, OneToOne } from 'typeorm'
 import { AthleteCode } from './athlete-code.entity';
 
 /**
- * Marks a Customer as an athlete. An athlete is still a regular Customer in
- * every other respect (login, cart, checkout, orders, spending points) — this
- * row only changes how they *earn* points: not on their own purchases, but
- * when other customers buy with one of their codes. A separate entity rather
- * than a custom field on Customer, so athlete-specific data (codes, rewards,
- * admin notes) can grow without touching the core Customer table.
+ * Marca a un Customer como atleta. En todo lo demás sigue siendo un cliente normal
+ * (inicio de sesión, carrito, checkout, pedidos, gastar puntos); esta fila solo
+ * cambia cómo *gana* puntos: no por sus propias compras, sino cuando otros clientes
+ * compran con uno de sus códigos. Es una entidad aparte, y no un campo
+ * personalizado de Customer, para que los datos propios del atleta (códigos,
+ * recompensas, notas internas) puedan crecer sin tocar la tabla de clientes.
  *
- * `enabled = false` suspends the athlete role (reversibly): their codes stop
- * applying, they stop earning rewards, and they go back to earning regular
- * customer points on their own purchases. `deletedAt` removes it for good.
+ * `enabled = false` suspende el rol de atleta (de forma reversible): sus códigos
+ * dejan de aplicarse, deja de ganar recompensas y vuelve a ganar puntos normales
+ * por sus compras. `deletedAt` lo quita definitivamente.
  */
 @Entity()
 export class Athlete extends VendureEntity {
@@ -32,16 +32,16 @@ export class Athlete extends VendureEntity {
     @Column({ default: true })
     enabled: boolean;
 
-    /** Internal admin notes (sport, agreement details...) — never exposed via the Shop API. */
+    /** Notas internas de administración (deporte, detalles del acuerdo…); nunca se exponen en la Shop API. */
     @Column({ type: 'text', nullable: true })
     notes: string | null;
 
     /**
-     * An athlete can't outlive its customer. Vendure soft-deletes customers
-     * (so the FK cascade never fires), which is why the role is soft-deleted
-     * too — when the customer is deleted, or when an admin removes the role.
-     * Its codes are disabled and their promotions deleted at the same time;
-     * the row stays only so historical rewards keep their owner.
+     * Un atleta no puede existir sin su cliente. Vendure borra los clientes de forma
+     * lógica (así que la cascada de la clave foránea nunca salta), por eso el rol
+     * también se borra de forma lógica: cuando se borra el cliente o cuando un
+     * administrador quita el rol. A la vez se desactivan sus códigos y se borran sus
+     * promociones; la fila solo se conserva para que las recompensas pasadas tengan dueño.
      */
     @Column({ type: 'timestamp', nullable: true })
     deletedAt: Date | null;

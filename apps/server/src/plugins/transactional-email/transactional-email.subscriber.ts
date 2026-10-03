@@ -26,14 +26,13 @@ function formatMoney(cents: number, currencyCode: string): string {
 }
 
 /**
- * Wires Vendure's own domain events straight to EmailService — this is the
- * only place in the plugin that knows which event maps to which email.
- * Every handler is wrapped so nothing it does can throw back into the
- * EventBus: by the time these fire the triggering transaction has already
- * committed (`eventBus.ofType()` only delivers post-commit), so a failure
- * here can never fail an order, a registration, or a password-reset request
- * — it can only fail to *notify* about one, which is why every path is
- * logged.
+ * Conecta los eventos de Vendure directamente con EmailService: es el único sitio del
+ * plugin que sabe qué evento corresponde a qué email. Cada handler está protegido
+ * para que nada de lo que haga pueda lanzar errores al EventBus: cuando se ejecutan,
+ * la transacción que los provocó ya está confirmada (`eventBus.ofType()` solo entrega
+ * después del commit), así que un fallo aquí nunca puede hacer fallar un pedido, un
+ * registro o una petición de restablecimiento; solo puede fallar el *aviso*, y por
+ * eso todo camino queda en el log.
  */
 @Injectable()
 export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
@@ -77,7 +76,7 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
             data: {
                 customerName: customer?.firstName || identifier,
                 verificationUrl: `${config.storefrontUrl}/verify?token=${encodeURIComponent(verificationToken)}`,
-                // Accounts created without a password choose it from this same link.
+                // Las cuentas creadas sin contraseña la eligen desde este mismo enlace.
                 needsPassword: !(await userHasPassword(this.connection, event.ctx, event.user.id)),
             },
         };
@@ -142,6 +141,10 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
         if (!event.invoice.customerSnapshot.emailAddress) {
             return;
         }
+        if (event.invoice.type === 'RECTIFYING') {
+            await this.sendCreditNoteEmail(event);
+            return;
+        }
         await this.sendInvoiceEmail(
             event.ctx,
             event.invoice,
@@ -153,14 +156,34 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
     }
 
     /**
-     * Same email as onInvoiceGenerated(), just to whatever address the admin
-     * typed in — see InvoiceResendRequestedEvent. Uses the distinct
-     * 'invoice-resend' type and skips the order-scoped dedup entirely: this
-     * is a deliberate, repeatable admin action (could be resent to several
-     * different addresses), not a retry of the original automatic send.
+     * El mismo email que onInvoiceGenerated(), pero a la dirección que escribió el
+     * administrador; ver InvoiceResendRequestedEvent. Usa el tipo propio
+     * 'invoice-resend' y se salta por completo la deduplicación por pedido: es una
+     * acción deliberada y repetible (puede reenviarse a varias direcciones), no un
+     * reintento del envío automático original.
      */
     private async onInvoiceResendRequested(event: InvoiceResendRequestedEvent): Promise<void> {
         await this.sendInvoiceEmail(event.ctx, event.invoice, event.lines, event.pdfPath, event.toEmail, 'invoice-resend');
+    }
+
+    private async sendCreditNoteEmail(event: InvoiceGeneratedEvent): Promise<void> {
+        const { invoice, lines } = event;
+        const invoiceNumber = `${invoice.series}-${String(invoice.number).padStart(6, '0')}`;
+        const pdfBuffer = await fs.readFile(event.pdfPath);
+        const order: OrderSummaryData = {
+            code: invoice.orderCode,
+            customerName: `${invoice.customerSnapshot.firstName} ${invoice.customerSnapshot.lastName}`.trim() || invoice.customerSnapshot.emailAddress,
+            lines: lines.map(l => ({ name: l.productName, quantity: l.quantity, linePrice: formatMoney(l.lineTotal, invoice.currencyCode) })),
+            // Se muestra como importe reembolsado, en positivo, como lo entiende el cliente.
+            total: formatMoney(Math.abs(invoice.total), invoice.currencyCode),
+            currencyCode: invoice.currencyCode,
+        };
+        await this.emailService.sendTemplate(event.ctx, {
+            type: 'credit-note-available',
+            to: invoice.customerSnapshot.emailAddress,
+            data: { order, invoiceNumber, rectifiedInvoiceNumber: invoice.rectifiedInvoiceNumber ?? '' },
+            attachments: [{ filename: `Factura-rectificativa-${invoiceNumber}.pdf`, content: pdfBuffer, contentType: 'application/pdf' }],
+        });
     }
 
     private async sendInvoiceEmail(

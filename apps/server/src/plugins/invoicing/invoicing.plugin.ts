@@ -15,33 +15,35 @@ import { InvoiceSequence } from './invoice-sequence.entity';
 import type { InvoicingPluginOptions } from './types';
 
 /**
- * Invoice generation: when an Order's payment is settled, generates a
- * sequentially-numbered invoice (with frozen customer/billing/line-item
- * snapshots) and a PDF, downloadable from the admin API. Entirely
- * self-contained — no core Vendure behaviour is modified, and it doesn't
- * touch the Redsys or Loyalty plugins.
+ * Facturación: cuando se cobra un pedido, genera una factura con numeración
+ * correlativa (con copias congeladas del cliente, la dirección de facturación y las
+ * líneas) y un PDF descargable. Cuando se liquida un reembolso, emite una factura
+ * rectificativa (serie R, importes negativos, por diferencias). Totalmente
+ * independiente: no modifica nada del núcleo de Vendure ni toca los plugins de
+ * Redsys o fidelización.
  *
- * ## Fiscal scope — read before relying on this for real invoicing
+ * ## Alcance fiscal: léelo antes de facturar de verdad
  *
- * This plugin deliberately does NOT implement (left for a later, fiscally
- * reviewed phase):
- * - Veri*Factu / any electronic-invoice submission to tax authorities
- * - Rectifying/credit invoices (facturas rectificativas) for refunds —
- *   a refund today does not adjust or void the original invoice
- * - Multiple concurrent series (e.g. per-channel or per-year numbering) —
- *   the schema supports it (a `series` column + a per-series counter), but
- *   only one series ("A") is ever used right now
- * - A customer tax ID (NIF/CIF) field — Vendure's Customer/Address don't
- *   currently have one in this project, so invoices are issued without it
- * - Annual numbering resets, invoice cancellation/void handling, and any
- *   other Spain-specific invoicing requirement not listed above
+ * Implementado:
+ * - Facturas ordinarias (serie A) y rectificativas (serie R) con numeración
+ *   correlativa sin huecos.
+ * - Punto de enganche para Veri*Factu (`fiscalRegistration`, ver
+ *   FiscalRegistrationProvider en types.ts): la factura guarda la respuesta del
+ *   proveedor y el PDF imprime su QR y leyenda.
  *
- * **Whoever enables this for real sales must have a tax advisor confirm**:
- * whether continuous (non-annual) numbering is acceptable, whether a
- * customer tax ID is legally required for these invoice types, and the
- * requirements above before they're built.
+ * A propósito NO implementado (pendiente de una fase revisada por la gestoría):
+ * - El envío real a la AEAT (Veri*Factu): falta elegir proveedor homologado y
+ *   escribir el adaptador.
+ * - El NIF del cliente: el Customer/Address de Vendure no lo tienen en este
+ *   proyecto, así que las facturas se emiten sin él.
+ * - Numeración por año, anulación de facturas y cualquier otro requisito español
+ *   no listado arriba.
  *
- * ## Setup
+ * **Quien active esto para ventas reales debe confirmar con la gestoría**: si la
+ * numeración continua (no anual) es válida, si hace falta el NIF del cliente en
+ * estas facturas y los requisitos de arriba antes de desarrollarlos.
+ *
+ * ## Configuración
  * ```ts
  * InvoicingPlugin.init({
  *   storeName: process.env.INVOICE_STORE_NAME,
@@ -51,9 +53,9 @@ import type { InvoicingPluginOptions } from './types';
  *   storePhone: process.env.INVOICE_STORE_PHONE,
  * })
  * ```
- * PDF download: `GET /invoices/:id/pdf` (admin session, or a signed-in
- * customer who owns the order). The Shop API's `myInvoices` query lists the
- * signed-in customer's own invoices to link to that route from.
+ * Descarga del PDF: `GET /invoices/:id/pdf` (sesión de administrador, o el cliente
+ * dueño del pedido con la sesión iniciada). La consulta `myInvoices` de la Shop API
+ * lista las facturas del cliente para enlazar a esa ruta.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

@@ -4,7 +4,7 @@ export interface EmailAttachment {
     contentType?: string;
 }
 
-/** A fully-rendered, provider-agnostic email ready to hand to an EmailProvider. */
+/** Un email ya generado, independiente del proveedor, listo para entregar a un EmailProvider. */
 export interface EmailMessage {
     to: string;
     subject: string;
@@ -20,10 +20,10 @@ export interface EmailSendResult {
 }
 
 /**
- * The seam between EmailService and a concrete delivery mechanism. Swapping
- * providers (dev / smtp / a future API-based one) means adding a class that
- * implements this interface and selecting it in email-config.ts — no change
- * to EmailService or any of the call sites that trigger emails.
+ * La frontera entre EmailService y un mecanismo de envío concreto. Cambiar de
+ * proveedor (dev / smtp / uno futuro por API) consiste en añadir una clase que
+ * implemente esta interfaz y elegirla en email-config.ts, sin tocar EmailService ni
+ * ningún sitio que dispare emails.
  */
 export interface EmailProvider {
     send(message: EmailMessage): Promise<EmailSendResult>;
@@ -63,30 +63,38 @@ export interface OrderSummaryData {
 }
 
 /**
- * One entry per email in EMAIL_TYPES (constants.ts). The discriminated union
- * keeps each template's required data typed at the call site, instead of a
- * loosely-typed data bag every template has to defensively destructure.
+ * Una entrada por email de EMAIL_TYPES (constants.ts). La unión discriminada mantiene
+ * tipados en cada llamada los datos que necesita cada plantilla, en vez de una bolsa
+ * de datos sin tipo que cada plantilla tendría que desestructurar con cuidado.
  */
 export type EmailJob =
     | { type: 'registration-confirmation'; to: string; data: { customerName: string } }
     | {
           type: 'email-verification';
           to: string;
-          /** needsPassword: the account was created without a password (e.g. by an admin) and the link is also where it's chosen. */
+          /** needsPassword: la cuenta se creó sin contraseña (p. ej. por un administrador) y el enlace sirve también para elegirla. */
           data: { customerName: string; verificationUrl: string; needsPassword?: boolean };
       }
     | { type: 'order-received'; to: string; orderId: string; data: { order: OrderSummaryData } }
     | { type: 'payment-confirmed'; to: string; orderId: string; data: { order: OrderSummaryData } }
     | { type: 'order-cancelled'; to: string; orderId: string; data: { order: OrderSummaryData } }
     | { type: 'invoice-available'; to: string; orderId: string; data: { order: OrderSummaryData; invoiceNumber: string }; attachments?: EmailAttachment[] }
-    // Deliberately a distinct type from 'invoice-available', not a resend flag on it — sendTemplate()
-    // dedupes order-scoped emails by (type, orderId), and a resend (e.g. to a different address the
-    // customer asked for) must never be silently skipped as "already sent".
+    // A propósito es un tipo distinto de 'invoice-available' y no una marca de reenvío: sendTemplate()
+    // deduplica los emails de pedido por (tipo, orderId), y un reenvío (p. ej. a otra dirección que pidió
+    // el cliente) nunca debe descartarse en silencio como «ya enviado».
     | { type: 'invoice-resend'; to: string; orderId: string; data: { order: OrderSummaryData; invoiceNumber: string }; attachments?: EmailAttachment[] }
+    // Sin orderId a propósito: un pedido puede tener varias rectificativas (una por reembolso parcial) y los
+    // emails de pedido se deduplican por (tipo, orderId). La factura en sí se crea una vez por reembolso.
+    | {
+          type: 'credit-note-available';
+          to: string;
+          data: { order: OrderSummaryData; invoiceNumber: string; rectifiedInvoiceNumber: string };
+          attachments?: EmailAttachment[];
+      }
     | {
           type: 'password-reset';
           to: string;
-          /** isSetup: the account has no password yet (e.g. verified by an admin), so the email asks to *create* one. */
+          /** isSetup: la cuenta aún no tiene contraseña (p. ej. la verificó un administrador), así que el email pide *crearla*. */
           data: { customerName: string; resetUrl: string; isSetup?: boolean };
       };
 

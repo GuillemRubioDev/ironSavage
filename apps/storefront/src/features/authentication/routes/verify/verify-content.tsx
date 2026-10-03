@@ -19,8 +19,8 @@ export function VerifyContent({searchParams}: VerifyContentProps) {
     const t = useTranslations('Verify');
     const params = use(searchParams);
     const token = params.token;
-    // Verification tokens are single-use. Cache each request so effect replay
-    // or returning to a previously seen token cannot submit it twice.
+    // Los tokens de verificación son de un solo uso. Se guarda cada petición para que
+    // repetir el efecto o volver a un token ya visto no lo envíe dos veces.
     const requests = useRef(new Map<string, Promise<VerifyResultValue>>());
     const [settled, setSettled] = useState<{token: string; result: VerifyResultValue}>();
 
@@ -29,8 +29,8 @@ export function VerifyContent({searchParams}: VerifyContentProps) {
 
         let request = requests.current.get(token);
         if (!request) {
-            // The action reports its own failures; this rejects only when the
-            // request itself fails to complete.
+            // La acción informa de sus propios fallos; esto solo rechaza cuando la
+            // petición en sí no llega a completarse.
             request = verifyAccountAction(token).catch(
                 (): VerifyResultValue => ({error: ''}),
             );

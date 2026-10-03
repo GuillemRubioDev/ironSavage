@@ -1,80 +1,89 @@
 <p align="center">
   <a href="https://vendure.io">
-    <img alt="Vendure logo" height="60" width="auto" src="https://a.storyblok.com/f/328257/699x480/8dbb4c7a3c/logo-icon.png/m/0x80">
+    <img alt="Logo de Vendure" height="60" width="auto" src="https://a.storyblok.com/f/328257/699x480/8dbb4c7a3c/logo-icon.png/m/0x80">
   </a>
 </p>
 <h1 align="center">
-  Vendure Next.js Storefront Starter
+  Storefront de Iron Savage
 </h1>
 <h3 align="center">
-  A Next.js 16 storefront starter for Vendure headless commerce
+  Tienda en Next.js 16 sobre Vendure, basada en el Vendure Next.js Storefront Starter
 </h3>
 <p align="center">
-  A source-owned, customizable storefront with a managed path for adopting upstream releases.
+  Código propio y personalizable, con un camino controlado para incorporar las nuevas versiones de la plantilla.
 </p>
 <h4 align="center">
-  <a href="https://next.vendure.io">Demo</a> |
-  <a href="https://docs.vendure.io">Documentation</a> |
-  <a href="https://vendure.io">Website</a>
+  <a href="https://next.vendure.io">Demo de la plantilla</a> |
+  <a href="https://docs.vendure.io">Documentación de Vendure</a> |
+  <a href="https://vendure.io">Web de Vendure</a>
 </h4>
 
-## Features
+## Funcionalidades
 
-**Authentication & Accounts**
+**Autenticación y cuentas**
 
-- Customer registration with email verification
-- Login/logout with session management
-- Password reset & change password
-- Email address updates with verification
+- Registro de clientes con verificación por email y aceptación de los términos
+- Inicio y cierre de sesión
+- Recuperación y cambio de contraseña
+- Cambio de email con verificación
 
-**Customer Account**
+**Cuenta de cliente**
 
-- Profile management (name, email, password)
-- Address management (create, update, delete, set default)
-- Order history with pagination & detailed order views
+- Gestión del perfil (nombre, email, contraseña)
+- Gestión de direcciones (crear, editar, borrar, predeterminada)
+- Historial de pedidos con paginación y detalle
+- Facturas, puntos de fidelización y panel de atleta
 
-**Product Browsing**
+**Catálogo**
 
-- Collections & featured products
-- Product detail pages with variants & galleries
-- Full-text search with faceted filtering
-- Pagination & sorting
+- Colecciones y productos destacados
+- Fichas de producto con variantes, galería e información alimentaria
+- Búsqueda de texto con filtros por facetas
+- Paginación y ordenación
 
-**Shopping Cart**
+**Carrito**
 
-- Add/remove items, adjust quantities
-- Promotion code support
-- Real-time cart updates with totals
+- Añadir y quitar productos, cambiar cantidades
+- Códigos promocionales (incluidos los de atleta)
+- Totales actualizados al momento
 
 **Checkout**
 
-- Multi-step flow: shipping address, delivery method, payment, review
-- Saved address selection
-- Shipping method selection
-- Payment integration
+- Proceso por pasos: dirección de envío, método de envío, pago y revisión
+- Selección de direcciones guardadas
+- Pago con tarjeta mediante Redsys
+- Aceptación de los términos registrada en el pedido
 
-**Order Management**
+**Pedidos**
 
-- Order confirmation page
-- Order tracking with status
-- Detailed order information
+- Página de confirmación
+- Seguimiento del estado
+- Detalle del pedido
 
-**Internationalization**
+**Idiomas**
 
-- Multi-language support via next-intl (English & German out of the box)
-- Multi-currency support with persistent currency selection
-- Locale-aware price formatting
+- Español (por defecto) e inglés con next-intl
+- Varias monedas con selección persistente
+- Precios con el formato de cada idioma
 
-**Built to Customize and Upgrade**
+**Legal, accesibilidad y analítica**
 
-- Developer-owned source with no locked or generated application layer
-- Feature-oriented modules with enforced dependency boundaries
-- Colocated GraphQL operations and translations
-- Structured release manifests for reconciling upstream changes with local customizations
+- Páginas legales (aviso legal, términos, privacidad, cookies, envíos y devoluciones, IA, accesibilidad)
+- Banner y preferencias de cookies; Google Analytics 4 solo con consentimiento
+- Objetivo WCAG 2.1 AA
 
-## Getting Started
+**Pensado para personalizar y actualizar**
 
-You need a running Vendure server with its Shop API available. Copy the example environment, point `VENDURE_SHOP_API_URL` at that API, install dependencies, and start the storefront:
+- Código propio, sin capas bloqueadas ni generadas
+- Módulos por funcionalidad con fronteras de dependencias comprobadas
+- Operaciones GraphQL y traducciones junto a su funcionalidad
+- Manifiestos de versión para conciliar los cambios de la plantilla con las personalizaciones
+
+## Puesta en marcha
+
+En este monorepo, lo normal es arrancar todo desde la raíz con `npm run dev` (servidor Vendure, dashboard y
+storefront). Para arrancar solo el storefront hace falta un servidor Vendure con la Shop API disponible: copia el
+entorno de ejemplo, apunta `VENDURE_SHOP_API_URL` a esa API, instala dependencias y arranca:
 
 ```bash
 cp .env.example .env.local
@@ -82,33 +91,37 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
+Abre [http://localhost:3001](http://localhost:3001) en el navegador.
 
-The environment template also documents optional channel, metadata, authentication header, and cache revalidation settings.
+La plantilla de entorno documenta también los ajustes opcionales de canal, metadatos, cabecera de autenticación y
+revalidación de caché.
 
-## Architecture
+## Arquitectura
 
-Every human-authored storefront file is yours to change. The source is organized to keep those changes local and make future upgrades easier to reconcile:
+Todo archivo del storefront escrito por personas se puede cambiar. El código está organizado para que esos cambios
+queden localizados y las actualizaciones futuras sean fáciles de conciliar:
 
 ```text
 src/
-  app/          Next.js route wiring only
-  config/       Store-wide configuration
-  features/     Vertical commerce capabilities
-  platform/     Next.js, i18n, revalidation, and Vendure integrations
-  site/         Store-specific composition, navigation, and branding
-  components/ui Generic design primitives
+  app/          Solo el cableado de rutas de Next.js
+  config/       Configuración de toda la tienda (empresa, versión legal, metadatos)
+  features/     Funcionalidades de comercio verticales
+  platform/     Integraciones con Next.js, i18n, revalidación, analítica y Vendure
+  site/         Composición propia de la tienda, navegación, páginas legales y marca
+  components/ui Componentes de diseño genéricos
 ```
 
-Keep `src/app` files thin and put substantial behavior in the module that owns it. A feature exposes other modules through top-level files; its `components/` and `routes/` directories are private implementation details.
+Los archivos de `src/app` deben ser mínimos; la lógica va en el módulo al que pertenece. Una feature se expone a otros
+módulos mediante sus archivos de primer nivel; sus carpetas `components/` y `routes/` son internas.
 
-Read the [architecture guide](./docs/architecture.md) before adding a capability.
+Lee la [guía de arquitectura](./docs/architecture.md) antes de añadir una funcionalidad.
 
-## Upgrading
+## Actualizaciones de la plantilla
 
-Tagged releases include structured integration intent so a human or coding agent can adopt upstream changes without silently overwriting storefront customizations.
+Las versiones etiquetadas de la plantilla incluyen indicaciones estructuradas para que una persona o un agente pueda
+incorporar los cambios sin sobrescribir sin querer las personalizaciones de la tienda.
 
-After creating a storefront from an immutable release tag, record its exact upstream provenance once:
+Tras crear el storefront desde una etiqueta de versión, registra una vez su procedencia exacta:
 
 ```bash
 npm run upgrade:init
@@ -116,19 +129,22 @@ git add .vendure/storefront.json
 git commit -m "chore: initialize storefront provenance"
 ```
 
-To prepare a later upgrade on a clean, dedicated branch:
+Para preparar una actualización posterior, en una rama limpia y dedicada:
 
 ```bash
 npm run upgrade:prepare -- 1.1.0
 ```
 
-The command creates a gitignored integration workspace containing the old and new upstream snapshots, release guidance, and a report template. Reconcile the changes, then follow the generated brief to verify and finalize the upgrade.
+El comando crea un espacio de trabajo (ignorado por git) con las instantáneas antigua y nueva de la plantilla, las
+indicaciones de la versión y una plantilla de informe. Concilia los cambios y sigue las instrucciones generadas para
+verificar y cerrar la actualización.
 
-See the [upgrade guide](./docs/upgrades.md) for the complete managed upgrade, legacy onboarding, and release-authoring workflows.
+La [guía de actualizaciones](./docs/upgrades.md) describe el flujo completo, la incorporación de proyectos antiguos y la
+publicación de versiones.
 
-## Development
+## Desarrollo
 
-Run the same checks used by CI before submitting a change:
+Antes de enviar un cambio, ejecuta las mismas comprobaciones que la CI:
 
 ```bash
 npm run upgrade:validate
@@ -138,4 +154,5 @@ npm run check-types
 npm run build
 ```
 
-Downstream-impacting pull requests require an upgrade note or an explicit exemption. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the contribution workflow.
+Los pull requests que afectan al código propio necesitan una nota de actualización o una exención explícita. Ver
+[CONTRIBUTING.md](./CONTRIBUTING.md).

@@ -1,18 +1,18 @@
 import crypto from 'node:crypto';
 
 /**
- * Redsys' signature scheme (HMAC_SHA256_V1), used by the "Conexión por Redirección"
- * integration:
+ * Esquema de firma de Redsys (HMAC_SHA256_V1) que usa la integración «Conexión por
+ * Redirección»:
  *
- * 1. Derive an operation-specific key by encrypting Ds_Merchant_Order with 3DES
- *    (des-ede3-cbc, zero IV) using the merchant secret key.
- * 2. Compute HMAC-SHA256 of the base64 Ds_MerchantParameters string using that
- *    derived key.
+ * 1. Derivar una clave propia de la operación cifrando Ds_Merchant_Order con 3DES
+ *    (des-ede3-cbc, IV a cero) con la clave secreta del comercio.
+ * 2. Calcular el HMAC-SHA256 del texto base64 Ds_MerchantParameters con esa clave
+ *    derivada.
  *
- * This is re-implemented directly against Node's `crypto` module (rather than
- * pulling in a dependency) so the one security-critical piece of this plugin is
- * fully auditable in one small file. The algorithm was cross-checked against the
- * actively maintained `redsys-easy` reference implementation.
+ * Está implementado directamente con el módulo `crypto` de Node (en vez de añadir
+ * una dependencia) para que la única pieza crítica de seguridad de este plugin se
+ * pueda auditar entera en un archivo pequeño. El algoritmo se contrastó con la
+ * implementación de referencia `redsys-easy`, mantenida activamente.
  */
 
 function zeroPad(buf: Buffer, blockSize: number): Buffer {
@@ -20,7 +20,7 @@ function zeroPad(buf: Buffer, blockSize: number): Buffer {
     return Buffer.concat([buf, Buffer.alloc(padLength, 0)]);
 }
 
-/** Derives the per-operation 3DES key by encrypting `order` with the merchant secret key. */
+/** Deriva la clave 3DES de la operación cifrando `order` con la clave secreta del comercio. */
 function deriveOperationKey(secretKeyBase64: string, order: string): Buffer {
     const keyBuf = Buffer.from(secretKeyBase64, 'base64');
     const iv = Buffer.alloc(8, 0);
@@ -31,15 +31,15 @@ function deriveOperationKey(secretKeyBase64: string, order: string): Buffer {
     cipher.setAutoPadding(false);
     const encrypted = Buffer.concat([cipher.update(paddedMessageBuf), cipher.final()]);
 
-    // Redsys' own reference implementations truncate the encrypted output back
-    // down to the (unpadded) message length rounded up to the block size.
+    // Las implementaciones de referencia de Redsys recortan el resultado cifrado a la
+    // longitud del mensaje (sin relleno) redondeada al tamaño de bloque.
     const maxLength = Math.ceil(messageBuf.length / 8) * 8;
     return encrypted.subarray(0, maxLength);
 }
 
 /**
- * Base64-encodes the Ds_Merchant_* parameters object into the Ds_MerchantParameters string.
- * Undefined values (unset optional fields) are omitted rather than serialized as null.
+ * Codifica en base64 el objeto de parámetros Ds_Merchant_* para obtener Ds_MerchantParameters.
+ * Los valores undefined (campos opcionales sin definir) se omiten en vez de enviarse como null.
  */
 export function encodeMerchantParameters(params: Record<string, string | undefined>): string {
     const defined = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined));
@@ -47,8 +47,8 @@ export function encodeMerchantParameters(params: Record<string, string | undefin
 }
 
 /**
- * Decodes a Ds_MerchantParameters string back into its parameters object.
- * Throws if the value isn't valid base64-encoded JSON.
+ * Decodifica un texto Ds_MerchantParameters a su objeto de parámetros.
+ * Lanza un error si no es un JSON válido codificado en base64.
  */
 export function decodeMerchantParameters(merchantParameters: string): Record<string, string> {
     const json = Buffer.from(merchantParameters, 'base64').toString('utf8');
@@ -60,8 +60,8 @@ export function decodeMerchantParameters(merchantParameters: string): Record<str
 }
 
 /**
- * Signs a base64-encoded Ds_MerchantParameters string for a given order, returning
- * the base64 Ds_Signature to send to Redsys.
+ * Firma un Ds_MerchantParameters en base64 para un pedido y devuelve el
+ * Ds_Signature en base64 que se envía a Redsys.
  */
 export function signMerchantParameters(secretKeyBase64: string, order: string, merchantParameters: string): string {
     const operationKey = deriveOperationKey(secretKeyBase64, order);
@@ -69,14 +69,14 @@ export function signMerchantParameters(secretKeyBase64: string, order: string, m
 }
 
 /**
- * Verifies a Ds_Signature received from Redsys (in a notification, or on the
- * UrlOK/UrlKO redirect) against the accompanying Ds_MerchantParameters.
+ * Verifica un Ds_Signature recibido de Redsys (en una notificación o en la
+ * redirección UrlOK/UrlKO) contra el Ds_MerchantParameters que lo acompaña.
  *
- * Comparison is done on the decoded signature bytes (not the base64 text) because
- * Redsys' outbound signatures use a URL-safe base64 alphabet while ours are
- * computed as standard base64 — Node's base64 decoder accepts both alphabets
- * interchangeably, so decoding both sides before comparing avoids a false mismatch.
- * The comparison itself is constant-time to avoid leaking timing information.
+ * Se comparan los bytes decodificados de la firma (no el texto base64) porque las
+ * firmas de Redsys usan el alfabeto base64 seguro para URL y las nuestras el
+ * estándar; el decodificador base64 de Node acepta ambos, así que decodificar los
+ * dos lados antes de comparar evita falsos desajustes. La comparación es de tiempo
+ * constante para no filtrar información por tiempos de respuesta.
  */
 export function verifyMerchantParametersSignature(
     secretKeyBase64: string,

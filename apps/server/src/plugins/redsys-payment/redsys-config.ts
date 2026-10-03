@@ -11,7 +11,7 @@ function requireEnv(name: string): string {
 
 let cached: RedsysConfig | undefined;
 
-/** Reads and validates the Redsys env vars. Secrets never leave process.env. */
+/** Lee y valida las variables de entorno de Redsys. Los secretos nunca salen de process.env. */
 export function getRedsysConfig(): RedsysConfig {
     if (cached) return cached;
 

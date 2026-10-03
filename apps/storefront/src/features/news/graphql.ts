@@ -1,8 +1,8 @@
 import {graphql} from '@/platform/vendure/graphql';
 
-// gql.tada's local schema snapshot predates these bilingual fields (same
-// stale-CLI issue as the Banners plugin) — used to type-cast query results
-// rather than chase the non-responsive `gql.tada generate-output` CLI.
+// La copia local del esquema de gql.tada es anterior a estos campos bilingües (el
+// mismo problema de CLI desfasada que con los banners): se usan para forzar el tipo
+// de los resultados en vez de pelearse con `gql.tada generate-output`, que no responde.
 export interface ArticleListItem {
     id: string;
     titleEs: string;

@@ -1,13 +1,13 @@
-# Agent guidance
+# Indicaciones para agentes
 
-- Use conventional commit messages.
-- Treat all human-authored storefront source as developer-owned and customizable.
-- Preserve downstream intent during upgrades unless it violates an explicit upstream invariant; surface irreconcilable tradeoffs.
-- Keep Next.js files under `src/app/` thin and place substantial behavior in the owning feature.
-- Import another feature through its top-level modules, never through its `components/` or `routes/` internals.
-- Colocate GraphQL operations and translations with their owning feature.
-- Add or explicitly exempt an upgrade note for every downstream-impacting pull request.
-- Run `npm run upgrade:validate`, tests, lint, type checks, and the production build before declaring work complete.
+- Usa mensajes de commit convencionales (conventional commits).
+- Todo el código del storefront escrito por personas es propiedad del equipo y se puede personalizar.
+- En las actualizaciones de la plantilla, conserva la intención del código propio salvo que rompa una regla explícita de la plantilla; si hay conflictos irresolubles, avísalos.
+- Los archivos de Next.js en `src/app/` deben ser mínimos; la lógica va en la feature a la que pertenece.
+- Importa otra feature por sus módulos de primer nivel, nunca por sus carpetas internas `components/` o `routes/`.
+- Las operaciones GraphQL y las traducciones van junto a la feature que las usa.
+- Añade una nota de actualización (o una exención explícita) en cada pull request que afecte al código propio.
+- Antes de dar un trabajo por terminado, ejecuta `npm run upgrade:validate`, los tests, el lint, la comprobación de tipos y el build de producción.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

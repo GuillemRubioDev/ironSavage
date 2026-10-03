@@ -13,9 +13,9 @@ import { loggerCtx } from './constants';
 import { LoyaltyService } from './loyalty.service';
 
 /**
- * Wires the ledger to Vendure's own order/refund lifecycle. Kept separate
- * from LoyaltyService so the service itself stays a plain, directly
- * testable set of methods with no event-bus machinery in the way.
+ * Conecta el libro de movimientos con el ciclo de vida de pedidos y reembolsos de
+ * Vendure. Separado de LoyaltyService para que el servicio sea un conjunto de
+ * métodos simple y fácil de testear, sin la maquinaria del bus de eventos.
  */
 @Injectable()
 export class LoyaltyEventSubscriber implements OnApplicationBootstrap {
@@ -26,9 +26,9 @@ export class LoyaltyEventSubscriber implements OnApplicationBootstrap {
     ) {}
 
     onApplicationBootstrap(): void {
-        // Points are only ever granted on confirmed, settled payment — never on
-        // an intermediate state like ArrangingPayment — so PaymentSettled is the
-        // one transition this subscribes to for EARN.
+        // Los puntos solo se dan con el pago confirmado y cobrado, nunca en un estado
+        // intermedio como ArrangingPayment: PaymentSettled es la única transición que
+        // se escucha para EARN.
         this.eventBus.ofType(OrderStateTransitionEvent).subscribe(event => {
             if (event.toState === 'PaymentSettled') {
                 this.loyaltyService.earnForOrder(event.ctx, event.order).catch(err => {

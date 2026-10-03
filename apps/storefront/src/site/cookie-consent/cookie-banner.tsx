@@ -15,15 +15,15 @@ export function CookieBanner() {
             role="dialog"
             aria-modal="false"
             aria-label={t("title")}
-            className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-card/95 backdrop-blur-md shadow-[0_-4px_24px_rgba(0,0,0,0.15)]"
+            className="fixed inset-x-0 bottom-0 z-[60] print:hidden border-t border-border bg-card/95 backdrop-blur-md shadow-[0_-4px_24px_rgba(0,0,0,0.15)]"
         >
             <div className="container mx-auto flex flex-col gap-4 px-4 py-5 md:flex-row md:items-center md:justify-between">
                 <div className="max-w-2xl">
                     <p className="font-display font-semibold uppercase tracking-tight text-sm">{t("title")}</p>
                     <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{t("description")}</p>
                 </div>
-                {/* Accept/reject carry equal visual weight on purpose — neither
-                    is de-emphasized relative to the other. */}
+                {/* Aceptar y rechazar tienen el mismo peso visual a propósito: ninguno
+                    se destaca menos que el otro. */}
                 <div className="flex flex-col gap-2 sm:flex-row shrink-0">
                     <Button variant="outline" size="default" onClick={openPreferences}>
                         {t("customize")}

@@ -1,6 +1,7 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
+import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
 import {useSearchParams} from 'next/navigation';
 import {usePathname, useRouter} from '@/platform/i18n/navigation';
 import {ProductImageCarousel} from '@/features/products/components/product-image-carousel';
@@ -18,6 +19,7 @@ interface ProductVariant {
     sku: string;
     priceWithTax: number;
     stockLevel: string;
+    customFields?: {netQuantity?: string | null} | null;
     featuredAsset?: Asset | null;
     options: Array<{
         id: string;
@@ -59,7 +61,7 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
     const router = useRouter();
     const currentSearchParams = useSearchParams();
 
-    // Initialize selected options from URL
+    // Inicializa las opciones seleccionadas desde la URL
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
         const initialOptions: Record<string, string> = {};
 
@@ -76,7 +78,7 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
         return initialOptions;
     });
 
-    // Find the matching variant based on selected options
+    // Busca la variante que corresponde a las opciones seleccionadas
     const selectedVariant = useMemo(() => {
         if (product.variants.length === 1) {
             return product.variants[0];
@@ -92,6 +94,19 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
             return selectedOptionIds.every((optId) => variantOptionIds.includes(optId));
         });
     }, [selectedOptions, product.variants, product.optionGroups]);
+
+    // view_item de GA4: una vez por producto, y otra si se elige otra variante.
+    const viewedVariantId = selectedVariant?.id;
+    useEffect(() => {
+        const variant = product.variants.find((v) => v.id === viewedVariantId) ?? product.variants[0];
+        if (!variant) return;
+        const price = toMajorUnits(variant.priceWithTax);
+        trackEvent('view_item', {
+            currency: currencyCode,
+            value: price,
+            items: [{item_id: variant.sku || variant.id, item_name: product.name, item_variant: variant.name, price, quantity: 1}],
+        });
+    }, [viewedVariantId, product.id, product.name, product.variants, currencyCode]);
 
     const handleOptionChange = (groupId: string, optionId: string) => {
         setSelectedOptions((prev) => ({
@@ -109,8 +124,8 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
         }
     };
 
-    // Show the selected variant's own photo first, falling back to the product's
-    // general gallery when the variant has none of its own.
+    // Muestra primero la foto propia de la variante seleccionada; si no tiene, la
+    // galería general del producto.
     const images = useMemo(() => {
         const variantAsset = selectedVariant?.featuredAsset;
         if (variantAsset) {
@@ -123,7 +138,7 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-8 lg:gap-16">
             <div className="lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)] lg:self-start">
-                <ProductImageCarousel key={selectedVariant?.id ?? 'default'} images={images} />
+                <ProductImageCarousel key={selectedVariant?.id ?? 'default'} images={images} productName={product.name} />
             </div>
             <div>
                 <ProductInfo

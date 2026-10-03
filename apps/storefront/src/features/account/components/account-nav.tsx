@@ -12,8 +12,8 @@ const navItems = [
 const athleteItem = {href: '/mi-cuenta/atleta', labelKey: 'athlete', icon: 'Trophy'};
 
 /**
- * Reads the session (to show the athlete section only to athletes), so it
- * must render inside a <Suspense> boundary to keep the layout prerenderable.
+ * Lee la sesión (para mostrar la sección de atleta solo a los atletas), así que debe
+ * renderizarse dentro de un <Suspense> para que el layout se pueda prerenderizar.
  */
 export async function AccountNav({layout}: {layout: 'horizontal' | 'vertical'}) {
     const athleteProfile = await getMyAthleteProfile();

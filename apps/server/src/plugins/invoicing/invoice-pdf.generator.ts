@@ -4,8 +4,8 @@ import { Invoice } from './invoice.entity';
 import { InvoiceLine } from './invoice-line.entity';
 import { InvoicingConfig } from './types';
 
-// Approximates the storefront's --primary brand red (oklch(0.577 0.245
-// 27.325), converted to sRGB) — PDFKit only takes RGB/hex, not oklch.
+// Aproxima el rojo de marca --primary del storefront (oklch(0.577 0.245 27.325)
+// pasado a sRGB): PDFKit solo admite RGB/hex, no oklch.
 const BRAND_RED = '#E7000B';
 const BRAND_RED_SOFT = '#FBE4E1';
 const INK = '#1C1A18';
@@ -14,7 +14,7 @@ const LINE_GRAY = '#DDD9D2';
 
 interface RenderOptions {
     logoBuffer?: Buffer;
-    /** Keyed by InvoiceLine.id (as a string). Missing/unreadable entries just render without a thumbnail. */
+    /** Por InvoiceLine.id (como texto). Las que falten o no se puedan leer salen sin miniatura. */
     lineImages?: Map<string, Buffer>;
 }
 
@@ -27,10 +27,10 @@ function formatDate(date: Date): string {
 }
 
 /**
- * Renders a single-page-per-invoice PDF directly with pdfkit (no
- * HTML-to-PDF step, no headless browser): a branded header (logo + accent
- * color, matching the storefront), a bill-to block, a line-items table with
- * a small product thumbnail per row where available, and a totals block.
+ * Genera el PDF de una página por factura directamente con pdfkit (sin pasar por
+ * HTML ni navegador): cabecera con la marca (logo y color de acento, como en el
+ * storefront), bloque «facturar a», tabla de líneas con miniatura del producto si
+ * la hay, desglose de IVA, totales y notas legales.
  */
 export function generateInvoicePdfBuffer(
     invoice: Invoice,
@@ -48,13 +48,13 @@ export function generateInvoicePdfBuffer(
         const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
         const left = doc.page.margins.left;
 
-        // --- Header: logo + store details (left), FACTURA + meta (right) ---
+        // --- Cabecera: logo + datos de la tienda (izquierda), FACTURA + datos (derecha) ---
         const headerTop = doc.y;
         if (options.logoBuffer) {
             try {
                 doc.image(options.logoBuffer, left, headerTop, { fit: [130, 48] });
             } catch {
-                // A corrupt/unreadable logo buffer must never block the fiscal document itself.
+                // Un logo corrupto o ilegible nunca debe impedir el documento fiscal.
             }
         }
         const storeInfoY = options.logoBuffer ? headerTop + 54 : headerTop;
@@ -64,22 +64,32 @@ export function generateInvoicePdfBuffer(
         doc.text(store.storeAddress, { width: 260 });
         if (store.storeEmail) doc.text(store.storeEmail, { width: 260 });
         if (store.storePhone) doc.text(store.storePhone, { width: 260 });
+        // Datos del Registro Mercantil: obligatorios en las facturas de una sociedad (art. 24 RRM).
+        if (store.storeRegistry) doc.fontSize(7.5).text(store.storeRegistry, { width: 260 }).fontSize(9);
+        const storeInfoEndY = doc.y;
 
         const invoiceNumber = `${invoice.series}-${String(invoice.number).padStart(6, '0')}`;
-        doc.fillColor(BRAND_RED).fontSize(22).font('Helvetica-Bold').text('FACTURA', left, headerTop, { align: 'right', width: pageWidth });
+        const isRectifying = invoice.type === 'RECTIFYING';
+        doc.fillColor(BRAND_RED).fontSize(isRectifying ? 16 : 22).font('Helvetica-Bold').text(isRectifying ? 'FACTURA RECTIFICATIVA' : 'FACTURA', left, headerTop, { align: 'right', width: pageWidth });
         doc.font('Helvetica').fillColor(INK).fontSize(10);
         doc.text(`Nº ${invoiceNumber}`, { align: 'right', width: pageWidth });
         doc.fillColor(INK_SOFT);
         doc.text(`Fecha: ${formatDate(invoice.issueDate)}`, { align: 'right', width: pageWidth });
         doc.text(`Pedido: ${invoice.orderCode}`, { align: 'right', width: pageWidth });
+        if (isRectifying && invoice.rectifiedInvoiceNumber) {
+            // Art. 15 RD 1619/2012: identificar la factura rectificada y el motivo.
+            const date = invoice.rectifiedInvoiceDate ? formatDate(invoice.rectifiedInvoiceDate) : '';
+            doc.text(`Rectifica a: ${invoice.rectifiedInvoiceNumber}${date ? ` (${date})` : ''}`, { align: 'right', width: pageWidth });
+            doc.text('Rectificación por diferencias', { align: 'right', width: pageWidth });
+        }
         doc.fillColor(INK);
 
-        const afterHeaderY = Math.max(doc.y, storeInfoY + 70);
+        const afterHeaderY = Math.max(doc.y, storeInfoY + 70, storeInfoEndY + 8);
         doc.moveTo(left, afterHeaderY).lineTo(left + pageWidth, afterHeaderY).lineWidth(2).strokeColor(BRAND_RED).stroke();
         doc.lineWidth(1);
         doc.y = afterHeaderY + 20;
 
-        // --- Bill to ---
+        // --- Facturar a ---
         const billTo = invoice.billingAddressSnapshot;
         const customer = invoice.customerSnapshot;
         doc.fillColor(BRAND_RED).fontSize(10).font('Helvetica-Bold').text('FACTURAR A', left, doc.y);
@@ -97,7 +107,7 @@ export function generateInvoicePdfBuffer(
 
         doc.moveDown(1.5);
 
-        // --- Line items table ---
+        // --- Tabla de líneas ---
         const imgSize = 26;
         const colX = { img: left, name: left + imgSize + 8, qty: left + 270, unit: left + 320, rate: left + 385, total: left + 440 };
         const tableWidth = pageWidth;
@@ -123,7 +133,7 @@ export function generateInvoicePdfBuffer(
                 try {
                     doc.image(imageBuffer, colX.img, y, { width: imgSize, height: imgSize, fit: [imgSize, imgSize] });
                 } catch {
-                    // A corrupt/unreadable thumbnail just means this one line has no image — never blocks the invoice.
+                    // Una miniatura corrupta o ilegible solo deja esa línea sin imagen; nunca impide la factura.
                 }
             }
 
@@ -142,11 +152,11 @@ export function generateInvoicePdfBuffer(
 
         y += 6;
 
-        // --- Tax breakdown by rate ---
+        // --- Desglose de IVA por tipo ---
         const byRate = new Map<number, { base: number; tax: number }>();
         for (const line of lines) {
             const entry = byRate.get(line.taxRate) ?? { base: 0, tax: 0 };
-            entry.base += line.unitPrice * line.quantity;
+            entry.base += line.lineTotal - line.taxAmount;
             entry.tax += line.taxAmount;
             byRate.set(line.taxRate, entry);
         }
@@ -162,7 +172,7 @@ export function generateInvoicePdfBuffer(
         doc.fillColor(INK);
         y += 6;
 
-        // --- Totals ---
+        // --- Totales ---
         const totalsX = left + tableWidth - 200;
         doc.fontSize(10);
         doc.text('Subtotal:', totalsX, y, { width: 100 });
@@ -176,6 +186,39 @@ export function generateInvoicePdfBuffer(
         doc.text('TOTAL', totalsX, y + 2, { width: 100 });
         doc.text(formatMoney(invoice.total, invoice.currencyCode), totalsX + 100, y + 2, { width: 100, align: 'right' });
         doc.font('Helvetica').fillColor(INK);
+        y += 40;
+
+        // --- Notas legales ---
+        doc.fontSize(8.5).fillColor(INK_SOFT);
+        const notes: string[] = [];
+        if (invoice.type === 'RECTIFYING' && invoice.reason) {
+            notes.push(`Motivo de la rectificación: ${invoice.reason}`);
+        }
+        if (lines.some(line => line.taxRate === 0)) {
+            // Envíos a Canarias, Ceuta y Melilla (ver SpainTerritoriesPlugin); la redacción la confirma la gestoría.
+            notes.push('Operación exenta de IVA (art. 21 de la Ley 37/1992): entrega de bienes con destino a Canarias, Ceuta o Melilla.');
+        }
+        for (const note of notes) {
+            doc.text(note, left, y, { width: pageWidth });
+            y = doc.y + 4;
+        }
+
+        // --- Registro fiscal (Veri*Factu): QR + leyenda que devuelve el proveedor ---
+        const fiscal = invoice.fiscalRegistration;
+        if (fiscal?.status === 'REGISTERED' && (fiscal.qrPngBase64 || fiscal.legend)) {
+            y += 6;
+            if (fiscal.qrPngBase64) {
+                try {
+                    doc.image(Buffer.from(fiscal.qrPngBase64, 'base64'), left, y, { fit: [80, 80] });
+                } catch {
+                    // Un QR ilegible nunca debe impedir el documento fiscal.
+                }
+            }
+            if (fiscal.legend) {
+                doc.fontSize(8.5).fillColor(INK).text(fiscal.legend, fiscal.qrPngBase64 ? left + 92 : left, y + 4, { width: 300 });
+            }
+            doc.fillColor(INK);
+        }
 
         doc.end();
     });

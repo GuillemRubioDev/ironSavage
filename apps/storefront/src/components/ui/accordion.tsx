@@ -25,13 +25,19 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   )
 }
 
+const HEADINGS = { 2: <h2 />, 3: <h3 />, 4: <h4 /> } as const
+
 function AccordionTrigger({
   className,
   children,
+  headingLevel = 3,
   ...props
-}: AccordionPrimitive.Trigger.Props) {
+}: AccordionPrimitive.Trigger.Props & {
+  /** Nivel del encabezado que envuelve el disparador: elige el que mantenga el orden de encabezados de la página (WCAG 1.3.1). */
+  headingLevel?: keyof typeof HEADINGS
+}) {
   return (
-    <AccordionPrimitive.Header className="flex">
+    <AccordionPrimitive.Header className="flex" render={HEADINGS[headingLevel]}>
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(

@@ -27,28 +27,49 @@
     "productCount": "{count, plural, one {# producto} other {# productos}}",
     "trustBadges": {
       "fastShipping": "Envío rápido",
-      "freeReturns": "Devoluciones gratuitas",
+      "freeReturns": "Desistimiento en 14 días",
       "secureCheckout": "Pago seguro",
-      "guarantee": "Garantía de 30 días"
+      "guarantee": "Garantía legal de 3 años"
     },
     "faq": {
       "title": "Preguntas frecuentes",
       "shipping": {
         "question": "¿Qué opciones de envío tenéis?",
-        "answer": "Ofrecemos envío estándar (5-7 días laborables), envío exprés (2-3 días laborables) y entrega al día siguiente en zonas seleccionadas. El envío estándar es gratuito en pedidos superiores a 50 €."
+        "answer": "Los métodos, plazos y costes de envío disponibles para tu dirección se muestran en el proceso de compra antes de pagar. Tienes todos los detalles en la página «Envíos y devoluciones»."
       },
       "returns": {
         "question": "¿Cuál es vuestra política de devoluciones?",
-        "answer": "Aceptamos devoluciones dentro de los 30 días posteriores a la compra. Los artículos deben estar sin usar y en su embalaje original. Contacta con nuestro equipo de soporte para iniciar una devolución y recibir una etiqueta de envío prepagada."
+        "answer": "Tienes 14 días naturales desde que recibes el pedido para desistir de la compra. Por motivos de salud e higiene, los productos cuyo precinto se haya abierto no admiten desistimiento. Si un producto llega defectuoso o dañado, siempre te lo cambiamos o reembolsamos. Consulta «Envíos y devoluciones»."
       },
       "tracking": {
         "question": "¿Cómo puedo hacer seguimiento de mi pedido?",
-        "answer": "En cuanto se envíe tu pedido, recibirás un correo con un número de seguimiento. También puedes consultar el estado de tu pedido en cualquier momento iniciando sesión en tu cuenta y visitando el historial de pedidos."
+        "answer": "Puedes consultar el estado de tu pedido (en preparación, preparado, enviado o entregado) en cualquier momento desde Mi cuenta > Pedidos."
       },
       "international": {
         "question": "¿Hacéis envíos internacionales?",
-        "answer": "¡Sí! Enviamos a más de 50 países. Las tarifas y plazos de envío internacional varían según la ubicación. Podrás ver el coste exacto en el checkout antes de completar tu compra."
+        "answer": "Por ahora solo enviamos a direcciones de España."
       }
-    }
+    },
+    "imageAlt": "{name}, imagen {index} de {total}",
+    "previousImage": "Imagen anterior",
+    "nextImage": "Imagen siguiente",
+    "showImage": "Ver imagen {index} de {total}",
+    "food": {
+      "title": "Información alimentaria",
+      "ingredients": "Ingredientes",
+      "allergens": "Alérgenos",
+      "nutrition": "Información nutricional",
+      "directions": "Modo de empleo y dosis diaria recomendada",
+      "warnings": "Advertencias",
+      "storage": "Conservación",
+      "origin": "País de origen",
+      "operator": "Operador responsable",
+      "legalWarnings": {
+        "dose": "No superar la dosis diaria expresamente recomendada.",
+        "diet": "Los complementos alimenticios no deben utilizarse como sustituto de una dieta equilibrada y variada y un modo de vida sano.",
+        "children": "Mantener fuera del alcance de los niños más pequeños."
+      }
+    },
+    "netQuantity": "Cantidad neta: {quantity}"
   }
 }

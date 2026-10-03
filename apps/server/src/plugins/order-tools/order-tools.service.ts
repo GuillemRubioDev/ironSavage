@@ -44,14 +44,13 @@ export class OrderToolsService {
     ) {}
 
     /**
-     * ShippingLine.shippingMethod comes back with a blank `name` even via
-     * OrderService.findOne() with 'shippingLines.shippingMethod' in
-     * relations — ShippingMethod.name is a translated LocaleString, and
-     * unlike ProductVariant (which OrderService does translate when loading
-     * order lines), Vendure doesn't apply that same step for shipping
-     * methods here. ShippingMethodService.findOne() does resolve it
-     * correctly, so that's used instead, one lookup per distinct method
-     * (cached — most days only use one or two shipping methods).
+     * ShippingLine.shippingMethod llega con `name` vacío incluso con
+     * OrderService.findOne() y 'shippingLines.shippingMethod' en las relaciones:
+     * ShippingMethod.name es un LocaleString traducible y, a diferencia de
+     * ProductVariant (que OrderService sí traduce al cargar las líneas), Vendure no
+     * aplica ese paso a los métodos de envío. ShippingMethodService.findOne() sí lo
+     * resuelve bien, así que se usa ese, una consulta por método distinto (en caché:
+     * casi todos los días solo se usan uno o dos métodos).
      */
     async resolveShippingMethodNames(ctx: RequestContext, orders: Order[]): Promise<Map<string, string>> {
         const names = new Map<string, string>();
@@ -73,22 +72,22 @@ export class OrderToolsService {
         return orders;
     }
 
-    async getOrdersForDay(ctx: RequestContext, day: Date, state: string | undefined): Promise<Order[]> {
+    async getOrdersForDay(ctx: RequestContext, day: Date, states: string[] | undefined): Promise<Order[]> {
         const start = new Date(day);
         start.setHours(0, 0, 0, 0);
         const end = new Date(day);
         end.setHours(23, 59, 59, 999);
 
-        // findAll() doesn't apply the same translation hydration to nested
-        // relations (productVariant.name, shippingMethod.name come back
-        // blank) that findOne() does — see getOrdersByIds() below, which is
-        // also what InvoicingEventSubscriber relies on for the same reason.
-        // So this only uses findAll() to get the matching IDs, cheaply
-        // (no relations), then re-fetches each one properly via findOne().
+        // findAll() no traduce las relaciones anidadas como findOne()
+        // (productVariant.name y shippingMethod.name llegan vacíos); ver
+        // getOrdersByIds() más abajo, en lo que también se apoya
+        // InvoicingEventSubscriber por el mismo motivo. Por eso findAll() solo se usa
+        // para obtener los IDs, sin relaciones (barato), y luego cada pedido se vuelve
+        // a cargar bien con findOne().
         const result = await this.orderService.findAll(ctx, {
             filter: {
                 createdAt: { between: { start: start.toISOString(), end: end.toISOString() } },
-                ...(state ? { state: { eq: state } } : {}),
+                ...(states?.length ? { state: { in: states } } : {}),
             },
             sort: { createdAt: SortOrder.ASC },
             take: 100,
@@ -97,7 +96,7 @@ export class OrderToolsService {
         return this.getOrdersByIds(ctx, ids);
     }
 
-    /** One label per order, each a fresh page — sized for A4, cut/fold as needed. */
+    /** Una etiqueta por pedido, cada una en su página; tamaño A4, cortar o doblar según haga falta. */
     renderShippingLabelsPage(orders: Order[]): string {
         const labels = orders
             .map(order => {
@@ -127,7 +126,7 @@ export class OrderToolsService {
         );
     }
 
-    /** A single printable sheet listing every order for the given day. */
+    /** Una sola hoja imprimible con todos los pedidos del día indicado. */
     renderDailyOrdersPage(orders: Order[], day: Date, methodNames: Map<string, string>): string {
         const dayLabel = day.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
 

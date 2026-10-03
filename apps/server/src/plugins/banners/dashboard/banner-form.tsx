@@ -17,6 +17,8 @@ import {
     SelectValue,
     Switch,
 } from '@vendure/dashboard';
+import { msg } from '@lingui/core/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -29,18 +31,19 @@ interface AssetRef {
 }
 
 const ALIGN_OPTIONS = [
-    { value: 'left', label: 'Left' },
-    { value: 'center', label: 'Center' },
-    { value: 'right', label: 'Right' },
+    { value: 'left', label: msg`Left` },
+    { value: 'center', label: msg`Center` },
+    { value: 'right', label: msg`Right` },
 ] as const;
 
 const IMAGE_LAYOUT_OPTIONS = [
-    { value: 'background', label: 'Full background (image behind text)' },
-    { value: 'left', label: 'Image on the left, text on the right' },
-    { value: 'right', label: 'Image on the right, text on the left' },
+    { value: 'background', label: msg`Full background (image behind text)` },
+    { value: 'left', label: msg`Image on the left, text on the right` },
+    { value: 'right', label: msg`Image on the right, text on the left` },
 ] as const;
 
 export function BannerFormPage() {
+    const { t, i18n } = useLingui();
     const params = useParams({ strict: false }) as { id?: string };
     const id = params.id;
     const isNew = !id || id === 'new';
@@ -116,10 +119,9 @@ export function BannerFormPage() {
             await queryClient.invalidateQueries({ queryKey: ['banner-list'] });
             void navigate({ to: '/banners/$id', params: { id: payload.id } });
         } catch (err) {
-            // Previously uncaught — a network/GraphQL error would silently
-            // reset the button with zero feedback, indistinguishable from
-            // "Save does nothing".
-            setError(err instanceof Error ? err.message : 'Something went wrong while saving.');
+            // Antes no se capturaba: un error de red o de GraphQL reiniciaba el botón
+            // sin ningún aviso, como si «Guardar» no hiciera nada.
+            setError(err instanceof Error ? err.message : t`Something went wrong while saving.`);
         } finally {
             setSaving(false);
         }
@@ -135,10 +137,10 @@ export function BannerFormPage() {
     if (!isNew && isLoading) {
         return (
             <Page pageId="banner-detail">
-                <PageTitle>Banner</PageTitle>
+                <PageTitle><Trans>Banner</Trans></PageTitle>
                 <PageLayout>
                     <FullWidthPageBlock blockId="form">
-                        <p className="text-muted-foreground">Loading...</p>
+                        <p className="text-muted-foreground"><Trans>Loading...</Trans></p>
                     </FullWidthPageBlock>
                 </PageLayout>
             </Page>
@@ -147,16 +149,16 @@ export function BannerFormPage() {
 
     return (
         <Page pageId="banner-detail">
-            <PageTitle>{isNew ? 'New banner' : titleEs || 'Banner'}</PageTitle>
+            <PageTitle>{isNew ? <Trans>New banner</Trans> : titleEs || <Trans>Banner</Trans>}</PageTitle>
             <PageActionBar>
                 <PageActionBarRight>
                     {!isNew && banner && (
                         <Button variant="outline" onClick={() => void remove()}>
-                            Delete
+                            <Trans>Delete</Trans>
                         </Button>
                     )}
                     <Button onClick={() => void save()} disabled={saving}>
-                        {saving ? 'Saving...' : 'Save'}
+                        {saving ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
                     </Button>
                 </PageActionBarRight>
             </PageActionBar>
@@ -168,52 +170,52 @@ export function BannerFormPage() {
                         <div className="flex items-center gap-3 rounded-lg border p-4">
                             <Switch checked={enabled} onCheckedChange={setEnabled} />
                             <div>
-                                <p className="text-sm font-medium">Enabled</p>
-                                <p className="text-xs text-muted-foreground">Disabled banners are kept but never shown in the storefront.</p>
+                                <p className="text-sm font-medium"><Trans>Enabled</Trans></p>
+                                <p className="text-xs text-muted-foreground"><Trans>Disabled banners are kept but never shown in the storefront.</Trans></p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="titleEs">Title (Spanish)</Label>
+                                <Label htmlFor="titleEs"><Trans>Title (Spanish)</Trans></Label>
                                 <Input id="titleEs" value={titleEs} onChange={e => setTitleEs(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="titleEn">Title (English)</Label>
+                                <Label htmlFor="titleEn"><Trans>Title (English)</Trans></Label>
                                 <Input id="titleEn" value={titleEn} onChange={e => setTitleEn(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="subtitleEs">Subtitle (Spanish)</Label>
+                                <Label htmlFor="subtitleEs"><Trans>Subtitle (Spanish)</Trans></Label>
                                 <Input id="subtitleEs" value={subtitleEs} onChange={e => setSubtitleEs(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="subtitleEn">Subtitle (English)</Label>
+                                <Label htmlFor="subtitleEn"><Trans>Subtitle (English)</Trans></Label>
                                 <Input id="subtitleEn" value={subtitleEn} onChange={e => setSubtitleEn(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="ctaLabelEs">Button text (Spanish)</Label>
+                                <Label htmlFor="ctaLabelEs"><Trans>Button text (Spanish)</Trans></Label>
                                 <Input id="ctaLabelEs" value={ctaLabelEs} onChange={e => setCtaLabelEs(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="ctaLabelEn">Button text (English)</Label>
+                                <Label htmlFor="ctaLabelEn"><Trans>Button text (English)</Trans></Label>
                                 <Input id="ctaLabelEn" value={ctaLabelEn} onChange={e => setCtaLabelEn(e.target.value)} />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="href">Destination URL</Label>
+                            <Label htmlFor="href"><Trans>Destination URL</Trans></Label>
                             <Input
                                 id="href"
                                 value={href}
                                 onChange={e => setHref(e.target.value)}
                                 placeholder="/categorias/creatina-y-aminoacidos"
                             />
-                            <p className="text-xs text-muted-foreground">A path on the storefront, e.g. /categorias/proteinas or /productos/iron-creatine.</p>
+                            <p className="text-xs text-muted-foreground"><Trans>A path on the storefront, e.g. /categorias/proteinas or /productos/iron-creatine.</Trans></p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Text alignment</Label>
+                                <Label><Trans>Text alignment</Trans></Label>
                                 <Select value={align} onValueChange={value => setAlign(value as typeof align)}>
                                     <SelectTrigger>
                                         <SelectValue />
@@ -221,14 +223,14 @@ export function BannerFormPage() {
                                     <SelectContent>
                                         {ALIGN_OPTIONS.map(opt => (
                                             <SelectItem key={opt.value} value={opt.value}>
-                                                {opt.label}
+                                                {i18n._(opt.label)}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="position">Position (lower shows first)</Label>
+                                <Label htmlFor="position"><Trans>Position (lower shows first)</Trans></Label>
                                 <Input
                                     id="position"
                                     type="number"
@@ -239,7 +241,7 @@ export function BannerFormPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Image layout</Label>
+                            <Label><Trans>Image layout</Trans></Label>
                             <Select value={imageLayout} onValueChange={value => setImageLayout(value as typeof imageLayout)}>
                                 <SelectTrigger>
                                     <SelectValue />
@@ -247,32 +249,31 @@ export function BannerFormPage() {
                                 <SelectContent>
                                     {IMAGE_LAYOUT_OPTIONS.map(opt => (
                                         <SelectItem key={opt.value} value={opt.value}>
-                                            {opt.label}
+                                            {i18n._(opt.label)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                             <p className="text-xs text-muted-foreground">
-                                "Full background" fills the whole slide with the image, text on top. "Left"/"right"
-                                splits the slide in half, with the image on that side.
+                                <Trans>"Full background" fills the whole slide with the image, text on top. "Left"/"right" splits the slide in half, with the image on that side.</Trans>
                             </p>
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Image</Label>
+                            <Label><Trans>Image</Trans></Label>
                             <p className="text-xs text-muted-foreground">
-                                Optional — without one the slide uses an Iron Savage brand gradient instead.
+                                <Trans>Optional — without one the slide uses an Iron Savage brand gradient instead.</Trans>
                             </p>
                             <div className="flex items-center gap-4">
                                 {image && (
                                     <img src={image.preview + '?preset=thumb'} alt="" className="h-20 w-32 rounded object-cover border" />
                                 )}
                                 <Button variant="outline" onClick={() => setAssetPickerOpen(true)}>
-                                    {image ? 'Change image' : 'Set image'}
+                                    {image ? <Trans>Change image</Trans> : <Trans>Set image</Trans>}
                                 </Button>
                                 {image && (
                                     <Button variant="ghost" onClick={() => setImage(null)}>
-                                        Remove
+                                        <Trans>Remove</Trans>
                                     </Button>
                                 )}
                             </div>

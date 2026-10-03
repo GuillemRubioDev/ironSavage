@@ -3,15 +3,15 @@ import { randomInt } from 'node:crypto';
 const ALPHANUMERIC = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /**
- * Generates a fresh value satisfying Redsys' Ds_Merchant_Order format: 4-12
- * characters, the first 4 numeric, the rest alphanumeric.
+ * Genera un valor nuevo con el formato Ds_Merchant_Order de Redsys: de 4 a 12
+ * caracteres, los 4 primeros numéricos y el resto alfanuméricos.
  *
- * Used both for the Vendure order code itself (RedsysOrderCodeStrategy) and
- * for the per-attempt Ds_Merchant_Order values in RedsysService — Redsys
- * rejects ("SIS0051 - Número de pedido repetido") a new authorization
- * request that reuses an order number it has already seen that day, even if
- * the earlier attempt was declined, so a retried payment needs a new value
- * distinct from both the Vendure order code and any earlier attempt.
+ * Se usa tanto para el código de pedido de Vendure (RedsysOrderCodeStrategy) como
+ * para el Ds_Merchant_Order de cada intento en RedsysService: Redsys rechaza
+ * («SIS0051 - Número de pedido repetido») una nueva autorización que reutiliza un
+ * número de pedido ya visto ese día, aunque el intento anterior se denegara, así que
+ * un pago reintentado necesita un valor distinto del código del pedido y de
+ * cualquier intento anterior.
  */
 export function generateRedsysOrderNumber(): string {
     const digits = randomInt(0, 10_000).toString().padStart(4, '0');

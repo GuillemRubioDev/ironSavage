@@ -4,6 +4,8 @@
     "ArrangingPayment": "Gestionando el pago",
     "PaymentAuthorized": "Pago autorizado",
     "PaymentSettled": "Pago confirmado",
+    "InPreparation": "Preparando pedido",
+    "ReadyToShip": "Pedido preparado",
     "PartiallyShipped": "Enviado parcialmente",
     "Shipped": "Enviado",
     "PartiallyDelivered": "Entregado parcialmente",

@@ -1,28 +1,38 @@
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
 import {NextConfig} from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/site/i18n/request.ts');
 
+// La versión de la aplicación es el "version" del package.json de la raíz del
+// monorepo (una sola versión para toda la tienda: servidor + storefront).
+// Súbela ahí en cada versión nueva; se muestra en el pie de la tienda.
+// `next build`/`next dev` siempre se ejecutan desde apps/storefront (npm -w, y el
+// Dockerfile copia el package.json de la raíz en la etapa de build).
+const {version: APP_VERSION} = JSON.parse(readFileSync(resolve(process.cwd(), '../../package.json'), 'utf8')) as {version: string};
+
 const nextConfig: NextConfig = {
-    // Produces .next/standalone — a self-contained server bundle with only
-    // the node_modules actually used (traced), instead of needing the full
-    // workspace node_modules at runtime. This is what makes a lean
-    // production Docker image possible.
+    env: {
+        NEXT_PUBLIC_APP_VERSION: APP_VERSION,
+    },
+    // Genera .next/standalone: un servidor autocontenido con solo los
+    // node_modules que se usan de verdad, en vez de necesitar todos los del
+    // workspace en ejecución. Es lo que permite una imagen Docker ligera.
     output: 'standalone',
     cacheComponents: true,
-    // Drops the "X-Powered-By: Next.js" response header — a small
-    // fingerprinting/info-disclosure reduction, no functional effect.
+    // Quita la cabecera "X-Powered-By: Next.js": revela menos información del
+    // servidor; no cambia nada funcional.
     poweredByHeader: false,
     images: {
-        // Only needed so the Image Optimization API can fetch from a local
-        // Vendure instance during development (localhost/127.0.0.1 asset
-        // URLs). Left on in production, this widens the Image API's fetch
-        // target to any local/private IP the container can reach — real
-        // exposure given the Image Optimization API itself was the subject
-        // of a critical unauthenticated-RCE advisory (GHSA-2xp9-vwfh-vxw4,
-        // fixed by upgrading Next.js — see package.json). Gating it to dev
-        // removes that surface in production without needing it there:
-        // ASSET_URL_PREFIX is always a real https:// domain outside dev.
+        // Solo hace falta para que la API de optimización de imágenes pueda leer
+        // de un Vendure local en desarrollo (URLs de recursos en
+        // localhost/127.0.0.1). Activado en producción, permitiría a esa API leer de
+        // cualquier IP local o privada que alcance el contenedor: un riesgo real,
+        // porque esa API tuvo una vulnerabilidad crítica de ejecución remota sin
+        // autenticar (GHSA-2xp9-vwfh-vxw4, corregida al actualizar Next.js; ver
+        // package.json). Limitarlo a desarrollo elimina ese riesgo en producción,
+        // donde no hace falta: ASSET_URL_PREFIX siempre es un dominio https:// real.
         dangerouslyAllowLocalIP: process.env.NODE_ENV !== 'production',
         remotePatterns: [
             {
@@ -34,8 +44,8 @@ const nextConfig: NextConfig = {
             {
                 hostname: 'localhost'
             },
-            // Production: product images are served from ASSET_URL_PREFIX,
-            // which points at the public API domain behind the reverse proxy.
+            // Producción: las imágenes de producto se sirven desde ASSET_URL_PREFIX,
+            // que apunta al dominio público de la API detrás del proxy inverso.
             ...(process.env.API_DOMAIN ? [{
                 protocol: 'https' as const,
                 hostname: process.env.API_DOMAIN,
