@@ -5,23 +5,23 @@ import { OrderToolsService } from './order-tools.service';
 import { warehouseOrderProcess } from './warehouse-order-process';
 
 /**
- * Small operational helpers for preparing/dispatching paid orders — entirely
- * additive on top of Vendure's own native order/fulfillment features (which
- * already cover marking items as fulfilled/shipped and downloading invoices;
- * see the Dashboard's Fulfill order dialog and the Invoicing plugin):
+ * Pequeñas utilidades para preparar y despachar pedidos pagados, añadidas sobre las
+ * funciones nativas de pedidos y envíos de Vendure (que ya permiten marcar artículos
+ * como preparados/enviados y descargar facturas; ver el diálogo «Preparar pedido»
+ * del dashboard y el plugin de facturación):
  *
- * - A printable shipping label per order (`GET /order-tools/shipping-labels?orders=<id,id,...>`),
- *   reachable from a button on the order detail page and as a bulk action on
- *   the order list (select several paid orders, print all their labels).
- * - A printable "orders to prepare today" sheet (`GET /order-tools/daily-orders?date=YYYY-MM-DD`),
- *   listing each paid order's products/quantities, shipping address, and
- *   shipping method — reachable from a button on the order list.
- * - The warehouse steps of the order process: "Preparando pedido"
- *   (InPreparation) and "Pedido preparado" (ReadyToShip) between payment and
- *   shipping — see warehouse-order-process.ts.
+ * - Una etiqueta de envío imprimible por pedido (`GET /order-tools/shipping-labels?orders=<id,id,...>`),
+ *   desde un botón en la ficha del pedido y como acción masiva en la lista de
+ *   pedidos (seleccionar varios pedidos pagados e imprimir todas sus etiquetas).
+ * - Una hoja imprimible de «pedidos para preparar hoy» (`GET /order-tools/daily-orders?date=YYYY-MM-DD`),
+ *   con los productos y cantidades, dirección y método de envío de cada pedido
+ *   pagado, desde un botón en la lista de pedidos.
+ * - Los pasos de almacén del proceso de pedido: «Preparando pedido»
+ *   (InPreparation) y «Pedido preparado» (ReadyToShip), entre el pago y el envío;
+ *   ver warehouse-order-process.ts.
  *
- * No new entities; admin-only (checked manually — see OrderToolsController's
- * doc comment for why `@Allow()` doesn't apply to a plain REST controller here).
+ * Sin entidades nuevas; solo para administradores (comprobado a mano; el comentario
+ * de OrderToolsController explica por qué `@Allow()` no sirve en un controlador REST).
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

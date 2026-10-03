@@ -5,16 +5,16 @@ import { INVOICE_STATUSES, INVOICE_TYPES, InvoiceStatus, InvoiceType } from './c
 import { AddressSnapshot, CustomerSnapshot, FiscalRegistrationRecord } from './types';
 
 /**
- * One ordinary invoice per Order (enforced by the partial unique index
- * below), plus one rectifying invoice per settled refund. Customer and
- * billing-address data are stored as frozen JSON snapshots taken at issue
- * time — the invoice must stay correct even if the Customer or Order is
- * later edited, merged, or the ProductVariant is renamed/deleted.
+ * Una factura ordinaria por pedido (lo impone el índice único parcial de abajo),
+ * más una rectificativa por cada reembolso liquidado. Los datos del cliente y de la
+ * dirección de facturación se guardan como copias JSON congeladas al emitirla: la
+ * factura debe seguir siendo correcta aunque luego se edite o fusione el cliente o
+ * el pedido, o se renombre o borre la variante.
  */
 @Entity()
-// Belt-and-braces alongside the atomic sequence counter in InvoiceSequence:
-// even if two numbers were ever allocated concurrently, the DB itself
-// refuses to let the same (series, number) pair be persisted twice.
+// Doble seguro junto al contador atómico de InvoiceSequence: aunque alguna vez se
+// asignaran dos números a la vez, la propia base de datos impide guardar dos veces
+// la misma pareja (serie, número).
 @Index('IDX_invoice_series_number', ['series', 'number'], { unique: true })
 @Index('IDX_invoice_order_ordinary', ['orderId'], { unique: true, where: `"type" = 'ORDINARY'` })
 export class Invoice extends VendureEntity {
@@ -26,11 +26,11 @@ export class Invoice extends VendureEntity {
     @EntityId()
     orderId: ID;
 
-    /** Snapshot of the Order's own code, so it can be displayed/searched without a join. */
+    /** Copia del código del pedido, para mostrarlo y buscar sin cruzar tablas. */
     @Column()
     orderCode: string;
 
-    /** Kept as a plain (non-FK) id for authorization checks — see types.ts CustomerSnapshot for the frozen display data. */
+    /** Id simple (sin clave foránea) para comprobar permisos; los datos que se muestran están en CustomerSnapshot (types.ts). */
     @Index()
     @EntityId()
     customerId: ID;
@@ -50,7 +50,7 @@ export class Invoice extends VendureEntity {
     @Column('simple-json')
     billingAddressSnapshot: AddressSnapshot;
 
-    /** All monetary columns are integer minor units (cents), matching Vendure's own Money convention. */
+    /** Todos los importes son enteros en céntimos, como el tipo Money de Vendure. */
     @Column()
     subtotal: number;
 
@@ -66,11 +66,11 @@ export class Invoice extends VendureEntity {
     @Column({ type: 'varchar', enum: INVOICE_STATUSES, default: 'ISSUED' })
     status: InvoiceStatus;
 
-    /** ORDINARY = the order's invoice; RECTIFYING = a factura rectificativa for a refund (negative amounts). */
+    /** ORDINARY = la factura del pedido; RECTIFYING = una factura rectificativa por un reembolso (importes negativos). */
     @Column({ type: 'varchar', enum: INVOICE_TYPES, default: 'ORDINARY' })
     type: InvoiceType;
 
-    /** Rectifying invoices only: the invoice they correct, and its number/date frozen for the document. */
+    /** Solo rectificativas: la factura que corrigen, con su número y fecha copiados para el documento. */
     @EntityId({ nullable: true })
     rectifiesInvoiceId?: ID | null;
 
@@ -80,23 +80,23 @@ export class Invoice extends VendureEntity {
     @Column({ type: 'timestamp', nullable: true })
     rectifiedInvoiceDate?: Date | null;
 
-    /** Rectifying invoices only: the Vendure Refund it documents — unique, so each refund gets exactly one. */
+    /** Solo rectificativas: el reembolso de Vendure que documenta; único, para que cada reembolso tenga exactamente una. */
     @Index({ unique: true })
     @EntityId({ nullable: true })
     refundId?: ID | null;
 
-    /** Rectifying invoices only: reason printed on the document (the refund's reason, or a default). */
+    /** Solo rectificativas: motivo que se imprime (el del reembolso o uno por defecto). */
     @Column({ type: 'text', nullable: true })
     reason?: string | null;
 
     /**
-     * Result of registering the invoice with a fiscal system (Veri*Factu) through the
-     * configured FiscalRegistrationProvider — null when none is configured.
+     * Resultado de registrar la factura en un sistema fiscal (Veri*Factu) con el
+     * FiscalRegistrationProvider configurado; null si no hay ninguno.
      */
     @Column({ type: 'simple-json', nullable: true })
     fiscalRegistration?: FiscalRegistrationRecord | null;
 
-    /** Relative path (under the configured pdfOutputDir) to the generated PDF, once written. */
+    /** Ruta relativa (dentro de pdfOutputDir) del PDF generado, una vez escrito. */
     @Column({ nullable: true })
     pdfPath?: string;
 }

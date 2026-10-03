@@ -3,12 +3,12 @@ import {hasLocale} from 'next-intl';
 import {routing} from './routing';
 
 /**
- * Safe wrapper around rootLocale() that validates against routing config
- * and falls back to defaultLocale instead of returning undefined.
+ * Envoltorio seguro de rootLocale() que valida contra la configuración de rutas y,
+ * si no encaja, usa defaultLocale en vez de devolver undefined.
  *
- * Use this in server components, generateMetadata, and 'use cache' functions.
- * Server actions should use getLocale() from next-intl/server instead,
- * since they run outside the cached RSC tree and have full request context.
+ * Úsalo en server components, generateMetadata y funciones 'use cache'. Las server
+ * actions deben usar getLocale() de next-intl/server, porque se ejecutan fuera del
+ * árbol RSC en caché y tienen todo el contexto de la petición.
  */
 export async function getRouteLocale(): Promise<string> {
     const loc = await rootLocale();

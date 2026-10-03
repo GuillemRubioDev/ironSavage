@@ -1,9 +1,9 @@
-// Extraction config for the translations of OUR Dashboard extensions (the
-// Vendure Dashboard ships its own catalogs). `npm run i18n:extract` scans each
-// plugin's dashboard/ folder for Lingui macros (<Trans>, t`...`, msg`...`) and
-// `/* i18n*/ 'Menu title'` markers, and updates that plugin's
-// dashboard/i18n/{locale}.po — the Dashboard's Vite plugin loads those files
-// automatically. See docs/dashboard-i18n.md.
+// Configuración de extracción de las traducciones de NUESTRAS extensiones del
+// dashboard (el dashboard de Vendure trae sus propios catálogos).
+// `npm run i18n:extract` busca en la carpeta dashboard/ de cada plugin las macros
+// de Lingui (<Trans>, t`...`, msg`...`) y las marcas `/* i18n*/ 'Título del menú'`,
+// y actualiza el dashboard/i18n/{idioma}.po de ese plugin; el plugin de Vite del
+// dashboard carga esos archivos solo. Ver docs/dashboard-i18n.md.
 const { formatter } = require('@lingui/format-po');
 
 const PLUGINS_WITH_DASHBOARD = [

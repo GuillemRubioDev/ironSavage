@@ -5,17 +5,17 @@ import { LOYALTY_TRANSACTION_TYPES, LoyaltyTransactionType } from './constants';
 import { LoyaltyAccount } from './loyalty-account.entity';
 
 /**
- * The append-only ledger. Every balance change must be recorded here — this
- * is the audit source of truth; `LoyaltyAccount.balance` is only a cache of
- * summing these rows. `points` is signed: positive for EARN/REFUND credits
- * and positive ADJUSTMENTs, negative for SPEND and negative ADJUSTMENTs.
+ * El libro de movimientos, solo de inserción. Todo cambio de saldo debe quedar aquí:
+ * es la fuente de verdad para auditoría; `LoyaltyAccount.balance` es solo una caché
+ * de la suma de estas filas. `points` lleva signo: positivo en abonos EARN/REFUND y
+ * ADJUSTMENT positivos, negativo en SPEND y ADJUSTMENT negativos.
  */
 @Entity()
 @Index(['orderId', 'type'])
-// Enforces "an order generates points only once" at the DB level: a second
-// EARN insert for the same orderId is rejected outright, race-safe even
-// under concurrent event delivery. SPEND/REFUND/ADJUSTMENT can repeat per
-// order, so this partial index only targets type = 'EARN'.
+// Impone en la base de datos que «un pedido genera puntos una sola vez»: un segundo
+// EARN para el mismo orderId se rechaza, a salvo de carreras aunque lleguen eventos
+// simultáneos. SPEND/REFUND/ADJUSTMENT pueden repetirse por pedido, así que este
+// índice parcial solo afecta a type = 'EARN'.
 @Index('IDX_loyalty_transaction_earn_per_order', ['orderId'], { unique: true, where: `"type" = 'EARN'` })
 export class LoyaltyTransaction extends VendureEntity {
     constructor(input?: DeepPartial<LoyaltyTransaction>) {

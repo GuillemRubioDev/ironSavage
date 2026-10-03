@@ -1,15 +1,14 @@
 import sanitizeHtml from 'sanitize-html';
 
 /**
- * Sanitizes rich-text HTML coming from Vendure core entities this storefront
- * doesn't control the write path for (Product.description,
- * PaymentMethod.description) before it's ever passed to
- * dangerouslySetInnerHTML. Runs server-side, in the same RSC render that
- * produces the page — the browser never receives the unsanitized HTML.
+ * Limpia el HTML enriquecido de entidades de Vendure cuya escritura no controla este
+ * storefront (Product.description, PaymentMethod.description) antes de pasarlo a
+ * dangerouslySetInnerHTML. Se ejecuta en el servidor, en el mismo render RSC que
+ * genera la página: el navegador nunca recibe el HTML sin limpiar.
  *
- * Allowlist covers what Vendure Dashboard's own rich-text editor produces
- * (paragraphs, basic formatting, lists, links, simple tables) — no
- * script/style/iframe/on*-handlers/javascript: URLs.
+ * La lista de permitidos cubre lo que genera el editor de texto enriquecido del
+ * dashboard de Vendure (párrafos, formato básico, listas, enlaces, tablas simples):
+ * nada de script/style/iframe, atributos on* ni URLs javascript:.
  */
 const ALLOWED_TAGS = [
     'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'span',
@@ -20,9 +19,8 @@ const ALLOWED_TAGS = [
 ];
 
 const ALLOWED_ATTRIBUTES: sanitizeHtml.IOptions['allowedAttributes'] = {
-    // rel/target aren't in the source HTML — they're added by transformTags
-    // below, but still have to be allow-listed here or attribute filtering
-    // strips them right back out afterwards.
+    // rel/target no están en el HTML original: los añade transformTags más abajo,
+    // pero hay que permitirlos aquí o el filtro de atributos los vuelve a quitar.
     a: ['href', 'title', 'rel', 'target'],
     img: ['src', 'alt', 'width', 'height'],
     '*': ['class'],

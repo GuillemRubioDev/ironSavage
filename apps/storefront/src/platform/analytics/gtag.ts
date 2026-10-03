@@ -1,12 +1,11 @@
 /**
- * Google Analytics 4 — measurement ID and event helper.
+ * Google Analytics 4: ID de medición y utilidad para eventos.
  *
- * GA only exists in production, and only for visitors who accepted the
- * "analytics" cookie category: NEXT_PUBLIC_GA_ID is set only in the
- * production build (see .env.prod.example), and gtag.js is loaded by
- * site/analytics/google-analytics.tsx after consent. Features can call
- * `trackEvent` unconditionally: without an ID it does nothing, and without
- * consent nothing is ever sent (see pendingEvents).
+ * GA solo existe en producción y solo para quien aceptó la categoría de cookies
+ * «analíticas»: NEXT_PUBLIC_GA_ID solo se define en la build de producción (ver
+ * .env.prod.example) y gtag.js lo carga site/analytics/google-analytics.tsx tras el
+ * consentimiento. Las funcionalidades pueden llamar a `trackEvent` sin comprobar
+ * nada: sin ID no hace nada, y sin consentimiento nunca se envía nada (ver pendingEvents).
  */
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID?.trim() || '';
 
@@ -17,7 +16,7 @@ declare global {
     }
 }
 
-/** A product in a GA4 ecommerce event. Prices in major units (e.g. 24.2 €). */
+/** Un producto en un evento de comercio electrónico de GA4. Precios en euros, no céntimos (p. ej. 24.2 €). */
 export interface AnalyticsItem {
     item_id: string;
     item_name: string;
@@ -27,11 +26,11 @@ export interface AnalyticsItem {
 }
 
 /**
- * Events fired before GA is ready. React runs a page's effects before the
- * layout's, so e.g. `view_item` on a freshly loaded product page happens
- * before GoogleAnalytics has set up `window.gtag`. They wait here, in memory
- * only, and are sent when GA initialises with consent — or dropped with the
- * page if the visitor never consents. Nothing leaves the browser before that.
+ * Eventos lanzados antes de que GA esté listo. React ejecuta los efectos de la página
+ * antes que los del layout, así que p. ej. `view_item` en una ficha recién cargada
+ * ocurre antes de que GoogleAnalytics prepare `window.gtag`. Esperan aquí, solo en
+ * memoria, y se envían cuando GA arranca con consentimiento, o se pierden con la
+ * página si el visitante nunca consiente. Antes de eso no sale nada del navegador.
  */
 const pendingEvents: Array<[string, Record<string, unknown>]> = [];
 const MAX_PENDING_EVENTS = 50;
@@ -47,19 +46,19 @@ export function trackEvent(name: string, params: Record<string, unknown> = {}): 
     }
 }
 
-/** Called by GoogleAnalytics once gtag is set up with consent. */
+/** Lo llama GoogleAnalytics cuando gtag está listo con consentimiento. */
 export function flushPendingEvents(): void {
     for (const [name, params] of pendingEvents.splice(0)) {
         window.gtag?.('event', name, params);
     }
 }
 
-/** Called by GoogleAnalytics when consent is refused or withdrawn. */
+/** Lo llama GoogleAnalytics cuando se rechaza o retira el consentimiento. */
 export function clearPendingEvents(): void {
     pendingEvents.length = 0;
 }
 
-/** Vendure prices are integers in minor units (cents); GA4 expects major units. */
+/** Los precios de Vendure son enteros en céntimos; GA4 espera euros. */
 export function toMajorUnits(amount: number): number {
     return Math.round(amount) / 100;
 }

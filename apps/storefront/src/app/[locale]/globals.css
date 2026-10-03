@@ -5,15 +5,15 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Iron Savage design tokens.
+ * Tokens de diseño de Iron Savage.
  *
- * Palette intent: deep black / graphite / white / metallic grays as the
- * neutral base, with one intense red reserved for CTAs, promotions,
- * highlights and active/price states — NOT a general decoration color.
- * `--primary` carries that red because it's what drives buttons/links/CTAs
- * throughout the existing component set; `--accent` (hover surfaces in
- * menus/dropdowns, which fire constantly) stays a neutral metallic gray so
- * the UI doesn't turn red on every hover.
+ * Idea de la paleta: negro profundo / grafito / blanco / grises metálicos como base
+ * neutra, con un único rojo intenso reservado para llamadas a la acción,
+ * promociones, destacados y estados activos o de precio; NO es un color de
+ * decoración general. `--primary` lleva ese rojo porque es lo que usan botones,
+ * enlaces y llamadas a la acción en todos los componentes; `--accent` (fondos al
+ * pasar el ratón en menús y desplegables, que se activan continuamente) sigue siendo
+ * un gris metálico neutro para que la interfaz no se ponga roja a cada momento.
  */
 @theme inline {
   --color-background: var(--background);
@@ -46,17 +46,17 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
-  /* Red used as a BACKGROUND under white text (buttons, badges, counters):
-     WCAG AA needs 4.5:1 for that pair, which the dark theme's brighter
-     --primary (tuned for red TEXT on black) doesn't reach. */
+  /* Rojo usado como FONDO bajo texto blanco (botones, etiquetas, contadores):
+     WCAG AA exige 4,5:1 para esa pareja, y el --primary más brillante del tema
+     oscuro (pensado para TEXTO rojo sobre negro) no llega. */
   --color-primary-solid: var(--primary-solid);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /* Semantic status colors — used for stock/discount/success states and
-     loyalty deltas instead of raw Tailwind green/gray palette utilities,
-     so they stay correct in both themes. */
+  /* Colores semánticos de estado: para stock, descuentos, éxito y variaciones de
+     puntos, en vez de las utilidades verde/gris de Tailwind, para que se vean bien
+     en los dos temas. */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
@@ -68,20 +68,19 @@
 }
 
 :root {
-  /* Slightly tighter than the shadcn default (0.5rem) — a more angular,
-     industrial edge that matches the brand's condensed/cut-corner logo
-     mark better than a soft SaaS-style rounded corner. */
+  /* Algo más cerrado que el valor por defecto de shadcn (0.5rem): un borde más
+     anguloso e industrial que encaja mejor con el logo condensado y de esquinas
+     cortadas que una esquina redondeada suave de estilo SaaS. */
   --radius: 0.375rem;
 
   /*
-   * Centralized fixed-header layout offsets — the single source of truth
-   * for the TopBar/Navbar stack height. Nothing else should hardcode these
-   * as pixel/rem values: TopBar and Navbar size and position themselves
-   * from these vars, and the single <main> wrapper in locale-layout.tsx
-   * applies `padding-top: var(--header-offset)` once for every page. No
-   * page should ever need its own mt-16/py-30/calc(100vh-Npx)-style
-   * compensation again — if the TopBar or Navbar's real height changes,
-   * change it here and every page adapts automatically.
+   * Medidas centralizadas de la cabecera fija: la única fuente de verdad de la
+   * altura de TopBar + Navbar. Nada más debe fijar estos valores en px/rem:
+   * TopBar y Navbar toman su tamaño y posición de estas variables, y el único
+   * <main> de locale-layout.tsx aplica una vez `padding-top: var(--header-offset)`
+   * para todas las páginas. Ninguna página debería volver a necesitar
+   * compensaciones propias tipo mt-16/py-30/calc(100vh-Npx): si cambia la altura
+   * real de TopBar o Navbar, cámbiala aquí y todas las páginas se adaptan solas.
    */
   --top-bar-h: 1.75rem;
   --header-h: 4rem;
@@ -95,12 +94,12 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.17 0.006 260);
 
-  /* Brand red — reserved for CTAs, prices/offers, active states. */
+  /* Rojo de marca: reservado para llamadas a la acción, precios/ofertas y estados activos. */
   --primary: oklch(0.577 0.245 27.325);
-  --primary-solid: var(--primary); /* white text on it: 4.7:1 */
+  --primary-solid: var(--primary); /* texto blanco encima: 4,7:1 */
   --primary-foreground: oklch(0.99 0 0);
 
-  /* Metallic gray surfaces. */
+  /* Superficies gris metálico. */
   --secondary: oklch(0.95 0.003 260);
   --secondary-foreground: oklch(0.2 0.006 260);
   --muted: oklch(0.96 0.003 260);
@@ -113,7 +112,7 @@
   --input: oklch(0.9 0.004 260);
   --ring: oklch(0.577 0.245 27.325 / 60%);
 
-  /* 5.2:1 on white — also used as text ("En stock"), so it must reach AA. */
+  /* 5,2:1 sobre blanco; también se usa como texto («En stock»), así que debe llegar a AA. */
   --success: oklch(0.52 0.15 145);
   --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.75 0.16 80);
@@ -136,8 +135,8 @@
 }
 
 .dark {
-  /* Deep black background, graphite/anthracite surfaces — the flagship look
-     for this brand. */
+  /* Fondo negro profundo y superficies grafito/antracita: el aspecto principal de
+     la marca. */
   --background: oklch(0.13 0.004 260);
   --foreground: oklch(0.97 0.002 260);
 
@@ -146,9 +145,9 @@
   --popover: oklch(0.19 0.006 260);
   --popover-foreground: oklch(0.97 0.002 260);
 
-  /* Red text on the black background: 5.1:1. */
+  /* Texto rojo sobre el fondo negro: 5,1:1. */
   --primary: oklch(0.63 0.23 27.325);
-  /* White text on red: 5.1:1 (on --primary it would only be 3.8:1). */
+  /* Texto blanco sobre rojo: 5,1:1 (sobre --primary solo sería 3,8:1). */
   --primary-solid: oklch(0.56 0.23 27.325);
   --primary-foreground: oklch(0.99 0 0);
 
@@ -185,10 +184,10 @@
   --sidebar-ring: oklch(0.63 0.23 27.325 / 65%);
 }
 
-/* TopBar shows a single line on mobile and multiple messages side-by-side
-   from md up (see site/navigation/top-bar.tsx) — it's a little taller there
-   to match. --header-offset recomputes automatically; nothing else needs
-   to change for the layout to follow. */
+/* TopBar muestra una sola línea en móvil y varios mensajes en fila a partir de md
+   (ver site/navigation/top-bar.tsx), por eso ahí es algo más alta.
+   --header-offset se recalcula solo; no hay que cambiar nada más para que la
+   maquetación se adapte. */
 @media (min-width: 768px) {
   :root {
     --top-bar-h: 2rem;
@@ -209,17 +208,17 @@
 }
 
 @layer utilities {
-  /* Uppercase, tightly-tracked display heading — the "sports brand" voice
-     used for hero/section titles. Body text and UI copy never use this. */
+  /* Título en mayúsculas con poco espaciado: la «voz de marca deportiva» para los
+     títulos de portada y secciones. Nunca se usa en el texto normal ni en la interfaz. */
   .text-display {
     font-family: var(--font-display);
     letter-spacing: -0.01em;
     text-transform: uppercase;
   }
 
-  /* For the mobile horizontal snap-scroll rows (category tiles, etc.) — the
-     scroll itself is the affordance, a visible scrollbar underneath it just
-     adds noise. Scrolling still works identically, only the bar is hidden. */
+  /* Para las filas con desplazamiento horizontal en móvil (categorías, etc.): el
+     propio desplazamiento ya indica que se puede deslizar, y una barra visible solo
+     añade ruido. Se desplaza igual; solo se oculta la barra. */
   .scrollbar-none {
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -259,9 +258,9 @@
   animation: pop-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* Cheap, GPU-only scroll parallax: a translateY set via JS on a CSS custom
-   property, applied only inside .parallax-layer. No animation/transition
-   libraries. Disabled outright under reduced-motion. */
+/* Parallax de scroll barato y solo por GPU: un translateY que fija JS en una
+   variable CSS, aplicado solo dentro de .parallax-layer. Sin librerías de
+   animación. Se desactiva por completo con reduced-motion. */
 @media (prefers-reduced-motion: no-preference) {
   .parallax-layer {
     transform: translateY(calc(var(--parallax-offset, 0) * 1px));
@@ -269,10 +268,11 @@
   }
 }
 
-/* Hero title letters "forming" in — each letter is its own span, staggered
-   via an inline animation-delay set by the component. One-shot, so left
-   unconditional like .animate-fade-up above (WCAG treats short non-looping
-   entrance motion as fine; only the looping glow below is gated). */
+/* Letras del título de portada que van «apareciendo»: cada letra es su propio
+   span, escalonado con un animation-delay en línea que pone el componente. Se
+   ejecuta una sola vez, así que no se condiciona, igual que .animate-fade-up de
+   arriba (WCAG acepta animaciones de entrada cortas que no se repiten; solo el
+   brillo en bucle de abajo se condiciona). */
 @keyframes letter-in {
   from {
     opacity: 0;
@@ -290,9 +290,9 @@
   animation: letter-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* Slow ambient glow pulse on the hero's highlighted word — purely
-   decorative and looping, so it's gated behind reduced-motion like the
-   parallax layer above; reduced-motion users get a static glow instead. */
+/* Pulso de brillo lento en la palabra destacada de la portada: puramente
+   decorativo y en bucle, así que se condiciona a reduced-motion igual que el
+   parallax de arriba; quien pide menos movimiento ve un brillo estático. */
 @keyframes glow-pulse {
   0%,
   100% {
@@ -313,13 +313,12 @@
   }
 }
 
-/* Reusable version of the hero's own "dark arena" treatment (promo-carousel.tsx)
-   — extracted so sections beyond the hero (proof/rewards) can share the exact
-   same fixed near-black backdrop + faint red glow + grid-line texture instead
-   of each falling back to a plain bg-muted/white section, which is what made
-   the brand identity feel like it stopped after the hero. Fixed color values
-   (not theme tokens) on purpose: this must read the same in light and dark
-   mode, exactly like the hero. */
+/* Versión reutilizable del estilo «arena oscura» de la portada
+   (promo-carousel.tsx), extraída para que otras secciones (pruebas/recompensas)
+   compartan el mismo fondo casi negro, el leve brillo rojo y la textura de
+   cuadrícula, en vez de quedarse en una sección bg-muted/blanca, que hacía sentir
+   que la identidad de marca se acababa tras la portada. Colores fijos (no tokens
+   del tema) a propósito: debe verse igual en modo claro y oscuro, como la portada. */
 .section-spotlight {
   position: relative;
   background-color: oklch(0.13 0.004 260);
@@ -351,10 +350,10 @@
   z-index: 1;
 }
 
-/* Animated wordmark (components/brand/logo.tsx AnimatedWordmark): the real
-   logo_titulo.png asset used as a CSS mask (its alpha channel only — the
-   photographic metal/grunge texture painted into the PNG's pixels is
-   discarded), filled flat white/red, revealed with a left-to-right wipe. */
+/* Logotipo animado (AnimatedWordmark en components/brand/logo.tsx): el archivo
+   real logo_titulo.png usado como máscara CSS (solo su canal alfa; la textura
+   fotográfica metálica del PNG se descarta), relleno plano blanco/rojo y revelado
+   con un barrido de izquierda a derecha. */
 @keyframes logo-wipe {
   from {
     clip-path: inset(0 100% 0 0);
@@ -377,16 +376,14 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Finite (not infinite): pulses a few times right after the reveal, then
-     settles back to the static .logo-glow-* value above (same 0%/100%
-     keyframe value, so there's no visible jump when it stops). A `filter`
-     forces this element onto its own GPU compositing layer — leaving the
-     animation running forever means it's *continuously* repainting on its
-     own clock, independent of (and slightly out of sync with) the
-     carousel's drag-transform repaints, which is what caused the hairline
-     seam reported against the adjacent text during a drag. Settling after
-     a few pulses removes that competing repaint clock for the rest of the
-     time the slide is on screen. */
+  /* Finita (no infinita): pulsa unas veces justo después de aparecer y vuelve al
+     valor estático .logo-glow-* de arriba (mismo valor en 0 %/100 %, así que no hay
+     salto al parar). Un `filter` lleva este elemento a su propia capa de GPU; si la
+     animación no parara, se repintaría *continuamente* con su propio reloj,
+     independiente (y algo desacompasado) de los repintados al arrastrar el
+     carrusel, que es lo que causaba la fina línea junto al texto vecino al
+     arrastrar. Parar tras unos pulsos elimina ese reloj de repintado durante el
+     resto del tiempo que la diapositiva está en pantalla. */
   .logo-glow-white {
     animation: logo-glow-white-pulse 2.8s ease-in-out 3;
   }
@@ -415,9 +412,9 @@
   }
 }
 
-/* Printing / "Save as PDF" (e.g. the legal pages' print button): always black
-   text on white paper, whatever the theme. Header, footer and cookie banner
-   hide themselves with `print:hidden`. */
+/* Impresión / «Guardar como PDF» (p. ej. el botón de imprimir de las páginas
+   legales): siempre texto negro sobre papel blanco, sea cual sea el tema. Cabecera,
+   pie y banner de cookies se ocultan con `print:hidden`. */
 @media print {
   html,
   body {
@@ -427,8 +424,8 @@
   }
 }
 
-/* Accessibility: visitors who ask their OS for reduced motion get no
-   animations, transitions or smooth scrolling (WCAG 2.3.3). */
+/* Accesibilidad: quien pide a su sistema operativo reducir el movimiento no ve
+   animaciones, transiciones ni desplazamiento suave (WCAG 2.3.3). */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

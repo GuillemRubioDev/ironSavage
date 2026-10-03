@@ -24,7 +24,7 @@ import { useState } from 'react';
 
 import { athleteListDocument } from './graphql';
 
-/** Same manual-fetch-and-table approach as the Banners/Loyalty extensions. */
+/** Mismo enfoque de carga manual y tabla que las extensiones de banners y fidelización. */
 export function AthletesListPage() {
     const { t } = useLingui();
     const [term, setTerm] = useState('');

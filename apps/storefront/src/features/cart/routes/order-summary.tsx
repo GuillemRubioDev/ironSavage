@@ -23,10 +23,10 @@ type ActiveOrder = {
 };
 
 /**
- * Vendure reports one taxSummary entry per (taxRate, taxCategory) pair, so a
- * product tax line and a shipping tax line at the same 21% show up as two
- * separate entries — confusing when displayed as-is ("IVA (21%)" twice).
- * Combine entries that share a rate into one total before rendering.
+ * Vendure devuelve una entrada de taxSummary por cada pareja (taxRate, taxCategory),
+ * así que el IVA de un producto y el del envío al mismo 21 % salen como dos entradas
+ * separadas, lo que confunde si se muestra tal cual («IVA (21%)» dos veces). Antes
+ * de mostrarlas se suman las entradas del mismo tipo.
  */
 function combineTaxByRate(taxSummary: ActiveOrder['taxSummary']) {
     const byRate = new Map<number, number>();

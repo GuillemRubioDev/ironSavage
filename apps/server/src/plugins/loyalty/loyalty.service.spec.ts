@@ -10,11 +10,10 @@ const { setLoyaltyConfig } = require('./loyalty-config');
 setLoyaltyConfig({ pointsPerEuro: 1, pointValueInCents: 1, minRedeemablePoints: 100, maxDiscountPerOrderCents: 2000 });
 
 /**
- * Minimal in-memory stand-ins for the two repositories, faithful to the
- * actual guard the real atomic UPDATE enforces (`balance + delta >= 0`) so
- * these tests exercise the same race-safety semantics as production SQL,
- * and to the same unique-constraint-on-EARN-per-order behaviour the real
- * partial index provides.
+ * Sustitutos mínimos en memoria de los dos repositorios, fieles a la condición que
+ * impone el UPDATE atómico real (`balance + delta >= 0`), para que estos tests
+ * prueben la misma seguridad ante carreras que el SQL de producción, y a la
+ * restricción única de EARN por pedido que da el índice parcial real.
  */
 function createFakeDb() {
     const accounts = new Map<string, any>();
@@ -113,13 +112,12 @@ function createFakeDb() {
 
 function createService() {
     const db = createFakeDb();
-    // A real Postgres transaction updating LoyaltyAccount's row takes a row
-    // lock, so a second concurrent transaction touching the same account
-    // blocks until the first commits or rolls back — it doesn't see a
-    // torn/interleaved write. `mutex` gives the fake the same serialization,
-    // and each turn still snapshots/rolls back on throw, matching real
-    // transaction semantics for the one thing this fake needs to prove: that
-    // a losing race is fully undone, not partially applied.
+    // Una transacción real de Postgres que actualiza la fila de LoyaltyAccount la
+    // bloquea, así que una segunda transacción simultánea sobre la misma cuenta espera
+    // a que la primera confirme o deshaga: no ve escrituras a medias. `mutex` da al
+    // sustituto la misma serialización, y cada turno guarda una copia y la restaura si
+    // falla, igual que una transacción real en lo único que este sustituto debe
+    // demostrar: que una carrera perdida se deshace entera, no a medias.
     let mutex: Promise<unknown> = Promise.resolve();
     const connectionMock = {
         getRepository: (_ctx: unknown, Entity: unknown) => (Entity === LoyaltyAccount ? db.accountRepo : db.transactionRepo),
@@ -160,7 +158,7 @@ function createService() {
 
 test('a settled order earns points once', async () => {
     const { service, db } = createService();
-    const order = { id: '1', code: 'ORDER001', customerId: 'cust-1', totalWithTax: 2599 }; // 25.99€ -> 25 pts
+    const order = { id: '1', code: 'ORDER001', customerId: 'cust-1', totalWithTax: 2599 }; // 25,99 € -> 25 puntos
 
     const result = await service.earnForOrder({}, order);
 
@@ -172,7 +170,7 @@ test('a settled order earns points once', async () => {
 
 test('earning points for the same order twice does not duplicate the credit', async () => {
     const { service, db } = createService();
-    const order = { id: '2', code: 'ORDER002', customerId: 'cust-2', totalWithTax: 1000 }; // 10 pts
+    const order = { id: '2', code: 'ORDER002', customerId: 'cust-2', totalWithTax: 1000 }; // 10 puntos
 
     const first = await service.earnForOrder({}, order);
     const second = await service.earnForOrder({}, order);
@@ -185,7 +183,7 @@ test('earning points for the same order twice does not duplicate the credit', as
 
 test('redeeming points applies a discount surcharge and debits the ledger', async () => {
     const { service, db, surcharges } = createService();
-    const earnOrder = { id: '3', code: 'ORDER003', customerId: 'cust-3', totalWithTax: 20000 }; // 200 pts
+    const earnOrder = { id: '3', code: 'ORDER003', customerId: 'cust-3', totalWithTax: 20000 }; // 200 puntos
     await service.earnForOrder({}, earnOrder);
     const checkoutOrder = { id: '4', code: 'ORDER004', customerId: 'cust-3', totalWithTax: 5000, surcharges: [] };
 
@@ -194,14 +192,14 @@ test('redeeming points applies a discount surcharge and debits the ledger', asyn
     assert.equal(result.success, true);
     assert.equal(result.discountCents, 100);
     const account = await db.accountRepo.findOne({ where: { customerId: 'cust-3' } });
-    assert.equal(account.balance, 100); // 200 earned - 100 spent
+    assert.equal(account.balance, 100); // 200 ganados - 100 gastados
     assert.equal(surcharges.length, 1);
     assert.equal(surcharges[0].listPrice, -100);
 });
 
 test('redeeming more points than the balance is rejected, with no side effects', async () => {
     const { service, db, surcharges, orderServiceMock } = createService();
-    const earnOrder = { id: '5', code: 'ORDER005', customerId: 'cust-4', totalWithTax: 10000 }; // 100 pts
+    const earnOrder = { id: '5', code: 'ORDER005', customerId: 'cust-4', totalWithTax: 10000 }; // 100 puntos
     await service.earnForOrder({}, earnOrder);
     const checkoutOrder = { id: '6', code: 'ORDER006', customerId: 'cust-4', totalWithTax: 99999, surcharges: [] };
 
@@ -212,14 +210,14 @@ test('redeeming more points than the balance is rejected, with no side effects',
     assert.equal(surcharges.length, 0);
     assert.equal(orderServiceMock.addSurchargeToOrder.mock.callCount(), 0);
     const account = await db.accountRepo.findOne({ where: { customerId: 'cust-4' } });
-    assert.equal(account.balance, 100); // unchanged
+    assert.equal(account.balance, 100); // sin cambios
 });
 
 test('a settled refund reverts a proportional, capped share of the earned points', async () => {
     const { service, db } = createService();
-    const order = { id: '7', code: 'ORDER007', customerId: 'cust-5', totalWithTax: 10000 }; // 100 pts earned
+    const order = { id: '7', code: 'ORDER007', customerId: 'cust-5', totalWithTax: 10000 }; // 100 puntos ganados
     await service.earnForOrder({}, order);
-    const refund = { total: 5000 }; // 50% refunded
+    const refund = { total: 5000 }; // reembolsado el 50 %
 
     const result = await service.revertForRefund({}, order, refund);
 
@@ -230,7 +228,7 @@ test('a settled refund reverts a proportional, capped share of the earned points
 
 test('concurrent EARN attempts for the same order only credit points once', async () => {
     const { service, db } = createService();
-    const order = { id: '8', code: 'ORDER008', customerId: 'cust-6', totalWithTax: 10000 }; // 100 pts
+    const order = { id: '8', code: 'ORDER008', customerId: 'cust-6', totalWithTax: 10000 }; // 100 puntos
 
     const [r1, r2] = await Promise.all([service.earnForOrder({}, order), service.earnForOrder({}, order)]);
 
@@ -242,7 +240,7 @@ test('concurrent EARN attempts for the same order only credit points once', asyn
 
 test('an earn policy can exclude an order from regular EARN without affecting other customers', async () => {
     const { service, db } = createService();
-    // Mirrors the AthletesPlugin policy: this customer is an athlete.
+    // Imita la política de AthletesPlugin: este cliente es atleta.
     service.registerEarnPolicy({ name: 'test-athletes', canEarnForOrder: async (_ctx: unknown, order: any) => order.customerId !== 'athlete-1' });
 
     const athleteResult = await service.earnForOrder({}, { id: '9', code: 'ORDER009', customerId: 'athlete-1', totalWithTax: 10000 });

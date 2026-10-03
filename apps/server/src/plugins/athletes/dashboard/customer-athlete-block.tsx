@@ -7,9 +7,9 @@ import { Trophy } from 'lucide-react';
 import { athleteByCustomerDocument } from './graphql';
 
 /**
- * Customer detail page block: an athlete is a customer with extra
- * privileges, so the athlete side is reachable from the customer itself —
- * its status and codes, or a shortcut to make this customer an athlete.
+ * Bloque de la ficha de cliente: un atleta es un cliente con privilegios extra, así
+ * que lo de atleta se ve desde el propio cliente (su estado y sus códigos) o hay
+ * un acceso directo para hacerlo atleta.
  */
 export function CustomerAthleteBlock({ customerId }: { customerId: string }) {
     const { data, isLoading } = useQuery({

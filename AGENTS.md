@@ -1,34 +1,35 @@
-# tienda suple Project Instructions
+# Instrucciones del proyecto (tienda suple / Iron Savage)
 
-This project was generated with `@vendure/create`.
+Proyecto generado con `@vendure/create`. El equipo es hispanohablante: los comentarios, la documentación y las
+explicaciones del proyecto van en español.
 
-## Workspace Layout
+## Estructura del monorepo
 
-- Vendure backend: `apps/server`
-- Next.js storefront: `apps/storefront`
-- Start both apps: `npm run dev`
-- Start only the server: `npm run dev:server`
-- Start only the storefront: `npm run dev:storefront`
-- Backend custom code belongs in `apps/server/src/plugins`
-- Backend runtime configuration is in `apps/server/src/vendure-config.ts`
-- Backend static assets and email templates live in `apps/server/static`
+- Backend Vendure: `apps/server`
+- Storefront Next.js: `apps/storefront`
+- Arrancar las dos apps: `npm run dev`
+- Arrancar solo el servidor: `npm run dev:server`
+- Arrancar solo el storefront: `npm run dev:storefront`
+- El código propio del backend va en `apps/server/src/plugins`
+- La configuración del backend está en `apps/server/src/vendure-config.ts`
+- Los recursos estáticos del backend (imágenes subidas, PDF de factura, emails de desarrollo) están en `apps/server/static`
 
-## Vendure Development
+## Desarrollo con Vendure
 
-- Prefer implementing custom functionality as a Vendure plugin.
-- Use `npx vendure add` to scaffold plugins, entities, services, API extensions, and job queues.
-- Read environment variables in `vendure-config.ts` and pass values into plugins through `Plugin.init()` options.
-- Create job queues in `onModuleInit()` or `onApplicationBootstrap()`, then reuse the queue when adding jobs.
-- Pass `RequestContext` to Vendure services and `TransactionalConnection` methods when it is available.
-- Do not commit `.env` values or generated runtime data.
-- Do not use `dbConnectionOptions.synchronize: true` for production data.
+- Implementa la funcionalidad propia como plugin de Vendure siempre que se pueda.
+- Usa `npx vendure add` para generar plugins, entidades, servicios, extensiones de API y colas de trabajos.
+- Lee las variables de entorno en `vendure-config.ts` y pásalas a los plugins con las opciones de `Plugin.init()`.
+- Crea las colas de trabajos en `onModuleInit()` u `onApplicationBootstrap()` y reutiliza la cola al añadir trabajos.
+- Pasa el `RequestContext` a los servicios de Vendure y a los métodos de `TransactionalConnection` cuando lo tengas.
+- No subas valores de `.env` ni datos generados en ejecución.
+- No uses `dbConnectionOptions.synchronize: true` con datos de producción.
 
-## Commands
+## Comandos
 
-- Start development: `npm run dev`
+- Desarrollo: `npm run dev`
 - Build: `npm run build`
 
-## Quality Checks
+## Comprobaciones de calidad
 
-- Run `npm run build` after changing backend code.
-- Run targeted tests for the package or feature you changed.
+- Ejecuta `npm run build` tras cambiar código del backend.
+- Ejecuta los tests del paquete o la funcionalidad que hayas cambiado.

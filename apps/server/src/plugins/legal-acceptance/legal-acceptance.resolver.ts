@@ -21,11 +21,11 @@ export class LegalAcceptanceShopResolver {
     ) {}
 
     /**
-     * Records on the session's active order that the customer accepted the
-     * terms (version = the legal texts' "last updated" date). Always the
-     * active order — never a client-supplied id — and always the server's
-     * clock. Called again on every payment attempt, so the record reflects
-     * the acceptance that preceded the actual payment.
+     * Anota en el pedido activo de la sesión que el cliente aceptó las condiciones
+     * (versión = fecha de «última actualización» de los textos legales). Siempre el
+     * pedido activo, nunca un id enviado por el navegador, y siempre con el reloj del
+     * servidor. Se vuelve a llamar en cada intento de pago, para que el registro
+     * refleje la aceptación previa al pago real.
      */
     @Transaction()
     @Mutation()

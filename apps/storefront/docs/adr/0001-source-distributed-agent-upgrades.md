@@ -1,11 +1,20 @@
-# Keep the storefront source-distributed and agent-upgradable
+# Mantener el storefront como código fuente propio y actualizable por agentes
 
-The storefront remains entirely developer-owned source instead of moving customizable behavior into Vendure runtime packages. Upgrades reconcile tagged upstream snapshots with downstream intent using structured change context and verification, accepting semantic integration work in exchange for maximum customizability and agent independence.
+El storefront sigue siendo íntegramente código propio del equipo, en vez de trasladar el comportamiento personalizable a
+paquetes de Vendure. Las actualizaciones concilian las instantáneas etiquetadas de la plantilla con la intención del
+código propio usando contexto estructurado de los cambios y verificación. Se acepta el trabajo de integración a cambio
+de la máxima capacidad de personalización y de independencia para los agentes.
 
-## Considered options
+## Opciones consideradas
 
-Git-only fork syncing leaves agents to reconstruct intent from diffs, while packaging most storefront behavior improves dependency updates by making core source harder to customize. The chosen model combines exact Git provenance with authored upgrade notes, local feature ownership, and repository-local scripts.
+Sincronizar un fork solo con Git obliga a los agentes a reconstruir la intención a partir de los diffs; empaquetar la
+mayor parte del comportamiento del storefront facilita actualizar dependencias, pero hace más difícil personalizar el
+código principal. El modelo elegido combina la procedencia exacta en Git con notas de actualización escritas, la
+propiedad local de cada feature y scripts dentro del propio repositorio.
 
-## Consequences
+## Consecuencias
 
-Upstream contributors must describe downstream-impacting changes, release tags are immutable protocol inputs, and some upgrades still require explicit human or agent judgment. No upgrade tool may silently treat upstream files as authoritative over customized downstream behavior.
+Quien contribuye a la plantilla debe describir los cambios que afectan al código propio, las etiquetas de versión son
+entradas inmutables del protocolo y algunas actualizaciones siguen necesitando el criterio explícito de una persona o un
+agente. Ninguna herramienta de actualización puede dar por buenos los archivos de la plantilla por encima del
+comportamiento personalizado sin avisar.

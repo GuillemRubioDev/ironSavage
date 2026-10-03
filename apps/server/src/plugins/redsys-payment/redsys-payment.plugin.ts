@@ -10,34 +10,34 @@ import { RedsysService } from './redsys.service';
 import { RedsysTransaction } from './redsys-transaction.entity';
 
 /**
- * Redsys ("TPV Virtual") card payment integration, via the "Conexión por
- * Redirección" method: the customer is redirected to Redsys' own hosted
- * payment page to enter their card, and Redsys notifies this server
- * server-to-server once the payment has been authorized.
+ * Pago con tarjeta por Redsys («TPV Virtual») con el método «Conexión por
+ * Redirección»: el cliente va a la página de pago de Redsys para introducir la
+ * tarjeta y Redsys avisa a este servidor (de servidor a servidor) cuando el pago
+ * está autorizado.
  *
- * This plugin is entirely self-contained — the only required change outside
- * of it is adding `RedsysPlugin` to the `plugins` array in vendure-config.ts.
- * It does not modify any core Vendure behaviour.
+ * El plugin es totalmente independiente: lo único que hace falta fuera de él es
+ * añadir `RedsysPlugin` al array `plugins` de vendure-config.ts. No modifica nada
+ * del núcleo de Vendure.
  *
- * ## Required environment variables
+ * ## Variables de entorno obligatorias
  *
- * - `REDSYS_MERCHANT_CODE` — FUC / merchant code
- * - `REDSYS_TERMINAL` — terminal number
- * - `REDSYS_SECRET_KEY` — the base64 secret key ("clave de firma") for the terminal
- * - `REDSYS_ENVIRONMENT` — `test` or `production`
- * - `REDSYS_NOTIFICATION_URL` — publicly reachable URL Redsys will POST to
- *   (this server's `/payments/redsys/notify`)
- * - `STOREFRONT_URL` — base URL of the storefront, used to build the
- *   UrlOK/UrlKO redirect targets
+ * - `REDSYS_MERCHANT_CODE`: FUC / código de comercio
+ * - `REDSYS_TERMINAL`: número de terminal
+ * - `REDSYS_SECRET_KEY`: clave de firma del terminal, en base64
+ * - `REDSYS_ENVIRONMENT`: `test` o `production`
+ * - `REDSYS_NOTIFICATION_URL`: URL pública a la que Redsys hará el POST
+ *   (`/payments/redsys/notify` de este servidor)
+ * - `STOREFRONT_URL`: URL base del storefront, para construir las redirecciones
+ *   UrlOK/UrlKO
  *
- * ## Setup
+ * ## Configuración
  *
- * 1. Set the environment variables above.
- * 2. In the Admin UI (or via the Admin API), create a PaymentMethod with the
- *    "Redsys (tarjeta bancaria)" handler.
- * 3. In the storefront, call the `createRedsysPaymentForm` Shop API mutation
- *    once the order is ready for payment, and auto-submit the returned
- *    url/signatureVersion/merchantParameters/signature as a POST form.
+ * 1. Define las variables de entorno de arriba.
+ * 2. En el dashboard (o con la Admin API), crea un método de pago con el handler
+ *    «Redsys (tarjeta bancaria)».
+ * 3. En el storefront, llama a la mutación `createRedsysPaymentForm` de la Shop API
+ *    cuando el pedido esté listo para pagar y envía automáticamente como formulario
+ *    POST los url/signatureVersion/merchantParameters/signature devueltos.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

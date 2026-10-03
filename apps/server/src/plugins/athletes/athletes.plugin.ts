@@ -16,21 +16,21 @@ import { AthletesShopResolver } from './athletes-shop.resolver';
 export { athletePermission } from './athlete.permission';
 
 /**
- * Athletes: customers who earn loyalty points when *other* customers buy
- * with their promotional code, instead of on their own purchases.
+ * Atletas: clientes que ganan puntos de fidelización cuando *otros* clientes
+ * compran con su código promocional, en vez de por sus propias compras.
  *
- * Built on top of existing mechanisms rather than beside them:
- * - the customer discount is a regular Vendure Promotion per code (coupon +
- *   built-in discount action + the `athlete_code` condition), so cart and
- *   checkout apply it through the standard `applyCouponCode` flow;
- * - the athlete's points are credited to the LoyaltyPlugin ledger (new
- *   ATHLETE_REWARD / ATHLETE_REWARD_REVERSAL types), so they're spent with
- *   the exact same redemption flow as any customer's points;
- * - athletes are excluded from regular EARN through LoyaltyService's
- *   earn-policy hook.
+ * Construido sobre los mecanismos que ya existen, no al margen:
+ * - el descuento del cliente es una Promotion normal de Vendure por código (cupón
+ *   + acción de descuento estándar + la condición `athlete_code`), así que el
+ *   carrito y el checkout la aplican con el flujo estándar `applyCouponCode`;
+ * - los puntos del atleta se abonan en el libro de LoyaltyPlugin (tipos nuevos
+ *   ATHLETE_REWARD / ATHLETE_REWARD_REVERSAL), así que se gastan con el mismo
+ *   flujo de canje que los de cualquier cliente;
+ * - los atletas no acumulan puntos normales gracias al hook de política de
+ *   acumulación de LoyaltyService.
  *
- * Requires LoyaltyPlugin, and `athletePermission` registered in
- * `authOptions.customPermissions` (see vendure-config.ts).
+ * Necesita LoyaltyPlugin y `athletePermission` registrado en
+ * `authOptions.customPermissions` (ver vendure-config.ts).
  */
 @VendurePlugin({
     imports: [PluginCommonModule, LoyaltyPlugin],

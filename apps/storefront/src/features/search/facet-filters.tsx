@@ -93,7 +93,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
     const router = useRouter();
     const [sheetOpen, setSheetOpen] = useState(false);
 
-    // Group facet values by facet
+    // Agrupa los valores de filtro por filtro
     interface FacetGroup {
         id: string;
         name: string;
@@ -130,7 +130,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
             params.append('facets', facetId);
         }
 
-        // Reset to page 1 when filters change
+        // Vuelve a la página 1 al cambiar los filtros
         params.delete('page');
 
         router.push(`${pathname}?${params.toString()}`);
@@ -161,7 +161,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
 
     return (
         <>
-            {/* Mobile: Sheet trigger */}
+            {/* Móvil: botón que abre el panel */}
             <div className="lg:hidden">
                 <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                     <SheetTrigger
@@ -188,7 +188,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
                 </Sheet>
             </div>
 
-            {/* Desktop: Inline filters */}
+            {/* Escritorio: filtros en la página */}
             <div className="hidden lg:block">
                 <FilterContent {...filterContentProps} />
             </div>

@@ -2,11 +2,10 @@ import { Customer, DeepPartial, EntityId, ID, VendureEntity } from '@vendure/cor
 import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 
 /**
- * One account per Customer. `balance` is a denormalized running total kept in
- * sync with `LoyaltyTransaction` inside the same DB transaction as every
- * write — the transaction ledger is the audit source of truth, this column
- * exists purely so reading the current balance doesn't require summing the
- * whole ledger on every request.
+ * Una cuenta por cliente. `balance` es un total acumulado desnormalizado que se
+ * mantiene sincronizado con `LoyaltyTransaction` dentro de la misma transacción de
+ * cada escritura. La fuente de verdad para auditoría es el libro de movimientos;
+ * esta columna existe solo para no sumar todo el libro en cada petición.
  */
 @Entity()
 export class LoyaltyAccount extends VendureEntity {

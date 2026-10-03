@@ -1,8 +1,8 @@
 import { CustomFieldConfig, LanguageCode, OrderProcess } from '@vendure/core';
 
 /**
- * Version of the storefront's legal texts, as sent by the storefront: the
- * date they were last updated (LEGAL_VERSION in apps/storefront/src/config/legal.ts).
+ * Versión de los textos legales de la tienda, tal como la envía el storefront: la
+ * fecha de su última actualización (LEGAL_VERSION en apps/storefront/src/config/legal.ts).
  */
 export const TERMS_VERSION_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -15,11 +15,10 @@ export function isValidTermsVersion(version: unknown): version is string {
 }
 
 /**
- * Evidence of the customer's acceptance of the general terms, stored on the
- * order itself. `readonly`: no API (shop or admin) can write them — only
- * `acceptTermsForActiveOrder`, which stamps the server's own clock. Not
- * `public`: the Shop API doesn't expose them; the Dashboard shows them on the
- * order detail page.
+ * Prueba de que el cliente aceptó las condiciones generales, guardada en el propio
+ * pedido. `readonly`: ninguna API (tienda ni administración) puede escribirlos,
+ * solo `acceptTermsForActiveOrder`, que pone la hora del servidor. No son
+ * `public`: la Shop API no los expone; el dashboard los muestra en la ficha del pedido.
  */
 export const orderTermsCustomFields: CustomFieldConfig[] = [
     {
@@ -70,10 +69,9 @@ export const TERMS_NOT_ACCEPTED_MESSAGE =
     'The terms and conditions must be accepted before paying (acceptTermsForActiveOrder)';
 
 /**
- * Server-side guarantee that every order placed from the storefront carries
- * the acceptance record: the Shop API cannot move an order to payment
- * without it. Orders created by an administrator (draft orders, Admin API)
- * are not affected.
+ * Garantía en el servidor de que todo pedido hecho desde la tienda lleva el
+ * registro de aceptación: la Shop API no puede pasar un pedido a pago sin él. No
+ * afecta a los pedidos creados por un administrador (borradores, Admin API).
  */
 export const termsAcceptanceOrderProcess: OrderProcess<never> = {
     onTransitionStart(fromState, toState, { ctx, order }) {

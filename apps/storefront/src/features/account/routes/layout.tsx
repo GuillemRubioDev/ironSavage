@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default async function AccountLayout({children}: LayoutProps<'/[locale]/mi-cuenta'>) {
     return (
         <div className="container mx-auto px-4 py-8">
-            {/* Mobile: horizontal tab bar */}
+            {/* Móvil: barra de pestañas horizontal */}
             <div className="md:hidden mb-6">
                 <Suspense>
                     <AccountNav layout="horizontal" />
@@ -18,7 +18,7 @@ export default async function AccountLayout({children}: LayoutProps<'/[locale]/m
             </div>
 
             <div className="flex gap-8">
-                {/* Desktop: sidebar */}
+                {/* Escritorio: barra lateral */}
                 <aside className="hidden md:block w-64 shrink-0">
                     <Suspense>
                         <AccountNav layout="vertical" />

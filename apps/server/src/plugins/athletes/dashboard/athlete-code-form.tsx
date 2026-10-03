@@ -10,7 +10,7 @@ export interface AthleteCodeFormValue {
     code: string;
     enabled: boolean;
     discountType: DiscountType;
-    /** Percentage, or euros (converted to cents on submit) for FIXED_AMOUNT. */
+    /** Porcentaje, o euros (que se pasan a céntimos al enviar) en FIXED_AMOUNT. */
     discountValue: string;
     rewardType: RewardType;
     rewardValue: string;
@@ -25,7 +25,7 @@ export const EMPTY_CODE_FORM: AthleteCodeFormValue = {
     rewardValue: '5',
 };
 
-/** API shape → form shape (fixed discounts are edited in euros, stored in cents). */
+/** Forma de la API → forma del formulario (los descuentos fijos se editan en euros y se guardan en céntimos). */
 export function codeToFormValue(code: {
     code: string;
     enabled: boolean;
@@ -44,7 +44,7 @@ export function codeToFormValue(code: {
     };
 }
 
-/** Form shape → API input. Server-side validation is authoritative; this only converts units. */
+/** Forma del formulario → entrada de la API. La validación que manda es la del servidor; esto solo convierte unidades. */
 export function formValueToInput(value: AthleteCodeFormValue) {
     const discount = Number(value.discountValue.replace(',', '.'));
     const reward = Number(value.rewardValue.replace(',', '.'));
@@ -62,8 +62,8 @@ export function formatDiscount(discountType: string, discountValue: number, curr
     return discountType === 'FIXED_AMOUNT' ? formatMoney(discountValue, currencyCode) : `${discountValue}%`;
 }
 
-// Uses the global Lingui instance (same one the Dashboard activates), so it
-// works outside components too.
+// Usa la instancia global de Lingui (la misma que activa el dashboard), así que
+// también funciona fuera de los componentes.
 export function formatReward(rewardType: string, rewardValue: number): string {
     return rewardType === 'FIXED_POINTS' ? t`${rewardValue} pts / order` : `${rewardValue}%`;
 }
@@ -77,7 +77,7 @@ interface AthleteCodeFormProps {
     submitLabel: string;
     onSubmit: (value: AthleteCodeFormValue) => Promise<void> | void;
     onCancel?: () => void;
-    /** When embedded in another form (new athlete page), render fields only. */
+    /** Cuando va dentro de otro formulario (página de atleta nuevo), solo pinta los campos. */
     fieldsOnly?: boolean;
     onChange?: (value: AthleteCodeFormValue) => void;
 }

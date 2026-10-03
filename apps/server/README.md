@@ -1,26 +1,27 @@
 # tienda suple
 
-This project was generated with [`@vendure/create`](https://github.com/vendurehq/vendure/tree/master/packages/create).
+Proyecto generado con [`@vendure/create`](https://github.com/vendurehq/vendure/tree/master/packages/create).
 
-Useful links:
+Enlaces útiles:
 
-- [Vendure docs](https://www.vendure.io/docs)
-- [Vendure Discord community](https://www.vendure.io/community)
-- [Vendure on GitHub](https://github.com/vendurehq/vendure)
-- [Vendure plugin template](https://github.com/vendurehq/plugin-template)
+- [Documentación de Vendure](https://www.vendure.io/docs)
+- [Comunidad de Vendure en Discord](https://www.vendure.io/community)
+- [Vendure en GitHub](https://github.com/vendurehq/vendure)
+- [Plantilla de plugin de Vendure](https://github.com/vendurehq/plugin-template)
 
-## Directory structure
+## Estructura de carpetas
 
-* `/src` contains the source code of your Vendure server. All your custom code and plugins should reside here.
-* `/static` contains static (non-code) files such as assets (e.g. uploaded images) and email templates.
+* `/src` contiene el código fuente del servidor Vendure. Todo el código propio y los plugins van aquí.
+* `/static` contiene archivos estáticos (no código), como los recursos subidos (p. ej. imágenes), los PDF de factura y
+  los emails generados en modo desarrollo.
 
-## Development
+## Desarrollo
 
 ```
 npm run dev
 ```
 
-will start the Vendure server, [worker](https://www.vendure.io/docs/developer-guide/vendure-worker/) and Dashboard.
+arranca el servidor Vendure, el [worker](https://www.vendure.io/docs/developer-guide/vendure-worker/) y el dashboard.
 
 ## Build
 
@@ -28,121 +29,122 @@ will start the Vendure server, [worker](https://www.vendure.io/docs/developer-gu
 npm run build
 ```
 
-will compile the TypeScript sources and build the Dashboard into the `/dist` directory.
+compila el código TypeScript y el dashboard en la carpeta `/dist`.
 
-## Production
+## Producción
 
-For production, there are many possibilities which depend on your operational requirements as well as your production
-hosting environment.
+El despliegue de producción de este proyecto está descrito en [`DOCKER_PRODUCTION.md`](../../DOCKER_PRODUCTION.md) y
+[`PRODUCTION_OPERATIONS.md`](../../PRODUCTION_OPERATIONS.md), en la raíz del monorepo. Lo de abajo es la referencia
+genérica de Vendure.
 
-### Running directly
+### Ejecutar directamente
 
-You can run the built files directly with the `start` script:
+Se pueden ejecutar los archivos compilados con el script `start`:
 
 ```
 npm run start
 ```
 
-You could also consider using a process manager like [pm2](https://pm2.keymetrics.io/) to run and manage
-the server & worker processes.
+También se puede usar un gestor de procesos como [pm2](https://pm2.keymetrics.io/) para ejecutar y vigilar los
+procesos del servidor y del worker.
 
-### Using Docker
+### Con Docker
 
-We've included a sample [Dockerfile](./Dockerfile) which you can build with the following command:
-
-```
-docker build -t vendure .
-```
-
-This builds an image and tags it with the name "vendure". We can then run it with:
+El [Dockerfile](./Dockerfile) de esta carpeta se construye **desde la raíz del monorepo** (ver el comentario al
+principio del propio Dockerfile):
 
 ```
-# Run the server
+docker build -f apps/server/Dockerfile -t vendure .
+```
+
+Esto construye una imagen con el nombre "vendure". Después se puede ejecutar con:
+
+```
+# Servidor
 docker run -dp 3000:3000 -e "DB_HOST=host.docker.internal" --name vendure-server vendure npm run start:server
 
-# Run the worker
+# Worker
 docker run -dp 3000:3000 -e "DB_HOST=host.docker.internal" --name vendure-worker vendure npm run start:worker
 ```
 
-Here is a breakdown of the command used above:
+Qué hace cada parte del comando:
 
-- `docker run` - run the image we created with `docker build`
-- `-dp 3000:3000` - the `-d` flag means to run in "detached" mode, so it runs in the background and does not take
-control of your terminal. `-p 3000:3000` means to expose port 3000 of the container (which is what Vendure listens
-on by default) as port 3000 on your host machine.
-- `-e "DB_HOST=host.docker.internal"` - the `-e` option allows you to define environment variables. In this case we
-are setting the `DB_HOST` to point to a special DNS name that is created by Docker desktop which points to the IP of
-the host machine. Note that `host.docker.internal` only exists in a Docker Desktop environment and thus should only be
-used in development.
-- `--name vendure-server` - we give the container a human-readable name.
-- `vendure` - we are referencing the tag we set up during the build.
-- `npm run start:server` - this last part is the actual command that should be run inside the container.
+- `docker run`: ejecuta la imagen creada con `docker build`.
+- `-dp 3000:3000`: `-d` la ejecuta en segundo plano («detached»), sin ocupar la terminal. `-p 3000:3000` expone el
+  puerto 3000 del contenedor (en el que escucha Vendure por defecto) como puerto 3000 de tu máquina.
+- `-e "DB_HOST=host.docker.internal"`: `-e` define variables de entorno. Aquí `DB_HOST` apunta a un nombre DNS especial
+  que crea Docker Desktop y que apunta a la IP de tu máquina. `host.docker.internal` solo existe en Docker Desktop, así
+  que solo sirve para desarrollo.
+- `--name vendure-server`: un nombre legible para el contenedor.
+- `vendure`: la etiqueta puesta al construir la imagen.
+- `npm run start:server`: el comando que se ejecuta dentro del contenedor.
 
 ### Docker Compose
 
-We've included a [docker-compose.yml](./docker-compose.yml) file which includes configuration for commonly-used
-services such as PostgreSQL, MySQL, MariaDB, Elasticsearch and Redis.
+El archivo [docker-compose.yml](./docker-compose.yml) incluye la configuración de servicios habituales como
+PostgreSQL, MySQL, MariaDB, Elasticsearch y Redis.
 
-To use Docker Compose, you will need to have Docker installed on your machine. Here are installation
-instructions for [Mac](https://docs.docker.com/desktop/install/mac-install/), [Windows](https://docs.docker.com/desktop/install/windows-install/),
-and [Linux](https://docs.docker.com/desktop/install/linux/).
+Para usar Docker Compose hace falta tener Docker instalado. Instrucciones para
+[Mac](https://docs.docker.com/desktop/install/mac-install/), [Windows](https://docs.docker.com/desktop/install/windows-install/)
+y [Linux](https://docs.docker.com/desktop/install/linux/).
 
-You can start the services with:
+Los servicios se arrancan con:
 
 ```shell
-docker-compose up <service>
+docker-compose up <servicio>
 
-# examples:
+# ejemplos:
 docker-compose up postgres_db
 docker-compose up redis
 ```
 
 ## Plugins
 
-In Vendure, your custom functionality will live in [plugins](https://www.vendure.io/docs/plugins/).
-These should be located in the `./src/plugins` directory.
+En Vendure, la funcionalidad propia va en [plugins](https://www.vendure.io/docs/plugins/), dentro de la carpeta
+`./src/plugins`.
 
-To create a new plugin run:
+Para crear un plugin nuevo:
 
 ```
 npx vendure add
 ```
 
-and select `[Plugin] Create a new Vendure plugin`.
+y elige `[Plugin] Create a new Vendure plugin`.
 
-## Migrations
+## Migraciones
 
-[Migrations](https://www.vendure.io/docs/developer-guide/migrations/) allow safe updates to the database schema. Migrations
-will be required whenever you make changes to the `customFields` config or define new entities in a plugin.
+Las [migraciones](https://www.vendure.io/docs/developer-guide/migrations/) permiten actualizar el esquema de la base de
+datos de forma segura. Hacen falta cada vez que se cambia la configuración de `customFields` o se definen entidades
+nuevas en un plugin.
 
-To generate a new migration, run:
+El procedimiento de este proyecto está en [`docs/database-migrations.md`](../../docs/database-migrations.md). En
+resumen, para generar una migración nueva:
 
 ```
-npx vendure migrate
+npx vendure migrate --generate NombreDescriptivo
 ```
 
-The generated migration file will be found in the `./src/migrations/` directory, and should be committed to source control.
-Next time you start the server, and outstanding migrations found in that directory will be run by the `runMigrations()`
-function in the [index.ts file](./src/index.ts).
+El archivo generado queda en `./src/migrations/` y debe subirse al repositorio. En el siguiente arranque del servidor,
+la función `runMigrations()` de [index.ts](./src/index.ts) aplica las migraciones pendientes de esa carpeta.
 
-If, during initial development, you do not wish to manually generate a migration on each change to customFields etc, you
-can set `dbConnectionOptions.synchronize` to `true`. This will cause the database schema to get automatically updated
-on each start, removing the need for migration files. Note that this is **not** recommended once you have production
-data that you cannot lose.
+En este proyecto `dbConnectionOptions.synchronize` está desactivado y **no debe activarse**: actualizaría el esquema
+solo en cada arranque, sin migraciones, y puede perder datos de producción.
 
 ---
 
-You can also run any pending migrations manually, without starting the server via the "vendure migrate" command.
+También se pueden aplicar las migraciones pendientes a mano, sin arrancar el servidor, con `npx vendure migrate --run`.
 
 ---
 
-## Troubleshooting
+## Resolución de problemas
 
-### Error: Could not load the "sharp" module using the \[OS\]-x\[Architecture\] runtime when running Vendure server.
+### Error: Could not load the "sharp" module using the \[OS\]-x\[Architecture\] runtime al arrancar el servidor Vendure
 
-- Make sure your Node version is ^18.17.0 || ^20.3.0 || >=21.0.0 to support the Sharp library.
-- Make sure your package manager is up to date.
-- **Not recommended**: if none of the above helps to resolve the issue, install sharp specifying your machines OS and Architecture. For example: `pnpm install sharp --config.platform=linux --config.architecture=x64` or `npm install sharp --os linux --cpu x64`
+- Comprueba que tu versión de Node es ^18.17.0 || ^20.3.0 || >=21.0.0, necesaria para la librería Sharp.
+- Comprueba que tu gestor de paquetes está actualizado.
+- **No recomendado**: si nada de lo anterior lo soluciona, instala sharp indicando el sistema operativo y la
+  arquitectura de tu máquina. Por ejemplo: `pnpm install sharp --config.platform=linux --config.architecture=x64` o
+  `npm install sharp --os linux --cpu x64`
 
 ### El Dashboard se ve un instante (login o ya autenticado) y luego se queda en blanco, sin errores en consola ni en la pestaña Network
 

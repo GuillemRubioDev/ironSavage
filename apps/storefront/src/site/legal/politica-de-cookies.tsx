@@ -11,14 +11,14 @@ export function generateMetadata() {
 }
 
 /**
- * The table lists what the storefront actually stores today — keep it in
- * sync with the code when a cookie/localStorage key is added or renamed:
+ * La tabla recoge lo que la tienda guarda de verdad hoy; mantenla al día con el
+ * código cuando se añada o renombre una cookie o clave de localStorage:
  *   vendure-auth-token  platform/vendure/auth-token.ts
  *   vendure-currency    features/currency/currency.ts
- *   NEXT_LOCALE         next-intl (locale switcher)
+ *   NEXT_LOCALE         next-intl (selector de idioma)
  *   theme               next-themes (site/providers/theme-provider.tsx)
  *   iron-savage-cookie-consent  site/cookie-consent/consent-context.tsx
- *   _ga, _ga_<id>       Google Analytics, only with NEXT_PUBLIC_GA_ID + consent (site/analytics)
+ *   _ga, _ga_<id>       Google Analytics, solo con NEXT_PUBLIC_GA_ID + consentimiento (site/analytics)
  */
 export default async function CookiePolicyPage() {
     const locale = await getRouteLocale();

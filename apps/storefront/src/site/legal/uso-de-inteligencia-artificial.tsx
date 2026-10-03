@@ -9,8 +9,9 @@ export function generateMetadata() {
 }
 
 /**
- * Transparency notice about the use of AI (in the spirit of art. 50 of the EU
- * AI Act, Regulation (EU) 2024/1689). Linked from the footer on every page.
+ * Aviso de transparencia sobre el uso de IA (en el espíritu del art. 50 del
+ * Reglamento europeo de IA, Reglamento (UE) 2024/1689). Enlazado desde el pie en
+ * todas las páginas.
  */
 export default async function AiTransparencyPage() {
     const locale = await getRouteLocale();

@@ -7,18 +7,17 @@ node_modules
 .DS_Store
 .claude
 
-# Backups (scripts/backup.sh) — contain real customer/order data, never committed.
+# Copias de seguridad (scripts/backup.sh): contienen datos reales de clientes y pedidos; nunca se suben.
 backups/
 
-# Vendure CLI's own local machine id, used only for its anonymous telemetry
-# ping — regenerated automatically, never meant to be shared across machines.
+# Identificador local de máquina del CLI de Vendure, usado solo para su telemetría
+# anónima. Se regenera solo y no debe compartirse entre máquinas.
 /.vendure/
 
-# TanStack Router's local temp/cache dir, generated while building/serving
-# the @vendure/dashboard admin UI (apps/server) — safe to delete, regenerated
-# on the next build/dev run.
+# Carpeta temporal/caché de TanStack Router, generada al compilar o servir el
+# dashboard de @vendure/dashboard (apps/server). Se puede borrar; se regenera
+# en el siguiente build o dev.
 apps/server/.tanstack/
 
-# Scratch capture of browser network/console output from local debugging —
-# never meant to be committed.
+# Capturas de red/consola del navegador hechas al depurar en local; no se suben.
 /_debug-postbodies.txt

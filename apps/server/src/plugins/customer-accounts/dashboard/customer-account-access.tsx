@@ -21,7 +21,7 @@ type Action =
     | { kind: 'setPassword'; password: string }
     | { kind: 'passwordEmail' };
 
-// No 0/O/1/l/I: temporary passwords are often read out or copied by hand.
+// Sin 0/O/1/l/I: las contraseñas temporales suelen dictarse o copiarse a mano.
 const PASSWORD_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
 
 function generateTemporaryPassword(length = 12): string {
@@ -31,14 +31,14 @@ function generateTemporaryPassword(length = 12): string {
 }
 
 /**
- * Login status of a customer plus the fixes an admin can apply. Lives on
- * the Customer detail page: it applies to every customer, athletes included
- * (an athlete is a customer).
+ * Estado del acceso de un cliente y los arreglos que puede aplicar un
+ * administrador. Va en la ficha del cliente: sirve para todos los clientes,
+ * atletas incluidos (un atleta es un cliente).
  *
- * Note: this renders inside the Customer page's own <form> (its "Update"
- * button), so it must never use a <form> or a submit button itself — a
- * nested form is ignored by the browser and the click would submit the
- * customer form instead. Everything here is `type="button"` + onClick.
+ * Ojo: se pinta dentro del propio <form> de la ficha del cliente (su botón
+ * «Actualizar»), así que nunca debe usar un <form> ni un botón submit: el navegador
+ * ignora un formulario anidado y el clic enviaría el formulario del cliente. Aquí
+ * todo es `type="button"` + onClick.
  */
 export function CustomerAccountAccess({ customerId }: { customerId: string }) {
     const { t } = useLingui();
@@ -121,7 +121,7 @@ export function CustomerAccountAccess({ customerId }: { customerId: string }) {
                     className="font-mono"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    // Enter would submit the surrounding Customer form ("Update").
+                    // Enter enviaría el formulario del cliente que lo rodea («Actualizar»).
                     onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
                     placeholder={t`8+ chars`}
                 />

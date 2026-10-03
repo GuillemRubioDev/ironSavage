@@ -5,10 +5,10 @@ export class AddAthleteSoftDelete1790584974877 implements MigrationInterface {
    public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`ALTER TABLE "athlete" ADD "deletedAt" TIMESTAMP`, undefined);
 
-        // Data fix: an athlete can't outlive its customer. Vendure soft-deletes
-        // customers, so athletes of customers deleted before this migration
-        // were left active. Remove their role (same effect as the runtime
-        // CustomerEvent handler) and stop their codes from giving discounts.
+        // Corrección de datos: un atleta no puede sobrevivir a su cliente. Vendure borra
+        // los clientes de forma lógica, así que los atletas de clientes borrados antes de
+        // esta migración seguían activos. Se les quita el rol (igual que hace en tiempo de
+        // ejecución el handler de CustomerEvent) y sus códigos dejan de dar descuento.
         await queryRunner.query(`
             UPDATE "promotion" p SET "deletedAt" = now(), "enabled" = false
             FROM "athlete_code" ac
@@ -27,8 +27,8 @@ export class AddAthleteSoftDelete1790584974877 implements MigrationInterface {
    }
 
    public async down(queryRunner: QueryRunner): Promise<any> {
-        // The data fix is intentionally not undone: it only disabled athletes
-        // whose customer no longer exists.
+        // La corrección de datos no se deshace a propósito: solo desactivó atletas cuyo
+        // cliente ya no existe.
         await queryRunner.query(`ALTER TABLE "athlete" DROP COLUMN "deletedAt"`, undefined);
    }
 

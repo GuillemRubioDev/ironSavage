@@ -8,16 +8,17 @@ import {
 } from './constants';
 
 /**
- * Pure business rules for athlete codes and rewards — no DB, no Nest — so
- * they can be unit-tested directly and are shared by the service, the
- * PromotionCondition and the event handlers.
+ * Reglas de negocio puras de los códigos y recompensas de atleta (sin base de
+ * datos ni Nest), para poder testearlas directamente. Las comparten el servicio,
+ * la PromotionCondition y los manejadores de eventos.
  */
 
 /**
- * Vendure matches coupon codes case-insensitively (PromotionService.validateCouponCode
- * compares LOWER()), so athlete codes follow the same strategy: stored in one
- * canonical upper-case form, which makes "pedro10" and "PEDRO10" the same
- * logical code and lets a plain unique index reject duplicates.
+ * Vendure compara los códigos de cupón sin distinguir mayúsculas
+ * (PromotionService.validateCouponCode compara con LOWER()), así que los códigos de
+ * atleta siguen la misma estrategia: se guardan en una forma canónica en
+ * mayúsculas, con lo que "pedro10" y "PEDRO10" son el mismo código y un índice
+ * único normal rechaza los duplicados.
  */
 export function normalizeAthleteCode(code: string): string {
     return code.trim().toUpperCase();
@@ -30,7 +31,7 @@ export interface AthleteCodeTerms {
     rewardValue: number;
 }
 
-/** Returns a human-readable reason if the code or its terms are invalid, or undefined when valid. */
+/** Devuelve el motivo legible si el código o sus condiciones no son válidos, o undefined si lo son. */
 export function validateAthleteCodeInput(input: { code: string } & AthleteCodeTerms): string | undefined {
     if (!ATHLETE_CODE_PATTERN.test(normalizeAthleteCode(input.code))) {
         return 'The code must be 3-32 characters long and contain only letters, digits, "-" or "_"';
@@ -70,10 +71,11 @@ function hasMoreThanTwoDecimals(value: number): boolean {
 }
 
 /**
- * Points an athlete earns for one order. PERCENTAGE rewards reuse the
- * loyalty program's own point value, so "5%" means the reward is worth 5% of
- * the base once redeemed — with the default 1 point = 1 cent, a 5% reward
- * on a 100 € base is 500 points (5 €). Rounded down, like regular EARN.
+ * Puntos que gana un atleta por un pedido. Las recompensas PERCENTAGE usan el
+ * valor del punto del programa de fidelización, así que «5 %» significa que la
+ * recompensa vale el 5 % de la base al canjearla: con el valor por defecto
+ * (1 punto = 1 céntimo), un 5 % sobre 100 € son 500 puntos (5 €). Se redondea
+ * hacia abajo, como en la acumulación normal.
  */
 export function calculateRewardPoints(
     rewardType: AthleteRewardType,
@@ -87,17 +89,18 @@ export function calculateRewardPoints(
     if (baseAmountCents <= 0 || pointValueInCents <= 0) {
         return 0;
     }
-    // Integer arithmetic on hundredths of a percent avoids float drift
-    // (e.g. 10000 * 0.07 = 700.0000000000001).
+    // Aritmética entera en centésimas de porcentaje para evitar errores de coma
+    // flotante (p. ej. 10000 * 0.07 = 700.0000000000001).
     const basisPoints = Math.round(rewardValue * 100);
     const rewardCents = Math.floor((baseAmountCents * basisPoints) / 10000);
     return Math.floor(rewardCents / pointValueInCents);
 }
 
 /**
- * Points to revert for a (partial) refund: proportional to the refunded
- * share of the order and capped at what hasn't been reverted yet — the same
- * proportional rule LoyaltyService.revertForRefund applies to regular EARN.
+ * Puntos a revertir por un reembolso (parcial): proporcionales a la parte
+ * reembolsada del pedido y con el tope de lo que aún no se ha revertido. Es la
+ * misma regla proporcional que aplica LoyaltyService.revertForRefund a los
+ * puntos normales.
  */
 export function calculateRefundReversal(
     rewardPoints: number,
@@ -121,10 +124,10 @@ export function rewardStatusFor(points: number, reverted: number): AthleteReward
 }
 
 /**
- * Among the coupon codes applied to an order (in the order they were
- * applied), returns the first one that is an athlete code. Only that one is
- * honoured — an order can credit at most one athlete, and the customer can't
- * stack several athlete discounts.
+ * De los códigos de cupón aplicados a un pedido (en el orden en que se
+ * aplicaron), devuelve el primero que sea de atleta. Solo ese cuenta: un pedido
+ * abona como mucho a un atleta y el cliente no puede acumular varios descuentos
+ * de atleta.
  */
 export function firstAthleteCode(orderCouponCodes: string[], athleteCodes: Iterable<string>): string | undefined {
     const known = new Set([...athleteCodes].map(normalizeAthleteCode));

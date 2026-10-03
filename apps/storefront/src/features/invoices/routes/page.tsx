@@ -35,9 +35,9 @@ export default async function InvoicesPage() {
         {useAuthToken: true},
     );
     const t = await getTranslations({locale, namespace: 'Invoices'});
-    // download/totalHeader are generic "my stuff" table vocabulary shared
-    // with the account feature's own orders table — genuinely reused, not
-    // invoices-owned content.
+    // download/totalHeader son vocabulario genérico de tablas de «lo mío», compartido
+    // con la tabla de pedidos de la cuenta: se reutiliza de verdad, no es contenido
+    // propio de facturas.
     const tAccount = await getTranslations({locale, namespace: 'Account'});
 
     const invoices = data.myInvoices.items;
@@ -53,7 +53,7 @@ export default async function InvoicesPage() {
                 </div>
             ) : (
                 <>
-                    {/* Mobile: Card-based layout */}
+                    {/* Móvil: diseño en tarjetas */}
                     <div className="md:hidden space-y-3">
                         {invoices.map((invoice) => (
                             <div
@@ -81,7 +81,7 @@ export default async function InvoicesPage() {
                         ))}
                     </div>
 
-                    {/* Desktop: Table layout */}
+                    {/* Escritorio: diseño en tabla */}
                     <div className="hidden md:block border rounded-lg">
                         <Table>
                             <TableHeader className="bg-muted">

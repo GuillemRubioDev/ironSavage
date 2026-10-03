@@ -1,23 +1,22 @@
 name: tienda-suple-prod
 
-# A production-shaped stack, meant to be verified locally before any real
-# deployment — see DOCKER_PRODUCTION.md for the full bring-up sequence and
-# why it's not a single `docker compose up -d --build`.
+# Sistema con forma de producción, pensado para verificarse en local antes de
+# cualquier despliegue real. DOCKER_PRODUCTION.md explica la secuencia completa
+# de arranque y por qué no basta con un `docker compose up -d --build`.
 #
-# Run with: docker compose -f docker-compose.prod.yml --env-file .env.prod ...
-# .env.prod is never committed (see .env.prod.example) — every value below
-# is a `${VAR}` substitution, never a literal secret.
+# Se ejecuta con: docker compose -f docker-compose.prod.yml --env-file .env.prod ...
+# .env.prod nunca se sube al repo (ver .env.prod.example): todos los valores de
+# abajo son sustituciones `${VAR}`, nunca secretos escritos.
 #
-# Each service lists only the env vars it actually needs (an explicit
-# `environment:` allowlist, not a blanket `env_file:`) — the storefront
-# container never sees COOKIE_SECRET, DB_PASSWORD, REDSYS_SECRET_KEY, etc.
+# Cada servicio recibe solo las variables que necesita (una lista explícita en
+# `environment:`, no un `env_file:` general): el contenedor del storefront nunca
+# ve COOKIE_SECRET, DB_PASSWORD, REDSYS_SECRET_KEY, etc.
 
-# Applied identically to every service below: caps what `docker logs` (and
-# the on-disk JSON log files it reads from) can grow to, so a noisy or
-# crash-looping container can't fill the host's disk. 10m x 5 files = 50MB
-# max per service, and doesn't discard much diagnostic history for the
-# volume this store runs at. json-file is Docker's default driver — this
-# only adds rotation on top of it, not a different logging backend.
+# Igual para todos los servicios de abajo: limita lo que pueden crecer
+# `docker logs` (y los ficheros JSON de log en disco), para que un contenedor
+# muy hablador o que se reinicia en bucle no llene el disco. 10 MB x 5 ficheros
+# = 50 MB como máximo por servicio, suficiente historial para el volumen de esta
+# tienda. json-file es el driver por defecto de Docker; esto solo añade rotación.
 x-logging: &default-logging
   driver: json-file
   options:
@@ -46,8 +45,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # Deliberately no `ports:` — Postgres must not be reachable from outside
-    # the Docker network in production.
+    # Sin `ports:` a propósito: en producción Postgres no debe ser accesible
+    # desde fuera de la red de Docker.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -100,8 +99,8 @@ services:
       SMTP_SECURE: ${SMTP_SECURE}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
-    # No `ports:` — only Caddy is reachable from the host; vendure-server is
-    # reached over the internal tienda-net network as `vendure-server:3000`.
+    # Sin `ports:`: desde fuera solo se llega a Caddy; a vendure-server se
+    # accede por la red interna tienda-net como `vendure-server:3000`.
     volumes:
       - vendure_static:/app/apps/server/static
     healthcheck:
@@ -157,14 +156,14 @@ services:
       SMTP_SECURE: ${SMTP_SECURE}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
-    # No static/ volume: in this project, asset uploads and invoice PDFs are
-    # only ever written by the HTTP-request-handling process (vendure-server)
-    # — nothing the worker's job queue does touches static/ today.
+    # Sin volumen static/: en este proyecto los recursos subidos y los PDF de
+    # factura solo los escribe el proceso que atiende las peticiones HTTP
+    # (vendure-server); hoy ningún trabajo del worker toca static/.
     healthcheck:
-      # index-worker.ts starts a real HTTP health-check server via Vendure's
-      # native VendureWorker.startHealthCheckServer() — this reflects the
-      # worker's actual ability to serve requests, not just that the process
-      # exists (a stuck/deadlocked process would still pass a plain pgrep).
+      # index-worker.ts arranca un servidor HTTP de salud real con
+      # VendureWorker.startHealthCheckServer() de Vendure: refleja si el worker
+      # funciona de verdad, no solo si el proceso existe (un proceso colgado
+      # pasaría un simple pgrep).
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3020/health"]
       interval: 15s
       timeout: 5s
@@ -175,14 +174,13 @@ services:
     build:
       context: .
       dockerfile: apps/storefront/Dockerfile
-      # Must build on the same network as the already-running vendure-server
-      # — `next build` fetches from it while prerendering pages. See the
-      # note at the top of apps/storefront/Dockerfile. The literal, fully
-      # -qualified network name is required here (the `name:` at the top of
-      # this file plus the network key below) — also requires building with
-      # the legacy builder: DOCKER_BUILDKIT=0 docker compose build storefront
-      # (BuildKit's default builder rejects joining an arbitrary named
-      # network; only `host`/`none`/the special default are supported).
+      # Debe compilarse en la misma red que el vendure-server ya arrancado:
+      # `next build` le pide datos al prerenderizar páginas (ver la nota al
+      # principio de apps/storefront/Dockerfile). Aquí hace falta el nombre de
+      # red completo y literal (el `name:` del principio de este archivo más la
+      # clave de red de abajo), y compilar con el builder antiguo:
+      # DOCKER_BUILDKIT=0 docker compose build storefront (el builder por defecto
+      # de BuildKit no permite unirse a una red con nombre; solo `host`/`none`/la por defecto).
       network: tienda-suple-prod_tienda-net
       args:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
@@ -204,12 +202,12 @@ services:
       NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME}
       NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
       REVALIDATION_SECRET: ${REVALIDATION_SECRET}
-    # No `ports:` — only reachable from the host via Caddy, internally as
-    # `storefront:3001`.
+    # Sin `ports:`: desde fuera solo se llega a través de Caddy; internamente
+    # es `storefront:3001`.
     healthcheck:
-      # 127.0.0.1, not localhost: busybox wget resolves localhost to ::1
-      # first, and the server only binds the IPv4 wildcard (see the
-      # HOSTNAME note in apps/storefront/Dockerfile) — ::1 gets refused.
+      # 127.0.0.1 y no localhost: el wget de busybox resuelve localhost primero
+      # a ::1, y el servidor solo escucha en IPv4 (ver la nota de HOSTNAME en
+      # apps/storefront/Dockerfile), así que ::1 se rechaza.
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3001/"]
       interval: 10s
       timeout: 5s
@@ -237,5 +235,5 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    # Runs as root (upstream default) to bind 80/443 and manage certs under
-    # /data — see DOCKER_PRODUCTION.md's "pendientes" section.
+    # Se ejecuta como root (lo que trae la imagen oficial) para usar los puertos
+    # 80/443 y gestionar certificados en /data; ver «pendientes» en DOCKER_PRODUCTION.md.

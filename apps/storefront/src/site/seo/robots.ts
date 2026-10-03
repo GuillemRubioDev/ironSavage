@@ -2,9 +2,9 @@ import type {MetadataRoute} from 'next';
 import {SITE_URL} from '@/config/metadata';
 
 /**
- * /robots.txt — lets search engines index the shop and points them at the
- * sitemap, but keeps them out of per-customer and transactional pages
- * (account, cart, checkout, order confirmations) that have nothing to index.
+ * /robots.txt: deja que los buscadores indexen la tienda y les indica el sitemap,
+ * pero los mantiene fuera de las páginas personales y de compra (cuenta, carrito,
+ * checkout, confirmaciones de pedido), que no tienen nada que indexar.
  */
 export default function robots(): MetadataRoute.Robots {
     const baseUrl = SITE_URL.replace(/\/$/, '');

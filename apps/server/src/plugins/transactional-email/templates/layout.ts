@@ -2,10 +2,11 @@ import type { EmailConfig } from '../types';
 import { LOGO_DATA_URI } from './logo-asset';
 
 /**
- * Hex equivalents of the storefront's own oklch design tokens (globals.css,
- * light theme — email clients don't reliably support oklch()), resolved once
- * via a headless-browser canvas conversion so these are the real brand colors,
- * not a guess: --primary, --foreground, --muted, --destructive.
+ * Equivalentes hexadecimales de los tokens de diseño oklch del storefront
+ * (globals.css, tema claro; los clientes de correo no soportan bien oklch()),
+ * calculados una vez con un canvas en un navegador sin interfaz para que sean los
+ * colores reales de la marca y no una aproximación: --primary, --foreground,
+ * --muted, --destructive.
  */
 export const BRAND_COLOR = '#e7000b';
 export const BRAND_DARK = '#0e0f12';
@@ -28,16 +29,16 @@ function escapeHtml(value: string): string {
 }
 
 /**
- * Small uppercase label above a heading (e.g. "PEDIDO CONFIRMADO") — the same
- * eyebrow-label pattern the storefront uses for option-group labels and trust
- * badges, giving the order-status emails a bit of hierarchy instead of every
- * email opening on the same flat "Hola {name}," line.
+ * Etiqueta pequeña en mayúsculas sobre un título (p. ej. "PEDIDO CONFIRMADO"), el
+ * mismo patrón que usa el storefront en las etiquetas de opciones y los sellos de
+ * confianza. Da algo de jerarquía a los emails de estado del pedido en vez de que
+ * todos empiecen con el mismo «Hola {name},».
  */
 export function renderEyebrow(label: string, color: string = BRAND_COLOR): string {
     return `<p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:${color};">${escapeHtml(label)}</p>`;
 }
 
-/** Shared HTML shell — dark header with the real wordmark, brand-red accents, dark footer. Every template's content is wrapped in this. */
+/** Estructura HTML común: cabecera oscura con el logotipo real, detalles en rojo de marca y pie oscuro. Envuelve el contenido de todas las plantillas. */
 export function renderLayout({ config, preheader, bodyHtml }: LayoutOptions): string {
     const year = new Date().getFullYear();
     return `<!doctype html>

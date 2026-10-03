@@ -78,7 +78,7 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
                     description: t('addedToCartDescription', {name: product.name}),
                 });
 
-                // Reset the added state after 2 seconds
+                // Quita el estado «añadido» a los 2 segundos
                 setTimeout(() => setIsAdded(false), 2000);
             } else {
                 toast.error(t('errorTitle'), {
@@ -104,7 +104,7 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
     return (
         <>
         <div className="space-y-6">
-            {/* Product Title & Price */}
+            {/* Título y precio del producto */}
             <div className="space-y-3">
                 <h1 className="text-display text-3xl md:text-4xl font-bold">{product.name}</h1>
                 {selectedVariant && (
@@ -119,12 +119,12 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
 
             <Separator />
 
-            {/* Product Description */}
+            {/* Descripción del producto */}
             <div className="prose prose-sm max-w-none text-muted-foreground">
                 <div dangerouslySetInnerHTML={{__html: product.description}}/>
             </div>
 
-            {/* Option Groups */}
+            {/* Grupos de opciones */}
             {product.optionGroups.length > 0 && (
                 <div className="space-y-5">
                     {product.optionGroups.map((group) => (
@@ -159,7 +159,7 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
                 </div>
             )}
 
-            {/* Stock Status */}
+            {/* Estado del stock */}
             {selectedVariant && (
                 <div className="text-sm">
                     {isInStock ? (
@@ -176,7 +176,7 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
                 </div>
             )}
 
-            {/* Add to Cart Button — hidden on mobile, where the sticky bar below takes over */}
+            {/* Botón de añadir al carrito: oculto en móvil, donde lo sustituye la barra fija de abajo */}
             <div className="hidden lg:block pt-2">
                 <Button
                     size="lg"
@@ -189,7 +189,7 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
                 </Button>
             </div>
 
-            {/* SKU */}
+            {/* Referencia (SKU) */}
             {selectedVariant?.customFields?.netQuantity && (
                 <div className="text-sm text-muted-foreground">
                     {t('netQuantity', {quantity: selectedVariant.customFields.netQuantity})}
@@ -202,10 +202,10 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
             )}
         </div>
 
-        {/* Mobile: fixed bottom buy bar, so the primary action stays reachable
-            with one thumb regardless of scroll position — a plain inline
-            button (the desktop treatment above) would get scrolled out of
-            reach past the description/options/FAQ content on a long PDP. */}
+        {/* Móvil: barra de compra fija abajo, para que la acción principal quede al
+            alcance del pulgar esté donde esté el scroll; un botón normal (como en
+            escritorio) quedaría fuera de vista tras la descripción, las opciones y
+            las preguntas frecuentes en una ficha larga. */}
         <div
             className="lg:hidden fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-md px-4 py-3 flex items-center gap-3"
             style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}

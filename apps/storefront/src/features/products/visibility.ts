@@ -3,7 +3,7 @@ import {query} from '@/platform/vendure/api';
 import {graphql, readFragment, type FragmentOf} from '@/platform/vendure/graphql';
 import {ProductCardFragment} from '@/features/products/graphql';
 
-// Vendure's Shop API caps list queries at 100 items (apiOptions.shopListQueryLimit).
+// La Shop API de Vendure limita las listas a 100 elementos (apiOptions.shopListQueryLimit).
 const HiddenProductIdsQuery = graphql(`
     query HiddenProductIds {
         products(options: { take: 100, filter: { visibleInStorefront: { eq: false } } }) {
@@ -15,10 +15,10 @@ const HiddenProductIdsQuery = graphql(`
 `);
 
 /**
- * Product.customFields.visibleInStorefront lets a product stay enabled/manageable
- * while being hidden from storefront listings. Vendure's search index (used for
- * product grids) doesn't expose custom fields, so hidden product ids are fetched
- * separately here and filtered out after the fact.
+ * Product.customFields.visibleInStorefront permite que un producto siga activo y
+ * gestionable pero oculto en los listados de la tienda. El índice de búsqueda de
+ * Vendure (que alimenta las rejillas de productos) no expone campos personalizados,
+ * así que aquí se obtienen aparte los ids ocultos y se filtran después.
  */
 async function getHiddenProductIds(): Promise<Set<string>> {
     'use cache';

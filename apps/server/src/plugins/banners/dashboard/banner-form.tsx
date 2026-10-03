@@ -119,9 +119,8 @@ export function BannerFormPage() {
             await queryClient.invalidateQueries({ queryKey: ['banner-list'] });
             void navigate({ to: '/banners/$id', params: { id: payload.id } });
         } catch (err) {
-            // Previously uncaught — a network/GraphQL error would silently
-            // reset the button with zero feedback, indistinguishable from
-            // "Save does nothing".
+            // Antes no se capturaba: un error de red o de GraphQL reiniciaba el botón
+            // sin ningún aviso, como si «Guardar» no hiciera nada.
             setError(err instanceof Error ? err.message : t`Something went wrong while saving.`);
         } finally {
             setSaving(false);

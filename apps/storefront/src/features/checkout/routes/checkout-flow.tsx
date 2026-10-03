@@ -19,7 +19,7 @@ export default function CheckoutFlow() {
   const t = useTranslations('Checkout');
   const { order, isGuest } = useCheckout();
 
-  // GA4 begin_checkout — once per order, not on every step/refresh.
+  // begin_checkout de GA4: una vez por pedido, no en cada paso o recarga.
   const orderCode = order?.code;
   useEffect(() => {
     if (!order || !orderCode) return;
@@ -28,7 +28,7 @@ export default function CheckoutFlow() {
       if (sessionStorage.getItem(key)) return;
       sessionStorage.setItem(key, '1');
     } catch {
-      // Storage unavailable — at worst the event is sent more than once.
+      // Almacenamiento no disponible: en el peor caso el evento se envía más de una vez.
     }
     trackEvent('begin_checkout', {
       currency: order.currencyCode,
@@ -42,7 +42,7 @@ export default function CheckoutFlow() {
         quantity: line.quantity,
       })),
     });
-    // Once per order code: the order object changes on every checkout step.
+    // Una vez por código de pedido: el objeto del pedido cambia en cada paso del checkout.
   }, [orderCode]);
 
   const getStepOrder = (): CheckoutStep[] => {
@@ -119,7 +119,7 @@ export default function CheckoutFlow() {
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2">
-        {/* Step Progress Indicator */}
+        {/* Indicador de progreso de pasos */}
         <div className="mb-8 hidden sm:block">
           <div className="flex items-center justify-between">
             {stepOrder.map((step, index) => (

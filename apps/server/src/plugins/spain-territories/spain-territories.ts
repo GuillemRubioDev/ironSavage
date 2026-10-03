@@ -9,10 +9,10 @@ import {
 } from '@vendure/core';
 
 /**
- * Spanish tax/shipping territories. Vendure works with countries, but for
- * VAT Spain is not one territory: the Canary Islands (IGIC), Ceuta and
- * Melilla (IPSI) are outside the VAT area, and Baleares usually has its own
- * shipping rates. They're told apart by the postal code's province prefix.
+ * Territorios fiscales y de envío de España. Vendure trabaja con países, pero a
+ * efectos de IVA España no es un único territorio: Canarias (IGIC), Ceuta y Melilla
+ * (IPSI) están fuera del ámbito del IVA, y Baleares suele tener tarifas de envío
+ * propias. Se distinguen por el prefijo de provincia del código postal.
  */
 export type SpanishTerritory = 'peninsula' | 'baleares' | 'canarias' | 'ceuta' | 'melilla';
 
@@ -24,7 +24,7 @@ const PROVINCE_TERRITORY: Record<string, SpanishTerritory> = {
     '52': 'melilla',
 };
 
-/** Territory of a Spanish address, or null for any other country. A missing/unknown postal code counts as the peninsula. */
+/** Territorio de una dirección española, o null para cualquier otro país. Sin código postal o con uno desconocido cuenta como península. */
 export function spanishTerritory(countryCode?: string | null, postalCode?: string | null): SpanishTerritory | null {
     if ((countryCode ?? '').toUpperCase() !== 'ES') {
         return null;
@@ -33,24 +33,23 @@ export function spanishTerritory(countryCode?: string | null, postalCode?: strin
     return PROVINCE_TERRITORY[digits.slice(0, 2)] ?? 'peninsula';
 }
 
-/** Territories outside the Spanish VAT area. */
+/** Territorios fuera del ámbito del IVA español. */
 export const OUTSIDE_VAT_TERRITORIES: SpanishTerritory[] = ['canarias', 'ceuta', 'melilla'];
 
 /**
- * Name of the tax zone for orders shipped to the Canary Islands, Ceuta and
- * Melilla (created by the seed with 0% rates). Matched by name, so it keeps
- * working after an admin edits its rates; renaming it in the Dashboard
- * disables the special treatment (orders then fall back to the default zone).
+ * Nombre de la zona fiscal de los pedidos enviados a Canarias, Ceuta y Melilla (la
+ * crea el seed con tipos al 0 %). Se busca por nombre, así que sigue funcionando si
+ * un administrador cambia sus tipos; renombrarla en el dashboard desactiva el trato
+ * especial (los pedidos pasan a usar la zona por defecto).
  */
 export const OUTSIDE_VAT_ZONE_NAME = 'Canarias, Ceuta y Melilla';
 
 /**
- * Like Vendure's AddressBasedTaxZoneStrategy, plus the Spanish territories:
- * an order shipped to the Canary Islands, Ceuta or Melilla uses the
- * OUTSIDE_VAT_ZONE_NAME zone (no Spanish VAT — the customer pays IGIC/IPSI on
- * import). Any other order uses the zone containing its shipping country, or
- * the channel's default zone (also used before there is a shipping address,
- * e.g. for catalogue prices).
+ * Como AddressBasedTaxZoneStrategy de Vendure, más los territorios españoles: un
+ * pedido enviado a Canarias, Ceuta o Melilla usa la zona OUTSIDE_VAT_ZONE_NAME (sin
+ * IVA español; el cliente paga IGIC/IPSI en la importación). Cualquier otro pedido
+ * usa la zona que contiene su país de envío, o la zona por defecto del canal
+ * (también antes de tener dirección de envío, p. ej. en los precios del catálogo).
  */
 export class SpainTerritoriesTaxZoneStrategy implements TaxZoneStrategy {
     determineTaxZone(ctx: RequestContext, zones: Zone[], channel: Channel, order?: Order): Zone {
@@ -82,12 +81,12 @@ const booleanArg = (es: string, en: string, defaultValue: boolean) => ({
 });
 
 /**
- * Shipping-method condition configured from the Dashboard: which Spanish
- * territories the method covers, and an optional minimum order amount. With
- * it, rates are data, not code — e.g. "Envío península" (península only),
- * "Envío Baleares" (Baleares only), "Envío gratis" (península, 0 €, minimum
- * 50 €). Addresses outside Spain are never eligible (the shop only ships to
- * Spain; add a separate method with the default checker to change that).
+ * Condición de método de envío que se configura desde el dashboard: qué territorios
+ * españoles cubre el método y un importe mínimo opcional. Así las tarifas son datos,
+ * no código; p. ej. "Envío península" (solo península), "Envío Baleares" (solo
+ * Baleares), "Envío gratis" (península, 0 €, mínimo 50 €). Las direcciones fuera de
+ * España nunca son válidas (la tienda solo envía a España; para cambiarlo, añade
+ * otro método con la condición por defecto).
  */
 export const spainTerritoriesShippingChecker = new ShippingEligibilityChecker({
     code: 'spain-territories-checker',

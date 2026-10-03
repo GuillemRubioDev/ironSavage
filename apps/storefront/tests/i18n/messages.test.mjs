@@ -65,9 +65,9 @@ function messageKeys(value, prefix = '') {
 }
 
 test('message keys match across locales', async () => {
-    // Supported locales come from routing.ts, not a hardcoded list — this
-    // repo dropped German in Fase 16.2B, so "every locale" means es/en today
-    // and should track whatever routing.ts declares tomorrow.
+    // Los idiomas admitidos salen de routing.ts, no de una lista fija: el repositorio
+    // quitó el alemán en la fase 16.2B, así que «todos los idiomas» hoy es es/en y
+    // debe seguir lo que declare routing.ts en el futuro.
     const routingSource = await readFile(path.join(root, 'src/platform/i18n/routing.ts'), 'utf8');
     const localesMatch = routingSource.match(/locales:\s*\[([^\]]+)\]/);
     assert.ok(localesMatch, 'Could not find routing.ts locales list.');
@@ -108,11 +108,11 @@ test('message namespaces are unique per locale', async () => {
     }
 });
 
-// Namespaces intentionally shared beyond their owning feature — a deliberate
-// architecture decision, not a per-file exception. Account owns generic "my
-// stuff" table vocabulary (date, status, download, totalHeader) reused as-is
-// by the account-adjacent invoices/loyalty pages instead of being duplicated
-// under their own namespace. Any other cross-feature reuse still fails below.
+// Espacios de nombres compartidos a propósito fuera de su funcionalidad: decisión de
+// arquitectura, no una excepción por archivo. Account tiene el vocabulario genérico de
+// tablas de «lo mío» (date, status, download, totalHeader), que reutilizan tal cual
+// las páginas de facturas y puntos de la cuenta en vez de duplicarlo en su propio
+// espacio. Cualquier otra reutilización entre funcionalidades sigue fallando abajo.
 const SHARED_NAMESPACES = new Set(['Account']);
 
 test('features use only owned or shared message namespaces', async () => {
@@ -134,10 +134,9 @@ test('features use only owned or shared message namespaces', async () => {
             ...content.matchAll(/namespace:\s*['"]([^'"]+)['"]/g),
         ].map(match => match[1]);
         for (const namespace of namespaces) {
-            // next-intl lets a namespace argument descend into a nested key
-            // (e.g. 'Verify.pending' scopes into the "pending" object inside
-            // the top-level "Verify" namespace) — ownership is decided by
-            // the top-level namespace, not the full dotted path.
+            // next-intl permite que el espacio de nombres baje a una clave anidada (p. ej.
+            // 'Verify.pending' entra en el objeto "pending" del espacio "Verify"): el
+            // propietario lo decide el espacio de nivel superior, no la ruta completa.
             const topLevelNamespace = namespace.split('.')[0];
             const owner = owners.get(topLevelNamespace);
             if (owner !== feature && owner !== 'platform.i18n' && !SHARED_NAMESPACES.has(topLevelNamespace)) {

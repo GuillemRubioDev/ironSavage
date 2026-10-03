@@ -7,15 +7,15 @@ import logoIronMask from '@/assets/logo_iron_mask.png';
 import logoSavageMask from '@/assets/logo_savage_mask.png';
 
 /**
- * Two real, transparent brand assets (apps/storefront/src/assets/) — never
- * regenerate or add a background to either:
- *  - "full": the complete mark (IS emblem + IRON SAVAGE + tagline), tall
- *    aspect ratio — footer, login/register branded panel, anywhere with
- *    enough vertical room to show the whole identity.
- *  - "wordmark": horizontal "IRON SAVAGE" lockup, no tagline — header nav
- *    and any other space-constrained horizontal placement.
- * Statically imported so next/image can infer intrinsic size and serve an
- * optimized, appropriately-sized copy instead of the multi-MB source file.
+ * Dos archivos de marca reales y transparentes (apps/storefront/src/assets/); nunca
+ * los regeneres ni les añadas fondo:
+ *  - "full": el logo completo (emblema IS + IRON SAVAGE + lema), alto; para el pie,
+ *    el panel de marca de acceso/registro y cualquier sitio con altura suficiente
+ *    para la identidad completa.
+ *  - "wordmark": «IRON SAVAGE» en horizontal, sin lema; para la cabecera y
+ *    cualquier otro sitio horizontal con poco espacio.
+ * Se importan de forma estática para que next/image conozca su tamaño y sirva una
+ * copia optimizada del tamaño adecuado en vez del original de varios MB.
  */
 const VARIANTS = {
     full: logoFull,
@@ -36,9 +36,9 @@ export function Logo({
             src={VARIANTS[variant]}
             alt="Iron Savage"
             priority={priority}
-            // Fixed-size UI chrome, never near full viewport width — without
-            // this, Next assumes up to 100vw and serves oversized srcset
-            // candidates for what's actually always a small logo mark.
+            // Elemento de tamaño fijo, nunca cerca del ancho de pantalla: sin esto, Next
+            // supone hasta 100vw y sirve imágenes srcset demasiado grandes para lo que
+            // siempre es un logo pequeño.
             sizes="260px"
             className={cn('h-8 w-auto object-contain', className)}
         />
@@ -46,18 +46,17 @@ export function Logo({
 }
 
 /**
- * logo_iron_mask.png / logo_savage_mask.png (apps/storefront/src/assets/):
- * pre-split, alpha-only, white-on-transparent PNGs derived from the real
- * wordmark, one per word — generated once by classifying every opaque pixel
- * of logo_titulo.png by its own color (red vs. gray/white) rather than by
- * position. A plain left/right position split doesn't work on this logo: the
- * "S" of SAVAGE has a decorative tail that swoops down and to the left,
- * genuinely overlapping the "N" of IRON's horizontal space, so no vertical
- * line can separate the two words without slicing through that tail. Color
- * naturally does — every pixel already "knows" which word it belongs to.
- * (A density filter dropped the handful of stray misclassified texture
- * specks — an isolated fleck has too few same-color neighbors to survive.)
- * Never touches logo_titulo.png itself; these are new, separate assets.
+ * logo_iron_mask.png / logo_savage_mask.png (apps/storefront/src/assets/): PNG ya
+ * separados, solo canal alfa, blanco sobre transparente, sacados del logotipo real,
+ * uno por palabra. Se generaron una vez clasificando cada píxel opaco de
+ * logo_titulo.png por su color (rojo frente a gris/blanco) y no por su posición. Un
+ * corte izquierda/derecha no sirve en este logo: la «S» de SAVAGE tiene una cola
+ * decorativa que baja hacia la izquierda y se solapa con el espacio horizontal de
+ * la «N» de IRON, así que ninguna línea vertical separa las dos palabras sin cortar
+ * esa cola. El color sí lo hace: cada píxel ya «sabe» a qué palabra pertenece. (Un
+ * filtro de densidad eliminó las pocas motas de textura mal clasificadas: una mota
+ * aislada tiene muy pocos vecinos del mismo color para sobrevivir.) Nunca se toca
+ * logo_titulo.png; son archivos nuevos y separados.
  */
 const WORD_MASKS = {
     iron: logoIronMask,
@@ -65,9 +64,10 @@ const WORD_MASKS = {
 } as const;
 
 /**
- * One word ("IRON" or "SAVAGE"), re-rendered as a flat-color shape from its
- * pre-split mask asset — no gradients/textures, real letterforms (not
- * hand-traced), and no runtime crop math (so no split-point risk at all).
+ * Una palabra («IRON» o «SAVAGE») dibujada como forma de color plano a partir de su
+ * máscara ya separada: sin degradados ni texturas, con las letras reales (no
+ * calcadas a mano) y sin cálculos de recorte en ejecución (así no hay riesgo en el
+ * punto de corte).
  */
 export function LogoWordCrop({
     word,
@@ -97,13 +97,11 @@ export function LogoWordCrop({
     return (
         <span
             aria-hidden="true"
-            // The glow's `filter: drop-shadow` promotes this element to its own
-            // GPU compositing layer. Forcing that promotion here explicitly
-            // (rather than leaving it implicit) keeps this element's layer
-            // consistently in sync with its non-promoted text siblings during
-            // the carousel's drag transform — without it, a hairline seam can
-            // flicker at the boundary between this element and plain text next
-            // to it while the parent slide is being dragged.
+            // El `filter: drop-shadow` del brillo lleva este elemento a su propia capa de
+            // GPU. Forzarlo aquí de forma explícita (en vez de dejarlo implícito) mantiene
+            // su capa sincronizada con el texto vecino mientras se arrastra el carrusel;
+            // sin ello puede parpadear una fina línea entre este elemento y el texto de
+            // al lado al arrastrar la diapositiva.
             className={cn('relative inline-block select-none cursor-default [transform:translateZ(0)]', className)}
             style={{aspectRatio: `${mask.width} / ${mask.height}`, ...style}}
         >
@@ -118,11 +116,11 @@ export function LogoWordCrop({
 }
 
 /**
- * The full "IRON SAVAGE" wordmark, materializing in — for a single
- * high-impact placement (the homepage hero) rather than every instance of
- * <Logo>. Decorative only (a real accessible name is provided by the
- * caller's own heading/label), and inert to clicks/drags/selection so it
- * can't leave a stray selection-highlight seam over the carousel.
+ * El logotipo «IRON SAVAGE» completo apareciendo con animación, para un único sitio
+ * de impacto (la portada) y no para cada <Logo>. Solo decorativo (el nombre
+ * accesible real lo da el título o la etiqueta de quien lo usa) e insensible a
+ * clics, arrastres y selección, para que no deje marcas de selección sobre el
+ * carrusel.
  */
 export function AnimatedWordmark({className}: {className?: string}) {
     return (

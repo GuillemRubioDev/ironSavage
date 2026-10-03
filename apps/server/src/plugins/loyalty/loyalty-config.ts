@@ -2,10 +2,10 @@ import { DEFAULT_LOYALTY_OPTIONS } from './constants';
 import type { LoyaltyConfig, LoyaltyPluginOptions } from './types';
 
 /**
- * Loyalty points are a store-configurable business rule (like a pricing/promotion
- * setting), not a secret — so this is plugged in via `LoyaltyPlugin.init({...})`
- * options at bootstrap, unlike Redsys' env-var-based config which holds
- * infrastructure secrets and per-deployment endpoints.
+ * Los puntos son una regla de negocio configurable de la tienda (como un ajuste de
+ * precios o promociones), no un secreto: se pasan con las opciones de
+ * `LoyaltyPlugin.init({...})` al arrancar, a diferencia de la configuración de
+ * Redsys por variables de entorno, que guarda secretos y URLs de cada despliegue.
  */
 let cached: LoyaltyConfig | undefined;
 
@@ -20,8 +20,8 @@ export function setLoyaltyConfig(options: LoyaltyPluginOptions): void {
 
 export function getLoyaltyConfig(): LoyaltyConfig {
     if (!cached) {
-        // Falls back to defaults so unit tests (and any code that runs before
-        // the plugin's `configuration` hook fires) still get sane values.
+        // Usa los valores por defecto para que los tests unitarios (y cualquier código
+        // que corra antes del hook `configuration` del plugin) tengan valores razonables.
         cached = { ...DEFAULT_LOYALTY_OPTIONS };
     }
     return cached;

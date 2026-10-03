@@ -1,26 +1,25 @@
-# Reverse proxy for the production stack. Caddy handles HTTPS automatically:
-# real public domains (PUBLIC_DOMAIN/API_DOMAIN) get Let's Encrypt certs with
-# auto-renewal and an HTTP->HTTPS redirect for free; non-public/local names
-# (e.g. localhost, *.localhost) automatically fall back to Caddy's internal
-# CA instead — no separate dev config needed, see DOCKER_PRODUCTION.md.
+# Proxy inverso de producción. Caddy gestiona HTTPS solo: los dominios públicos
+# reales (PUBLIC_DOMAIN/API_DOMAIN) reciben certificados de Let's Encrypt con
+# renovación automática y redirección HTTP->HTTPS; los nombres locales o no
+# públicos (p. ej. localhost, *.localhost) usan automáticamente la CA interna de
+# Caddy. No hace falta otra configuración para desarrollo; ver DOCKER_PRODUCTION.md.
 #
-# {$VAR} is Caddyfile's own env-var substitution, resolved from the
-# `caddy` service's `environment:` in docker-compose.prod.yml.
+# {$VAR} es la sustitución de variables de entorno del propio Caddyfile; se
+# resuelve con el `environment:` del servicio `caddy` en docker-compose.prod.yml.
 
 {
 	email {$CADDY_EMAIL}
 }
 
-# Applied to both sites below: zstd/gzip response compression (neither
-# storefront's own Next.js server nor vendure-server compress on their own —
-# see PRODUCTION_OPERATIONS.md's "Rendimiento" section) and a conservative
-# set of security headers safe to set blindly at the proxy without knowing
-# every script/style source the app loads (HSTS, MIME-sniffing, clickjacking,
-# referrer leakage, legacy browser features). Content-Security-Policy is
-# deliberately NOT set here — a wrong CSP silently breaks the app (blocked
-# scripts/styles/images) and needs to be authored against the actual set of
-# origins each app loads from; see the same doc section for that as a
-# pending, deliberately-not-guessed item.
+# Se aplica a los dos sitios de abajo: compresión zstd/gzip (ni el servidor
+# Next.js del storefront ni vendure-server comprimen por su cuenta; ver la sección
+# «Rendimiento» de PRODUCTION_OPERATIONS.md) y un conjunto prudente de cabeceras
+# de seguridad que se pueden poner en el proxy sin conocer cada origen de
+# scripts/estilos (HSTS, MIME-sniffing, clickjacking, fuga de referrer,
+# funciones antiguas del navegador). La Content-Security-Policy NO se pone aquí
+# a propósito: una CSP errónea rompe la app sin avisar (bloquea scripts, estilos
+# o imágenes) y debe redactarse con los orígenes reales de cada app. El
+# storefront ya envía la suya (apps/storefront/src/proxy.ts).
 (common_headers) {
 	encode zstd gzip
 	header {
@@ -35,12 +34,11 @@
 
 {$PUBLIC_DOMAIN} {
 	import common_headers
-	# Access log to stdout (captured by `docker logs caddy`) — this is the
-	# only place a 502 (storefront/vendure-server unreachable) is visible,
-	# since neither upstream ever sees the request. The `query` filter
-	# strips the `token` query param before it's written: /verify and
-	# /reset-password pass the email-verification / password-reset token
-	# as `?token=...`, which must never end up in logs.
+	# Registro de accesos por stdout (se ve con `docker logs caddy`). Es el único
+	# sitio donde se ve un 502 (storefront o vendure-server caídos), porque la
+	# petición nunca llega a ellos. El filtro `query` quita el parámetro `token`
+	# antes de escribirlo: /verify y /reset-password reciben el token de
+	# verificación o de contraseña como `?token=...`, y nunca debe acabar en los logs.
 	log {
 		format filter {
 			wrap console

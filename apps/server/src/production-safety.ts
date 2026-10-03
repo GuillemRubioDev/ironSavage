@@ -3,16 +3,15 @@ import { Logger } from '@vendure/core';
 const loggerCtx = 'ProductionSafety';
 
 /**
- * CORS origin for the Admin + Shop APIs. In dev this stays permissive
- * (`true` — reflects any Origin), which is fine since nothing here is
- * internet-facing. In production, Vendure's own default is also `true`
- * with `credentials: true` — reflecting any Origin while allowing cookies —
- * which would let any website make credentialed requests against a signed-in
- * admin's or customer's session. CORS_ORIGIN (comma-separated) must be set
- * explicitly; STOREFRONT_URL alone is used as a sane fallback since it's
- * already a required var, but an explicit CORS_ORIGIN is recommended so the
- * admin Dashboard's own origin can be included too if it's ever served from
- * somewhere other than this same server.
+ * Origen CORS de las APIs Admin y Shop. En desarrollo es permisivo (`true`:
+ * acepta cualquier Origin), lo cual vale porque nada está expuesto a internet.
+ * En producción, el valor por defecto de Vendure también es `true` con
+ * `credentials: true` (acepta cualquier Origin y permite cookies), lo que dejaría
+ * a cualquier web hacer peticiones con la sesión iniciada de un administrador o
+ * cliente. Hay que fijar CORS_ORIGIN (separado por comas); si falta, se usa solo
+ * STOREFRONT_URL, que ya es obligatoria, pero se recomienda un CORS_ORIGIN
+ * explícito para poder incluir también el origen del dashboard si algún día se
+ * sirve desde otro servidor.
  */
 export function getCorsOrigin(isDev: boolean): true | string[] {
     if (isDev) {
@@ -32,10 +31,10 @@ export function getCorsOrigin(isDev: boolean): true | string[] {
 }
 
 /**
- * The scaffold default (`assetUrlPrefix: 'https://www.my-shop.com/assets/'`)
- * is a placeholder domain that was never updated for this project — left as
- * the production value, every asset URL returned by the API would point at
- * a domain nobody owns. Require an explicit value instead of guessing.
+ * El valor que traía la plantilla (`assetUrlPrefix: 'https://www.my-shop.com/assets/'`)
+ * es un dominio de ejemplo que nunca se cambió: en producción, todas las URLs de
+ * recursos de la API apuntarían a un dominio que no es de nadie. Se exige un
+ * valor explícito en vez de adivinarlo.
  */
 export function getAssetUrlPrefix(isDev: boolean): string | undefined {
     if (isDev) {
@@ -52,14 +51,13 @@ export function getAssetUrlPrefix(isDev: boolean): string | undefined {
 }
 
 /**
- * Non-fatal checks for the kind of "forgot to flip a setting" mistake that
- * silently breaks production without an obvious error: running with the
- * app in production mode but Redsys still pointed at its test endpoint, or
- * transactional email silently falling back to the dev provider (which
- * writes real customer verification/reset tokens to a local file instead of
- * emailing them). These only run outside dev and only warn — they don't
- * block startup, since a store can legitimately choose to soft-launch
- * without email configured yet, but the operator should see this loudly.
+ * Comprobaciones no bloqueantes para el típico «se me olvidó cambiar un ajuste»
+ * que rompe producción sin un error evidente: la app en modo producción con
+ * Redsys aún apuntando a su entorno de pruebas, o los emails cayendo sin avisar
+ * al proveedor de desarrollo (que guarda en un archivo local los tokens reales de
+ * verificación y contraseña de los clientes en vez de enviarlos). Solo se
+ * ejecutan fuera de desarrollo y solo avisan: no impiden arrancar, porque una
+ * tienda puede abrir sin email configurado, pero quien la opera debe verlo bien claro.
  */
 export function runProductionSafetyChecks(isDev: boolean): void {
     if (isDev) {

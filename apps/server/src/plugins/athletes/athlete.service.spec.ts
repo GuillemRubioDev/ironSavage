@@ -11,9 +11,10 @@ const { createFakeDb } = require('./athletes.test-utils');
 const ctx = {};
 
 /**
- * AthleteService on the shared fake DB, plus fakes for the two core
- * repositories it touches (Customer, Promotion) and a PromotionService mock
- * that records exactly what would be written to Vendure's promotion table.
+ * AthleteService sobre la base de datos falsa compartida, más imitaciones de los
+ * dos repositorios de Vendure que toca (Customer, Promotion) y un mock de
+ * PromotionService que registra exactamente lo que se escribiría en la tabla de
+ * promociones de Vendure.
  */
 function createService(existingPromotions: Array<{ id: string; couponCode: string; deletedAt?: Date | null }> = []) {
     const db = createFakeDb();
@@ -100,7 +101,7 @@ test('a customer using an athlete code gets exactly the configured discount (via
     const { service, createPromotion } = createService();
     await service.create(ctx, { customerId: 'pedro', code: pedroCode });
 
-    // 100 € basket, PEDRO10 at 10% → 10 € off.
+    // Cesta de 100 €, PEDRO10 al 10 % → 10 € de descuento.
     assert.equal(discountFor(createPromotion.mock.calls[0].arguments[1], 10000), -1000);
 });
 

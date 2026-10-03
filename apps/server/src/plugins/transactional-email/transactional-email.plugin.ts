@@ -11,17 +11,17 @@ export { EmailService } from './email.service';
 export type { EmailJob, EmailMessage, EmailProvider, EmailSendResult } from './types';
 
 /**
- * Transactional-email infrastructure: OrderService/auth events → EmailService
- * → EmailProvider (dev / smtp — see email-config.ts). No plugin or resolver
- * calls a provider SDK directly; everything goes through EmailService, so
- * switching providers is a one-line change to the useFactory below, never to
- * business logic.
+ * Infraestructura de emails automáticos: eventos de pedidos y autenticación →
+ * EmailService → EmailProvider (dev / smtp; ver email-config.ts). Ningún plugin ni
+ * resolver llama directamente al SDK de un proveedor; todo pasa por EmailService, así
+ * que cambiar de proveedor es una línea en el useFactory de abajo, nunca en la lógica
+ * de negocio.
  *
- * Depends on InvoicingPlugin only through its exported InvoiceGeneratedEvent
- * type (no NestJS module import needed — the event carries everything this
- * plugin needs), so it must be registered after InvoicingPlugin in
- * vendure-config.ts's `plugins` array for that event class to exist by the
- * time this plugin's subscriber wires up.
+ * Depende de InvoicingPlugin solo a través de su tipo exportado
+ * InvoiceGeneratedEvent (sin importar el módulo NestJS: el evento trae todo lo que
+ * necesita este plugin), así que debe registrarse después de InvoicingPlugin en el
+ * array `plugins` de vendure-config.ts para que esa clase de evento exista cuando se
+ * conecte el suscriptor de este plugin.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

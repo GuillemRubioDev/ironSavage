@@ -26,10 +26,10 @@ import { userHasPassword } from './user-has-password';
 export interface CustomerAccountStatus {
     customerId: ID;
     emailAddress: string;
-    /** false for guest customers (created at checkout): they have no login at all. */
+    /** false en clientes invitados (creados en el checkout): no tienen acceso de ningún tipo. */
     hasUser: boolean;
     verified: boolean;
-    /** false for accounts created by an admin without a password — they set it from the activation email. */
+    /** false en cuentas creadas por un administrador sin contraseña: la eligen desde el email de activación. */
     hasPassword: boolean;
     lastLogin: Date | null;
 }
@@ -39,11 +39,11 @@ export type CustomerAccountResult =
     | { success: false; reason: string };
 
 /**
- * Admin-side control over a customer's login (athletes included — an athlete
- * is a customer): see its status, verify it directly, resend the activation
- * email, or send a password email. Every action reuses Vendure's own
- * User/token machinery and events, so the emails are still sent by
- * TransactionalEmailPlugin with its existing templates.
+ * Control del acceso de un cliente desde administración (atletas incluidos: un
+ * atleta es un cliente): ver su estado, verificarlo directamente, reenviar el email
+ * de activación o enviar un email de contraseña. Todas las acciones reutilizan el
+ * sistema de usuarios, tokens y eventos de Vendure, así que los emails los sigue
+ * enviando TransactionalEmailPlugin con sus plantillas.
  */
 @Injectable()
 export class CustomerAccountService {
@@ -77,10 +77,10 @@ export class CustomerAccountService {
     }
 
     /**
-     * (Re)sends the activation email with a fresh token (the old link stops
-     * working). For a guest customer with no login yet, creates one first, so
-     * this doubles as "invite this customer to create an account". Accounts
-     * without a password choose it from that same link.
+     * (Re)envía el email de activación con un token nuevo (el enlace anterior deja de
+     * funcionar). Si es un cliente invitado sin acceso, primero se lo crea, así que
+     * también sirve para «invitar a este cliente a crear una cuenta». Las cuentas sin
+     * contraseña la eligen desde ese mismo enlace.
      */
     async sendVerificationEmail(ctx: RequestContext, customerId: ID): Promise<CustomerAccountResult> {
         const customer = await this.findCustomer(ctx, customerId);
@@ -100,19 +100,19 @@ export class CustomerAccountService {
         } else {
             await this.userService.setVerificationToken(ctx, user);
         }
-        // Same event a storefront registration emits → same email template.
+        // El mismo evento que emite un registro en la tienda → la misma plantilla de email.
         await this.eventBus.publish(new AccountRegistrationEvent(ctx, user));
         return { success: true, status: (await this.getStatus(ctx, customerId))! };
     }
 
     /**
-     * Verifies the account directly from the Dashboard — no email click
-     * needed. Works for any unverified customer, including guests (a login is
-     * created) and accounts without a password:
-     * - with `password`: the admin sets it, and the customer can sign in at once;
-     * - without one, for an account that has none: the customer gets a
-     *   "create your password" email (a password-reset link), so they're never
-     *   left verified but unable to sign in.
+     * Verifica la cuenta directamente desde el dashboard, sin que el cliente tenga que
+     * pulsar el enlace del email. Sirve para cualquier cliente sin verificar, incluidos
+     * los invitados (se les crea el acceso) y las cuentas sin contraseña:
+     * - con `password`: la pone el administrador y el cliente puede entrar ya;
+     * - sin ella, en una cuenta que no tiene: el cliente recibe un email «crea tu
+     *   contraseña» (un enlace de restablecer contraseña), para que nunca quede
+     *   verificado pero sin poder entrar.
      */
     async verifyManually(ctx: RequestContext, customerId: ID, options: { password?: string | null } = {}): Promise<CustomerAccountResult> {
         const customer = await this.findCustomer(ctx, customerId);
@@ -156,7 +156,7 @@ export class CustomerAccountService {
         });
 
         if (password || (await userHasPassword(this.connection, ctx, user.id))) {
-            // The customer can sign in now: send the usual "account activated" email.
+            // El cliente ya puede entrar: se envía el email habitual de «cuenta activada».
             await this.eventBus.publish(new AccountVerifiedEvent(ctx, customer));
             return { success: true, status: (await this.getStatus(ctx, customerId))! };
         }
@@ -165,10 +165,10 @@ export class CustomerAccountService {
     }
 
     /**
-     * Admin sets (or changes) the customer's password at any time — e.g. a
-     * temporary one the customer changes later from their account. Signs the
-     * customer out of every session so an old/compromised password can't keep
-     * a session alive. Doesn't change the verification state.
+     * El administrador pone (o cambia) la contraseña del cliente en cualquier momento,
+     * p. ej. una temporal que el cliente cambiará luego desde su cuenta. Cierra todas
+     * las sesiones del cliente para que una contraseña antigua o comprometida no
+     * mantenga ninguna abierta. No cambia el estado de verificación.
      */
     async setPassword(ctx: RequestContext, customerId: ID, password: string): Promise<CustomerAccountResult> {
         const customer = await this.findCustomer(ctx, customerId);
@@ -201,10 +201,10 @@ export class CustomerAccountService {
     }
 
     /**
-     * Sends a password email: "reset your password" for accounts that have
-     * one, "create your password" for accounts that don't. Also works for an
-     * unverified account: completing it proves control of the email, so
-     * Vendure verifies the account at the same time.
+     * Envía un email de contraseña: «restablece tu contraseña» si la cuenta tiene una,
+     * «crea tu contraseña» si no. También sirve para una cuenta sin verificar:
+     * completarlo demuestra que controla el email, así que Vendure verifica la cuenta
+     * a la vez.
      */
     async sendPasswordResetEmail(ctx: RequestContext, customerId: ID): Promise<CustomerAccountResult> {
         const customer = await this.findCustomer(ctx, customerId);
@@ -223,10 +223,10 @@ export class CustomerAccountService {
     }
 
     /**
-     * Doesn't call CustomerService.requestPasswordReset(): from the Admin API
-     * its email lookup searches *administrator* users (UserService picks the
-     * table from ctx.apiType), so it silently does nothing for a customer.
-     * This sets the token on the customer's own user and emits the same event.
+     * No llama a CustomerService.requestPasswordReset(): desde la Admin API busca el
+     * email entre los usuarios *administradores* (UserService elige la tabla según
+     * ctx.apiType), así que con un cliente no hace nada y no avisa. Aquí se pone el
+     * token en el usuario del propio cliente y se emite el mismo evento.
      */
     private async issuePasswordEmail(ctx: RequestContext, customer: Customer, user: User): Promise<void> {
         const nativeAuth = user.getNativeAuthenticationMethod();
@@ -243,7 +243,7 @@ export class CustomerAccountService {
         await this.eventBus.publish(new PasswordResetEvent(ctx, user));
     }
 
-    /** Creates the login of a guest customer (unverified, no password) and links it. Returns an error message on failure. */
+    /** Crea el acceso de un cliente invitado (sin verificar, sin contraseña) y lo vincula. Si falla, devuelve un mensaje de error. */
     private async createLogin(ctx: RequestContext, customer: Customer): Promise<User | string> {
         const created = await this.userService.createCustomerUser(ctx, customer.emailAddress);
         if (isGraphQlErrorResult(created)) {
@@ -253,12 +253,12 @@ export class CustomerAccountService {
         return (await this.loadUser(ctx, created.id)) ?? 'Could not load the customer login';
     }
 
-    /** Storefront minimum + the policy Vendure applies to customer-chosen passwords (authOptions.passwordValidationStrategy). */
+    /** El mínimo del storefront + la política que aplica Vendure a las contraseñas que eligen los clientes (authOptions.passwordValidationStrategy). */
     private async validatePassword(ctx: RequestContext, password: string): Promise<string | undefined> {
         if (!password) {
             return 'A password is required';
         }
-        // Same minimum the storefront enforces on registration (Vendure's default policy only asks for 4).
+        // El mismo mínimo que exige el storefront al registrarse (la política por defecto de Vendure solo pide 4).
         if (password.length < 8) {
             return 'The password must be at least 8 characters long';
         }

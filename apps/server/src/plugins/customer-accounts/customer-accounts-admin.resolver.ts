@@ -5,8 +5,8 @@ import { Allow, Ctx, ID, Permission, RequestContext } from '@vendure/core';
 import { logSecurityEvent } from '../security/security-events';
 import { CustomerAccountResult, CustomerAccountService } from './customer-account.service';
 
-// Vendure auto-derives this ErrorCode value from the `CustomerAccountError`
-// type name (see api-extensions.ts) — the generated TS enum doesn't know about it.
+// Vendure deduce este valor de ErrorCode del nombre del tipo `CustomerAccountError`
+// (ver api-extensions.ts); el enum de TypeScript generado no lo conoce.
 const CUSTOMER_ACCOUNT_ERROR = 'CUSTOMER_ACCOUNT_ERROR' as ErrorCode;
 
 class CustomerAccountError {
@@ -44,7 +44,7 @@ export class CustomerAccountsAdminResolver {
     @Mutation()
     @Allow(Permission.UpdateCustomer)
     async setCustomerPassword(@Ctx() ctx: RequestContext, @Args('customerId') customerId: ID, @Args('password') password: string) {
-        // The password itself is never logged — only that it was changed.
+        // La contraseña nunca se registra en los logs; solo que se ha cambiado.
         return this.toGraphQl(ctx, 'set_password', customerId, await this.customerAccountService.setPassword(ctx, customerId, password));
     }
 

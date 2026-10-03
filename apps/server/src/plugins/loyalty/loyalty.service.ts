@@ -7,7 +7,7 @@ import { LoyaltyAccount } from './loyalty-account.entity';
 import { LoyaltyTransaction } from './loyalty-transaction.entity';
 import type { LoyaltyEarnPolicy } from './types';
 
-/** Sku used to tag the Surcharge that represents an active points redemption, so it can be found again to cancel/remove it. */
+/** Sku que marca el recargo (Surcharge) de un canje de puntos activo, para encontrarlo después y anularlo o quitarlo. */
 export const LOYALTY_SURCHARGE_SKU = 'LOYALTY_POINTS_DISCOUNT';
 
 type BalanceChangeResult =
@@ -27,7 +27,7 @@ export class LoyaltyService {
         private orderService: OrderService,
     ) {}
 
-    /** See LoyaltyEarnPolicy. Called by other plugins during bootstrap. */
+    /** Ver LoyaltyEarnPolicy. Lo llaman otros plugins al arrancar. */
     registerEarnPolicy(policy: LoyaltyEarnPolicy): void {
         this.earnPolicies.push(policy);
     }
@@ -61,10 +61,10 @@ export class LoyaltyService {
     }
 
     /**
-     * Called when an Order transitions to PaymentSettled. Idempotent: the
-     * partial unique index on (orderId) WHERE type='EARN' means a duplicate
-     * event for the same order is rejected at the DB level and safely
-     * ignored here, rather than double-crediting points.
+     * Se llama cuando un pedido pasa a PaymentSettled. Idempotente: el índice único
+     * parcial sobre (orderId) WHERE type='EARN' hace que un evento duplicado del mismo
+     * pedido se rechace en la base de datos y aquí se ignore sin problema, en vez de
+     * abonar los puntos dos veces.
      */
     async earnForOrder(ctx: RequestContext, order: Order): Promise<{ processed: boolean; points?: number }> {
         const customerId = order.customerId;
@@ -87,11 +87,10 @@ export class LoyaltyService {
 
         try {
             return await this.connection.withTransaction(ctx, async txCtx => {
-                // Checked up front (not just relied on via the unique index below) so
-                // a duplicate event never even touches the balance in the common,
-                // non-racing case — the index is a last-resort safety net for the
-                // genuinely concurrent case, where the loser's whole transaction
-                // (including the balance credit) is rolled back by the DB.
+                // Se comprueba antes (no solo con el índice único de abajo) para que, en el
+                // caso normal sin carreras, un evento duplicado ni toque el saldo. El índice
+                // es la última red de seguridad para el caso realmente simultáneo, en el que
+                // la base de datos deshace toda la transacción perdedora (abono incluido).
                 const alreadyEarned = await this.connection
                     .getRepository(txCtx, LoyaltyTransaction)
                     .findOne({ where: { orderId: order.id, type: 'EARN' } });
@@ -114,12 +113,11 @@ export class LoyaltyService {
     }
 
     /**
-     * Customer-initiated redemption during checkout. Synchronous by design —
-     * "the customer must decide to use them" means the discount is applied
-     * the moment they ask for it, not deferred to payment confirmation. The
-     * tradeoff is an abandoned/never-paid order can leave points spent; the
-     * order-Cancelled subscriber in the plugin and `cancelRedemption` below
-     * both exist specifically to compensate for that case.
+     * Canje que inicia el cliente durante el checkout. Síncrono a propósito: «el
+     * cliente debe decidir usarlos» significa que el descuento se aplica en cuanto lo
+     * pide, no al confirmarse el pago. La contrapartida es que un pedido abandonado o
+     * sin pagar puede dejar puntos gastados; el suscriptor de pedido cancelado del
+     * plugin y `cancelRedemption` existen justamente para compensar ese caso.
      */
     async redeemPoints(ctx: RequestContext, order: Order, points: number): Promise<RedeemPointsResult> {
         const config = getLoyaltyConfig();
@@ -168,9 +166,9 @@ export class LoyaltyService {
     }
 
     /**
-     * Reverses an active (un-reverted) redemption on an order: restores the
-     * points and removes the discount Surcharge. Used both for the explicit
-     * "change my mind" mutation and automatically when an order is cancelled.
+     * Deshace un canje activo (no revertido) de un pedido: devuelve los puntos y quita
+     * el recargo de descuento. Se usa en la mutación de «he cambiado de idea» y,
+     * automáticamente, al cancelarse un pedido.
      */
     async cancelRedemption(ctx: RequestContext, order: Order): Promise<{ success: boolean; pointsRestored?: number }> {
         const activePoints = await this.getActiveRedemptionPoints(ctx, order.id);
@@ -202,11 +200,10 @@ export class LoyaltyService {
     }
 
     /**
-     * Reverts points earned on an order, proportionally to how much of the
-     * order was refunded (capped so a sequence of partial refunds can never
-     * revert more than was originally earned, and capped again at the
-     * account's current balance so a balance can never go negative even if
-     * the customer already spent those points elsewhere).
+     * Revierte los puntos ganados con un pedido en proporción a lo reembolsado (con
+     * tope para que varios reembolsos parciales nunca reviertan más de lo ganado, y
+     * otro tope en el saldo actual para que nunca sea negativo aunque el cliente ya
+     * haya gastado esos puntos).
      */
     async revertForRefund(ctx: RequestContext, order: Order, refund: Refund): Promise<{ reverted: number }> {
         return this.connection.withTransaction(ctx, async txCtx => {
@@ -234,9 +231,9 @@ export class LoyaltyService {
                 return { reverted: 0 };
             }
             const account = await this.getOrCreateAccount(txCtx, customerId);
-            // Never push balance negative, even if it means reverting fewer points
-            // than the refund proportion would strictly justify — the ledger stays
-            // consistent and the store absorbs the (rare) shortfall.
+            // Nunca dejar el saldo en negativo, aunque eso suponga revertir menos puntos
+            // de los que tocarían por la proporción: el libro sigue coherente y la tienda
+            // asume la diferencia (poco habitual).
             pointsToRevert = Math.min(pointsToRevert, account.balance);
             if (pointsToRevert <= 0) {
                 return { reverted: 0 };
@@ -248,7 +245,7 @@ export class LoyaltyService {
         });
     }
 
-    /** Admin-initiated manual balance correction. `points` may be negative. */
+    /** Corrección manual del saldo por un administrador. `points` puede ser negativo. */
     async adjustBalance(ctx: RequestContext, customerId: ID, points: number, description: string): Promise<LoyaltyTransaction> {
         if (!Number.isInteger(points) || points === 0) {
             throw new Error('Adjustment points must be a non-zero integer');
@@ -267,10 +264,10 @@ export class LoyaltyService {
     }
 
     /**
-     * Credits points to a customer's account under an arbitrary ledger type,
-     * for other plugins that grant points through their own rules (e.g.
-     * ATHLETE_REWARD). Runs in the caller's transaction when `ctx` carries
-     * one, so the caller can keep its own records and this ledger row atomic.
+     * Abona puntos a la cuenta de un cliente con cualquier tipo de movimiento, para
+     * otros plugins que dan puntos con sus propias reglas (p. ej. ATHLETE_REWARD).
+     * Usa la transacción de quien llama si `ctx` la lleva, para que sus registros y
+     * esta fila del libro sean atómicos.
      */
     async creditPoints(
         ctx: RequestContext,
@@ -292,11 +289,11 @@ export class LoyaltyService {
     }
 
     /**
-     * Debits up to `points` from a customer's account — never more than the
-     * current balance, following the same "balance never goes negative, the
-     * store absorbs the shortfall" rule as `revertForRefund`. The account row
-     * is locked first so a concurrent redemption can't slip in between the
-     * balance read and the conditional UPDATE. Must run inside a transaction.
+     * Descuenta hasta `points` de la cuenta de un cliente, nunca más que el saldo
+     * actual, con la misma regla que `revertForRefund` («el saldo nunca es negativo,
+     * la tienda asume la diferencia»). Primero bloquea la fila de la cuenta para que
+     * un canje simultáneo no se cuele entre la lectura del saldo y el UPDATE
+     * condicional. Debe ejecutarse dentro de una transacción.
      */
     async debitPointsUpTo(
         ctx: RequestContext,
@@ -330,7 +327,7 @@ export class LoyaltyService {
         return Math.floor(euros * config.pointsPerEuro);
     }
 
-    /** Net of SPEND/ADJUSTMENT points for an order; a negative net means there's an un-reverted redemption of that magnitude. */
+    /** Neto de puntos SPEND/ADJUSTMENT de un pedido; si es negativo, hay un canje no revertido de esa cantidad. */
     private async getActiveRedemptionPoints(ctx: RequestContext, orderId: ID): Promise<number> {
         const txs = await this.connection.getRepository(ctx, LoyaltyTransaction).find({ where: { orderId } });
         const net = txs
@@ -349,8 +346,8 @@ export class LoyaltyService {
             return await repo.save(new LoyaltyAccount({ customerId, balance: 0, lifetimeEarned: 0, lifetimeSpent: 0 }));
         } catch (err) {
             if (this.isUniqueViolation(err)) {
-                // Lost a race against a concurrent first-time account creation for
-                // the same customer — the other insert won, just read it back.
+                // Otra creación simultánea de la cuenta del mismo cliente ganó la carrera:
+                // basta con volver a leerla.
                 return repo.findOneOrFail({ where: { customerId } });
             }
             throw err;
@@ -380,13 +377,12 @@ export class LoyaltyService {
     }
 
     /**
-     * Atomically applies a signed balance delta with a single conditional
-     * UPDATE (`WHERE balance + delta >= 0`), so a debit that would push the
-     * balance negative fails cleanly instead of relying on a
-     * read-then-write that could race with a concurrent redemption. Only on
-     * success is the ledger row inserted, keeping `LoyaltyAccount.balance`
-     * and the `LoyaltyTransaction` audit trail consistent within one DB
-     * transaction.
+     * Aplica de forma atómica una variación de saldo con signo mediante un único
+     * UPDATE condicional (`WHERE balance + delta >= 0`): un cargo que dejaría el saldo
+     * en negativo falla limpiamente, sin depender de leer y luego escribir (que podría
+     * chocar con un canje simultáneo). Solo si tiene éxito se inserta la fila del
+     * libro, así `LoyaltyAccount.balance` y `LoyaltyTransaction` quedan coherentes en
+     * una misma transacción.
      */
     private async applyBalanceChange(
         ctx: RequestContext,

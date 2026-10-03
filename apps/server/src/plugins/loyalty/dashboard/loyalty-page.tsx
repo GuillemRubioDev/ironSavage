@@ -29,11 +29,10 @@ import { adjustLoyaltyPointsDocument, customerLoyaltyDocument, searchCustomersDo
 const HISTORY_PAGE_SIZE = 20;
 
 /**
- * Simple, single-screen loyalty admin: search a customer, view balance +
- * history (both via the already-existing customerLoyaltyAccount/History
- * queries), and adjust the balance via the existing adjustLoyaltyPoints
- * mutation. No new loyalty rules/calculations — this is a UI over the
- * plugin's existing Admin API surface.
+ * Gestión de puntos sencilla en una sola pantalla: buscar un cliente, ver saldo e
+ * historial (con las consultas customerLoyaltyAccount/History ya existentes) y
+ * ajustar el saldo con la mutación adjustLoyaltyPoints. Sin reglas ni cálculos
+ * nuevos: es solo una interfaz sobre la Admin API del plugin.
  */
 export function LoyaltyPage() {
     const { t } = useLingui();
@@ -44,7 +43,7 @@ export function LoyaltyPage() {
     const [adjustReason, setAdjustReason] = useState('');
     const queryClient = useQueryClient();
 
-    // Ledger entry types (LoyaltyTransaction.type) shown with a readable label.
+    // Tipos de movimiento (LoyaltyTransaction.type) con una etiqueta legible.
     const typeLabel: Record<string, string> = {
         EARN: t`Earned`,
         SPEND: t`Redeemed`,

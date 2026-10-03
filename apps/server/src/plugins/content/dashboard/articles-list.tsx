@@ -30,10 +30,9 @@ import { useState } from 'react';
 import { adminArticleListDocument, deleteArticleDocument, publishArticleDocument, unpublishArticleDocument } from './graphql';
 
 /**
- * A plain manual fetch + table, deliberately not built on Vendure's
- * <ListPage>/<PaginatedListDataTable> — see the Reviews plugin's dashboard
- * extension for why (documented there, applies identically to this plugin's
- * own custom paginated-list type).
+ * Carga manual y tabla simple, a propósito sin <ListPage>/<PaginatedListDataTable>
+ * de Vendure. La extensión del dashboard del plugin de reseñas explica por qué
+ * (lo mismo se aplica al tipo de lista paginada propio de este plugin).
  */
 const PAGE_SIZE = 20;
 

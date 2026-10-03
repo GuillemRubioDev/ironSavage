@@ -11,7 +11,7 @@ import {adjustQuantity, removeFromCart} from './actions';
 interface QuantityControlProps {
     lineId: string;
     quantity: number;
-    /** For the buttons' accessible names ("Eliminar Whey Protein del carrito"). */
+    /** Para los nombres accesibles de los botones («Eliminar Whey Protein del carrito»). */
     productName: string;
 }
 
@@ -57,7 +57,7 @@ export function QuantityControl({lineId, quantity, productName}: QuantityControl
                     <Minus className="h-4 w-4" aria-hidden="true"/>
                 </Button>
 
-                {/* Announces the new quantity to screen readers after +/−. */}
+                {/* Anuncia la nueva cantidad a los lectores de pantalla tras +/−. */}
                 <span className="w-10 text-center font-semibold tabular-nums transition-all duration-200" aria-live="polite">
                     {isPending ? (
                         <Loader2 className="h-4 w-4 mx-auto animate-spin" aria-hidden="true"/>

@@ -32,7 +32,7 @@ export async function resetPasswordAction(prevState: { error?: string } | undefi
         return {error: resetResult.message};
     }
 
-    // Store the token in a cookie if returned
+    // Guarda el token en una cookie si viene en la respuesta
     if (result.token) {
         await setAuthToken(result.token);
     }

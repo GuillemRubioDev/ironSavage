@@ -4,19 +4,19 @@ import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 export const BANNER_ALIGNMENTS = ['left', 'center', 'right'] as const;
 export type BannerAlignment = (typeof BANNER_ALIGNMENTS)[number];
 
-/** How the image is laid out relative to the text: full-bleed background
- * behind the text (current/original look), or a fixed half split with the
- * image on one side and the text on the other. */
+/** Cómo se coloca la imagen respecto al texto: de fondo a sangre detrás del texto
+ * (el aspecto original) o en dos mitades fijas, la imagen a un lado y el texto
+ * al otro. */
 export const BANNER_IMAGE_LAYOUTS = ['background', 'left', 'right'] as const;
 export type BannerImageLayout = (typeof BANNER_IMAGE_LAYOUTS)[number];
 
 /**
- * A single promotional slide in the storefront home carousel (the slides
- * after the fixed brand/hero slide — that one stays hardcoded, tied to the
- * site's own translations). Bilingual (es/en) flat fields rather than
- * Vendure's full Translatable/relation machinery — only 2 locales and a
- * handful of short fields, so that would be more ceremony than the data
- * warrants (same simplicity call as ContentArticle, which is single-locale).
+ * Una diapositiva promocional del carrusel de la portada (las que van después de
+ * la diapositiva fija de marca, que sigue en el código ligada a las traducciones
+ * del sitio). Campos planos bilingües (es/en) en vez del sistema completo de
+ * traducciones de Vendure: con solo 2 idiomas y unos pocos campos cortos, sería
+ * más complicación de la que merecen los datos (misma decisión sencilla que en
+ * ContentArticle).
  */
 @Entity()
 export class Banner extends VendureEntity {
@@ -42,16 +42,16 @@ export class Banner extends VendureEntity {
     @Column()
     ctaLabelEn: string;
 
-    /** Destination path, e.g. /categorias/creatina-y-aminoacidos — not validated against the catalog, same as the storefront's previous static config. */
+    /** Ruta de destino, p. ej. /categorias/creatina-y-aminoacidos. No se valida contra el catálogo, igual que la antigua configuración fija del storefront. */
     @Column()
     href: string;
 
     /**
-     * A plain, unidirectional reference to a native Vendure Asset — reuses
-     * Vendure's own asset storage/serving. Nullable: the storefront falls
-     * back to a brand-gradient background when unset (same behaviour as the
-     * static config it replaces). `onDelete: 'SET NULL'` means deleting the
-     * Asset elsewhere in the admin doesn't break the banner, just drops its image.
+     * Referencia simple y unidireccional a un Asset nativo de Vendure: reutiliza el
+     * almacenamiento y la entrega de recursos de Vendure. Admite nulo: sin imagen, el
+     * storefront usa un fondo degradado de la marca (como la configuración fija que
+     * sustituye). `onDelete: 'SET NULL'` hace que borrar el Asset en otra parte del
+     * panel no rompa el banner; solo se queda sin imagen.
      */
     @ManyToOne(() => Asset, { onDelete: 'SET NULL', nullable: true })
     @JoinColumn()
@@ -66,7 +66,7 @@ export class Banner extends VendureEntity {
     @Column({ type: 'varchar', enum: BANNER_IMAGE_LAYOUTS, default: 'background' })
     imageLayout: BannerImageLayout;
 
-    /** Lower first. Ties broken by id. */
+    /** Los menores primero; a igualdad, por id. */
     @Column({ default: 0 })
     position: number;
 

@@ -25,8 +25,8 @@ interface Collection {
 
 interface MobileNavProps {
     collections: Collection[];
-    /** Server-rendered (needs store currency data) — passed down rather than
-     * imported directly, since this component is a client component. */
+    /** Se renderiza en el servidor (necesita las monedas de la tienda): se pasa como prop
+     * en vez de importarse, porque este es un componente de cliente. */
     currencyPicker?: ReactNode;
 }
 
@@ -59,7 +59,7 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                 </SheetHeader>
 
                 <div className="flex flex-col gap-6 px-4 pb-6">
-                    {/* Search */}
+                    {/* Búsqueda */}
                     <form onSubmit={handleSearch} className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -71,7 +71,7 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                         />
                     </form>
 
-                    {/* Shop All */}
+                    {/* Ver toda la tienda */}
                     <div>
                         <SheetClose
                             render={
@@ -88,7 +88,7 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                         </SheetClose>
                     </div>
 
-                    {/* News */}
+                    {/* Noticias */}
                     <div>
                         <SheetClose
                             render={
@@ -105,7 +105,7 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                         </SheetClose>
                     </div>
 
-                    {/* Collections */}
+                    {/* Colecciones */}
                     {collections.length > 0 && (
                         <div>
                             <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -131,7 +131,7 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                         </div>
                     )}
 
-                    {/* Account links */}
+                    {/* Enlaces de la cuenta */}
                     <div>
                         <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             {t('account')}
@@ -205,9 +205,9 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                         </nav>
                     </div>
 
-                    {/* Preferences — language/currency/theme live only here on mobile;
-                        the main header hides them below md to leave room for the
-                        collections it actually needs (see navbar.tsx). */}
+                    {/* Preferencias: en móvil, idioma/moneda/tema solo están aquí; la
+                        cabecera principal los oculta por debajo de md para dejar sitio a
+                        las colecciones (ver navbar.tsx). */}
                     <div>
                         <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             {t('preferences')}

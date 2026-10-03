@@ -10,9 +10,9 @@ export function generateMetadata() {
 }
 
 /**
- * Condiciones generales de uso y de contratación. Accepted with a checkbox
- * when creating an account and again before paying at checkout — both link
- * here. Customers can print/save them as PDF from the page itself.
+ * Condiciones generales de uso y de contratación. Se aceptan con una casilla al
+ * crear la cuenta y otra vez antes de pagar en el checkout; ambas enlazan aquí. Los
+ * clientes pueden imprimirlas o guardarlas en PDF desde la propia página.
  */
 export default async function TermsPage() {
     const locale = await getRouteLocale();

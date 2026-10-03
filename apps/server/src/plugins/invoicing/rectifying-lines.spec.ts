@@ -4,7 +4,7 @@ import { test } from 'node:test';
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { buildRectifyingLines, splitGross } = require('./rectifying-lines');
 
-// 2 × protein (10 % IVA, 22,00 € each incl. tax) + 1 × shaker (21 %, 12,10 €) + shipping 6,05 € (21 %)
+// 2 × proteína (IVA 10 %, 22,00 € cada una con IVA) + 1 × shaker (21 %, 12,10 €) + envío 6,05 € (21 %)
 const order = {
     lines: [
         { id: 1, taxRate: 10, proratedUnitPriceWithTax: 2200, proratedLinePriceWithTax: 4400, productVariant: { name: 'Proteína 1kg', sku: 'PROT' } },
@@ -38,7 +38,7 @@ test('full refund including shipping mirrors the original invoice, rate by rate'
     assert.equal(sum(r.lines), -6215);
     const taxAt = (rate: number) => r.lines.filter((l: { taxRate: number }) => l.taxRate === rate).reduce((a: number, l: { taxAmount: number }) => a + l.taxAmount, 0);
     assert.equal(taxAt(10), -400);
-    assert.equal(taxAt(21), -315); // 210 (shaker) + 105 (shipping)
+    assert.equal(taxAt(21), -315); // 210 (shaker) + 105 (envío)
     assert.ok(r.lines.some((l: { sku: string }) => l.sku === 'SHIPPING'));
 });
 

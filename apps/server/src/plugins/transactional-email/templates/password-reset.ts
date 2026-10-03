@@ -6,8 +6,8 @@ export function renderPasswordReset(
     data: { customerName: string; resetUrl: string; isSetup?: boolean },
 ): RenderedEmail {
     if (data.isSetup) {
-        // The account is active (e.g. verified by the store from the Dashboard)
-        // but has no password yet: same reset link, worded as "create".
+        // La cuenta está activa (p. ej. verificada por la tienda desde el dashboard)
+        // pero aún sin contraseña: mismo enlace de restablecimiento, con el texto «crear».
         const bodyHtml = `
 <p>Hola ${escapeHtml(data.customerName)},</p>
 <p>Tu cuenta en <strong>${escapeHtml(config.storeName)}</strong> ya está activa. Solo falta que elijas tu contraseña para poder iniciar sesión:</p>

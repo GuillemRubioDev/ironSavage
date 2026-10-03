@@ -22,16 +22,16 @@ export async function verifyAccountAction(token: string, password?: string): Pro
         const verifyResult = result.data.verifyCustomerAccount;
 
         if (verifyResult.__typename !== 'CurrentUser') {
-            // Accounts created by the store (e.g. an athlete registered from
-            // the Dashboard) have no password yet: Vendure asks for one here
-            // without consuming the token, so the page can collect it and retry.
+            // Las cuentas creadas por la tienda (p. ej. un atleta dado de alta desde el
+            // dashboard) aún no tienen contraseña: Vendure la pide aquí sin gastar el
+            // token, para que la página la recoja y vuelva a intentarlo.
             if (verifyResult.errorCode === 'MISSING_PASSWORD_ERROR') {
                 return {needsPassword: true};
             }
             return {error: verifyResult.message};
         }
 
-        // Store the token in a cookie if returned
+        // Guarda el token en una cookie si viene en la respuesta
         if (result.token) {
             await setAuthToken(result.token);
         }

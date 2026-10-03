@@ -30,9 +30,9 @@ export interface PromoBanner {
 const AUTOPLAY_DELAY_MS = 6000;
 const LETTER_STEP_MS = 35;
 
-/** One letter per span, staggered via animation-delay — the "forming" effect.
- * `startIndex` continues the stagger sequence across multiple word groups
- * (e.g. title then highlight) so the reveal reads as one continuous motion. */
+/** Una letra por span, escalonadas con animation-delay: el efecto de «formarse».
+ * `startIndex` continúa la secuencia entre varios grupos de palabras (p. ej. título y
+ * luego destacado) para que la aparición se vea como un único movimiento continuo. */
 function AnimatedLetters({text, startIndex, baseDelayMs = 0}: {text: string; startIndex: number; baseDelayMs?: number}) {
     return (
         <>
@@ -49,10 +49,9 @@ function AnimatedLetters({text, startIndex, baseDelayMs = 0}: {text: string; sta
     );
 }
 
-// The logo reveal (AnimatedWordmark) runs first and takes ~1060ms
-// (IRON 0-800ms, SAVAGE starting at 260ms finishing at 1060ms) — the title
-// letters start just before it finishes, for a snappy handoff rather than
-// a dead pause.
+// La aparición del logo (AnimatedWordmark) va primero y dura ~1060 ms (IRON de 0 a
+// 800 ms, SAVAGE de 260 a 1060 ms): las letras del título empiezan justo antes de que
+// termine, para un relevo ágil en vez de una pausa muerta.
 const TITLE_BASE_DELAY_MS = 900;
 const LOGO_WIPE_DURATION_MS = 800;
 
@@ -60,11 +59,10 @@ function buildAnimatedHeroTitle(title: string, highlight: string) {
     const titleLength = Array.from(title).length;
     const titleLastLetterDelay = TITLE_BASE_DELAY_MS + (titleLength - 1) * LETTER_STEP_MS;
 
-    // When the highlighted word IS "Savage", render it with the real logo's
-    // own typography (the exact same technique as AnimatedWordmark above,
-    // just a bigger crop) instead of the regular display font — brand
-    // consistency the user asked for. Anything else falls back to plain
-    // animated letters, since only that one word has matching artwork.
+    // Cuando la palabra destacada ES «Savage», se pinta con la tipografía del logo real
+    // (la misma técnica que AnimatedWordmark, con un recorte más grande) en vez de la
+    // fuente de títulos normal, por coherencia de marca, como se pidió. Cualquier otra
+    // palabra usa letras animadas normales, porque solo esa tiene arte a juego.
     const useLogoTypography = highlight.trim().toUpperCase() === 'SAVAGE';
 
     if (useLogoTypography) {
@@ -76,41 +74,35 @@ function buildAnimatedHeroTitle(title: string, highlight: string) {
         return {
             heading: (
                 <h1
-                    // The SAVAGE crop is a fixed-aspect-ratio image (~5.36:1) sized
-                    // purely off this element's font-size (height: 1.15em, width
-                    // follows from the ratio) — at a flat text-6xl (60px) its
-                    // rendered width (~370px) exceeds the available content width
-                    // below ~430px viewports and got clipped by the slide's
-                    // overflow-hidden. A fluid clamp keeps it flat at the original
-                    // 60px from ~430px up (unchanged from before) but shrinks
-                    // continuously below that so the crop always fits.
+                    // El recorte de SAVAGE es una imagen de proporción fija (~5,36:1) cuyo
+                    // tamaño sale solo del font-size de este elemento (alto 1.15em, el ancho
+                    // sale de la proporción). Con text-6xl fijo (60px) su ancho (~370px)
+                    // supera el espacio disponible en pantallas de menos de ~430px y el
+                    // overflow-hidden de la diapositiva lo cortaba. Un clamp fluido lo deja
+                    // en los 60px originales a partir de ~430px (igual que antes) y lo
+                    // reduce de forma continua por debajo para que siempre quepa.
                     className="text-display text-[clamp(2.5rem,14vw,3.75rem)] md:text-8xl lg:text-9xl font-bold text-white flex flex-wrap items-center justify-center gap-x-4 gap-y-2 [transform:translateZ(0)]"
                     aria-label={`${title} ${highlight}`}
                 >
-                    {/* No matching glyph for a "T" exists in the real logo art
-                     * ("IRON SAVAGE" has no T), and the individual real
-                     * letters aren't cleanly separable either — this custom
-                     * font is a tight, overlapping italic cut (verified by
-                     * scanning the actual pixels: within "IRON" no column is
-                     * ever near-empty between letters), so cropping any
-                     * single letter out of it slices through its neighbor,
-                     * the same problem the IRON/SAVAGE word split had, one
-                     * level down. So this is a genuinely different (but
-                     * closely-matching) angular display face — Black Ops
-                     * One, a bold military-stencil font with the same sharp
-                     * diagonal-cut terminal style as the real logo — rather
-                     * than either hand-tracing letterforms or faking the
-                     * regular body font with a distress filter (tried that;
-                     * it only roughens edges, doesn't fix the underlying
-                     * letter shapes, which is what actually didn't match).
-                     * `font-style: oblique` (not `transform: skewX`) — a
-                     * transform on this wrapper skews each letter's
-                     * already-separately-animated inline-block box, and
-                     * adjacent boxes rounding to slightly different
-                     * sub-pixel edges under that shear is exactly what was
-                     * showing as hairline gaps between letters. Oblique is
-                     * baked into text shaping itself, no per-letter-box
-                     * seam possible. */}
+                    {/* En el arte real del logo no hay ninguna «T» («IRON SAVAGE» no tiene
+                     * T), y las letras reales tampoco se pueden separar limpiamente:
+                     * esta fuente propia es una cursiva estrecha con letras solapadas
+                     * (comprobado analizando los píxeles: dentro de «IRON» ninguna
+                     * columna queda casi vacía entre letras), así que recortar una
+                     * letra corta a su vecina, el mismo problema que la separación
+                     * IRON/SAVAGE pero un nivel más abajo. Por eso se usa una fuente
+                     * angulosa distinta pero muy parecida (Black Ops One, una fuente
+                     * de estarcido militar con los mismos remates en corte diagonal que
+                     * el logo real) en vez de calcar letras a mano o disfrazar la
+                     * fuente normal con un filtro de desgaste (se probó: solo ensucia
+                     * los bordes y no arregla la forma de las letras, que era lo que no
+                     * encajaba).
+                     * `font-style: oblique` (no `transform: skewX`): un transform en
+                     * este contenedor inclina la caja inline-block de cada letra, que
+                     * ya se anima por separado, y que cajas vecinas redondeen a bordes
+                     * subpíxel algo distintos con esa inclinación es justo lo que se
+                     * veía como finas separaciones entre letras. Oblique forma parte
+                     * del propio trazado del texto, así que no puede haber esas líneas. */}
                     <span
                         aria-hidden="true"
                         className="whitespace-nowrap [font-family:var(--font-brand-display)] [font-style:oblique_10deg]"
@@ -130,7 +122,7 @@ function buildAnimatedHeroTitle(title: string, highlight: string) {
         };
     }
 
-    const highlightStart = titleLength + 1; // +1 for the space between the two words
+    const highlightStart = titleLength + 1; // +1 por el espacio entre las dos palabras
     const totalLetters = highlightStart + Array.from(highlight).length;
     const lastLetterDelay = TITLE_BASE_DELAY_MS + (totalLetters - 1) * LETTER_STEP_MS;
     const subtitleDelay = lastLetterDelay + 280;
@@ -201,12 +193,12 @@ function HeroContent({
 
     return (
         <div className="max-w-4xl mx-auto text-center space-y-6 select-none cursor-default pointer-events-none [transform:translateZ(0)]">
-            {/* Purely decorative content (logo, title, subtitle) is inert to
-             * the mouse entirely: hovering/clicking over a masked+glow layer
-             * forces the browser to repaint it, which is what was exposing
-             * the hairline seams — no hit-testing at all here means nothing
-             * to repaint on interaction. The CTAs below opt back into
-             * pointer events since they need to be clickable. */}
+            {/* El contenido puramente decorativo (logo, título, subtítulo) ignora por
+             * completo el ratón: pasar o hacer clic sobre una capa con máscara y
+             * brillo obliga al navegador a repintarla, y eso dejaba ver las finas
+             * líneas. Sin detección de puntero aquí no hay nada que repintar al
+             * interactuar. Los botones de abajo vuelven a aceptar eventos de
+             * puntero porque tienen que poder pulsarse. */}
             <AnimatedWordmark className="h-8 md:h-10 lg:h-12 mx-auto mb-2" />
             {heading}
             <p
@@ -259,9 +251,9 @@ function BannerSlide({banner, locale}: {banner: PromoBanner; locale: Locale}) {
                         imageOnRight && 'md:order-1',
                     )}
                 >
-                    {/* Fixed near-black background (not the theme's light/dark-toggling
-                     * tokens) so the white slide text stays readable regardless of the
-                     * storefront's own light/dark mode — matches the fixed hero slide. */}
+                    {/* Fondo fijo casi negro (no los tokens que cambian con el tema claro/
+                     * oscuro) para que el texto blanco se lea bien sea cual sea el modo
+                     * de la tienda, igual que la diapositiva principal. */}
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-10%,oklch(0.577_0.245_27.325_/_18%),transparent)]" />
                     <div className="relative w-full">
                         <PromoSlideContent title={title} subtitle={subtitle} ctaLabel={ctaLabel} href={banner.href} align={align} />
@@ -302,9 +294,9 @@ export function PromoCarousel({
     const [api, setApi] = useState<CarouselApi>();
     const [current, setCurrent] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
-    // Bumped each time the hero slide (index 0) becomes active again after the
-    // carousel loops back to it — remounting the animated title via `key`
-    // replays the letter-forming entrance instead of showing it once ever.
+    // Se incrementa cada vez que la diapositiva principal (índice 0) vuelve a estar
+    // activa al dar la vuelta el carrusel: volver a montar el título animado con `key`
+    // repite la entrada de las letras en vez de mostrarla una sola vez.
     const [heroReplayKey, setHeroReplayKey] = useState(0);
     const reducedMotionRef = useRef(false);
 
@@ -354,7 +346,7 @@ export function PromoCarousel({
             >
                 <div role="region" aria-label={t('regionLabel')}>
                     <CarouselContent className="ml-0">
-                        {/* Slide 1: brand statement — the site's core hero, always first. */}
+                        {/* Diapositiva 1: mensaje de marca, la portada principal, siempre la primera. */}
                         <CarouselItem className="pl-0">
                             <div className="relative flex min-h-[75vh] md:min-h-[85vh] items-center overflow-hidden bg-[oklch(0.13_0.004_260)] pb-16 md:pb-20">
                                 <ParallaxLayer speed={0.2} className="absolute inset-0">
@@ -376,7 +368,7 @@ export function PromoCarousel({
                             </div>
                         </CarouselItem>
 
-                        {/* Slides 2+: admin-managed promotional slides (Dashboard: Marketing > Home banners) */}
+                        {/* Diapositivas 2 y siguientes: promociones gestionadas desde el dashboard (Marketing > Banners de portada) */}
                         {banners.map((banner) => (
                             <CarouselItem key={banner.id} className="pl-0">
                                 <BannerSlide banner={banner} locale={locale} />
@@ -395,7 +387,7 @@ export function PromoCarousel({
                 />
             </Carousel>
 
-            {/* Dots + play/pause */}
+            {/* Puntos + reproducir/pausar */}
             <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-3">
                 <div className="flex items-center gap-2">
                     {Array.from({length: slideCount}).map((_, i) => (

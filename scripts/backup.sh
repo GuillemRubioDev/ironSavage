@@ -1,40 +1,39 @@
 #!/usr/bin/env bash
 #
-# Backs up the two pieces of persistent state a fresh deploy can't
-# regenerate: the PostgreSQL database (postgres_data) and the uploaded
-# assets + generated invoice PDFs (vendure_static).
+# Hace copia de seguridad de los dos datos persistentes que un despliegue nuevo
+# no puede regenerar: la base de datos PostgreSQL (postgres_data) y los recursos
+# subidos + los PDF de factura generados (vendure_static).
 #
-# Runs entirely through `docker compose exec`/`run` — never touches the
-# named volumes directly, never requires PostgreSQL (or anything else)
-# installed on the host, and never needs the containers stopped.
+# Funciona solo con `docker compose exec`/`run`: nunca toca los volúmenes
+# directamente, no necesita PostgreSQL (ni nada más) instalado en el servidor y
+# no hace falta parar los contenedores.
 #
-# Usage:
+# Uso:
 #   ./scripts/backup.sh
 #
-# Config (env vars, all optional):
-#   COMPOSE_FILE            default: docker-compose.prod.yml
-#   ENV_FILE                default: .env.prod
-#   BACKUP_DIR              default: ./backups
-#   BACKUP_RETENTION_DAYS   default: 14
-#   COMPOSE_PROJECT_NAME    unset by default (uses the compose file's own
-#                           `name:`) — set this to point the script at an
-#                           isolated stack, e.g. for a restore rehearsal.
+# Configuración (variables de entorno, todas opcionales):
+#   COMPOSE_FILE            por defecto: docker-compose.prod.yml
+#   ENV_FILE                por defecto: .env.prod
+#   BACKUP_DIR              por defecto: ./backups
+#   BACKUP_RETENTION_DAYS   por defecto: 14
+#   COMPOSE_PROJECT_NAME    sin definir por defecto (usa el `name:` del
+#                           compose); defínela para apuntar a un sistema
+#                           aislado, p. ej. para ensayar una restauración.
 #
-# Output:
-#   backups/postgres/<UTC timestamp>.dump     (pg_dump, custom format)
-#   backups/static/<UTC timestamp>.tar.gz     (vendure_static contents)
+# Resultado:
+#   backups/postgres/<fecha UTC>.dump     (pg_dump, formato custom)
+#   backups/static/<fecha UTC>.tar.gz     (contenido de vendure_static)
 #
-# A backup is only ever visible under its final name once BOTH artifacts
-# have been produced *and* verified — every write starts as a hidden
-# `.tmp-*` file next to its final destination and is only renamed into
-# place after that verification passes. A failed or partial run always
-# exits non-zero and never leaves a half-written file at a "real" name.
+# Una copia solo aparece con su nombre definitivo cuando LOS DOS archivos se han
+# generado *y* verificado: todo se escribe primero como un archivo oculto
+# `.tmp-*` junto a su destino y solo se renombra cuando pasa la verificación.
+# Una ejecución fallida o a medias siempre termina con código de error y nunca
+# deja un archivo a medio escribir con un nombre «real».
 #
-# IMPORTANT: a backup that only ever lives on this same server does not
-# protect against losing the server itself (disk failure, host
-# compromise, provider incident). Copying backups/ to off-site storage
-# (S3, Backblaze B2, another host, ...) on some schedule is a deliberate
-# follow-up, not implemented here — see the phase report's "pendientes".
+# IMPORTANTE: una copia que solo está en este mismo servidor no protege si se
+# pierde el servidor (fallo de disco, intrusión, incidencia del proveedor).
+# Copiar backups/ a un almacenamiento externo (S3, Backblaze B2, otro servidor…)
+# de forma periódica es un paso pendiente, no implementado aquí.
 
 set -euo pipefail
 
@@ -43,27 +42,26 @@ set -euo pipefail
 : "${BACKUP_DIR:=./backups}"
 : "${BACKUP_RETENTION_DAYS:=14}"
 
-# Resolve every relative path against the repo root, regardless of where
-# this script is invoked from.
+# Todas las rutas relativas se resuelven desde la raíz del repo, se ejecute
+# el script desde donde se ejecute.
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if ! command -v docker >/dev/null 2>&1; then
-    echo "ERROR: docker is not installed / not on PATH." >&2
+    echo "ERROR: docker no está instalado o no está en el PATH." >&2
     exit 1
 fi
 
 if [ ! -f "$ENV_FILE" ]; then
-    echo "ERROR: $ENV_FILE not found. Copy .env.prod.example to $ENV_FILE and fill it in." >&2
+    echo "ERROR: no se encuentra $ENV_FILE. Copia .env.prod.example a $ENV_FILE y rellénalo." >&2
     exit 1
 fi
 
-# Only DB_NAME/DB_USERNAME/DB_PASSWORD are actually needed by this script
-# (for -U/-d and PGPASSWORD). Deliberately NOT `source`d: .env.prod is a
-# plain KEY=VALUE file, not shell syntax — several of its real values
-# (INVOICE_STORE_NAME, INVOICE_STORE_ADDRESS, ...) are unquoted and contain
-# spaces/commas, which `source` would mis-parse as separate shell words/
-# commands. Pulling out just the keys this script needs, verbatim, sidesteps
-# that entirely regardless of how the rest of the file is formatted.
+# Este script solo necesita DB_NAME/DB_USERNAME/DB_PASSWORD (para -U/-d y
+# PGPASSWORD). A propósito NO se hace `source`: .env.prod es un archivo
+# CLAVE=VALOR, no sintaxis de shell, y varios valores reales (INVOICE_STORE_NAME,
+# INVOICE_STORE_ADDRESS…) van sin comillas y con espacios o comas, que `source`
+# interpretaría como palabras o comandos sueltos. Sacar solo las claves necesarias,
+# tal cual, evita el problema tenga el resto del archivo el formato que tenga.
 env_value() {
     grep -E "^$1=" "$ENV_FILE" | tail -n1 | cut -d= -f2- | sed -E 's/^"(.*)"$/\1/; s/^'"'"'(.*)'"'"'$/\1/'
 }
@@ -71,9 +69,9 @@ DB_NAME=$(env_value DB_NAME)
 DB_USERNAME=$(env_value DB_USERNAME)
 DB_PASSWORD=$(env_value DB_PASSWORD)
 
-: "${DB_NAME:?DB_NAME must be set in $ENV_FILE}"
-: "${DB_USERNAME:?DB_USERNAME must be set in $ENV_FILE}"
-: "${DB_PASSWORD:?DB_PASSWORD must be set in $ENV_FILE}"
+: "${DB_NAME:?Falta DB_NAME en $ENV_FILE}"
+: "${DB_USERNAME:?Falta DB_USERNAME en $ENV_FILE}"
+: "${DB_PASSWORD:?Falta DB_PASSWORD en $ENV_FILE}"
 
 COMPOSE=(docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE")
 if [ -n "${COMPOSE_PROJECT_NAME:-}" ]; then
@@ -91,64 +89,63 @@ FINAL_DUMP="$POSTGRES_DIR/$TIMESTAMP.dump"
 TMP_STATIC="$STATIC_DIR/.tmp-$TIMESTAMP.tar.gz"
 FINAL_STATIC="$STATIC_DIR/$TIMESTAMP.tar.gz"
 
-# Anything that fails before the final `mv`s below must not leave a
-# half-written file lying around under any name.
+# Si algo falla antes de los `mv` finales, no debe quedar ningún archivo a
+# medio escribir con ningún nombre.
 cleanup_partial() {
     rm -f "$TMP_DUMP" "$TMP_STATIC"
 }
 trap cleanup_partial ERR
 
-echo "==> Checking postgres is reachable ..."
+echo "==> Comprobando que postgres responde..."
 "${COMPOSE[@]}" exec -T postgres pg_isready -U "$DB_USERNAME" -d "$DB_NAME" >/dev/null
 
-echo "==> Dumping PostgreSQL ($DB_NAME) ..."
+echo "==> Volcando PostgreSQL ($DB_NAME)..."
 "${COMPOSE[@]}" exec -T -e PGPASSWORD="$DB_PASSWORD" postgres \
     pg_dump -U "$DB_USERNAME" -d "$DB_NAME" -Fc > "$TMP_DUMP"
 
 if [ ! -s "$TMP_DUMP" ]; then
-    echo "ERROR: pg_dump produced an empty file." >&2
+    echo "ERROR: pg_dump ha generado un archivo vacío." >&2
     exit 1
 fi
 
-echo "==> Verifying dump integrity (pg_restore --list) ..."
+echo "==> Verificando la integridad del volcado (pg_restore --list)..."
 "${COMPOSE[@]}" exec -T postgres pg_restore --list < "$TMP_DUMP" > /dev/null
 
-echo "==> Archiving vendure_static ..."
-# A one-off container using the vendure-server *service definition* (so it
-# mounts the real vendure_static volume) without needing to know that
-# volume's actual generated name, and without needing vendure-server itself
-# to be running.
+echo "==> Empaquetando vendure_static..."
+# Un contenedor puntual con la *definición del servicio* vendure-server (así monta
+# el volumen vendure_static real) sin necesitar el nombre generado del volumen ni
+# que vendure-server esté arrancado.
 "${COMPOSE[@]}" run --rm --no-deps -T vendure-server \
     sh -c "tar czf - -C /app/apps/server/static ." > "$TMP_STATIC"
 
 if [ ! -s "$TMP_STATIC" ]; then
-    echo "ERROR: static archive is empty." >&2
+    echo "ERROR: el archivo de estáticos está vacío." >&2
     exit 1
 fi
 
-echo "==> Verifying static archive integrity ..."
+echo "==> Verificando la integridad del archivo de estáticos..."
 "${COMPOSE[@]}" run --rm --no-deps -T vendure-server \
     sh -c "tar tzf -" < "$TMP_STATIC" > /dev/null
 
-# Both artifacts exist and have been verified — only now do they become
-# "real" backups.
+# Los dos archivos existen y están verificados: solo ahora pasan a ser copias
+# «reales».
 mv "$TMP_DUMP" "$FINAL_DUMP"
 mv "$TMP_STATIC" "$FINAL_STATIC"
 chmod 640 "$FINAL_DUMP" "$FINAL_STATIC" 2>/dev/null || true
 trap - ERR
 
-echo "==> Backup complete:"
+echo "==> Copia de seguridad completada:"
 for f in "$FINAL_DUMP" "$FINAL_STATIC"; do
     size=$(du -h "$f" | cut -f1)
     echo "    $f  ($size)"
 done
 
-echo "==> Applying retention (deleting backups older than ${BACKUP_RETENTION_DAYS}d) ..."
+echo "==> Aplicando la retención (borrando copias de más de ${BACKUP_RETENTION_DAYS} días)..."
 if ! find "$POSTGRES_DIR" -maxdepth 1 -name '*.dump' -mtime "+$BACKUP_RETENTION_DAYS" -print -delete; then
-    echo "WARNING: retention cleanup for postgres/ hit an error (today's backup already succeeded and is safe)." >&2
+    echo "AVISO: error al limpiar copias antiguas de postgres/ (la copia de hoy ya se ha hecho y está a salvo)." >&2
 fi
 if ! find "$STATIC_DIR" -maxdepth 1 -name '*.tar.gz' -mtime "+$BACKUP_RETENTION_DAYS" -print -delete; then
-    echo "WARNING: retention cleanup for static/ hit an error (today's backup already succeeded and is safe)." >&2
+    echo "AVISO: error al limpiar copias antiguas de static/ (la copia de hoy ya se ha hecho y está a salvo)." >&2
 fi
 
-echo "==> Done."
+echo "==> Hecho."

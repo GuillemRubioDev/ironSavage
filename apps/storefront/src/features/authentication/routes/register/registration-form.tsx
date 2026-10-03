@@ -22,7 +22,7 @@ import { Link } from '@/platform/i18n/navigation';
 import {useTranslations} from 'next-intl';
 import {companyText} from '@/config/company';
 
-/** Opens a legal text in a new tab, so the half-filled form isn't lost. */
+/** Abre un texto legal en una pestaña nueva para no perder el formulario a medio rellenar. */
 function LegalLink({href, children}: {href: string; children: React.ReactNode}) {
     return (
         <Link href={href} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-primary">

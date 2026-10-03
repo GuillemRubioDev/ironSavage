@@ -4,16 +4,15 @@ import { Invoice } from './invoice.entity';
 import { InvoiceLine } from './invoice-line.entity';
 
 /**
- * Fired once, right after a new Invoice (and its PDF on disk) has actually
- * been created — never on the idempotent "invoice already existed" path.
- * Added for the transactional-email phase so it has a reliable signal for
- * "the PDF is ready to attach", instead of guessing at ordering against
- * InvoicingEventSubscriber's own listener on the same OrderStateTransitionEvent.
+ * Se emite una sola vez, justo después de crear de verdad una factura nueva (y su
+ * PDF en disco); nunca cuando la factura ya existía. Se añadió para los emails
+ * automáticos, para tener una señal fiable de «el PDF está listo para adjuntar» en
+ * vez de depender del orden respecto al propio listener de InvoicingEventSubscriber.
+ * Sirve tanto para facturas ordinarias como rectificativas (ver `invoice.type`).
  *
- * Carries the invoice lines and the PDF's absolute path directly, rather
- * than requiring subscribers in other plugins to inject InvoicingService
- * (which isn't exported from InvoicingPlugin's module) — keeps this event
- * self-contained for any plugin that wants to react to it.
+ * Lleva las líneas y la ruta absoluta del PDF, para que los suscriptores de otros
+ * plugins no tengan que inyectar InvoicingService (que el módulo de InvoicingPlugin
+ * no exporta): el evento basta por sí solo a cualquier plugin que quiera reaccionar.
  */
 export class InvoiceGeneratedEvent extends VendureEvent {
     constructor(

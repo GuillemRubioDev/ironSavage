@@ -13,10 +13,10 @@ export type SecurityEventType =
     | 'admin_customer_account_action';
 
 /**
- * Single choke point for security-relevant logging. Deliberately takes a
- * flat, pre-vetted set of fields rather than an arbitrary object — never
- * pass `req.body`/`variables` wholesale here, since that's exactly where a
- * password or token would leak into the log.
+ * Punto único para el log de seguridad. A propósito recibe un conjunto plano de
+ * campos ya revisados y no un objeto cualquiera: nunca pases aquí `req.body` ni
+ * `variables` enteros, porque es justo por donde se filtraría al log una contraseña
+ * o un token.
  */
 export function logSecurityEvent(
     type: SecurityEventType,

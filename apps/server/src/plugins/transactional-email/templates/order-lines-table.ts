@@ -1,7 +1,7 @@
 import type { OrderSummaryData } from '../types';
 import { BORDER_COLOR, BRAND_COLOR, escapeHtml } from './layout';
 
-/** Shared line-item table used by every order-related email template. */
+/** Tabla de líneas común a todas las plantillas de email relacionadas con pedidos. */
 export function renderOrderLinesTable(order: OrderSummaryData): string {
     const rows = order.lines
         .map(

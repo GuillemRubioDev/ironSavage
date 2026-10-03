@@ -13,7 +13,7 @@ export interface FoodInformationData {
     foodOperator?: string | null;
 }
 
-/** Words written in capitals (≥ 2 letters) are allergens by convention: shown in bold (Reg. 1169/2011 art. 21). */
+/** Las palabras en mayúsculas (≥ 2 letras) son alérgenos por convención: se muestran en negrita (Reg. 1169/2011 art. 21). */
 function highlightAllergens(text: string): ReactNode[] {
     return text.split(/(\b[A-ZÁÉÍÓÚÜÑ]{2,}(?:\s+[A-ZÁÉÍÓÚÜÑ]{2,})*\b)/u).map((part, i) =>
         i % 2 === 1 ? <strong key={i} className="font-semibold text-foreground">{part}</strong> : <Fragment key={i}>{part}</Fragment>,
@@ -21,9 +21,9 @@ function highlightAllergens(text: string): ReactNode[] {
 }
 
 /**
- * "Nutriente | por 100 g | por dosis" lines → table rows. The first row is a
- * header when it names the columns ("Nutriente…", "Por 100 g", "Per serving")
- * rather than holding a value.
+ * Líneas "Nutriente | por 100 g | por dosis" → filas de tabla. La primera fila es
+ * cabecera cuando nombra las columnas ("Nutriente…", "Por 100 g", "Per serving") en
+ * vez de llevar un valor.
  */
 function parseNutrition(text: string): {header: string[] | null; rows: string[][]} | null {
     const rows = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => l.split('|').map((c) => c.trim()));
@@ -36,10 +36,10 @@ function parseNutrition(text: string): {header: string[] | null; rows: string[][
 }
 
 /**
- * Mandatory food information on the product page (Reg. (EU) 1169/2011 art.
- * 14 — available before buying), from the product's "Información
- * alimentaria" custom fields. Only filled-in blocks are shown; for food
- * supplements the RD 1487/2009 warnings are always added.
+ * Información alimentaria obligatoria en la ficha del producto (Reg. (UE) 1169/2011
+ * art. 14: disponible antes de comprar), a partir de los campos personalizados
+ * «Información alimentaria» del producto. Solo se muestran los bloques rellenos; en
+ * los complementos alimenticios siempre se añaden las advertencias del RD 1487/2009.
  */
 export async function FoodInformation({locale, data}: {locale: string; data: FoodInformationData}) {
     const t = await getTranslations({locale, namespace: 'Product.food'});

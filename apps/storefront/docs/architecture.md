@@ -1,37 +1,51 @@
-# Storefront architecture
+# Arquitectura del storefront
 
-The storefront is source-distributed: developers own and may change every human-authored file. Its organization exists to give humans and agents useful locality, not to make parts of the storefront untouchable.
+El storefront se distribuye como código fuente: el equipo es dueño de todos los archivos escritos por personas y puede
+cambiarlos. Su organización sirve para que personas y agentes encuentren las cosas en un sitio predecible, no para
+hacer intocables partes del storefront.
 
-## Source ownership
+## A quién pertenece cada carpeta
 
 ```text
 src/
-  app/          Next.js route wiring only
-  config/       Store-wide values shared by features and site composition
-  features/     Vertical commerce capabilities
-  platform/     Cross-cutting Next.js, i18n, revalidation, and Vendure mechanics
-  site/         Store-specific composition, navigation, and branding
-  components/ui Generic design primitives
+  app/          Solo el cableado de rutas de Next.js
+  config/       Valores de toda la tienda compartidos por features y composición del sitio
+  features/     Funcionalidades de comercio verticales
+  platform/     Mecánica transversal: Next.js, i18n, revalidación, analítica y Vendure
+  site/         Composición propia de la tienda, navegación, páginas legales y marca
+  components/ui Componentes de diseño genéricos
 ```
 
-Feature modules colocate their GraphQL operations, actions, views, messages, and route implementations. The `app/` tree delegates to those route implementations so filesystem routing is not also the primary implementation hotspot.
+Cada feature agrupa sus operaciones GraphQL, acciones, vistas, mensajes e implementaciones de rutas. El árbol `app/`
+delega en esas implementaciones, para que el enrutado por carpetas no sea también el sitio donde se concentra la lógica.
 
-Dependencies point toward shared configuration and platform mechanics: site modules may compose features, but features must not import from `site/`. ESLint and architecture tests enforce both alias and relative-import boundaries.
+Las dependencias apuntan hacia la configuración compartida y la plataforma: los módulos de `site/` pueden componer
+features, pero las features no pueden importar de `site/`. ESLint y los tests de arquitectura comprueban estas fronteras,
+tanto con alias como con imports relativos.
 
-## Feature interfaces
+## Interfaz de cada feature
 
-A feature's top-level files are its external interface. Its `components/` and `routes/` directories are implementation details. Another feature or site module must not import those internal directories directly; ESLint enforces this rule. Code inside a feature may use its own internals.
+Los archivos de primer nivel de una feature son su interfaz externa. Sus carpetas `components/` y `routes/` son detalles
+internos: otra feature o un módulo de `site/` no puede importarlas directamente (lo comprueba ESLint). El código de
+dentro de una feature sí puede usar sus propias carpetas internas.
 
-Prefer a narrow top-level module such as `features/account/customer.ts` over a catch-all barrel. This keeps server/client boundaries explicit and avoids pulling unrelated exports into bundles.
+Es preferible un módulo de primer nivel concreto, como `features/account/customer.ts`, a un barrel que lo reexporte
+todo: así quedan claras las fronteras entre servidor y cliente y no se arrastran exportaciones ajenas a los bundles.
 
-## GraphQL ownership
+## A quién pertenece cada operación GraphQL
 
-Human-authored GraphQL operations live with the feature that owns their behavior. The transport and generated schema types live under `platform/vendure`. Downstream custom fields belong in the relevant feature operation; `src/graphql-env.d.ts` remains generated output and should be regenerated against the downstream Shop API schema.
+Las operaciones GraphQL escritas a mano van con la feature responsable de su comportamiento. El transporte y los tipos
+generados del esquema están en `platform/vendure`. Los campos personalizados propios se piden en la operación de la
+feature correspondiente; `src/graphql-env.d.ts` es código generado y se regenera contra el esquema de la Shop API.
 
-## Translations
+## Traducciones
 
-Translations live with their feature or site module. Each owner exposes one top-level locale registration, and `site/i18n/messages.ts` composes those registrations while rejecting duplicate namespaces. Adding a feature touches one composition entry; adding a locale stays local to each owner and the routing configuration.
+Las traducciones van con su feature o módulo de `site/`. Cada uno expone un único registro de idiomas de primer nivel, y
+`site/i18n/messages.ts` los combina y rechaza los namespaces duplicados. Añadir una feature supone una sola entrada en
+esa composición; añadir un idioma solo toca a cada módulo y a la configuración de rutas.
 
-## Route types
+## Tipos de las rutas
 
-Feature route implementations use Next.js-generated `PageProps` and `LayoutProps` with their concrete filesystem route. This keeps route parameters checked against the `app/` tree even though the thin files under `app/` delegate their implementations to features.
+Las implementaciones de rutas de las features usan los tipos `PageProps` y `LayoutProps` que genera Next.js para su ruta
+concreta. Así los parámetros de ruta se comprueban contra el árbol `app/`, aunque los archivos mínimos de `app/` deleguen
+la implementación en las features.

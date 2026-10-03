@@ -2,20 +2,20 @@ import type { AssetStorageStrategy } from '@vendure/core';
 import { AssetServerOptions, defaultAssetStorageStrategyFactory, LocalAssetStorageStrategy } from '@vendure/asset-server-plugin';
 
 /**
- * PosixAssetNamingStrategy (see posix-asset-naming-strategy.ts) sanitizes the
- * *input* filename it hands to the storage strategy, but LocalAssetStorageStrategy
- * ignores that string's separators anyway: filePathToIdentifier() re-derives the
- * identifier from the file path via path.dirname()/path.join()/path.basename(),
- * which on Windows (path.win32) normalize any '/' back to '\' — so the naming-strategy
- * fix alone still ends up with backslashes in the persisted `source`/`preview` values.
- * Patch the one method responsible, on top of the default factory, so the rest of its
- * (unexported) prefix/URL-building logic stays exactly as Vendure implements it.
+ * PosixAssetNamingStrategy (ver posix-asset-naming-strategy.ts) limpia el nombre de
+ * archivo que pasa a la estrategia de almacenamiento, pero LocalAssetStorageStrategy
+ * ignora igualmente sus separadores: filePathToIdentifier() vuelve a calcular el
+ * identificador con path.dirname()/path.join()/path.basename(), que en Windows
+ * (path.win32) convierten cualquier '/' otra vez en '\'. Así que con arreglar solo la
+ * estrategia de nombres seguirían guardándose barras invertidas en `source`/`preview`.
+ * Se parchea solo ese método, sobre la factoría por defecto, para que el resto de su
+ * lógica (no exportada) de prefijos y URLs siga exactamente como la implementa Vendure.
  */
 export function posixAssetStorageStrategyFactory(options: AssetServerOptions): AssetStorageStrategy {
     const strategy = defaultAssetStorageStrategyFactory(options) as LocalAssetStorageStrategy;
-    // filePathToIdentifier is declared `private` in LocalAssetStorageStrategy's own
-    // .d.ts, but that's a compile-time-only restriction — at runtime it's a plain,
-    // reassignable instance method, which is exactly what this patches around.
+    // filePathToIdentifier está declarado `private` en el .d.ts de
+    // LocalAssetStorageStrategy, pero esa restricción solo existe al compilar: en
+    // ejecución es un método normal y reasignable, que es justo lo que se parchea aquí.
     const instance = strategy as unknown as { filePathToIdentifier: (filePath: string) => string };
     const filePathToIdentifier = instance.filePathToIdentifier.bind(strategy);
     instance.filePathToIdentifier = (filePath: string) => filePathToIdentifier(filePath).replace(/\\/g, '/');

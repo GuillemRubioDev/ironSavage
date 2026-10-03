@@ -24,9 +24,9 @@ import { useState } from 'react';
 import { adminInvoiceListDocument } from './graphql';
 
 /**
- * Deliberately a plain manual fetch + table, not <ListPage>/
- * <PaginatedListDataTable> — see the Reviews plugin's dashboard extension
- * for why (same custom-paginated-list issue applies to this plugin's type).
+ * Carga manual y tabla simple a propósito, sin <ListPage>/<PaginatedListDataTable>.
+ * La extensión del dashboard del plugin de reseñas explica por qué (el mismo
+ * problema de lista paginada propia afecta al tipo de este plugin).
  */
 const PAGE_SIZE = 20;
 

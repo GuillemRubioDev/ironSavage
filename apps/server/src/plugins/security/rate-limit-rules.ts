@@ -5,17 +5,17 @@ export interface WindowLimit {
 
 export interface RateLimitRule {
     name: string;
-    /** Matches the GraphQL mutation field being invoked, e.g. `login(` — checked against the raw query string. */
+    /** Coincide con el campo de mutación GraphQL invocado, p. ej. `login(`; se comprueba sobre el texto de la consulta. */
     fieldPattern: RegExp;
-    /** Applies regardless of identifier — stops one IP hammering many different accounts. */
+    /** Se aplica sea cual sea el identificador: frena a una IP que ataca muchas cuentas distintas. */
     perIp: WindowLimit;
-    /** Applies regardless of IP — stops a distributed attack against one specific account. */
+    /** Se aplica sea cual sea la IP: frena un ataque distribuido contra una cuenta concreta. */
     perIdentifier?: WindowLimit;
-    /** The tightest of the three: stops one IP repeatedly guessing one specific account. */
+    /** El más estricto de los tres: frena a una IP que prueba una y otra vez con una cuenta concreta. */
     perIpAndIdentifier?: WindowLimit;
-    /** Which GraphQL variable names, in priority order, identify "who" this attempt is about. */
+    /** Qué variables GraphQL, por orden de prioridad, identifican a «quién» se refiere el intento. */
     identifierVariables: string[];
-    /** Whether the response outcome (success/failure) should be logged as a security event. */
+    /** Si el resultado (éxito/fallo) debe registrarse como evento de seguridad. */
     logOutcome: boolean;
 }
 
@@ -65,13 +65,13 @@ export const RATE_LIMIT_RULES: RateLimitRule[] = [
     },
 ];
 
-/** Returns the first variable value found among `names`, coerced to a short safe string, or undefined. */
+/** Devuelve el primer valor de variable encontrado entre `names`, convertido a un texto corto y seguro, o undefined. */
 export function extractIdentifier(variables: unknown, names: string[]): string | undefined {
     if (!variables || typeof variables !== 'object') return undefined;
     for (const name of names) {
         const value = (variables as Record<string, unknown>)[name];
         if (typeof value === 'string' && value.length > 0) {
-            // Cap length defensively — this is used as part of a rate-limit key and a log field, never executed/parsed.
+            // Se limita la longitud por precaución: se usa en una clave de límite y en un campo del log, nunca se ejecuta ni se interpreta.
             return value.slice(0, 200);
         }
     }

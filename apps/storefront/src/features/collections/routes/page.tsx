@@ -126,18 +126,17 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
 
     return (
         <div>
-            {/* Collection banner — the same photography-forward treatment as the
-                homepage's category tiles, so arriving here from one doesn't feel
-                like a downgrade to a plain text header. */}
+            {/* Banner de la colección: el mismo tratamiento fotográfico que las
+                categorías de la portada, para que llegar aquí desde una de ellas no
+                parezca un paso atrás a una simple cabecera de texto. */}
             {bannerImage ? (
                 <div className="relative h-48 md:h-64 w-full overflow-hidden">
-                    {/* These collection posters are portrait-composed artwork (their
-                        own baked-in title sits roughly a third of the way down), not
-                        photography shot for a short wide strip — object-center crops
-                        into the lower feature-icon band instead, clipping it at wide
-                        viewports where the crop window widens well past the source's
-                        own aspect ratio. Anchoring higher keeps the poster's own title
-                        centered in the crop instead. */}
+                    {/* Estos carteles de colección son ilustraciones en vertical (con su
+                        título integrado a un tercio de altura), no fotos para una franja
+                        ancha y baja: object-center recortaría por la franja inferior de
+                        iconos y la cortaría en pantallas anchas, donde la ventana de recorte
+                        es mucho más ancha que la proporción de la imagen. Anclar más arriba
+                        deja centrado en el recorte el título del propio cartel. */}
                     <Image src={bannerImage} alt="" fill className="object-cover object-[50%_33%]" sizes="100vw" priority />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
                     <div className="absolute inset-0 flex items-end">
@@ -149,7 +148,7 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
             ) : null}
 
             <div className="container mx-auto px-4 py-8">
-                {/* Breadcrumbs */}
+                {/* Migas de pan */}
                 <Breadcrumb className="mb-6">
                     <BreadcrumbList>
                         <BreadcrumbItem>
@@ -169,14 +168,14 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
                 )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Filters Sidebar */}
+                {/* Barra lateral de filtros */}
                 <aside className="lg:col-span-1">
                     <Suspense fallback={<div className="h-64 animate-pulse bg-muted rounded-lg" />}>
                         <FacetFilters productDataPromise={productDataPromise} />
                     </Suspense>
                 </aside>
 
-                {/* Product Grid */}
+                {/* Rejilla de productos */}
                 <div className="lg:col-span-3">
                     <Suspense fallback={<ProductGridSkeleton />}>
                         <ProductGrid productDataPromise={productDataPromise} currentPage={page} take={12} />

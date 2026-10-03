@@ -4,8 +4,8 @@ import { Allow, Ctx, CustomerService, ID, Permission, RequestContext } from '@ve
 
 import { CreateReviewInput, ReviewMutationResult, ReviewsService, UpdateReviewInput } from './reviews.service';
 
-// Vendure auto-derives this ErrorCode value from the `ProductReviewError` type
-// name below (see api-extensions.ts) — the generated TS enum doesn't know about it.
+// Vendure genera este valor de ErrorCode a partir del nombre del tipo
+// `ProductReviewError` (ver api-extensions.ts); el enum TS generado no lo conoce.
 const PRODUCT_REVIEW_ERROR = 'PRODUCT_REVIEW_ERROR' as ErrorCode;
 
 class ProductReviewError {

@@ -3,11 +3,11 @@ import { PluginCommonModule, VendurePlugin } from '@vendure/core';
 import { SpainTerritoriesTaxZoneStrategy, spainTerritoriesShippingChecker } from './spain-territories';
 
 /**
- * Spanish VAT territories and territory-based shipping (see
- * spain-territories.ts). The zones, tax categories and rates themselves are
- * data, created by `npm run seed` and editable in the Dashboard:
+ * Territorios de IVA españoles y envíos según territorio (ver spain-territories.ts).
+ * Las zonas, categorías y tipos de impuesto son datos, creados con `npm run seed` y
+ * editables en el dashboard:
  *   - "España (península y Baleares)": General 21 %, Reducido 10 %, Superreducido 4 %
- *   - "Canarias, Ceuta y Melilla": 0 % for every category
+ *   - "Canarias, Ceuta y Melilla": 0 % en todas las categorías
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

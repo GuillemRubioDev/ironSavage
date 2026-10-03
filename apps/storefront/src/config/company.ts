@@ -1,32 +1,32 @@
 /**
- * The company's real legal data, used by every legal page and by the basic
- * privacy notice under the registration form. Fill each value in ONCE here —
- * with verified data, never invented — and the highlighted placeholder
- * disappears everywhere it is used. `null` = still unknown.
+ * Datos legales reales de la empresa, usados en todas las páginas legales y en el
+ * aviso básico de privacidad bajo el formulario de registro. Rellena cada valor UNA
+ * vez aquí, con datos comprobados y nunca inventados, y el marcador resaltado
+ * desaparece en todos los sitios donde se usa. `null` = aún desconocido.
  */
 export const COMPANY: Record<CompanyField, string | null> = {
-    /** Razón social (S.L., S.A.…) or the owner's full name if self-employed. */
+    /** Razón social (S.L., S.A.…) o nombre completo del titular si es autónomo. */
     legalName: null,
     taxId: null,
     address: null,
-    /** Registro Mercantil data (tomo, folio, hoja). Not applicable to self-employed owners. */
+    /** Datos del Registro Mercantil (tomo, folio, hoja). No aplica a autónomos. */
     registry: null,
     contactEmail: null,
-    /** May be the same as contactEmail. */
+    /** Puede ser el mismo que contactEmail. */
     privacyEmail: null,
     phone: null,
-    /** Nº RGSEAA / comunicación sanitaria of the food-supplement business, if applicable. */
+    /** Nº RGSEAA / comunicación sanitaria de la actividad de complementos alimenticios, si aplica. */
     healthRegistry: null,
-    /** Designated Data Protection Officer, if one has been appointed. */
+    /** Delegado de Protección de Datos, si se ha nombrado. */
     dpo: null,
     hostingProvider: null,
     emailProvider: null,
     carriers: null,
     returnsAddress: null,
     deliveryTimes: null,
-    /** Who pays for returns after a withdrawal (usually the customer, and it must be stated). */
+    /** Quién paga la devolución tras un desistimiento (normalmente el cliente, y debe indicarse). */
     returnCosts: null,
-    /** Consumer ADR / arbitration body the company adheres to, if any. */
+    /** Sistema de resolución alternativa de conflictos / junta arbitral de consumo al que se adhiere la empresa, si lo hay. */
     adrEntity: null,
 };
 
@@ -54,7 +54,7 @@ export const COMPANY_PLACEHOLDERS: Record<CompanyField, string> = {
     adrEntity: '[ENTIDAD DE RESOLUCIÓN ALTERNATIVA / JUNTA ARBITRAL DE CONSUMO A LA QUE SE ADHIERE, O INDICAR QUE NO SE ADHIERE]',
 };
 
-/** The field's real value, or its bracketed placeholder while it is unknown. */
+/** El valor real del campo, o su marcador entre corchetes mientras se desconoce. */
 export function companyText(field: CompanyField): string {
     return COMPANY[field] ?? COMPANY_PLACEHOLDERS[field];
 }

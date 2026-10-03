@@ -27,15 +27,14 @@ export async function addToCart(variantId: string, quantity = 1) {
             return {success: true, order: result.data.addItemToOrder};
         }
 
-        // A previous checkout attempt that never finished (customer abandoned
-        // payment mid-flow, or a Redsys attempt that ended up declined) leaves
-        // the order stuck in ArrangingPayment — Vendure then refuses any cart
-        // edit with ORDER_MODIFICATION_ERROR, trapping the customer with no way
-        // to keep shopping. Recover by reopening the order for editing (the
-        // standard Vendure pattern for this exact situation) and retrying once.
-        // Safe even if a payment notification is genuinely in flight: recording
-        // that payment re-transitions the order back to ArrangingPayment itself
-        // regardless of what state it's in when the notification arrives.
+        // Un intento de checkout que no terminó (el cliente abandonó el pago o un
+        // intento de Redsys acabó denegado) deja el pedido atascado en
+        // ArrangingPayment, y Vendure rechaza cualquier cambio en el carrito con
+        // ORDER_MODIFICATION_ERROR, dejando al cliente sin poder seguir comprando. Se
+        // recupera reabriendo el pedido para editarlo (el patrón estándar de Vendure
+        // para este caso) y reintentando una vez. Es seguro aunque haya una
+        // notificación de pago en camino: al registrar ese pago, el propio pedido vuelve
+        // a ArrangingPayment esté en el estado que esté cuando llegue la notificación.
         if (result.data.addItemToOrder.errorCode === 'ORDER_MODIFICATION_ERROR') {
             const reopened = await mutate(ReopenStuckOrderMutation, {}, {useAuthToken: true});
             if (reopened.data.transitionOrderToState?.__typename === 'Order') {

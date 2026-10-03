@@ -4,9 +4,9 @@ import {query} from '@/platform/vendure/api';
 import {GetMyAthleteProfileQuery} from './graphql';
 
 /**
- * The signed-in customer's athlete profile, or null for regular customers
- * and anonymous visitors. Cached per request: the account layout (to decide
- * whether to show the "Athlete" section) and the athlete page both call it.
+ * El perfil de atleta del cliente con sesión iniciada, o null para clientes normales
+ * y visitantes anónimos. En caché por petición: lo llaman el layout de la cuenta
+ * (para decidir si muestra la sección «Atleta») y la página de atleta.
  */
 export const getMyAthleteProfile = cache(async () => {
     const token = await getAuthToken();

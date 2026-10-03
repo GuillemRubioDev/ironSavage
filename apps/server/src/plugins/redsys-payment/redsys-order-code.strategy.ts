@@ -3,12 +3,12 @@ import type { OrderCodeStrategy, RequestContext } from '@vendure/core';
 import { generateRedsysOrderNumber } from './redsys-order-number';
 
 /**
- * Redsys requires Ds_Merchant_Order to be 4-12 characters long, with the first
- * 4 characters being numeric digits (the remainder may be alphanumeric).
+ * Redsys exige que Ds_Merchant_Order tenga entre 4 y 12 caracteres, con los 4
+ * primeros numéricos (el resto puede ser alfanumérico).
  *
- * Vendure's DefaultOrderCodeStrategy generates a 16-character code that doesn't
- * satisfy this, so this store's order codes are generated in a Redsys-compatible
- * format from the start.
+ * DefaultOrderCodeStrategy de Vendure genera un código de 16 caracteres que no lo
+ * cumple, así que los códigos de pedido de esta tienda se generan desde el principio
+ * en un formato compatible con Redsys.
  */
 export class RedsysOrderCodeStrategy implements OrderCodeStrategy {
     generate(ctx: RequestContext): string {

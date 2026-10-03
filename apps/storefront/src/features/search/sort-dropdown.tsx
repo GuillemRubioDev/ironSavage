@@ -31,7 +31,7 @@ export function SortDropdown() {
         if (!value) return;
         const params = new URLSearchParams(searchParams);
         params.set('sort', value);
-        params.delete('page'); // Reset to page 1 when sort changes
+        params.delete('page'); // Vuelve a la página 1 al cambiar el orden
         router.push(`${pathname}?${params.toString()}`);
     };
 

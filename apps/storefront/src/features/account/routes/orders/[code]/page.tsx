@@ -21,14 +21,13 @@ export default async function OrderDetailPage(props: OrderDetailPageProps) {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Common'});
 
-    // Start the fetch in the page (dynamic parent) and pass promise into Suspense.
+    // Inicia la carga en la página (padre dinámico) y pasa la promesa al Suspense.
     const orderPromise = props.params.then(({code}) =>
         query(GetOrderDetailQuery, {code}, {useAuthToken: true, fetch: {}})
     );
-    // The invoice only exists once the order is paid — myInvoiceForOrder()
-    // itself returns null before then, so no separate state check is needed
-    // here. Chained off orderPromise since the order's id isn't known until
-    // that resolves.
+    // La factura solo existe cuando el pedido está pagado: antes, myInvoiceForOrder()
+    // ya devuelve null, así que aquí no hace falta comprobar el estado. Va encadenado
+    // a orderPromise porque el id del pedido no se conoce hasta que se resuelve.
     const invoicePromise = orderPromise.then(({data}) =>
         data.orderByCode
             ? query(GetInvoiceForOrderQuery, {orderId: data.orderByCode.id}, {useAuthToken: true, fetch: {}})

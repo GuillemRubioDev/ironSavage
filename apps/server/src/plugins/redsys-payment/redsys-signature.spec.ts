@@ -8,13 +8,14 @@ import {
     verifyMerchantParametersSignature,
 } from './redsys-signature';
 
-// Redsys' publicly documented sandbox test credentials (see redsys.es docs).
+// Credenciales de pruebas públicas de Redsys (ver la documentación de redsys.es).
 const TEST_SECRET_KEY = 'sq7HjrUOBfKmC576ILgskD5srU870gJ7';
 const TEST_ORDER = '1234ABCD5678';
 
-// Golden vector computed independently with the actively maintained `redsys-easy`
-// library (github.com/javiertury/redsys-easy), for the exact same inputs. If this
-// ever stops matching, the bug is almost certainly in this file, not the reference.
+// Vector de referencia calculado de forma independiente con la librería `redsys-easy`
+// (github.com/javiertury/redsys-easy), mantenida activamente, con las mismas
+// entradas. Si algún día deja de coincidir, el fallo casi seguro está en este
+// archivo, no en la referencia.
 const REFERENCE_PARAMS = {
     DS_MERCHANT_AMOUNT: '145',
     DS_MERCHANT_ORDER: TEST_ORDER,
@@ -67,9 +68,9 @@ test('verifyMerchantParametersSignature rejects a tampered signature', () => {
 });
 
 test('verifyMerchantParametersSignature rejects a signature computed for a different order', () => {
-    // Same params/signature, but verified against a different order number, which
-    // changes the derived 3DES key — simulates an attacker replaying a signature
-    // from one order onto another.
+    // Mismos parámetros y firma, pero verificados con otro número de pedido, lo que
+    // cambia la clave 3DES derivada: simula a un atacante reutilizando la firma de un
+    // pedido en otro.
     const valid = verifyMerchantParametersSignature(
         TEST_SECRET_KEY,
         '9999ZZZZ0000',

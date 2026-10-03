@@ -14,14 +14,13 @@ import { InvoiceGeneratedEvent } from './invoice-generated-event';
 import { InvoicingService } from './invoicing.service';
 
 /**
- * Fires invoice generation at the same trigger point Loyalty uses for
- * earning points: the Order's transition to `PaymentSettled` — a confirmed,
- * actually-collected payment, not an intermediate state like
- * ArrangingPayment. A cancelled/never-settled order never reaches this
- * event, so it never gets an invoice.
+ * Genera la factura en el mismo momento en que la fidelización da los puntos: la
+ * transición del pedido a `PaymentSettled`, un pago confirmado y cobrado de verdad,
+ * no un estado intermedio como ArrangingPayment. Un pedido cancelado o nunca
+ * pagado no llega a este evento, así que nunca tiene factura.
  *
- * A refund reaching `Settled` (a partial refund, or "Refund and cancel")
- * gets a factura rectificativa — see InvoicingService.generateRectifyingForRefund.
+ * Un reembolso que llega a `Settled` (reembolso parcial o «Reembolsar y cancelar»)
+ * genera una factura rectificativa; ver InvoicingService.generateRectifyingForRefund.
  */
 @Injectable()
 export class InvoicingEventSubscriber implements OnApplicationBootstrap {

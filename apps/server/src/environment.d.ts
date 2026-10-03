@@ -1,7 +1,6 @@
 export {};
 
-// Here we declare the members of the process.env object, so that we
-// can use them in our application code in a type-safe manner.
+// Declara los miembros de process.env para poder usarlos con tipos en el código.
 declare global {
     namespace NodeJS {
         interface ProcessEnv {

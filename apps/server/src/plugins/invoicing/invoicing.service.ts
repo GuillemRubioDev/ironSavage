@@ -26,10 +26,10 @@ export class InvoicingService {
     ) {}
 
     /**
-     * Idempotent: if an Invoice already exists for this order (a unique index
-     * on `orderId` makes this race-safe too), returns it unchanged instead of
-     * creating a second one. `order` must have `lines.productVariant`,
-     * `shippingLines`, `surcharges` and `customer` relations loaded.
+     * Idempotente: si el pedido ya tiene factura ordinaria (el índice único parcial
+     * sobre `orderId` también lo protege ante carreras), la devuelve tal cual en vez
+     * de crear otra. `order` debe venir con las relaciones `lines.productVariant`,
+     * `shippingLines`, `surcharges` y `customer` cargadas.
      */
     async generateForOrder(ctx: RequestContext, order: Order): Promise<GenerateInvoiceResult> {
         const preCheck = await this.connection.getRepository(ctx, Invoice).findOne({ where: { orderId: order.id, type: 'ORDINARY' } });
@@ -76,9 +76,9 @@ export class InvoicingService {
             });
         } catch (err) {
             if (this.isUniqueViolation(err)) {
-                // Lost a race against a concurrent generation for the same order —
-                // the whole losing transaction (including its number allocation)
-                // was rolled back by the DB, so no number was wasted.
+                // Otra generación simultánea para el mismo pedido ganó la carrera: la base
+                // de datos deshizo toda la transacción perdedora (incluida la asignación
+                // del número), así que no se ha gastado ningún número.
                 const existing = await this.connection.getRepository(ctx, Invoice).findOne({ where: { orderId: order.id, type: 'ORDINARY' } });
                 if (existing) {
                     return { created: false, invoice: existing };
@@ -96,11 +96,11 @@ export class InvoicingService {
     }
 
     /**
-     * Factura rectificativa for a settled refund (art. 15 RD 1619/2012): own
-     * series (R), negative amounts, and a reference to the invoice it
-     * corrects. Idempotent per refund (unique `refundId`). Does nothing when
-     * the order has no invoice (it was never paid). `order` needs
-     * `lines.productVariant` and `shippingLines`; `refund` its `lines`.
+     * Factura rectificativa de un reembolso liquidado (art. 15 RD 1619/2012): serie
+     * propia (R), importes negativos y referencia a la factura que corrige.
+     * Idempotente por reembolso (`refundId` único). No hace nada si el pedido no tiene
+     * factura (nunca se pagó). `order` necesita `lines.productVariant` y
+     * `shippingLines`; `refund`, sus `lines`.
      */
     async generateRectifyingForRefund(ctx: RequestContext, order: Order, refund: Refund): Promise<GenerateInvoiceResult | null> {
         const repo = this.connection.getRepository(ctx, Invoice);
@@ -161,9 +161,9 @@ export class InvoicingService {
     }
 
     /**
-     * Veri*Factu hook: hands the issued invoice to the configured
-     * FiscalRegistrationProvider (if any) and stores its answer on the
-     * invoice. A failure is recorded and logged but never blocks the invoice.
+     * Enganche de Veri*Factu: entrega la factura emitida al FiscalRegistrationProvider
+     * configurado (si lo hay) y guarda su respuesta en la factura. Un fallo se registra
+     * y se anota en el log, pero nunca impide la factura.
      */
     private async registerFiscally(ctx: RequestContext, invoice: Invoice): Promise<void> {
         const config = getInvoicingConfig();
@@ -229,19 +229,18 @@ export class InvoicingService {
             .take(options?.take ?? 50);
 
         if (options?.customerId) {
-            // Scopes the list to one customer — used by the Shop API's `myInvoices`,
-            // where this is the only thing standing between a customer and every
-            // other customer's invoices. Applied via `andWhere` (never `where`,
-            // which would replace rather than combine) so a later `search` clause
-            // can never widen the result past this customer's own rows.
+            // Limita la lista a un cliente. Lo usa `myInvoices` de la Shop API, donde es lo
+            // único que separa a un cliente de las facturas de todos los demás. Va con
+            // `andWhere` (nunca `where`, que sustituiría en vez de combinar) para que una
+            // cláusula `search` posterior nunca amplíe el resultado a otros clientes.
             qb.andWhere('invoice.customerId = :customerId', { customerId: options.customerId });
         }
 
         if (options?.search) {
-            // The '-' | number::text form must zero-pad to match the displayed
-            // `formattedNumber` (e.g. "A-000001"), or a search for that exact
-            // string would never match. Grouped in a Brackets so this OR only
-            // spans the two search conditions, not the customerId filter above.
+            // La forma serie || '-' || número debe rellenar con ceros para coincidir con el
+            // `formattedNumber` que se muestra (p. ej. "A-000001"); si no, buscar ese texto
+            // exacto nunca coincidiría. Va dentro de Brackets para que el OR solo afecte a
+            // las dos condiciones de búsqueda y no al filtro de customerId de arriba.
             qb.andWhere(
                 new Brackets(sub => {
                     sub.where('invoice.orderCode ILIKE :search', { search: `%${options.search}%` }).orWhere(
@@ -260,7 +259,7 @@ export class InvoicingService {
         return this.connection.getRepository(ctx, InvoiceLine).find({ where: { invoiceId } });
     }
 
-    /** Absolute path to the PDF, generating it first if it's missing (e.g. a previous generation attempt failed). */
+    /** Ruta absoluta del PDF; si falta (p. ej. falló un intento anterior), lo genera primero. */
     async ensurePdfFile(ctx: RequestContext, invoice: Invoice): Promise<string> {
         const config = getInvoicingConfig();
         const fileName = `${formatInvoiceNumber(invoice)}.pdf`;
@@ -292,9 +291,9 @@ export class InvoicingService {
     }
 
     /**
-     * Best-effort: a missing/unreadable image (deleted asset, storage
-     * hiccup) just means that one line prints without a thumbnail — never
-     * blocks generating the actual fiscal document.
+     * Lo mejor posible: una imagen que falte o no se pueda leer (recurso borrado, fallo
+     * del almacenamiento) solo deja esa línea sin miniatura; nunca impide generar el
+     * documento fiscal.
      */
     private async loadLineImages(lines: InvoiceLine[]): Promise<Map<string, Buffer>> {
         const images = new Map<string, Buffer>();
@@ -328,8 +327,8 @@ export class InvoicingService {
     }
 
     private buildAddressSnapshot(order: Order): AddressSnapshot {
-        // Falls back to the shipping address for the (unusual) case of an order
-        // with no distinct billing address set — still better than an empty invoice.
+        // Si el pedido no tiene dirección de facturación propia (caso poco habitual), usa
+        // la de envío: mejor que una factura sin dirección.
         const source = order.billingAddress?.streetLine1 ? order.billingAddress : order.shippingAddress;
         return {
             fullName: source?.fullName,
@@ -345,12 +344,11 @@ export class InvoicingService {
     }
 
     /**
-     * Builds one line per OrderLine plus one per ShippingLine, using each
-     * line's *prorated* values — the "true economic value" per Vendure's own
-     * docs, which already folds in both item-level and order-level discounts
-     * (including this store's loyalty-points surcharge). This keeps the sum
-     * of invoice line totals exactly equal to `order.totalWithTax` without
-     * needing a separate "discount" line.
+     * Una línea por OrderLine más una por ShippingLine, con los valores *prorrateados*
+     * de cada una: el «valor económico real» según la documentación de Vendure, que ya
+     * incluye los descuentos de línea y de pedido (incluido el recargo negativo de los
+     * puntos de fidelización). Así la suma de las líneas es exactamente
+     * `order.totalWithTax` sin necesitar una línea de «descuento» aparte.
      */
     private buildLineSnapshots(order: Order): { lines: InvoiceLineData[]; subtotal: number; tax: number; total: number } {
         const lines: InvoiceLineData[] = order.lines.map(line => ({
@@ -376,7 +374,7 @@ export class InvoicingService {
             });
         }
 
-        // order.total = subTotal + shipping (excl. tax); order.totalWithTax = the final payable amount.
+        // order.total = subTotal + envío (sin IVA); order.totalWithTax = el importe final a pagar.
         const subtotal = order.total;
         const total = order.totalWithTax;
         const tax = total - subtotal;
@@ -408,7 +406,7 @@ export class InvoicingService {
             if (!this.isUniqueViolation(err)) {
                 throw err;
             }
-            // A concurrent call created the row first — fine, it exists now.
+            // Otra llamada simultánea creó la fila antes: bien, ya existe.
         }
     }
 
@@ -417,7 +415,7 @@ export class InvoicingService {
     }
 }
 
-/** "A-000123" — the human-readable number used everywhere (PDF, emails, API). */
+/** "A-000123": el número legible que se usa en todas partes (PDF, emails, API). */
 export function formatInvoiceNumber(invoice: Pick<Invoice, 'series' | 'number'>): string {
     return `${invoice.series}-${String(invoice.number).padStart(6, '0')}`;
 }

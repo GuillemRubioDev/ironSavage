@@ -6,20 +6,20 @@ import { Link } from '@tanstack/react-router';
 import { PackageX, TriangleAlert } from 'lucide-react';
 
 /**
- * Stock threshold for the "low stock" bucket — a simple constant, not a new
- * inventory rule. Out-of-stock (0) is always shown regardless of this value.
+ * Umbral del grupo «stock bajo»: una constante sencilla, no una regla nueva de
+ * inventario. Lo agotado (0) se muestra siempre, sea cual sea este valor.
  */
 const LOW_STOCK_THRESHOLD = 5;
 
 /**
- * Vendure's Admin API has no server-side filter/sort on `stockOnHand` (verified
- * by introspecting ProductVariantFilterParameter/SortParameter against the
- * running server — both list it, but the runtime list-options validator
- * rejects it as "invalid-filter-field", since it's a computed/deprecated
- * field, not a real column). This store's catalog is small (26 enabled
- * variants at last check), so fetching all enabled variants in one bounded,
- * un-paginated query and filtering client-side is the correct trade-off here
- * — not a parallel stock system, just a read over the real API's own data.
+ * La Admin API de Vendure no permite filtrar ni ordenar por `stockOnHand` en el
+ * servidor (comprobado introspeccionando ProductVariantFilterParameter/SortParameter
+ * contra el servidor: los dos lo listan, pero el validador de opciones de lista lo
+ * rechaza como "invalid-filter-field", porque es un campo calculado/obsoleto, no una
+ * columna real). El catálogo de esta tienda es pequeño, así que pedir todas las
+ * variantes activas en una sola consulta acotada y filtrar en el cliente es la
+ * opción correcta: no es un sistema de stock paralelo, solo una lectura de los datos
+ * de la propia API.
  */
 const lowStockWidgetQuery = graphql(`
     query LowStockWidgetVariants {
@@ -45,8 +45,8 @@ export function LowStockWidget() {
     const { data, isLoading } = useQuery({
         queryKey: ['low-stock-widget'],
         queryFn: () => api.query(lowStockWidgetQuery),
-        // This is a Home-page glance widget, not a live monitor — refetch
-        // on a normal cache policy, no polling.
+        // Es un widget de vistazo en la página de inicio, no un monitor en directo:
+        // se recarga con la política de caché normal, sin sondeo.
         staleTime: 60_000,
     });
 

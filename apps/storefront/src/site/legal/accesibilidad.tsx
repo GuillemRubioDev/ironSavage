@@ -9,10 +9,10 @@ export function generateMetadata() {
 }
 
 /**
- * Declaración de accesibilidad — the information the Ley 11/2023 (European
- * Accessibility Act) requires e-commerce services to give about how they
- * meet the accessibility requirements, plus a channel to report barriers.
- * Keep "Cómo lo hemos evaluado" in sync with the last audit that was run.
+ * Declaración de accesibilidad: la información que la Ley 11/2023 (Acta Europea de
+ * Accesibilidad) exige a los servicios de comercio electrónico sobre cómo cumplen
+ * los requisitos de accesibilidad, más un canal para comunicar barreras. Mantén
+ * «Cómo lo hemos evaluado» al día con la última auditoría realizada.
  */
 export default async function AccessibilityPage() {
     const locale = await getRouteLocale();

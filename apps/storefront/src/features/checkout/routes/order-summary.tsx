@@ -13,10 +13,10 @@ import { Price } from '@/features/pricing/price';
 import {useTranslations} from 'next-intl';
 
 /**
- * Vendure reports one taxSummary entry per (taxRate, taxCategory) pair, so a
- * product tax line and a shipping tax line at the same 21% show up as two
- * separate entries — confusing when displayed as-is ("IVA (21%)" twice).
- * Combine entries that share a rate into one total before rendering.
+ * Vendure devuelve una entrada de taxSummary por cada pareja (taxRate, taxCategory),
+ * así que el IVA de un producto y el del envío al mismo 21 % salen como dos entradas
+ * separadas, lo que confunde si se muestra tal cual («IVA (21%)» dos veces). Antes
+ * de mostrarlas se suman las entradas del mismo tipo.
  */
 function combineTaxByRate(taxSummary: ReturnType<typeof useCheckout>['order']['taxSummary']) {
   const byRate = new Map<number, number>();
@@ -142,7 +142,7 @@ export default function OrderSummary() {
 
   return (
     <>
-      {/* Mobile: Collapsible summary */}
+      {/* Móvil: resumen plegable */}
       <div className="lg:hidden">
         <Card>
           <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -171,7 +171,7 @@ export default function OrderSummary() {
         </Card>
       </div>
 
-      {/* Desktop: Always visible sticky summary */}
+      {/* Escritorio: resumen fijo siempre visible */}
       <div className="hidden lg:block">
         <Card className="sticky top-24">
           <CardHeader>
