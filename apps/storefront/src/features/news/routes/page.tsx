@@ -4,7 +4,7 @@ import {query} from '@/platform/vendure/api';
 import {GetArticlesQuery, type ArticleListItem} from '@/features/news/graphql';
 import {ArticleCard} from '@/features/news/components/article-card';
 import {Pagination} from '@/components/pagination';
-import {SITE_NAME, buildCanonicalUrl, localizedPath} from '@/config/metadata';
+import {DEFAULT_OG_IMAGES, SITE_NAME, buildCanonicalUrl, localizedPath} from '@/config/metadata';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
 import {routing} from '@/platform/i18n/routing';
@@ -28,6 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
             description: t('metaDescription', {siteName: SITE_NAME}),
             type: 'website',
             url,
+            images: DEFAULT_OG_IMAGES,
         },
     };
 }

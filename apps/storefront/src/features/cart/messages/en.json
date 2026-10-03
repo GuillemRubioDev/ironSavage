@@ -26,6 +26,10 @@
     "couponLimitReached": "This code has reached its usage limit",
     "sku": "SKU: {sku}",
     "updateError": "Couldn't update quantity",
-    "removeError": "Couldn't remove item"
+    "removeError": "Couldn't remove item",
+    "decreaseQuantity": "Decrease quantity of {name}",
+    "increaseQuantity": "Increase quantity of {name}",
+    "removeItem": "Remove {name} from cart",
+    "quantityOf": "Quantity of {name}:"
   }
 }

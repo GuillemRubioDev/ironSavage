@@ -13,6 +13,8 @@ const STATIC_PATHS = [
     '/politica-de-cookies',
     '/terminos-y-condiciones',
     '/envios-y-devoluciones',
+    '/uso-de-inteligencia-artificial',
+    '/accesibilidad',
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

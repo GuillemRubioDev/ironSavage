@@ -11,3 +11,13 @@ export const DEFAULT_INVOICE_SERIES = 'A';
 
 export const INVOICE_STATUSES = ['ISSUED'] as const;
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
+
+/**
+ * Series for rectifying invoices (facturas rectificativas, art. 15 RD
+ * 1619/2012), issued automatically when a refund is settled. Spanish rules
+ * require rectifying invoices to have their own series.
+ */
+export const RECTIFYING_INVOICE_SERIES = 'R';
+
+export const INVOICE_TYPES = ['ORDINARY', 'RECTIFYING'] as const;
+export type InvoiceType = (typeof INVOICE_TYPES)[number];

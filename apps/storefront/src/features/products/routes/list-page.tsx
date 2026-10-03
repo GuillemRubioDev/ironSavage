@@ -15,7 +15,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { SITE_NAME, buildCanonicalUrl, localizedPath } from '@/config/metadata';
+import { DEFAULT_OG_IMAGES, SITE_NAME, buildCanonicalUrl, localizedPath } from '@/config/metadata';
 import { getActiveCurrencyCode } from '@/features/currency/currency-server';
 import { getRouteLocale } from '@/platform/i18n/server';
 import { getTranslations } from 'next-intl/server';
@@ -56,6 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
             type: 'website',
             locale: ogLocale,
             url: buildCanonicalUrl(localizedPath(locale, '/productos')),
+            images: DEFAULT_OG_IMAGES,
         },
     };
 }

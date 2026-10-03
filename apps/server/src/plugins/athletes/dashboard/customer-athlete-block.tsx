@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { api, Badge, Button } from '@vendure/dashboard';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -24,21 +25,29 @@ export function CustomerAthleteBlock({ customerId }: { customerId: string }) {
     if (!athlete) {
         return (
             <div className="space-y-2 text-sm">
-                <p className="text-xs text-muted-foreground">Regular customer — earns points on their own purchases.</p>
+                <p className="text-xs text-muted-foreground">
+                    <Trans>Regular customer — earns points on their own purchases.</Trans>
+                </p>
                 <Button size="sm" variant="outline" render={<Link to="/athletes/new" search={{ customerId }} />}>
                     <Trophy className="mr-2 h-4 w-4" />
-                    Make athlete
+                    <Trans>Make athlete</Trans>
                 </Button>
             </div>
         );
     }
 
+    const points = athlete.stats.netRewardPoints;
+    const orders = athlete.stats.rewardedOrders;
     return (
         <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
-                <Badge variant={athlete.enabled ? 'default' : 'outline'}>{athlete.enabled ? 'Athlete' : 'Athlete (disabled)'}</Badge>
+                <Badge variant={athlete.enabled ? 'default' : 'outline'}>
+                    {athlete.enabled ? <Trans>Athlete</Trans> : <Trans>Athlete (disabled)</Trans>}
+                </Badge>
                 <span className="text-xs text-muted-foreground">
-                    {athlete.stats.netRewardPoints} pts · {athlete.stats.rewardedOrders} orders
+                    <Trans>
+                        {points} pts · {orders} orders
+                    </Trans>
                 </span>
             </div>
             {athlete.codes.length > 0 && (
@@ -51,7 +60,7 @@ export function CustomerAthleteBlock({ customerId }: { customerId: string }) {
                 </div>
             )}
             <Button size="sm" variant="outline" render={<Link to="/athletes/$id" params={{ id: athlete.id }} />}>
-                Manage athlete
+                <Trans>Manage athlete</Trans>
             </Button>
         </div>
     );

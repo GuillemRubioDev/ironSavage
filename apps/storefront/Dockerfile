@@ -34,8 +34,11 @@ COPY --from=deps /app/apps/storefront/node_modules ./apps/storefront/node_module
 # docker-compose.prod.yml) and does not need to be present at build time.
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_SITE_NAME
+# Google Analytics 4 measurement ID (G-XXXXXXX). Empty = no analytics at all.
+ARG NEXT_PUBLIC_GA_ID
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
+ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 # Real values, read at build time by the prerendering step described above.
 ARG VENDURE_SHOP_API_URL
 ARG VENDURE_CHANNEL_TOKEN

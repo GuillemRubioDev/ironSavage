@@ -106,11 +106,10 @@ export function useCookieConsent(): CookieConsentContextValue {
 }
 
 /**
- * Gate for future analytics/marketing scripts: render children only once the
- * visitor has actually granted that category. Nothing in this project uses
- * it yet — there are no analytics/marketing trackers to gate — but this is
- * the hook a future GA/Meta pixel integration should render through instead
- * of loading unconditionally.
+ * Gate for analytics/marketing UI: render children only once the visitor has
+ * actually granted that category. (Google Analytics reacts to `consent`
+ * directly — see site/analytics/google-analytics.tsx — because it also has
+ * to switch itself off when consent is withdrawn.)
  */
 export function ConsentGate({category, children}: {category: ConsentCategory; children: React.ReactNode}) {
     const {consent} = useCookieConsent();

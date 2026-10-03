@@ -11,9 +11,11 @@ import {adjustQuantity, removeFromCart} from './actions';
 interface QuantityControlProps {
     lineId: string;
     quantity: number;
+    /** For the buttons' accessible names ("Eliminar Whey Protein del carrito"). */
+    productName: string;
 }
 
-export function QuantityControl({lineId, quantity}: QuantityControlProps) {
+export function QuantityControl({lineId, quantity, productName}: QuantityControlProps) {
     const t = useTranslations('Cart');
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
@@ -50,12 +52,21 @@ export function QuantityControl({lineId, quantity}: QuantityControlProps) {
                     className="h-9 w-9 rounded-full transition-all duration-200 hover:bg-background"
                     disabled={quantity <= 1 || isPending}
                     onClick={() => handleAdjust(Math.max(1, quantity - 1))}
+                    aria-label={t('decreaseQuantity', {name: productName})}
                 >
-                    <Minus className="h-4 w-4"/>
+                    <Minus className="h-4 w-4" aria-hidden="true"/>
                 </Button>
 
-                <span className="w-10 text-center font-semibold tabular-nums transition-all duration-200">
-                    {isPending ? <Loader2 className="h-4 w-4 mx-auto animate-spin"/> : quantity}
+                {/* Announces the new quantity to screen readers after +/−. */}
+                <span className="w-10 text-center font-semibold tabular-nums transition-all duration-200" aria-live="polite">
+                    {isPending ? (
+                        <Loader2 className="h-4 w-4 mx-auto animate-spin" aria-hidden="true"/>
+                    ) : (
+                        <>
+                            <span className="sr-only">{t('quantityOf', {name: productName})}</span>
+                            {quantity}
+                        </>
+                    )}
                 </span>
 
                 <Button
@@ -65,8 +76,9 @@ export function QuantityControl({lineId, quantity}: QuantityControlProps) {
                     className="h-9 w-9 rounded-full transition-all duration-200 hover:bg-background"
                     disabled={isPending}
                     onClick={() => handleAdjust(quantity + 1)}
+                    aria-label={t('increaseQuantity', {name: productName})}
                 >
-                    <Plus className="h-4 w-4"/>
+                    <Plus className="h-4 w-4" aria-hidden="true"/>
                 </Button>
             </div>
 
@@ -77,8 +89,9 @@ export function QuantityControl({lineId, quantity}: QuantityControlProps) {
                 className="h-9 w-9 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors duration-200"
                 disabled={isPending}
                 onClick={handleRemove}
+                aria-label={t('removeItem', {name: productName})}
             >
-                <X className="h-5 w-5"/>
+                <X className="h-5 w-5" aria-hidden="true"/>
             </Button>
         </>
     );

@@ -6,7 +6,9 @@ import {
     CheckCircle,
     Truck,
     PackageCheck,
+    PackageOpen,
     Package,
+    Boxes,
     XCircle,
     type LucideIcon,
 } from 'lucide-react';
@@ -21,6 +23,9 @@ const STATUS_CONFIG: Record<string, { color: string; icon: LucideIcon }> = {
     ArrangingPayment: {color: 'bg-warning/15 text-warning-foreground dark:text-warning', icon: CreditCard},
     PaymentAuthorized: {color: 'bg-warning/15 text-warning-foreground dark:text-warning', icon: Clock},
     PaymentSettled: {color: 'bg-success/10 text-success', icon: CheckCircle},
+    // Warehouse steps (server: order-tools/warehouse-order-process.ts).
+    InPreparation: {color: 'bg-secondary text-secondary-foreground', icon: PackageOpen},
+    ReadyToShip: {color: 'bg-secondary text-secondary-foreground', icon: Boxes},
     PartiallyShipped: {color: 'bg-secondary text-secondary-foreground', icon: Package},
     Shipped: {color: 'bg-primary/10 text-primary', icon: Truck},
     PartiallyDelivered: {color: 'bg-secondary text-secondary-foreground', icon: PackageCheck},
@@ -36,7 +41,7 @@ export function OrderStatusBadge({state}: OrderStatusBadgeProps) {
     const t = useTranslations('OrderStatus');
     const config = STATUS_CONFIG[state] || {color: 'bg-muted text-muted-foreground', icon: Clock};
     const Icon = config.icon;
-    const label = state in STATUS_CONFIG ? t(state as 'AddingItems' | 'ArrangingPayment' | 'PaymentAuthorized' | 'PaymentSettled' | 'PartiallyShipped' | 'Shipped' | 'PartiallyDelivered' | 'Delivered' | 'Cancelled') : state;
+    const label = state in STATUS_CONFIG ? t(state as 'AddingItems' | 'ArrangingPayment' | 'PaymentAuthorized' | 'PaymentSettled' | 'InPreparation' | 'ReadyToShip' | 'PartiallyShipped' | 'Shipped' | 'PartiallyDelivered' | 'Delivered' | 'Cancelled') : state;
 
     return (
         <Badge className={config.color} variant="secondary">

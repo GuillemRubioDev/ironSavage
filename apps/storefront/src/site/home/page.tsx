@@ -7,7 +7,7 @@ import {CategoriesShowcase} from '@/site/home/categories-showcase';
 import {FeaturedProducts} from '@/features/products/featured-products';
 import {LoyaltyTeaser} from '@/features/loyalty/loyalty-teaser';
 import {LatestNewsSection} from '@/features/news/latest-news-section';
-import {SITE_NAME, buildCanonicalUrl, localizedPath} from "@/config/metadata";
+import {DEFAULT_OG_IMAGES, SITE_NAME, buildCanonicalUrl, localizedPath} from "@/config/metadata";
 import {BadgeCheck, Tag, Zap} from "lucide-react";
 import {getTranslations} from 'next-intl/server';
 import {toOgLocale} from '@/platform/i18n/locale-utils';
@@ -36,6 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
             type: "website",
             locale: ogLocale,
             url: homeUrl,
+            images: DEFAULT_OG_IMAGES,
         },
     };
 }

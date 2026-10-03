@@ -1,9 +1,21 @@
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
 import {NextConfig} from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/site/i18n/request.ts');
 
+// The application's version is the monorepo root's package.json "version"
+// (one version for the whole shop: server + storefront). Bump it there on
+// each release; it is shown in the storefront footer. `next build`/`next dev`
+// always run from apps/storefront (npm -w, and the Dockerfile copies the root
+// package.json into the build stage).
+const {version: APP_VERSION} = JSON.parse(readFileSync(resolve(process.cwd(), '../../package.json'), 'utf8')) as {version: string};
+
 const nextConfig: NextConfig = {
+    env: {
+        NEXT_PUBLIC_APP_VERSION: APP_VERSION,
+    },
     // Produces .next/standalone — a self-contained server bundle with only
     // the node_modules actually used (traced), instead of needing the full
     // workspace node_modules at runtime. This is what makes a lean

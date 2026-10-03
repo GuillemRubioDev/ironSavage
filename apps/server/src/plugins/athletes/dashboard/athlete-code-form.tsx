@@ -1,3 +1,5 @@
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/react/macro';
 import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch } from '@vendure/dashboard';
 import { useState } from 'react';
 
@@ -60,8 +62,10 @@ export function formatDiscount(discountType: string, discountValue: number, curr
     return discountType === 'FIXED_AMOUNT' ? formatMoney(discountValue, currencyCode) : `${discountValue}%`;
 }
 
+// Uses the global Lingui instance (same one the Dashboard activates), so it
+// works outside components too.
 export function formatReward(rewardType: string, rewardValue: number): string {
-    return rewardType === 'FIXED_POINTS' ? `${rewardValue} pts / order` : `${rewardValue}%`;
+    return rewardType === 'FIXED_POINTS' ? t`${rewardValue} pts / order` : `${rewardValue}%`;
 }
 
 export function formatMoney(amountInMinorUnits: number, currencyCode = 'EUR'): string {
@@ -91,7 +95,9 @@ export function AthleteCodeForm({ initialValue, submitLabel, onSubmit, onCancel,
     const fields = (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-                <Label htmlFor="athlete-code">Code</Label>
+                <Label htmlFor="athlete-code">
+                    <Trans>Code</Trans>
+                </Label>
                 <Input
                     id="athlete-code"
                     value={value.code}
@@ -99,18 +105,26 @@ export function AthleteCodeForm({ initialValue, submitLabel, onSubmit, onCancel,
                     placeholder="PEDRO10"
                     maxLength={32}
                 />
-                <p className="text-xs text-muted-foreground">Letters, digits, "-" and "_". Not case-sensitive.</p>
+                <p className="text-xs text-muted-foreground">
+                    <Trans>Letters, digits, "-" and "_". Not case-sensitive.</Trans>
+                </p>
             </div>
             <div className="space-y-1">
-                <Label>Customer discount</Label>
+                <Label>
+                    <Trans>Customer discount</Trans>
+                </Label>
                 <div className="flex gap-2">
                     <Select value={value.discountType} onValueChange={v => update({ discountType: v as DiscountType })}>
                         <SelectTrigger className="w-36">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="PERCENTAGE">Percentage</SelectItem>
-                            <SelectItem value="FIXED_AMOUNT">Fixed amount</SelectItem>
+                            <SelectItem value="PERCENTAGE">
+                                <Trans>Percentage</Trans>
+                            </SelectItem>
+                            <SelectItem value="FIXED_AMOUNT">
+                                <Trans>Fixed amount</Trans>
+                            </SelectItem>
                         </SelectContent>
                     </Select>
                     <Input
@@ -123,18 +137,26 @@ export function AthleteCodeForm({ initialValue, submitLabel, onSubmit, onCancel,
                     />
                     <span className="self-center text-sm text-muted-foreground">{value.discountType === 'PERCENTAGE' ? '%' : '€'}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">What the customer saves when using the code.</p>
+                <p className="text-xs text-muted-foreground">
+                    <Trans>What the customer saves when using the code.</Trans>
+                </p>
             </div>
             <div className="space-y-1">
-                <Label>Athlete reward</Label>
+                <Label>
+                    <Trans>Athlete reward</Trans>
+                </Label>
                 <div className="flex gap-2">
                     <Select value={value.rewardType} onValueChange={v => update({ rewardType: v as RewardType })}>
                         <SelectTrigger className="w-36">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="PERCENTAGE">Percentage</SelectItem>
-                            <SelectItem value="FIXED_POINTS">Fixed points</SelectItem>
+                            <SelectItem value="PERCENTAGE">
+                                <Trans>Percentage</Trans>
+                            </SelectItem>
+                            <SelectItem value="FIXED_POINTS">
+                                <Trans>Fixed points</Trans>
+                            </SelectItem>
                         </SelectContent>
                     </Select>
                     <Input
@@ -145,15 +167,22 @@ export function AthleteCodeForm({ initialValue, submitLabel, onSubmit, onCancel,
                         value={value.rewardValue}
                         onChange={e => update({ rewardValue: e.target.value })}
                     />
-                    <span className="self-center text-sm text-muted-foreground">{value.rewardType === 'PERCENTAGE' ? '%' : 'pts'}</span>
+                    <span className="self-center text-sm text-muted-foreground">
+                        {value.rewardType === 'PERCENTAGE' ? '%' : t`pts`}
+                    </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                    Percentage of the order (products after discounts, excl. shipping), paid in points at the loyalty program's point value.
+                    <Trans>
+                        Percentage of the order (products after discounts, excl. shipping), paid in points at the loyalty
+                        program's point value.
+                    </Trans>
                 </p>
             </div>
             <div className="flex items-center gap-3 md:col-span-3">
                 <Switch checked={value.enabled} onCheckedChange={enabled => update({ enabled })} />
-                <Label>Code active</Label>
+                <Label>
+                    <Trans>Code active</Trans>
+                </Label>
             </div>
         </div>
     );
@@ -178,11 +207,11 @@ export function AthleteCodeForm({ initialValue, submitLabel, onSubmit, onCancel,
             {fields}
             <div className="flex gap-2">
                 <Button type="submit" disabled={saving || !value.code.trim()}>
-                    {saving ? 'Saving…' : submitLabel}
+                    {saving ? <Trans>Saving…</Trans> : submitLabel}
                 </Button>
                 {onCancel && (
                     <Button type="button" variant="outline" onClick={onCancel}>
-                        Cancel
+                        <Trans>Cancel</Trans>
                     </Button>
                 )}
             </div>

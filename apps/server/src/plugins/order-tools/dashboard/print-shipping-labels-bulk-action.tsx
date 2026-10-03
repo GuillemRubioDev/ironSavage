@@ -1,7 +1,9 @@
 import { BulkActionComponent, DataTableBulkActionItem } from '@vendure/dashboard';
+import { useLingui } from '@lingui/react/macro';
 import { Printer } from 'lucide-react';
 
 export const PrintShippingLabelsBulkAction: BulkActionComponent<any> = ({ selection, table }) => {
+    const { t } = useLingui();
     const ids = selection.map(item => item.id).join(',');
 
     return (
@@ -10,7 +12,7 @@ export const PrintShippingLabelsBulkAction: BulkActionComponent<any> = ({ select
                 window.open(`/order-tools/shipping-labels?orders=${ids}`, '_blank');
                 table.resetRowSelection();
             }}
-            label="Imprimir etiquetas"
+            label={t`Print shipping labels`}
             icon={Printer}
         />
     );

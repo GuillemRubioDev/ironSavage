@@ -83,6 +83,14 @@ export type EmailJob =
     // dedupes order-scoped emails by (type, orderId), and a resend (e.g. to a different address the
     // customer asked for) must never be silently skipped as "already sent".
     | { type: 'invoice-resend'; to: string; orderId: string; data: { order: OrderSummaryData; invoiceNumber: string }; attachments?: EmailAttachment[] }
+    // No orderId on purpose: an order can get several rectifying invoices (one per partial refund),
+    // and order-scoped emails are deduped per (type, orderId). The invoice itself is created once per refund.
+    | {
+          type: 'credit-note-available';
+          to: string;
+          data: { order: OrderSummaryData; invoiceNumber: string; rectifiedInvoiceNumber: string };
+          attachments?: EmailAttachment[];
+      }
     | {
           type: 'password-reset';
           to: string;

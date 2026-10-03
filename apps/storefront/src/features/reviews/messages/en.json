@@ -14,6 +14,8 @@
     "submittedForModeration": "Thanks! Your review has been submitted and will appear once it's been checked.",
     "signInToReview": "Bought this product?",
     "signIn": "Sign in to write a review.",
-    "unexpectedError": "An unexpected error occurred. Please try again."
+    "unexpectedError": "An unexpected error occurred. Please try again.",
+    "starsLabel": "{rating} out of 5 stars",
+    "starOption": "{count, plural, one {# star} other {# stars}}"
   }
 }

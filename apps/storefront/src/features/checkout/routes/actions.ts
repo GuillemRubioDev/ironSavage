@@ -1,7 +1,8 @@
 'use server';
 
 import {mutate} from '@/platform/vendure/api';
-import {SetOrderShippingAddressMutation, SetOrderBillingAddressMutation, SetOrderShippingMethodMutation, AddPaymentToOrderMutation, TransitionOrderToStateMutation, SetCustomerForOrderMutation, CreateRedsysPaymentFormMutation} from '@/features/checkout/graphql';
+import {SetOrderShippingAddressMutation, SetOrderBillingAddressMutation, SetOrderShippingMethodMutation, AddPaymentToOrderMutation, TransitionOrderToStateMutation, SetCustomerForOrderMutation, CreateRedsysPaymentFormMutation, AcceptTermsForActiveOrderMutation} from '@/features/checkout/graphql';
+import {LEGAL_VERSION} from '@/config/legal';
 import {CreateCustomerAddressMutation} from '@/features/account/graphql';
 import {revalidatePath, updateTag} from 'next/cache';
 import {redirect} from '@/platform/i18n/navigation';
@@ -76,6 +77,18 @@ export async function createCustomerAddress(address: AddressInput) {
     return result.data.createCustomerAddress;
 }
 
+/**
+ * The customer ticked "I accept the terms" and clicked "Pagar pedido": store
+ * that acceptance (server time + LEGAL_VERSION) on the order. The server
+ * refuses to move a storefront order to payment without it.
+ */
+async function acceptTerms(termsAccepted: boolean) {
+    if (termsAccepted !== true) {
+        throw new Error('The terms and conditions must be accepted before paying');
+    }
+    await mutate(AcceptTermsForActiveOrderMutation, {version: LEGAL_VERSION}, {useAuthToken: true});
+}
+
 export async function transitionToArrangingPayment() {
     const result = await mutate(
         TransitionOrderToStateMutation,
@@ -116,9 +129,10 @@ export interface RedsysPaymentForm {
  * has been verified (see RedsysPlugin), so the order must stay retryable
  * (ArrangingPayment) until then.
  */
-export async function getRedsysPaymentForm(): Promise<
+export async function getRedsysPaymentForm(termsAccepted: boolean): Promise<
     {success: true; form: RedsysPaymentForm} | {success: false; error: string}
 > {
+    await acceptTerms(termsAccepted);
     await transitionToArrangingPayment();
 
     const result = await mutate(CreateRedsysPaymentFormMutation, {}, {useAuthToken: true});
@@ -139,8 +153,9 @@ export async function getRedsysPaymentForm(): Promise<
     };
 }
 
-export async function placeOrder(paymentMethodCode: string) {
-    // First, transition the order to ArrangingPayment state
+export async function placeOrder(paymentMethodCode: string, termsAccepted: boolean) {
+    await acceptTerms(termsAccepted);
+    // Then, transition the order to ArrangingPayment state
     await transitionToArrangingPayment();
 
     // Prepare metadata based on payment method

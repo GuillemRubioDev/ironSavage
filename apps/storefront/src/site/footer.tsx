@@ -9,6 +9,9 @@ import {getTranslations} from 'next-intl/server';
 
 const COPYRIGHT_YEAR = 2026;
 
+/** Root package.json "version", injected at build time by next.config.ts. */
+const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? 'dev';
+
 async function Copyright() {
     'use cache'
     cacheLife('days');
@@ -34,7 +37,7 @@ export async function Footer() {
     const collections = await getTopCollections(locale);
 
     return (
-        <footer className="mt-auto bg-[oklch(0.13_0.004_260)] text-white/60">
+        <footer className="mt-auto print:hidden bg-[oklch(0.13_0.004_260)] text-white/60">
             <div className="container mx-auto px-4 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
                     <div className="md:col-span-1">
@@ -129,6 +132,16 @@ export async function Footer() {
                                 </NavigationLink>
                             </li>
                             <li>
+                                <NavigationLink href="/uso-de-inteligencia-artificial" className="hover:text-white transition-colors">
+                                    {t('aiTransparency')}
+                                </NavigationLink>
+                            </li>
+                            <li>
+                                <NavigationLink href="/accesibilidad" className="hover:text-white transition-colors">
+                                    {t('accessibility')}
+                                </NavigationLink>
+                            </li>
+                            <li>
                                 <CookieSettingsLink className="hover:text-white transition-colors text-left" />
                             </li>
                         </ul>
@@ -137,8 +150,15 @@ export async function Footer() {
 
                 {/* Bottom Section */}
                 <div
-                    className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+                    className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-center md:text-left">
                     <Copyright/>
+                    <p>
+                        {t('aiNotice')}{' '}
+                        <NavigationLink href="/uso-de-inteligencia-artificial" className="underline underline-offset-2 hover:text-white transition-colors">
+                            {t('aiNoticeLink')}
+                        </NavigationLink>
+                    </p>
+                    <span className="tabular-nums">{t('version', {version: APP_VERSION})}</span>
                 </div>
             </div>
         </footer>

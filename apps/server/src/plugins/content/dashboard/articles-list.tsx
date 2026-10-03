@@ -21,6 +21,7 @@ import {
     TableHeader,
     TableRow,
 } from '@vendure/dashboard';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlusIcon } from 'lucide-react';
@@ -43,6 +44,8 @@ const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'outline'> = {
 };
 
 export function ArticlesListPage() {
+    const { t } = useLingui();
+    const statusLabel: Record<string, string> = { DRAFT: t`Draft`, PUBLISHED: t`Published`, ARCHIVED: t`Archived` };
     const [skip, setSkip] = useState(0);
     const [status, setStatus] = useState<string>('ALL');
     const [titleSearch, setTitleSearch] = useState('');
@@ -83,12 +86,12 @@ export function ArticlesListPage() {
 
     return (
         <Page pageId="content-article-list">
-            <PageTitle>Articles</PageTitle>
+            <PageTitle><Trans>Articles</Trans></PageTitle>
             <PageActionBar>
                 <PageActionBarRight>
                     <Button render={<Link to="/content-articles/new" />}>
                         <PlusIcon className="mr-2 h-4 w-4" />
-                        New article
+                        <Trans>New article</Trans>
                     </Button>
                 </PageActionBarRight>
             </PageActionBar>
@@ -96,7 +99,7 @@ export function ArticlesListPage() {
                 <FullWidthPageBlock blockId="list-table">
                     <div className="flex flex-wrap items-center gap-3 mb-4">
                         <Input
-                            placeholder="Search by title..."
+                            placeholder={t`Search by title...`}
                             value={titleSearch}
                             onChange={e => {
                                 setSkip(0);
@@ -112,13 +115,13 @@ export function ArticlesListPage() {
                             }}
                         >
                             <SelectTrigger className="w-40">
-                                <SelectValue placeholder="Status" />
+                                <SelectValue placeholder={t`Status`} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="ALL">All statuses</SelectItem>
-                                <SelectItem value="DRAFT">Draft</SelectItem>
-                                <SelectItem value="PUBLISHED">Published</SelectItem>
-                                <SelectItem value="ARCHIVED">Archived</SelectItem>
+                                <SelectItem value="ALL"><Trans>All statuses</Trans></SelectItem>
+                                <SelectItem value="DRAFT"><Trans>Draft</Trans></SelectItem>
+                                <SelectItem value="PUBLISHED"><Trans>Published</Trans></SelectItem>
+                                <SelectItem value="ARCHIVED"><Trans>Archived</Trans></SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -127,25 +130,25 @@ export function ArticlesListPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-16">Cover</TableHead>
-                                    <TableHead>Title (ES)</TableHead>
-                                    <TableHead>Slug</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Published</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead className="w-16"><Trans>Cover</Trans></TableHead>
+                                    <TableHead><Trans>Title (ES)</Trans></TableHead>
+                                    <TableHead><Trans>Slug</Trans></TableHead>
+                                    <TableHead><Trans>Status</Trans></TableHead>
+                                    <TableHead><Trans>Published</Trans></TableHead>
+                                    <TableHead className="text-right"><Trans>Actions</Trans></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                            Loading...
+                                            <Trans>Loading...</Trans>
                                         </TableCell>
                                     </TableRow>
                                 ) : items.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                            No articles found.
+                                            <Trans>No articles found.</Trans>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -173,7 +176,7 @@ export function ArticlesListPage() {
                                             </TableCell>
                                             <TableCell className="text-muted-foreground">{article.slug}</TableCell>
                                             <TableCell>
-                                                <Badge variant={STATUS_VARIANT[article.status] ?? 'secondary'}>{article.status}</Badge>
+                                                <Badge variant={STATUS_VARIANT[article.status] ?? 'secondary'}>{statusLabel[article.status] ?? article.status}</Badge>
                                             </TableCell>
                                             <TableCell className="text-muted-foreground">
                                                 {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : '—'}
@@ -181,11 +184,11 @@ export function ArticlesListPage() {
                                             <TableCell className="text-right space-x-2">
                                                 {article.status !== 'ARCHIVED' && (
                                                     <Button size="sm" variant="outline" onClick={() => void togglePublish(article.id, article.status)}>
-                                                        {article.status === 'PUBLISHED' ? 'Unpublish' : 'Publish'}
+                                                        {article.status === 'PUBLISHED' ? <Trans>Unpublish</Trans> : <Trans>Publish</Trans>}
                                                     </Button>
                                                 )}
                                                 <Button size="sm" variant="outline" onClick={() => void remove(article.id)}>
-                                                    Delete
+                                                    <Trans>Delete</Trans>
                                                 </Button>
                                             </TableCell>
                                         </TableRow>
@@ -197,11 +200,11 @@ export function ArticlesListPage() {
 
                     <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
                         <span>
-                            {totalItems === 0 ? 0 : skip + 1}-{Math.min(skip + PAGE_SIZE, totalItems)} of {totalItems}
+                            <Trans>{totalItems === 0 ? 0 : skip + 1}-{Math.min(skip + PAGE_SIZE, totalItems)} of {totalItems}</Trans>
                         </span>
                         <div className="space-x-2">
                             <Button size="sm" variant="outline" disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - PAGE_SIZE))}>
-                                Previous
+                                <Trans>Previous</Trans>
                             </Button>
                             <Button
                                 size="sm"
@@ -209,7 +212,7 @@ export function ArticlesListPage() {
                                 disabled={skip + PAGE_SIZE >= totalItems}
                                 onClick={() => setSkip(skip + PAGE_SIZE)}
                             >
-                                Next
+                                <Trans>Next</Trans>
                             </Button>
                         </div>
                     </div>

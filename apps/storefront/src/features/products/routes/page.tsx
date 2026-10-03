@@ -4,6 +4,7 @@ import { Link } from '@/platform/i18n/navigation';
 import { query } from '@/platform/vendure/api';
 import {GetProductDetailQuery} from '@/features/products/graphql';
 import { ProductDetailClient } from '@/features/products/components/product-detail-client';
+import { FoodInformation } from '@/features/products/components/food-information';
 import {getDisplayOptionGroups} from '@/features/products/product-options';
 import {sanitizeRichText} from '@/platform/security/sanitize-html';
 import { RelatedProducts } from '@/features/products/components/related-products';
@@ -173,6 +174,8 @@ export default async function ProductDetailPage({
 
                 <ProductDetailClient product={productForDisplay} searchParams={searchParamsResolved} currencyCode={currencyCode} />
             </div>
+
+            <FoodInformation locale={locale} data={product.customFields ?? {}} />
 
             {/* Shipping & Trust Badges */}
             <section className="py-6 mt-8 border-y border-border">

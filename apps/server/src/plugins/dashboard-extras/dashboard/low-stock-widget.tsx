@@ -1,6 +1,7 @@
 import { api, Badge, DashboardBaseWidget, DashboardWidgetDefinition } from '@vendure/dashboard';
 import { graphql } from '@/gql';
 import { useQuery } from '@tanstack/react-query';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
 import { PackageX, TriangleAlert } from 'lucide-react';
 
@@ -40,6 +41,7 @@ const lowStockWidgetQuery = graphql(`
 export const WIDGET_ID = 'low-stock-widget';
 
 export function LowStockWidget() {
+    const { t } = useLingui();
     const { data, isLoading } = useQuery({
         queryKey: ['low-stock-widget'],
         queryFn: () => api.query(lowStockWidgetQuery),
@@ -58,23 +60,23 @@ export function LowStockWidget() {
     return (
         <DashboardBaseWidget
             id={WIDGET_ID}
-            title="Stock alerts"
-            description={`Out of stock, and at or below ${LOW_STOCK_THRESHOLD} units`}
+            title={t`Stock alerts`}
+            description={t`Out of stock, and at or below ${LOW_STOCK_THRESHOLD} units`}
         >
             {isLoading ? (
-                <div className="text-sm text-muted-foreground">Loading…</div>
+                <div className="text-sm text-muted-foreground"><Trans>Loading…</Trans></div>
             ) : flagged.length === 0 ? (
-                <div className="text-sm text-muted-foreground">All enabled variants are above the low-stock threshold.</div>
+                <div className="text-sm text-muted-foreground"><Trans>All enabled variants are above the low-stock threshold.</Trans></div>
             ) : (
                 <div className="space-y-3">
                     <div className="flex items-center gap-4 text-sm">
                         <span className="inline-flex items-center gap-1.5">
                             <PackageX className="size-4 text-destructive" />
-                            <span className="font-medium">{outOfStock.length}</span> out of stock
+                            <Trans><span className="font-medium">{outOfStock.length}</span> out of stock</Trans>
                         </span>
                         <span className="inline-flex items-center gap-1.5">
                             <TriangleAlert className="size-4 text-warning" />
-                            <span className="font-medium">{lowStock.length}</span> low stock
+                            <Trans><span className="font-medium">{lowStock.length}</span> low stock</Trans>
                         </span>
                     </div>
                     <ul className="divide-y divide-border">
@@ -87,13 +89,13 @@ export function LowStockWidget() {
                                     {variant.name}
                                 </Link>
                                 <Badge variant={variant.stockOnHand <= 0 ? 'destructive' : 'secondary'}>
-                                    {variant.stockOnHand <= 0 ? 'Out of stock' : `${variant.stockOnHand} left`}
+                                    {variant.stockOnHand <= 0 ? t`Out of stock` : t`${variant.stockOnHand} left`}
                                 </Badge>
                             </li>
                         ))}
                     </ul>
                     {flagged.length > 8 && (
-                        <p className="text-xs text-muted-foreground">+{flagged.length - 8} more</p>
+                        <p className="text-xs text-muted-foreground">{t`+${flagged.length - 8} more`}</p>
                     )}
                 </div>
             )}
@@ -103,7 +105,7 @@ export function LowStockWidget() {
 
 export const lowStockWidget: DashboardWidgetDefinition = {
     id: WIDGET_ID,
-    name: 'Stock alerts',
+    name: /* i18n*/ 'Stock alerts',
     component: LowStockWidget,
     defaultSize: { w: 6, h: 6, x: 6, y: 3 },
     minSize: { w: 4, h: 4 },

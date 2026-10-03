@@ -222,6 +222,13 @@ export const TransitionOrderToStateMutation = graphql(`
     }
 `);
 
+/** Records on the active order when (server time) and which version of the terms the customer accepted. */
+export const AcceptTermsForActiveOrderMutation = graphql(`
+    mutation AcceptTermsForActiveOrder($version: String!) {
+        acceptTermsForActiveOrder(version: $version)
+    }
+`);
+
 export const CreateRedsysPaymentFormMutation = graphql(`
     mutation CreateRedsysPaymentForm {
         createRedsysPaymentForm {

@@ -1,0 +1,160 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-28 13:54+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Redeemed"
+msgstr "Redeemed"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Recent history"
+msgstr "Recent history"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Type"
+msgstr "Type"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "e.g. -50"
+msgstr "e.g. -50"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Required — shown in the customer's history"
+msgstr "Required — shown in the customer's history"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Name"
+msgstr "Name"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "This customer has no loyalty account yet."
+msgstr "This customer has no loyalty account yet."
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Actions"
+msgstr "Actions"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Search"
+msgstr "Search"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Lifetime earned"
+msgstr "Lifetime earned"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Find a customer"
+msgstr "Find a customer"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "No customers found."
+msgstr "No customers found."
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Points"
+msgstr "Points"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Apply manual adjustment"
+msgstr "Apply manual adjustment"
+
+#: src/plugins/loyalty/dashboard/index.tsx
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Loyalty"
+msgstr "Loyalty"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "View loyalty"
+msgstr "View loyalty"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Loyalty account"
+msgstr "Loyalty account"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Athlete reward"
+msgstr "Athlete reward"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Manual adjustment"
+msgstr "Manual adjustment"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Adjustment (+/-)"
+msgstr "Adjustment (+/-)"
+
+#. js-lingui-explicit-id
+#: src/plugins/loyalty/dashboard/index.tsx
+msgid "Loyalty"
+msgstr "Loyalty"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Expired"
+msgstr "Expired"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Date"
+msgstr "Date"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Description"
+msgstr "Description"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Email"
+msgstr "Email"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Earned"
+msgstr "Earned"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Lifetime spent"
+msgstr "Lifetime spent"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Loading…"
+msgstr "Loading…"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Current balance"
+msgstr "Current balance"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "No history yet."
+msgstr "No history yet."
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Searching…"
+msgstr "Searching…"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Refund reversal"
+msgstr "Refund reversal"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Reason"
+msgstr "Reason"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Search by name or email..."
+msgstr "Search by name or email..."
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Applying…"
+msgstr "Applying…"
+
+#: src/plugins/loyalty/dashboard/loyalty-page.tsx
+msgid "Athlete reward reversed"
+msgstr "Athlete reward reversed"

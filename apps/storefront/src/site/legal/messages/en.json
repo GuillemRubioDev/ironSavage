@@ -2,14 +2,19 @@
   "Legal": {
     "draftNotice": {
       "title": "Draft — pending legal review",
-      "description": "This page is a template. Bracketed fields must be completed with the company's real, verified legal data before this page is relied upon."
+      "description": "This page is a template. Highlighted fields in brackets must be completed with the company's real, verified legal data before this page is published."
     },
+    "lastUpdated": "Last updated: {date}",
+    "print": "Print or save as PDF",
+    "spanishOnly": "Our legal texts are only available in Spanish. The Spanish version is the only legally binding one.",
     "pages": {
       "legalNotice": "Legal Notice",
       "privacyPolicy": "Privacy Policy",
       "cookiePolicy": "Cookie Policy",
       "termsAndConditions": "Terms & Conditions",
-      "shippingReturns": "Shipping & Returns"
+      "shippingReturns": "Shipping & Returns",
+      "aiTransparency": "Use of Artificial Intelligence",
+      "accessibility": "Accessibility"
     }
   }
 }

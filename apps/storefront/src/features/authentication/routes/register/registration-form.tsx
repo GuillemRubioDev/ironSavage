@@ -20,6 +20,16 @@ import {
 } from '@/components/ui/form';
 import { Link } from '@/platform/i18n/navigation';
 import {useTranslations} from 'next-intl';
+import {companyText} from '@/config/company';
+
+/** Opens a legal text in a new tab, so the half-filled form isn't lost. */
+function LegalLink({href, children}: {href: string; children: React.ReactNode}) {
+    return (
+        <Link href={href} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-primary">
+            {children}
+        </Link>
+    );
+}
 
 function createRegistrationSchema(t: ReturnType<typeof useTranslations<'Auth'>>) {
     return z.object({
@@ -219,14 +229,25 @@ export function RegistrationForm({ redirectTo }: RegistrationFormProps) {
                                                 disabled={isPending}
                                             />
                                         </FormControl>
-                                        <FormLabel className="font-normal leading-snug">
-                                            {t('termsAcceptance')}
+                                        <FormLabel className="font-normal leading-snug block">
+                                            {t.rich('termsAcceptance', {
+                                                terms: (chunks) => <LegalLink href="/terminos-y-condiciones">{chunks}</LegalLink>,
+                                                privacy: (chunks) => <LegalLink href="/politica-de-privacidad">{chunks}</LegalLink>,
+                                            })}
                                         </FormLabel>
                                     </div>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
+                        {/* Información básica sobre protección de datos (primera capa, art. 11 LOPDGDD). */}
+                        <p className="text-xs leading-relaxed text-muted-foreground">
+                            {t.rich('privacyNotice', {
+                                controller: companyText('legalName'),
+                                more: (chunks) => <LegalLink href="/politica-de-privacidad">{chunks}</LegalLink>,
+                            })}
+                        </p>
 
                         {serverError && (
                             <div className="text-sm text-destructive">

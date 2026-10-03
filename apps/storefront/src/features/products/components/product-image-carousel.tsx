@@ -12,9 +12,11 @@ interface ProductImageCarouselProps {
         preview: string;
         source: string;
     }>;
+    /** Used in the images' alt text ("Whey Protein, imagen 1 de 3"). */
+    productName: string;
 }
 
-export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
+export function ProductImageCarousel({ images, productName }: ProductImageCarouselProps) {
     const t = useTranslations('Product');
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -40,7 +42,7 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
             <div className="relative aspect-[4/5] bg-muted rounded-md overflow-hidden group cursor-crosshair">
                 <Image
                     src={images[currentIndex].source}
-                    alt={`Product image ${currentIndex + 1}`}
+                    alt={t('imageAlt', { name: productName, index: currentIndex + 1, total: images.length })}
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 55vw"
@@ -53,25 +55,27 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute left-0 top-1/2 -translate-y-1/2 h-12 w-9 rounded-none bg-background/70 hover:bg-background text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute left-0 top-1/2 -translate-y-1/2 h-12 w-9 rounded-none bg-background/70 hover:bg-background text-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
                             onClick={goToPrevious}
+                            aria-label={t('previousImage')}
                         >
-                            <ChevronLeft className="h-5 w-5" />
+                            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                         </Button>
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute right-0 top-1/2 -translate-y-1/2 h-12 w-9 rounded-none bg-background/70 hover:bg-background text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 h-12 w-9 rounded-none bg-background/70 hover:bg-background text-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
                             onClick={goToNext}
+                            aria-label={t('nextImage')}
                         >
-                            <ChevronRight className="h-5 w-5" />
+                            <ChevronRight className="h-5 w-5" aria-hidden="true" />
                         </Button>
                     </>
                 )}
 
                 {/* Image Counter */}
                 {images.length > 1 && (
-                    <div className="absolute bottom-3 right-3 bg-background/85 px-2 py-0.5 text-xs font-mono tabular-nums">
+                    <div className="absolute bottom-3 right-3 bg-background/85 px-2 py-0.5 text-xs font-mono tabular-nums" aria-hidden="true">
                         {currentIndex + 1} / {images.length}
                     </div>
                 )}
@@ -83,7 +87,10 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
                     {images.map((image, index) => (
                         <button
                             key={image.id}
+                            type="button"
                             onClick={() => setCurrentIndex(index)}
+                            aria-label={t('showImage', { index: index + 1, total: images.length })}
+                            aria-current={index === currentIndex ? 'true' : undefined}
                             className={`aspect-square relative overflow-hidden border-b-2 transition-colors duration-200 ${
                                 index === currentIndex
                                     ? 'border-primary'
@@ -92,7 +99,7 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
                         >
                             <Image
                                 src={image.preview}
-                                alt={`Thumbnail ${index + 1}`}
+                                alt=""
                                 fill
                                 className="object-cover"
                                 sizes="20vw"

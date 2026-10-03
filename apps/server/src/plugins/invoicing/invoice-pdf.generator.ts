@@ -64,17 +64,27 @@ export function generateInvoicePdfBuffer(
         doc.text(store.storeAddress, { width: 260 });
         if (store.storeEmail) doc.text(store.storeEmail, { width: 260 });
         if (store.storePhone) doc.text(store.storePhone, { width: 260 });
+        // Registro Mercantil data — mandatory on a company's invoices (art. 24 RRM).
+        if (store.storeRegistry) doc.fontSize(7.5).text(store.storeRegistry, { width: 260 }).fontSize(9);
+        const storeInfoEndY = doc.y;
 
         const invoiceNumber = `${invoice.series}-${String(invoice.number).padStart(6, '0')}`;
-        doc.fillColor(BRAND_RED).fontSize(22).font('Helvetica-Bold').text('FACTURA', left, headerTop, { align: 'right', width: pageWidth });
+        const isRectifying = invoice.type === 'RECTIFYING';
+        doc.fillColor(BRAND_RED).fontSize(isRectifying ? 16 : 22).font('Helvetica-Bold').text(isRectifying ? 'FACTURA RECTIFICATIVA' : 'FACTURA', left, headerTop, { align: 'right', width: pageWidth });
         doc.font('Helvetica').fillColor(INK).fontSize(10);
         doc.text(`Nº ${invoiceNumber}`, { align: 'right', width: pageWidth });
         doc.fillColor(INK_SOFT);
         doc.text(`Fecha: ${formatDate(invoice.issueDate)}`, { align: 'right', width: pageWidth });
         doc.text(`Pedido: ${invoice.orderCode}`, { align: 'right', width: pageWidth });
+        if (isRectifying && invoice.rectifiedInvoiceNumber) {
+            // Art. 15 RD 1619/2012: identify the corrected invoice and the reason.
+            const date = invoice.rectifiedInvoiceDate ? formatDate(invoice.rectifiedInvoiceDate) : '';
+            doc.text(`Rectifica a: ${invoice.rectifiedInvoiceNumber}${date ? ` (${date})` : ''}`, { align: 'right', width: pageWidth });
+            doc.text('Rectificación por diferencias', { align: 'right', width: pageWidth });
+        }
         doc.fillColor(INK);
 
-        const afterHeaderY = Math.max(doc.y, storeInfoY + 70);
+        const afterHeaderY = Math.max(doc.y, storeInfoY + 70, storeInfoEndY + 8);
         doc.moveTo(left, afterHeaderY).lineTo(left + pageWidth, afterHeaderY).lineWidth(2).strokeColor(BRAND_RED).stroke();
         doc.lineWidth(1);
         doc.y = afterHeaderY + 20;
@@ -146,7 +156,7 @@ export function generateInvoicePdfBuffer(
         const byRate = new Map<number, { base: number; tax: number }>();
         for (const line of lines) {
             const entry = byRate.get(line.taxRate) ?? { base: 0, tax: 0 };
-            entry.base += line.unitPrice * line.quantity;
+            entry.base += line.lineTotal - line.taxAmount;
             entry.tax += line.taxAmount;
             byRate.set(line.taxRate, entry);
         }
@@ -176,6 +186,39 @@ export function generateInvoicePdfBuffer(
         doc.text('TOTAL', totalsX, y + 2, { width: 100 });
         doc.text(formatMoney(invoice.total, invoice.currencyCode), totalsX + 100, y + 2, { width: 100, align: 'right' });
         doc.font('Helvetica').fillColor(INK);
+        y += 40;
+
+        // --- Legal notes ---
+        doc.fontSize(8.5).fillColor(INK_SOFT);
+        const notes: string[] = [];
+        if (invoice.type === 'RECTIFYING' && invoice.reason) {
+            notes.push(`Motivo de la rectificación: ${invoice.reason}`);
+        }
+        if (lines.some(line => line.taxRate === 0)) {
+            // Deliveries to the Canary Islands, Ceuta and Melilla (see SpainTerritoriesPlugin) — confirm the wording with the tax advisor.
+            notes.push('Operación exenta de IVA (art. 21 de la Ley 37/1992): entrega de bienes con destino a Canarias, Ceuta o Melilla.');
+        }
+        for (const note of notes) {
+            doc.text(note, left, y, { width: pageWidth });
+            y = doc.y + 4;
+        }
+
+        // --- Fiscal registration (Veri*Factu): QR + legend returned by the provider ---
+        const fiscal = invoice.fiscalRegistration;
+        if (fiscal?.status === 'REGISTERED' && (fiscal.qrPngBase64 || fiscal.legend)) {
+            y += 6;
+            if (fiscal.qrPngBase64) {
+                try {
+                    doc.image(Buffer.from(fiscal.qrPngBase64, 'base64'), left, y, { fit: [80, 80] });
+                } catch {
+                    // An unreadable QR image must never block the fiscal document itself.
+                }
+            }
+            if (fiscal.legend) {
+                doc.fontSize(8.5).fillColor(INK).text(fiscal.legend, fiscal.qrPngBase64 ? left + 92 : left, y + 4, { width: 300 });
+            }
+            doc.fillColor(INK);
+        }
 
         doc.end();
     });

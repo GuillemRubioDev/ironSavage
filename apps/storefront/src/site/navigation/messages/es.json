@@ -24,6 +24,10 @@
       "light": "Claro",
       "dark": "Oscuro",
       "system": "Sistema"
-    }
+    },
+    "search": "Buscar",
+    "mainNavigation": "Navegación principal",
+    "skipToContent": "Saltar al contenido principal",
+    "announcements": "Avisos de la tienda"
   }
 }

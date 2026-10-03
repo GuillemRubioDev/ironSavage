@@ -23,6 +23,7 @@ import {
 } from '@vendure/dashboard';
 import { graphql } from '@/gql';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { StarIcon } from 'lucide-react';
 import { useState } from 'react';
 import { pendingReviewsWidget } from './pending-reviews-widget';
@@ -84,6 +85,8 @@ const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive'> = 
 };
 
 function ReviewsListPage() {
+    const { t } = useLingui();
+    const statusLabel: Record<string, string> = { PENDING: t`Pending`, APPROVED: t`Approved`, REJECTED: t`Rejected` };
     const [skip, setSkip] = useState(0);
     const [status, setStatus] = useState<string>('ALL');
     const [productSearch, setProductSearch] = useState('');
@@ -115,12 +118,12 @@ function ReviewsListPage() {
 
     return (
         <Page pageId="product-review-list">
-            <PageTitle>Product Reviews</PageTitle>
+            <PageTitle><Trans>Product Reviews</Trans></PageTitle>
             <PageLayout>
                 <FullWidthPageBlock blockId="list-table">
                     <div className="flex flex-wrap items-center gap-3 mb-4">
                         <Input
-                            placeholder="Search by product name..."
+                            placeholder={t`Search by product name...`}
                             value={productSearch}
                             onChange={e => {
                                 setSkip(0);
@@ -136,13 +139,13 @@ function ReviewsListPage() {
                             }}
                         >
                             <SelectTrigger className="w-40">
-                                <SelectValue placeholder="Status" />
+                                <SelectValue placeholder={t`Status`} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="ALL">All statuses</SelectItem>
-                                <SelectItem value="PENDING">Pending</SelectItem>
-                                <SelectItem value="APPROVED">Approved</SelectItem>
-                                <SelectItem value="REJECTED">Rejected</SelectItem>
+                                <SelectItem value="ALL"><Trans>All statuses</Trans></SelectItem>
+                                <SelectItem value="PENDING"><Trans>Pending</Trans></SelectItem>
+                                <SelectItem value="APPROVED"><Trans>Approved</Trans></SelectItem>
+                                <SelectItem value="REJECTED"><Trans>Rejected</Trans></SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -151,33 +154,33 @@ function ReviewsListPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Product</TableHead>
-                                    <TableHead>Rating</TableHead>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Comment</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead><Trans>Status</Trans></TableHead>
+                                    <TableHead><Trans>Product</Trans></TableHead>
+                                    <TableHead><Trans>Rating</Trans></TableHead>
+                                    <TableHead><Trans>Title</Trans></TableHead>
+                                    <TableHead><Trans>Comment</Trans></TableHead>
+                                    <TableHead><Trans>Date</Trans></TableHead>
+                                    <TableHead className="text-right"><Trans>Actions</Trans></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
                                         <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                                            Loading...
+                                            <Trans>Loading...</Trans>
                                         </TableCell>
                                     </TableRow>
                                 ) : items.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                                            No reviews found.
+                                            <Trans>No reviews found.</Trans>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     items.map(review => (
                                         <TableRow key={review.id}>
                                             <TableCell>
-                                                <Badge variant={STATUS_VARIANT[review.status] ?? 'secondary'}>{review.status}</Badge>
+                                                <Badge variant={STATUS_VARIANT[review.status] ?? 'secondary'}>{statusLabel[review.status] ?? review.status}</Badge>
                                             </TableCell>
                                             <TableCell>{review.productName}</TableCell>
                                             <TableCell>
@@ -197,10 +200,10 @@ function ReviewsListPage() {
                                                 {review.status === 'PENDING' && (
                                                     <>
                                                         <Button size="sm" variant="outline" onClick={() => void moderate(review.id, 'approve')}>
-                                                            Approve
+                                                            <Trans>Approve</Trans>
                                                         </Button>
                                                         <Button size="sm" variant="outline" onClick={() => void moderate(review.id, 'reject')}>
-                                                            Reject
+                                                            <Trans>Reject</Trans>
                                                         </Button>
                                                     </>
                                                 )}
@@ -214,11 +217,11 @@ function ReviewsListPage() {
 
                     <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
                         <span>
-                            {totalItems === 0 ? 0 : skip + 1}-{Math.min(skip + PAGE_SIZE, totalItems)} of {totalItems}
+                            <Trans>{totalItems === 0 ? 0 : skip + 1}-{Math.min(skip + PAGE_SIZE, totalItems)} of {totalItems}</Trans>
                         </span>
                         <div className="space-x-2">
                             <Button size="sm" variant="outline" disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - PAGE_SIZE))}>
-                                Previous
+                                <Trans>Previous</Trans>
                             </Button>
                             <Button
                                 size="sm"
@@ -226,7 +229,7 @@ function ReviewsListPage() {
                                 disabled={skip + PAGE_SIZE >= totalItems}
                                 onClick={() => setSkip(skip + PAGE_SIZE)}
                             >
-                                Next
+                                <Trans>Next</Trans>
                             </Button>
                         </div>
                     </div>
@@ -241,10 +244,10 @@ const reviewsList: DashboardRouteDefinition = {
         sectionId: 'customers',
         id: 'product-reviews',
         url: '/product-reviews',
-        title: 'Reviews',
+        title: /* i18n*/ 'Reviews',
     },
     path: '/product-reviews',
-    loader: () => ({ breadcrumb: 'Reviews' }),
+    loader: () => ({ breadcrumb: <Trans>Reviews</Trans> }),
     component: () => <ReviewsListPage />,
 };
 

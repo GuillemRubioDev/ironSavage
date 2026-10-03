@@ -3,6 +3,7 @@ import type { Response } from 'express';
 import { Ctx, Permission, RequestContext } from '@vendure/core';
 
 import { OrderToolsService } from './order-tools.service';
+import { ORDER_STATES_TO_PREPARE } from './warehouse-order-process';
 
 /**
  * Plain REST (not GraphQL) so a plain `window.open(url)` from the Dashboard
@@ -36,7 +37,8 @@ export class OrderToolsController {
     ): Promise<void> {
         this.assertCanReadOrders(ctx);
         const day = dateParam ? new Date(dateParam) : new Date();
-        const orders = await this.orderToolsService.getOrdersForDay(ctx, day, state ?? 'PaymentSettled');
+        // Default: every paid order that hasn't shipped yet (paid, in preparation, prepared).
+        const orders = await this.orderToolsService.getOrdersForDay(ctx, day, state ? [state] : [...ORDER_STATES_TO_PREPARE]);
         const methodNames = await this.orderToolsService.resolveShippingMethodNames(ctx, orders);
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(this.orderToolsService.renderDailyOrdersPage(orders, day, methodNames));

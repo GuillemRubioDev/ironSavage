@@ -46,6 +46,10 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  /* Red used as a BACKGROUND under white text (buttons, badges, counters):
+     WCAG AA needs 4.5:1 for that pair, which the dark theme's brighter
+     --primary (tuned for red TEXT on black) doesn't reach. */
+  --color-primary-solid: var(--primary-solid);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -93,6 +97,7 @@
 
   /* Brand red — reserved for CTAs, prices/offers, active states. */
   --primary: oklch(0.577 0.245 27.325);
+  --primary-solid: var(--primary); /* white text on it: 4.7:1 */
   --primary-foreground: oklch(0.99 0 0);
 
   /* Metallic gray surfaces. */
@@ -108,7 +113,8 @@
   --input: oklch(0.9 0.004 260);
   --ring: oklch(0.577 0.245 27.325 / 60%);
 
-  --success: oklch(0.6 0.15 145);
+  /* 5.2:1 on white — also used as text ("En stock"), so it must reach AA. */
+  --success: oklch(0.52 0.15 145);
   --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.75 0.16 80);
   --warning-foreground: oklch(0.2 0.02 80);
@@ -140,7 +146,10 @@
   --popover: oklch(0.19 0.006 260);
   --popover-foreground: oklch(0.97 0.002 260);
 
+  /* Red text on the black background: 5.1:1. */
   --primary: oklch(0.63 0.23 27.325);
+  /* White text on red: 5.1:1 (on --primary it would only be 3.8:1). */
+  --primary-solid: oklch(0.56 0.23 27.325);
   --primary-foreground: oklch(0.99 0 0);
 
   --secondary: oklch(0.26 0.006 260);
@@ -403,5 +412,30 @@
   }
   50% {
     filter: drop-shadow(0 0 20px oklch(0.577 0.245 27.325 / 85%));
+  }
+}
+
+/* Printing / "Save as PDF" (e.g. the legal pages' print button): always black
+   text on white paper, whatever the theme. Header, footer and cookie banner
+   hide themselves with `print:hidden`. */
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    color-scheme: light;
+  }
+}
+
+/* Accessibility: visitors who ask their OS for reduced motion get no
+   animations, transitions or smooth scrolling (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

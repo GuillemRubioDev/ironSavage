@@ -14,6 +14,8 @@
     "submittedForModeration": "¡Gracias! Tu reseña se ha enviado y aparecerá una vez revisada.",
     "signInToReview": "¿Has comprado este producto?",
     "signIn": "Inicia sesión para escribir una reseña.",
-    "unexpectedError": "Se ha producido un error inesperado. Inténtalo de nuevo."
+    "unexpectedError": "Se ha producido un error inesperado. Inténtalo de nuevo.",
+    "starsLabel": "{rating} de 5 estrellas",
+    "starOption": "{count, plural, one {# estrella} other {# estrellas}}"
   }
 }

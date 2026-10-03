@@ -73,7 +73,7 @@ export class OrderToolsService {
         return orders;
     }
 
-    async getOrdersForDay(ctx: RequestContext, day: Date, state: string | undefined): Promise<Order[]> {
+    async getOrdersForDay(ctx: RequestContext, day: Date, states: string[] | undefined): Promise<Order[]> {
         const start = new Date(day);
         start.setHours(0, 0, 0, 0);
         const end = new Date(day);
@@ -88,7 +88,7 @@ export class OrderToolsService {
         const result = await this.orderService.findAll(ctx, {
             filter: {
                 createdAt: { between: { start: start.toISOString(), end: end.toISOString() } },
-                ...(state ? { state: { eq: state } } : {}),
+                ...(states?.length ? { state: { in: states } } : {}),
             },
             sort: { createdAt: SortOrder.ASC },
             take: 100,

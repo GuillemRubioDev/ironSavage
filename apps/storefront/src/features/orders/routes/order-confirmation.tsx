@@ -10,6 +10,8 @@ import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
 import {mutate, query} from '@/platform/vendure/api';
 import {graphql} from '@/platform/vendure/graphql';
+import {toMajorUnits} from '@/platform/analytics/gtag';
+import {PurchaseTracker} from '@/features/orders/purchase-tracker';
 
 function firstValue(value: string | string[] | undefined): string | undefined {
     return Array.isArray(value) ? value[0] : value;
@@ -22,12 +24,14 @@ const GetOrderByCodeQuery = graphql(`
             code
             state
             totalWithTax
+            shippingWithTax
             currencyCode
             lines {
                 id
                 productVariant {
                     id
                     name
+                    sku
                     product {
                         id
                         name
@@ -145,6 +149,21 @@ export async function OrderConfirmation({paramsPromise, searchParamsPromise}: Or
     return (
         <div className="container mx-auto px-4 py-16">
             {paymentPending && <meta httpEquiv="refresh" content="3" />}
+            {!paymentPending && order.state !== 'Cancelled' && (
+                <PurchaseTracker
+                    orderCode={order.code}
+                    currency={order.currencyCode}
+                    value={toMajorUnits(order.totalWithTax)}
+                    shipping={toMajorUnits(order.shippingWithTax)}
+                    items={order.lines.map((line) => ({
+                        item_id: line.productVariant.sku || line.productVariant.id,
+                        item_name: line.productVariant.product.name,
+                        item_variant: line.productVariant.name,
+                        price: toMajorUnits(line.linePriceWithTax / Math.max(1, line.quantity)),
+                        quantity: line.quantity,
+                    }))}
+                />
+            )}
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-10">
                     <div className="flex justify-center mb-6">
