@@ -9,12 +9,11 @@ export async function getActiveBanners(): Promise<PromoBanner[]> {
     cacheTag('banners');
 
     const result = await query(GetActiveBannersQuery);
-    // gql.tada's local schema snapshot (src/graphql-env.d.ts) predates the
-    // server's new `activeBanners` query, so it types this field as
-    // `unknown` until that snapshot is regenerated against the live
-    // schema (`npx gql.tada generate-output` from apps/storefront — the
-    // CLI produced no output/error in this environment when tried, so
-    // regeneration is still pending; runtime behavior is unaffected,
-    // verified against the live server).
+    // La copia local del esquema de gql.tada (src/graphql-env.d.ts) es anterior a la
+    // consulta `activeBanners` del servidor, así que tipa este campo como `unknown`
+    // hasta que se regenere contra el esquema real (`npx gql.tada generate-output`
+    // desde apps/storefront; al probarlo en este entorno la CLI no dio salida ni
+    // error, así que sigue pendiente. En ejecución funciona bien, comprobado contra
+    // el servidor real).
     return result.data.activeBanners as PromoBanner[];
 }

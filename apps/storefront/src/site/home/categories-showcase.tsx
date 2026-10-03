@@ -17,11 +17,11 @@ export async function CategoriesShowcase() {
                 <h2 className="text-display text-2xl md:text-4xl font-bold mb-8 md:mb-12">
                     {t('title')}
                 </h2>
-                {/* Mobile: horizontal snap-scroll row, not a cramped grid — each tile
-                    reads as a deliberate card, not a shrunk desktop cell. Desktop: a
-                    plain 3-column grid, chosen deliberately (not 4) so any number of
-                    collections up to a multiple of 3 fills evenly with no leftover
-                    half-empty row (this store has exactly 6 today). */}
+                {/* Móvil: fila con desplazamiento horizontal, no una rejilla apretada; cada
+                    elemento se ve como una tarjeta, no como una celda de escritorio
+                    encogida. Escritorio: rejilla de 3 columnas, elegida a propósito (no 4)
+                    para que un número de colecciones múltiplo de 3 llene las filas sin
+                    dejar una a medias (hoy la tienda tiene exactamente 6). */}
                 <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none">
                     {collections.slice(0, 9).map((collection) => (
                         <Link
@@ -38,8 +38,8 @@ export async function CategoriesShowcase() {
                                     sizes="(max-width: 768px) 70vw, 33vw"
                                 />
                             ) : (
-                                // No collection image and no product with an image either —
-                                // an elegant brand fallback instead of a broken/empty box.
+                                // Ni imagen de colección ni producto con imagen: una imagen de
+                                // marca en vez de una caja rota o vacía.
                                 <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.13_0.004_260)] via-secondary to-[oklch(0.577_0.245_27.325_/_35%)]" />
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />

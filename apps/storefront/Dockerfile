@@ -1,26 +1,25 @@
 # syntax=docker/dockerfile:1.7
 #
-# MUST be built with the monorepo ROOT as build context (not
-# apps/storefront/): `docker build -f apps/storefront/Dockerfile .` from the
-# repo root — same reasoning as apps/server/Dockerfile.
+# Hay que construirla con la RAÍZ del monorepo como contexto (no
+# apps/storefront/): `docker build -f apps/storefront/Dockerfile .` desde la
+# raíz, por el mismo motivo que apps/server/Dockerfile.
 #
-# IMPORTANT: `next build` prerenders pages at build time, and several of
-# them (e.g. /carrito, /noticias/[slug]) fetch from the Vendure Shop API
-# while doing so — this image's build step needs VENDURE_SHOP_API_URL to
-# actually be reachable, not just set. In docker-compose.prod.yml this means
-# building on the same network as an already-running vendure-server, after
-# it's healthy — not a cold, network-isolated `docker compose build`. See
-# the "problemas encontrados" note in the Fase 15 report for why.
+# IMPORTANTE: `next build` prerenderiza páginas al compilar y varias (p. ej.
+# /carrito, /noticias/[slug]) piden datos a la Shop API de Vendure mientras lo
+# hace. Este build necesita que VENDURE_SHOP_API_URL sea accesible de verdad, no
+# solo que esté definida. En docker-compose.prod.yml eso significa compilar en la
+# misma red que un vendure-server ya arrancado y sano, no con un `docker compose
+# build` aislado. Ver la nota «problemas encontrados» del informe de la Fase 15.
 
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/server/package.json apps/server/package.json
 COPY apps/storefront/package.json apps/storefront/package.json
-# npm installs a workspace's own versions under apps/storefront/node_modules
-# when they differ from the root's (e.g. recharts, lucide-react, typescript —
-# the root has other versions pulled in by @vendure/dashboard). The build
-# stage copies those too; mkdir keeps that COPY valid if they're ever hoisted.
+# npm instala en apps/storefront/node_modules las versiones propias del workspace
+# cuando difieren de las de la raíz (p. ej. recharts, lucide-react, typescript: la
+# raíz tiene otras que trae @vendure/dashboard). La etapa build también las copia;
+# el mkdir mantiene válido ese COPY si algún día se suben a la raíz.
 RUN npm ci && mkdir -p apps/storefront/node_modules
 
 FROM node:20-alpine AS build
@@ -29,53 +28,51 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY apps/storefront apps/storefront
 COPY --from=deps /app/apps/storefront/node_modules ./apps/storefront/node_modules
-# Only NEXT_PUBLIC_* values are actually baked into the client bundle;
-# everything else the app reads is a normal runtime env var (see
-# docker-compose.prod.yml) and does not need to be present at build time.
+# Solo las variables NEXT_PUBLIC_* se incrustan en el bundle del navegador; el
+# resto son variables de entorno normales en ejecución (ver
+# docker-compose.prod.yml) y no hacen falta al compilar.
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_SITE_NAME
-# Google Analytics 4 measurement ID (G-XXXXXXX). Empty = no analytics at all.
+# ID de medición de Google Analytics 4 (G-XXXXXXX). Vacío = sin analítica.
 ARG NEXT_PUBLIC_GA_ID
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
 ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
-# Real values, read at build time by the prerendering step described above.
+# Valores reales, que lee al compilar el prerenderizado descrito arriba.
 ARG VENDURE_SHOP_API_URL
 ARG VENDURE_CHANNEL_TOKEN
 ENV VENDURE_SHOP_API_URL=$VENDURE_SHOP_API_URL
 ENV VENDURE_CHANNEL_TOKEN=$VENDURE_CHANNEL_TOKEN
-# Read by next.config.ts to allow next/image to load product images served
-# from the public Vendure asset URL (ASSET_URL_PREFIX) — see that file.
+# Lo lee next.config.ts para que next/image pueda cargar las imágenes de producto
+# servidas desde la URL pública de recursos de Vendure (ASSET_URL_PREFIX).
 ARG API_DOMAIN
 ENV API_DOMAIN=$API_DOMAIN
 RUN npm run build -w storefront
 
-# ---- runtime ----
+# ---- runtime (imagen final) ----
 FROM node:20-alpine AS runtime
 ENV NODE_ENV=production
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
 WORKDIR /app
-# Next.js standalone output lives under the workspace's own .next/ (i.e.
-# apps/storefront/.next/standalone/, not /app/.next/standalone/), and *within*
-# that traced output the path is mirrored again relative to the monorepo
-# root it detected (.../standalone/apps/storefront/server.js) — copying its
-# contents to /app reproduces node_modules + apps/storefront/server.js
-# alongside each other, matching how the runtime CMD below expects to find
-# them. Deliberately omits .next/static and public/, which standalone mode
-# never includes — those are copied in separately, same as Next's own
-# documented standalone deployment recipe.
+# La salida standalone de Next.js está en el .next/ del propio workspace
+# (apps/storefront/.next/standalone/, no /app/.next/standalone/) y, *dentro* de
+# ella, la ruta se repite respecto a la raíz del monorepo detectada
+# (.../standalone/apps/storefront/server.js). Copiar su contenido a /app deja
+# node_modules y apps/storefront/server.js uno al lado del otro, que es donde los
+# espera el CMD de abajo. No incluye .next/static ni public/, que el modo
+# standalone nunca incluye: se copian aparte, como indica la propia receta de
+# despliegue standalone de Next.
 COPY --from=build --chown=nextjs:nextjs /app/apps/storefront/.next/standalone ./
 COPY --from=build --chown=nextjs:nextjs /app/apps/storefront/.next/static ./apps/storefront/.next/static
 COPY --from=build --chown=nextjs:nextjs /app/apps/storefront/public ./apps/storefront/public
 USER nextjs
 EXPOSE 3001
 ENV PORT=3001
-# Next's standalone server.js binds to $HOSTNAME if set, defaulting to
-# 0.0.0.0 only when it's unset — but Docker always sets HOSTNAME to the
-# container ID, so without this override it silently binds to just that
-# container's own IP instead of all interfaces, making it unreachable via
-# `localhost` (breaks the healthcheck) even though other containers can
-# still reach it by service name (that name happens to resolve to the same
-# IP it bound to).
+# El server.js standalone de Next escucha en $HOSTNAME si está definida, y en
+# 0.0.0.0 solo si no lo está. Pero Docker siempre define HOSTNAME con el ID del
+# contenedor, así que sin esto escucharía solo en la IP del contenedor y no en
+# todas las interfaces: inaccesible por `localhost` (rompe el healthcheck),
+# aunque otros contenedores sí lleguen por el nombre del servicio (que resuelve
+# justo a esa IP).
 ENV HOSTNAME="0.0.0.0"
 CMD ["node", "apps/storefront/server.js"]

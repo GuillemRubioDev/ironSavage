@@ -7,10 +7,10 @@ export class FixRedsysAttemptTracking1788952211516 implements MigrationInterface
         await queryRunner.query(`CREATE TABLE "redsys_payment_attempt" ("createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "merchantOrder" character varying NOT NULL, "orderCode" character varying NOT NULL, "id" SERIAL NOT NULL, CONSTRAINT "PK_7452257054e2f902eb75de4319b" PRIMARY KEY ("id"))`, undefined);
         await queryRunner.query(`CREATE UNIQUE INDEX "IDX_840002a8c9f26bbcd95316e040" ON "redsys_payment_attempt" ("merchantOrder") `, undefined);
         await queryRunner.query(`CREATE INDEX "IDX_3d69002cfebeeba7692262eabc" ON "redsys_payment_attempt" ("orderCode") `, undefined);
-        // Added nullable + backfilled rather than NOT NULL directly: any row that
-        // already exists predates this fix, when orderCode was itself what got
-        // sent to Redsys as Ds_Merchant_Order — so it's also the correct
-        // merchantOrder value for that row.
+        // Se añade como nullable y se rellena, en vez de NOT NULL directamente: las filas
+        // existentes son anteriores a esta corrección, cuando el propio orderCode era lo
+        // que se enviaba a Redsys como Ds_Merchant_Order, así que también es el
+        // merchantOrder correcto de esas filas.
         await queryRunner.query(`ALTER TABLE "redsys_transaction" ADD "merchantOrder" character varying`, undefined);
         await queryRunner.query(`UPDATE "redsys_transaction" SET "merchantOrder" = "orderCode" WHERE "merchantOrder" IS NULL`, undefined);
         await queryRunner.query(`ALTER TABLE "redsys_transaction" ALTER COLUMN "merchantOrder" SET NOT NULL`, undefined);

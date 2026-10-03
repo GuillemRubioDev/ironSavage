@@ -16,9 +16,9 @@ export const GetTopCollectionsQuery = graphql(`
     }
 `);
 
-// Lean fallback query for CategoriesShowcase: only the fields needed to pick
-// a representative product image for a collection that has no featuredAsset
-// of its own — deliberately not the full ProductCard fragment.
+// Consulta de respaldo ligera para CategoriesShowcase: solo los campos necesarios
+// para elegir una imagen de producto representativa de una colección sin
+// featuredAsset propio; a propósito no es el fragmento ProductCard completo.
 export const GetCollectionFallbackImagesQuery = graphql(`
     query GetCollectionFallbackImages($input: SearchInput!) {
         search(input: $input) {
@@ -31,7 +31,7 @@ export const GetCollectionFallbackImagesQuery = graphql(`
     }
 `);
 
-// Vendure's Shop API caps list queries at 100 items (apiOptions.shopListQueryLimit).
+// La Shop API de Vendure limita las listas a 100 elementos (apiOptions.shopListQueryLimit).
 export const GetAllCollectionsQuery = graphql(`
     query GetAllCollections {
         collections(options: { take: 100 }) {

@@ -14,9 +14,9 @@ async function getLatestArticles(locale: string) {
     cacheTag('news');
 
     const result = await query(GetArticlesQuery, {options: {skip: 0, take: 3}}, {languageCode: locale});
-    // gql.tada's local schema snapshot predates the bilingual titleEs/titleEn
-    // fields (same stale-CLI issue documented in banners-data.ts) — cast
-    // rather than chase the CLI, verified against the live server schema.
+    // La copia local del esquema de gql.tada es anterior a los campos bilingües
+    // titleEs/titleEn (el mismo problema de CLI documentado en banners-data.ts): se
+    // fuerza el tipo en vez de pelearse con la CLI, comprobado contra el esquema real.
     return result.data.articles.items as ArticleListItem[];
 }
 

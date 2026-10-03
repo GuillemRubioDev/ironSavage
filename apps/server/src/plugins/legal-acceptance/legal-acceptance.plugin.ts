@@ -16,10 +16,10 @@ const shopApiExtensions = gql`
 `;
 
 /**
- * Proof of acceptance of the terms and conditions for every storefront
- * order: when (server time) and which version of the legal texts. Stored as
- * two read-only Order custom fields (termsAcceptedAt, termsVersion), shown on
- * the order in the Dashboard. See terms-acceptance.ts.
+ * Prueba de aceptación de las condiciones generales en cada pedido de la tienda:
+ * cuándo (hora del servidor) y qué versión de los textos legales. Se guarda en dos
+ * campos personalizados de solo lectura del pedido (termsAcceptedAt, termsVersion),
+ * visibles en la ficha del pedido en el dashboard. Ver terms-acceptance.ts.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

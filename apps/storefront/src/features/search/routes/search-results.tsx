@@ -27,14 +27,14 @@ export async function SearchResults({searchParams}: SearchResultsProps) {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Filters Sidebar */}
+            {/* Barra lateral de filtros */}
             <aside className="lg:col-span-1">
                 <Suspense fallback={<div className="h-64 animate-pulse bg-muted rounded-lg"/>}>
                     <FacetFilters productDataPromise={productDataPromise}/>
                 </Suspense>
             </aside>
 
-            {/* Product Grid */}
+            {/* Rejilla de productos */}
             <div className="lg:col-span-3">
                 <Suspense fallback={<ProductGridSkeleton/>}>
                     <ProductGrid productDataPromise={productDataPromise} currentPage={page} take={12}/>

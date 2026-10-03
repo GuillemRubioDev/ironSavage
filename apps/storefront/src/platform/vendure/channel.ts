@@ -3,9 +3,9 @@ import {query} from './api';
 import {GetActiveChannelQuery} from './channel-graphql';
 
 /**
- * Get the active channel with caching enabled.
- * Channel configuration rarely changes, so it is cached for one hour.
- * Channel configuration is language-independent, so no locale is required.
+ * Obtiene el canal activo, con caché.
+ * La configuración del canal casi nunca cambia, así que se guarda una hora.
+ * No depende del idioma, así que no hace falta locale.
  */
 export async function getActiveChannel() {
     'use cache';

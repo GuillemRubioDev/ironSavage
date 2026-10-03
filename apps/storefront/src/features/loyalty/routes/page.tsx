@@ -58,9 +58,9 @@ export default async function PointsPage() {
         {useAuthToken: true},
     );
     const t = await getTranslations({locale, namespace: 'Loyalty'});
-    // date/status are generic "my stuff" table vocabulary shared with the
-    // account feature's own orders table — genuinely reused, not
-    // loyalty-owned content.
+    // date/status son vocabulario genérico de tablas de «lo mío», compartido con la
+    // tabla de pedidos de la cuenta: se reutiliza de verdad, no es contenido propio
+    // de puntos.
     const tAccount = await getTranslations({locale, namespace: 'Account'});
 
     const balance = data.loyaltyAccount?.balance ?? 0;
@@ -110,7 +110,7 @@ export default async function PointsPage() {
                 </div>
             ) : (
                 <>
-                    {/* Mobile: Card-based layout */}
+                    {/* Móvil: diseño en tarjetas */}
                     <div className="md:hidden space-y-3">
                         {history.map((tx) => (
                             <div key={tx.id} className="border rounded-xl p-4 bg-card">
@@ -126,7 +126,7 @@ export default async function PointsPage() {
                         ))}
                     </div>
 
-                    {/* Desktop: Table layout */}
+                    {/* Escritorio: diseño en tabla */}
                     <div className="hidden md:block border rounded-lg">
                         <Table>
                             <TableHeader className="bg-muted">

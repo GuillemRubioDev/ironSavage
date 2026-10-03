@@ -5,7 +5,7 @@ import { test } from 'node:test';
 const { defaultOrderProcess, mergeTransitionDefinitions, validateTransitionDefinition } = require('@vendure/core');
 const { warehouseOrderProcess } = require('./warehouse-order-process');
 
-// Exactly what Vendure does with config.orderOptions.process at bootstrap.
+// Exactamente lo que hace Vendure con config.orderOptions.process al arrancar.
 const transitions = mergeTransitionDefinitions(defaultOrderProcess.transitions, warehouseOrderProcess.transitions);
 
 test('the merged order process is valid (every state reachable, no dangling targets)', () => {

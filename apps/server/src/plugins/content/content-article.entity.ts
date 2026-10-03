@@ -15,8 +15,8 @@ export class ContentArticle extends VendureEntity {
     @Column()
     titleEn: string;
 
-    /** Shared across locales — the storefront's own URL convention for this
-     * whole project (see /productos, /carrito, etc.), not a translated slug. */
+    /** Común a todos los idiomas: sigue la convención de URLs del storefront en todo
+     * el proyecto (ver /productos, /carrito, etc.); no es un slug traducido. */
     @Index({ unique: true })
     @Column()
     slug: string;
@@ -34,10 +34,10 @@ export class ContentArticle extends VendureEntity {
     contentEn: string;
 
     /**
-     * A plain, unidirectional reference to a native Vendure Asset — reuses
-     * Vendure's own asset storage/serving (never a DB blob). `onDelete:
-     * 'SET NULL'` means deleting the underlying Asset elsewhere in the admin
-     * doesn't break the article, just drops its cover image.
+     * Referencia simple y unidireccional a un Asset nativo de Vendure: reutiliza el
+     * almacenamiento y la entrega de recursos de Vendure (nunca un blob en la base de
+     * datos). `onDelete: 'SET NULL'` hace que borrar el Asset en otra parte del panel
+     * no rompa el artículo; solo se queda sin portada.
      */
     @ManyToOne(() => Asset, { onDelete: 'SET NULL', nullable: true })
     @JoinColumn()

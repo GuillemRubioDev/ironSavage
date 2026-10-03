@@ -24,7 +24,7 @@ after(async () => {
     await fs.rm(pdfOutputDir, { recursive: true, force: true });
 });
 
-/** Duck-typed Order mock: InvoicingService only ever reads plain properties, never `instanceof Order`. */
+/** Mock de Order por forma: InvoicingService solo lee propiedades, nunca usa `instanceof Order`. */
 function createTestOrder(overrides: Record<string, unknown> = {}) {
     return {
         id: '1',
@@ -52,7 +52,7 @@ function createTestOrder(overrides: Record<string, unknown> = {}) {
             },
         ],
         shippingLines: [{ discountedPrice: 500, discountedPriceWithTax: 605, taxRate: 21 }],
-        total: 4500, // (2000 * 2) + 500, excl. tax
+        total: 4500, // (2000 * 2) + 500, sin IVA
         totalWithTax: 5445, // 4840 + 605
         ...overrides,
     };
@@ -75,7 +75,7 @@ function createFakeDb() {
         },
         save: async (input: any) => {
             for (const invoice of invoices.values()) {
-                // Mirrors the DB: one ORDINARY invoice per order (partial unique index), one invoice per refund.
+                // Igual que la base de datos: una factura ORDINARY por pedido (índice único parcial) y una por reembolso.
                 const sameOrdinaryOrder = String(invoice.orderId) === String(input.orderId) && invoice.type === 'ORDINARY' && input.type === 'ORDINARY';
                 const sameRefund = input.refundId != null && String(invoice.refundId) === String(input.refundId);
                 if (sameOrdinaryOrder || sameRefund) {
@@ -162,10 +162,10 @@ function createService() {
             return result;
         },
     };
-    // Only ever touched when a line actually has an imagePreview set — none
-    // of this file's mock orders do (see createTestOrder), so readFileToBuffer
-    // is never really called; still provided so a future test that does set
-    // one doesn't crash on a missing mock.
+    // Solo se usa cuando una línea tiene imagePreview, y ningún pedido de prueba de
+    // este archivo la tiene (ver createTestOrder), así que readFileToBuffer nunca se
+    // llama de verdad; se deja para que un test futuro que la use no falle por falta
+    // del mock.
     const configServiceMock = {
         assetOptions: { assetStorageStrategy: { readFileToBuffer: async () => Buffer.from([]) } },
     };
@@ -309,7 +309,7 @@ test('rectifying invoices are idempotent per refund, and each partial refund get
     assert.equal(again.created, false);
     assert.equal(again.invoice.id, a.invoice.id);
     assert.deepEqual([a.invoice.number, b.invoice.number], [1, 2]);
-    // The ordinary invoice is still the one the order resolves to.
+    // La factura ordinaria sigue siendo la que corresponde al pedido.
     assert.equal((await service.findByOrderId({}, order.id)).series, 'A');
 });
 

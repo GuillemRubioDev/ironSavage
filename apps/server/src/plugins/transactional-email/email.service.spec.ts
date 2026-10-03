@@ -13,9 +13,9 @@ const { DevEmailProvider } = require('./providers/dev-email-provider');
 
 const FAKE_CTX = {} as any;
 
-// In-memory stand-in for the EmailLog repository — enough to exercise the
-// dedup-then-insert logic (and its unique-constraint fallback) without a
-// real database, mirroring the pattern used by loyalty.service.spec.ts.
+// Sustituto en memoria del repositorio de EmailLog: basta para probar la lógica de
+// «comprobar duplicado y luego insertar» (y su salida por restricción única) sin base
+// de datos real, con el mismo patrón que loyalty.service.spec.ts.
 function createFakeEmailLogRepository() {
     const rows: any[] = [];
     let nextId = 1;

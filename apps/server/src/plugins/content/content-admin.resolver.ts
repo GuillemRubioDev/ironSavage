@@ -5,8 +5,8 @@ import { Allow, Ctx, ID, RequestContext } from '@vendure/core';
 import { contentPermission } from './content.permission';
 import { ArticleInput, ArticleMutationResult, ContentService } from './content.service';
 
-// Vendure auto-derives this ErrorCode value from the `ContentArticleError` type
-// name below (see api-extensions.ts) — the generated TS enum doesn't know about it.
+// Vendure deduce este valor de ErrorCode del nombre del tipo `ContentArticleError`
+// (ver api-extensions.ts); el enum de TypeScript generado no lo conoce.
 const CONTENT_ARTICLE_ERROR = 'CONTENT_ARTICLE_ERROR' as ErrorCode;
 
 class ContentArticleError {

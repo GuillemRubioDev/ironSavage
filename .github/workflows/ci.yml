@@ -1,15 +1,15 @@
 name: CI
 
-# Runs on every PR and on every push to main/master (this repo currently
-# uses "master" — both are listed so the workflow keeps working if it's ever
-# renamed to "main", which costs nothing while the branch doesn't exist).
+# Se ejecuta en cada PR y en cada push a main/master (este repo usa "master";
+# se listan las dos para que siga funcionando si algún día se renombra a "main",
+# y no cuesta nada mientras esa rama no exista).
 on:
   pull_request:
   push:
     branches: [main, master]
 
-# A new commit on the same PR/branch cancels whatever CI run is already in
-# flight for it — no point finishing a check on code that's already stale.
+# Un commit nuevo en el mismo PR o rama cancela la ejecución de CI en curso: no
+# tiene sentido terminar de comprobar código que ya está desfasado.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -18,10 +18,9 @@ permissions:
   contents: read
 
 env:
-  # Matches the Node version used by every Dockerfile in this repo
-  # (node:20-alpine) — see apps/server/Dockerfile / apps/storefront/Dockerfile.
-  # No .nvmrc/engines field exists to read this from; keep it in sync with
-  # those Dockerfiles by hand if either changes.
+  # Misma versión de Node que los Dockerfile del repo (node:20-alpine); ver
+  # apps/server/Dockerfile y apps/storefront/Dockerfile. No hay .nvmrc ni campo
+  # engines de donde leerla: si cambia en los Dockerfile, actualízala aquí a mano.
   NODE_VERSION: "20"
 
 jobs:
@@ -30,11 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    # Only needed for the migrations/seed/storefront-build steps below (the
-    # backend unit tests are pure in-memory mocks — see
-    # apps/server/src/plugins/redsys-payment/redsys.service.spec.ts — no spec
-    # file opens a real DB connection). Kept for the whole job anyway since a
-    # service container that nothing uses costs nothing.
+    # Solo hace falta para los pasos de migraciones, seed y build del storefront
+    # (los tests unitarios del backend usan mocks en memoria, p. ej.
+    # apps/server/src/plugins/redsys-payment/redsys.service.spec.ts; ninguno abre
+    # una conexión real). Se deja para todo el job: un contenedor sin usar no cuesta nada.
     services:
       postgres:
         image: postgres:16-alpine
@@ -50,10 +48,10 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
-    # Dummy values only — see FASE 17 report's "secrets" section. None of
-    # these are real credentials; REDSYS_* below are Redsys' own published
-    # sandbox test merchant (the same ones already committed in
-    # .env.prod.example), safe to use as-is against sis-t.redsys.es.
+    # Solo valores de prueba (ver la sección «secrets» del informe de la FASE 17).
+    # Ninguno es una credencial real; los REDSYS_* son el comercio de pruebas que
+    # publica Redsys (los mismos de .env.prod.example) y se pueden usar tal cual
+    # contra sis-t.redsys.es.
     env:
       APP_ENV: dev
       DB_HOST: localhost
@@ -90,16 +88,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # Caches ~/.npm keyed on package-lock.json — NOT node_modules itself
-          # (actions/setup-node's cache: npm never does that; it only restores
-          # npm's download cache, so `npm ci` still runs for real and can't
-          # serve a stale/tampered tree).
+          # Cachea ~/.npm según package-lock.json, NO node_modules (el cache: npm de
+          # actions/setup-node nunca lo hace; solo restaura la caché de descargas de
+          # npm, así que `npm ci` se ejecuta de verdad y no puede servir un árbol
+          # viejo o manipulado).
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      # ---- typecheck ----
+      # ---- comprobación de tipos ----
       - name: Typecheck server
         run: npx tsc --noEmit -p apps/server/tsconfig.json
 
@@ -107,13 +105,13 @@ jobs:
         run: npm run check-types -w storefront
 
       # ---- lint ----
-      # server has no lint script configured — only storefront does
-      # (apps/storefront/eslint.config.mjs enforces the app/site/features
-      # layering, including no-restricted-imports across feature boundaries).
+      # El servidor no tiene script de lint; solo el storefront
+      # (apps/storefront/eslint.config.mjs impone las capas app/site/features,
+      # incluido no-restricted-imports entre features).
       - name: Lint storefront
         run: npm run lint -w storefront
 
-      # ---- tests (existing only — no new tests written for this pipeline) ----
+      # ---- tests ----
       - name: Backend tests
         run: npm run test -w server
 
@@ -130,10 +128,10 @@ jobs:
       - name: Build dashboard
         run: npm run build:dashboard -w server
 
-      # Applies every committed migration to a clean database, then boots the
-      # real compiled server — this is also what creates the superadmin user
-      # and default channel (Vendure's own first-bootstrap behaviour), which
-      # seed.ts requires to already exist.
+      # Aplica todas las migraciones a una base limpia y arranca el servidor
+      # compilado real. Ese arranque es también el que crea el superadministrador
+      # y el canal por defecto (lo hace Vendure en el primer arranque), que seed.ts
+      # necesita que ya existan.
       - name: Run migrations and boot server against a clean DB
         run: |
           node apps/server/dist/index.js > server.log 2>&1 &
@@ -152,9 +150,9 @@ jobs:
       - name: Run seed against the clean, migrated DB
         run: npm run seed -w server
 
-      # Next.js prerenders several storefront pages at build time against a
-      # real Shop API (see the note at the top of apps/storefront/Dockerfile)
-      # — the server started above (now migrated + seeded) provides that.
+      # Next.js prerenderiza varias páginas al compilar contra una Shop API real
+      # (ver la nota al principio de apps/storefront/Dockerfile); la da el servidor
+      # arrancado arriba, ya migrado y con el seed aplicado.
       - name: Build storefront
         run: npm run build -w storefront
 
@@ -169,7 +167,7 @@ jobs:
         if: failure()
         run: cat server.log 2>/dev/null || true
 
-      # ---- docker compose sanity ----
+      # ---- comprobación de docker compose ----
       - name: Validate docker-compose.prod.yml
         run: |
           cp .env.prod.example .env.ci

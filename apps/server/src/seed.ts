@@ -25,36 +25,35 @@ import { OUTSIDE_VAT_ZONE_NAME, spainTerritoriesShippingChecker } from './plugin
 import { config } from './vendure-config';
 
 /**
- * Reproducible initialization of the minimum commercial configuration a
- * clean Vendure install needs to process a real checkout: Spain as a
- * country, the "España (península y Baleares)" and "Canarias, Ceuta y
- * Melilla" tax zones, the channel set to EUR + the first one, the IVA
- * categories (General 21 %, Reducido 10 %, Superreducido 4 %; 0 % outside the
- * VAT area), the standard shipping method, and the Redsys payment method (plus a
- * dummy payment method outside production, for local/CI testing without a
- * real gateway).
+ * Inicialización reproducible de la configuración comercial mínima que necesita
+ * un Vendure recién instalado para procesar una compra real: España como país,
+ * las zonas fiscales «España (península y Baleares)» y «Canarias, Ceuta y
+ * Melilla», el canal en EUR con la primera de ellas, las categorías de IVA
+ * (General 21 %, Reducido 10 %, Superreducido 4 %; 0 % fuera del IVA), el
+ * método de envío estándar y el método de pago Redsys (más un método de pago de
+ * pruebas fuera de producción, para probar en local o en la CI sin pasarela).
  *
- * Idempotent throughout: every step checks for an existing row (by the same
- * natural key an admin would recognize — country code, zone name, tax
- * category name, method code) before creating anything, so running this
- * twice updates in place rather than duplicating.
+ * Idempotente en todo: cada paso busca una fila existente (por la clave que
+ * reconocería un administrador: código de país, nombre de zona, nombre de
+ * categoría, código de método) antes de crear nada, así que ejecutarlo dos
+ * veces actualiza en vez de duplicar.
  *
- * Deliberately does NOT create: products, variants, customers, users,
- * orders, invoices, reviews, or content — see FASE 14 scope.
+ * A propósito NO crea: productos, variantes, clientes, usuarios, pedidos,
+ * facturas, reseñas ni contenido (ver el alcance de la FASE 14).
  */
 
 const loggerCtx = 'Seed';
 
 const SPAIN_COUNTRY_CODE = 'ES';
 const SPAIN_ZONE_NAME = 'España (península y Baleares)';
-/** Names used by earlier versions of this seed — renamed in place. */
+/** Nombres que usaban versiones anteriores de este seed; se renombran sin duplicar. */
 const LEGACY_SPAIN_ZONE_NAME = 'Spain';
 const LEGACY_STANDARD_TAX_CATEGORY_NAME = 'Standard';
 /**
- * Spanish IVA categories and their rate on the mainland/Baleares. Which one a
- * product uses is chosen per variant in the Dashboard (default: General);
- * confirm each product's rate with the tax advisor — food supplements are
- * usually "Reducido" (10 %).
+ * Categorías de IVA españolas y su tipo en península y Baleares. Cuál usa cada
+ * producto se elige por variante en el dashboard (por defecto, General). El tipo
+ * de cada producto lo confirma la gestoría; los complementos alimenticios suelen
+ * ir al «Reducido» (10 %).
  */
 const TAX_CATEGORIES = [
     { name: 'General', rate: 21, isDefault: true },
@@ -112,9 +111,9 @@ async function ensureZone(ctx: RequestContext, service: ZoneService, country: Tr
 }
 
 /**
- * Tax zone for the Canary Islands, Ceuta and Melilla (outside the Spanish VAT
- * area). No member countries: SpainTerritoriesTaxZoneStrategy assigns it by
- * postal code, matched on OUTSIDE_VAT_ZONE_NAME.
+ * Zona fiscal de Canarias, Ceuta y Melilla (fuera del IVA español). Sin países
+ * miembros: SpainTerritoriesTaxZoneStrategy la asigna por código postal,
+ * buscándola por OUTSIDE_VAT_ZONE_NAME.
  */
 async function ensureOutsideVatZone(ctx: RequestContext, service: ZoneService): Promise<Zone> {
     const { items } = await service.findAll(ctx, { take: 100 });
@@ -129,10 +128,10 @@ async function ensureOutsideVatZone(ctx: RequestContext, service: ZoneService): 
 }
 
 /**
- * A Channel's `defaultLanguageCode` must already be present in the
- * server-wide GlobalSettings.availableLanguages list, or updating the
- * channel to Spanish fails with LanguageNotAvailableError — this is a
- * separate, global setting from the channel's own `availableLanguageCodes`.
+ * El `defaultLanguageCode` de un canal debe estar ya en la lista global
+ * GlobalSettings.availableLanguages, o pasar el canal a español falla con
+ * LanguageNotAvailableError. Es un ajuste global distinto de los
+ * `availableLanguageCodes` del propio canal.
  */
 async function ensureGlobalSettings(ctx: RequestContext, service: GlobalSettingsService): Promise<void> {
     const settings = await service.getSettings(ctx);
@@ -174,7 +173,7 @@ async function ensureChannel(ctx: RequestContext, service: ChannelService, zone:
     Logger.info('Updated default channel: EUR currency, Spain tax/shipping zone.', loggerCtx);
 }
 
-/** The IVA categories (TAX_CATEGORIES), renaming the old "Standard" one to "General". */
+/** Las categorías de IVA (TAX_CATEGORIES); renombra la antigua «Standard» a «General». */
 async function ensureTaxCategories(ctx: RequestContext, service: TaxCategoryService) {
     const { items } = await service.findAll(ctx, { take: 100 });
     const legacy = items.find(c => c.name === LEGACY_STANDARD_TAX_CATEGORY_NAME);
@@ -198,8 +197,8 @@ async function ensureTaxCategories(ctx: RequestContext, service: TaxCategoryServ
 }
 
 /**
- * One rate per category and zone. Only creates missing rates — never
- * overwrites one an admin (or the tax advisor) has already adjusted.
+ * Un tipo por categoría y zona. Solo crea los que faltan; nunca pisa uno que
+ * ya haya ajustado un administrador (o la gestoría).
  */
 async function ensureTaxRates(
     ctx: RequestContext,
@@ -212,7 +211,7 @@ async function ensureTaxRates(
     for (const category of categories) {
         const existing = items.find(r => String(r.categoryId) === String(category.id) && String(r.zoneId) === String(zone.id));
         if (existing?.name.startsWith('Spain Standard')) {
-            // Name given by an earlier version of this seed; only the label changes.
+            // Nombre que puso una versión anterior de este seed; solo cambia la etiqueta.
             await service.update(ctx, { id: existing.id, name: `${category.name} ${existing.value}% — ${zone.name}` });
         }
         if (existing) {
@@ -248,12 +247,12 @@ const STANDARD_SHIPPING_TRANSLATIONS = [
 ];
 
 /**
- * The standard shipping method. The rate is a placeholder (5 € + IVA) —
- * the real rates are set in the Dashboard (Settings → Shipping methods),
- * where more methods can be added with the "Territorios de España y pedido
- * mínimo" condition (Baleares rate, free shipping from X €, Canarias…).
- * A method still carrying this seed's old English name and default checker
- * is upgraded in place; one an admin has edited is left alone.
+ * El método de envío estándar. La tarifa es provisional (5 € + IVA): las reales
+ * se ponen en el dashboard (Ajustes → Métodos de envío), donde se pueden añadir
+ * más métodos con la condición «Territorios de España y pedido mínimo» (tarifa
+ * de Baleares, envío gratis desde X €, Canarias…). Un método que aún tenga el
+ * antiguo nombre en inglés y la condición por defecto se actualiza; uno que haya
+ * editado un administrador no se toca.
  */
 async function ensureShippingMethod(ctx: RequestContext, service: ShippingMethodService): Promise<void> {
     const { items } = await service.findAll(ctx, { take: 100 });
@@ -291,10 +290,10 @@ async function ensurePaymentMethods(ctx: RequestContext, service: PaymentMethodS
     if (items.some(m => m.code === REDSYS_PAYMENT_CODE)) {
         Logger.info(`Payment method "${REDSYS_PAYMENT_CODE}" already exists — reusing.`, loggerCtx);
     } else {
-        // No Redsys credentials here — redsys-payment-handler reads
-        // REDSYS_MERCHANT_CODE/REDSYS_SECRET_KEY/REDSYS_ENVIRONMENT etc. from
-        // process.env at request time (see redsys-config.ts). This row only
-        // references the handler by code.
+        // Aquí no van credenciales de Redsys: redsys-payment-handler lee
+        // REDSYS_MERCHANT_CODE/REDSYS_SECRET_KEY/REDSYS_ENVIRONMENT, etc. de
+        // process.env en cada petición (ver redsys-config.ts). Esta fila solo
+        // referencia el handler por su código.
         await service.create(ctx, {
             code: REDSYS_PAYMENT_CODE,
             enabled: true,
@@ -334,11 +333,11 @@ async function ensurePaymentMethods(ctx: RequestContext, service: PaymentMethodS
 }
 
 /**
- * A properly channel-scoped, permission-carrying context — RequestContext.empty()
- * would work for globally-scoped entities (Country/Zone/TaxCategory/TaxRate) but
- * attaches a blank, id-less Channel, which breaks channel-scoped entities
- * (ShippingMethod, PaymentMethod). This mirrors Vendure's own documented pattern
- * for standalone scripts (see RequestContextService.create's doc comment).
+ * Un contexto con canal y permisos de verdad. RequestContext.empty() serviría
+ * para entidades globales (Country/Zone/TaxCategory/TaxRate), pero lleva un canal
+ * vacío sin id, que rompe las entidades ligadas a canal (ShippingMethod,
+ * PaymentMethod). Sigue el patrón que documenta Vendure para scripts
+ * independientes (ver el comentario de RequestContextService.create).
  */
 async function createSeedContext(app: import('@nestjs/common').INestApplicationContext): Promise<RequestContext> {
     const connection = app.get(TransactionalConnection);

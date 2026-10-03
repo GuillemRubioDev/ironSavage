@@ -22,8 +22,8 @@ import { PlusIcon } from 'lucide-react';
 
 import { adminBannerListDocument, deleteBannerDocument } from './graphql';
 
-/** Same manual-fetch-and-table approach as Reviews/Content — see those
- * plugins' dashboard extensions for why <ListPage> isn't used here. */
+/** Mismo enfoque de carga manual y tabla que en reseñas y contenido; las
+ * extensiones del dashboard de esos plugins explican por qué no se usa <ListPage>. */
 export function BannersListPage() {
     const queryKey = ['banner-list'];
     const queryClient = useQueryClient();

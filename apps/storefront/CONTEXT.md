@@ -1,41 +1,44 @@
-# Storefront distribution
+# Distribución del storefront
 
-This context describes how Vendure's starter source and a developer-owned storefront relate across releases.
+Este documento describe cómo se relacionan, a lo largo de las versiones, el código de la plantilla de Vendure y un
+storefront propio del equipo.
 
-## Language
+## Vocabulario
 
-**Upstream starter**:
-The Vendure-maintained source distribution from which downstream storefronts originate.
-_Avoid_: Framework, runtime package
+**Plantilla de origen** (*upstream starter*):
+El código mantenido por Vendure del que parten los storefronts propios.
+_Evitar_: framework, paquete de ejecución
 
-**Downstream storefront**:
-A developer-owned and freely customized copy of the upstream starter.
-_Avoid_: Installation, generated app
+**Storefront propio** (*downstream storefront*):
+Una copia de la plantilla, propiedad del equipo y personalizada libremente.
+_Evitar_: instalación, app generada
 
-**Managed baseline**:
-The exact tagged upstream release against which a downstream storefront's later changes can be understood.
-_Avoid_: Dependency version, merge base
+**Base gestionada** (*managed baseline*):
+La versión etiquetada exacta de la plantilla respecto a la que se entienden los cambios posteriores de un storefront propio.
+_Evitar_: versión de dependencia, base de merge
 
-**Upstream intent**:
-The reason for an upstream change together with the behavior that the change must preserve.
-_Avoid_: Patch, file diff
+**Intención de origen** (*upstream intent*):
+El motivo de un cambio de la plantilla junto con el comportamiento que ese cambio debe conservar.
+_Evitar_: parche, diff de archivos
 
-**Upgrade note**:
-An upstream contributor's structured account of a change's intent, affected areas, invariants, integration guidance, and verification.
-_Avoid_: Changelog entry
+**Nota de actualización** (*upgrade note*):
+La descripción estructurada, escrita por quien contribuye a la plantilla, de la intención de un cambio, las zonas
+afectadas, las reglas que deben mantenerse, cómo integrarlo y cómo verificarlo.
+_Evitar_: entrada del changelog
 
-**Release manifest**:
-The ordered collection of upgrade notes belonging to one tagged upstream release.
-_Avoid_: Release notes
+**Manifiesto de versión** (*release manifest*):
+El conjunto ordenado de notas de actualización de una versión etiquetada de la plantilla.
+_Evitar_: notas de la versión
 
-**Storefront provenance**:
-The managed baseline currently adopted by a downstream storefront.
-_Avoid_: Package version
+**Procedencia del storefront** (*storefront provenance*):
+La base gestionada que tiene adoptada actualmente un storefront propio.
+_Evitar_: versión del paquete
 
-**Legacy storefront**:
-A downstream storefront created before the first managed baseline and therefore lacking exact upstream provenance.
-_Avoid_: Unsupported storefront
+**Storefront antiguo** (*legacy storefront*):
+Un storefront propio creado antes de la primera base gestionada y que, por tanto, no tiene una procedencia exacta.
+_Evitar_: storefront no soportado
 
-**Upgrade report**:
-A downstream record of the upstream changes integrated, customizations preserved, deviations made, and verification performed.
-_Avoid_: Agent log
+**Informe de actualización** (*upgrade report*):
+El registro, en el storefront propio, de los cambios de la plantilla integrados, las personalizaciones conservadas, las
+desviaciones hechas y la verificación realizada.
+_Evitar_: log del agente

@@ -6,17 +6,17 @@ import {type AnalyticsItem, trackEvent} from '@/platform/analytics/gtag';
 interface PurchaseTrackerProps {
     orderCode: string;
     currency: string;
-    /** Major units (e.g. 30.25). */
+    /** En euros, no en céntimos (p. ej. 30.25). */
     value: number;
     shipping: number;
     items: AnalyticsItem[];
 }
 
 /**
- * GA4 `purchase`, sent from the order confirmation page once the payment is
- * confirmed. Remembered in localStorage per order code, so reloading the page
- * (or coming back to it later) never counts the same sale twice. Without
- * analytics consent `window.gtag` doesn't exist and nothing is sent.
+ * Evento `purchase` de GA4, enviado desde la página de confirmación del pedido cuando
+ * el pago está confirmado. Se recuerda en localStorage por código de pedido, así que
+ * recargar la página (o volver más tarde) nunca cuenta dos veces la misma venta. Sin
+ * consentimiento de analítica, `window.gtag` no existe y no se envía nada.
  */
 export function PurchaseTracker({orderCode, currency, value, shipping, items}: PurchaseTrackerProps) {
     useEffect(() => {
@@ -25,10 +25,10 @@ export function PurchaseTracker({orderCode, currency, value, shipping, items}: P
             if (localStorage.getItem(key)) return;
             localStorage.setItem(key, '1');
         } catch {
-            // Storage unavailable — send anyway; GA4 also dedupes by transaction_id.
+            // Almacenamiento no disponible: se envía igual; GA4 también deduplica por transaction_id.
         }
         trackEvent('purchase', {transaction_id: orderCode, currency, value, shipping, items});
-        // Once per mount: the props come from the server render and don't change.
+        // Una vez por montaje: las props vienen del render del servidor y no cambian.
     }, [orderCode]);
 
     return null;

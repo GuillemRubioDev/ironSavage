@@ -19,9 +19,9 @@ const { renderEmailVerification } = require('../transactional-email/templates/em
 const ctx = {};
 
 /**
- * Fakes for the three tables involved (customer, user, native auth method)
- * plus Vendure's own services, recording exactly which Vendure mechanisms
- * the service drives.
+ * Imitaciones de las tres tablas implicadas (cliente, usuario, método de
+ * autenticación nativo) y de los servicios de Vendure, que registran exactamente
+ * qué mecanismos de Vendure usa el servicio.
  */
 function setup(account: { user?: { verified: boolean; passwordHash?: string | null; verificationToken?: string | null } | null }) {
     const customer: any = { id: 'c1', emailAddress: 'pedro@example.com', firstName: 'Pedro', user: null };
@@ -73,7 +73,7 @@ function setup(account: { user?: { verified: boolean; passwordHash?: string | nu
     const historyService = { createHistoryEntryForCustomer: mock.fn(async () => undefined) };
     const published: any[] = [];
     const eventBus = { publish: mock.fn(async (event: any) => published.push(event)) };
-    // Mirrors Vendure's DefaultPasswordValidationStrategy (min length 4) closely enough for these tests.
+    // Imita DefaultPasswordValidationStrategy de Vendure (mínimo 4 caracteres) lo suficiente para estos tests.
     const configService = {
         authOptions: { passwordValidationStrategy: { validate: async (_ctx: unknown, p: string) => (p.length >= 8 ? true : 'Password too short') } },
     };

@@ -18,8 +18,8 @@ function balanceOf(db: any, customerId: string): number {
     return db.rows(LoyaltyAccount).find((a: any) => a.customerId === customerId)?.balance ?? 0;
 }
 
-// PEDRO10: 10% for the customer, 5% for Pedro. A 100 € basket becomes 90 €
-// after the discount, so the reward base (subTotalWithTax) is 9000.
+// PEDRO10: 10 % para el cliente, 5 % para Pedro. Una cesta de 100 € queda en 90 €
+// tras el descuento, así que la base de la recompensa (subTotalWithTax) es 9000.
 async function setupPedro() {
     const services = createRewardServices();
     const pedro = await seedAthlete(services.db, { customerId: 'pedro', code: 'PEDRO10', promotionId: 'promo-pedro', discountValue: 10, rewardValue: 5 });
@@ -43,7 +43,7 @@ test('a customer order with an athlete code credits the athlete the configured r
 
     const result = await rewardService.grantForLoadedOrder(ctx, pedroOrder());
 
-    assert.deepEqual(result, { granted: true, points: 450 }); // 5% of 90 €
+    assert.deepEqual(result, { granted: true, points: 450 }); // 5 % de 90 €
     assert.equal(balanceOf(db, 'pedro'), 450);
     const [reward] = db.rows(AthleteReward);
     assert.equal(reward.athleteId, pedro.athlete.id);
@@ -79,8 +79,8 @@ test('different athletes can have different reward percentages', async () => {
         makeOrder({ id: '2', customerId: 'cust-2', subTotalWithTax: 8000, couponCodes: ['ANA20'], promotionIds: ['promo-ana'], discountWithTax: 2000 }),
     );
 
-    assert.equal(balanceOf(db, 'pedro'), 450); // 5% of 90 €
-    assert.equal(balanceOf(db, 'ana'), 640); // 8% of 80 €
+    assert.equal(balanceOf(db, 'pedro'), 450); // 5 % de 90 €
+    assert.equal(balanceOf(db, 'ana'), 640); // 8 % de 80 €
 });
 
 test('processing the same PaymentSettled twice does not duplicate the reward', async () => {
@@ -110,8 +110,8 @@ test('concurrent grants for the same order credit the athlete only once', async 
 
 test('a disabled code produces no reward (Vendure never applied its promotion)', async () => {
     const { db, rewardService } = await setupPedro();
-    // With the code/promotion disabled, applyCouponCode rejects it, so the
-    // order carries no promotion for it — and without a discount there's no reward.
+    // Con el código o la promoción desactivados, applyCouponCode lo rechaza, así que
+    // el pedido no lleva esa promoción, y sin descuento no hay recompensa.
     const result = await rewardService.grantForLoadedOrder(ctx, pedroOrder('100', { promotionIds: [], couponCodes: [] }));
 
     assert.equal(result.granted, false);
@@ -154,7 +154,7 @@ test('changing the athlete reward % later does not alter historical rewards', as
     const { db, rewardService, pedro } = await setupPedro();
     await rewardService.grantForLoadedOrder(ctx, pedroOrder('1'));
 
-    // Admin raises Pedro from 5% to 8%.
+    // El administrador sube a Pedro del 5 % al 8 %.
     await db.connection.getRepository(ctx, AthleteCode).update({ id: pedro.code.id }, { rewardValue: 8 });
     await rewardService.grantForLoadedOrder(ctx, pedroOrder('2'));
 
@@ -189,10 +189,10 @@ test('cancelling the order reverts the whole reward, idempotently', async () => 
 
 test('a partial refund reverts a proportional share once, and a later cancellation reverts the rest', async () => {
     const { db, rewardService } = await setupPedro();
-    const order = pedroOrder('100', { totalWithTax: 9500 }); // 90 € + 5 € shipping
+    const order = pedroOrder('100', { totalWithTax: 9500 }); // 90 € + 5 € de envío
     await rewardService.grantForLoadedOrder(ctx, order);
 
-    const refund = { id: 'refund-1', total: 4750 }; // half of the order
+    const refund = { id: 'refund-1', total: 4750 }; // la mitad del pedido
     const first = await rewardService.revertForRefund(ctx, order, refund);
     const duplicate = await rewardService.revertForRefund(ctx, order, refund);
 
@@ -210,7 +210,7 @@ test('a partial refund reverts a proportional share once, and a later cancellati
 test('reverting points the athlete already spent never pushes the balance negative, and records the shortfall', async () => {
     const { db, rewardService, loyaltyService } = await setupPedro();
     await rewardService.grantForLoadedOrder(ctx, pedroOrder());
-    // Pedro spends 400 of his 450 points on his own order.
+    // Pedro gasta 400 de sus 450 puntos en un pedido suyo.
     const spend = await loyaltyService.redeemPoints(ctx, { id: '900', code: 'OWN', customerId: 'pedro', totalWithTax: 5000, surcharges: [] }, 400);
     assert.equal(spend.success, true);
 

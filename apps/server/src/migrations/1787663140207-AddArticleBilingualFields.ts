@@ -3,8 +3,8 @@ import {MigrationInterface, QueryRunner} from "typeorm";
 export class AddArticleBilingualFields1787663140207 implements MigrationInterface {
 
    public async up(queryRunner: QueryRunner): Promise<any> {
-        // Existing rows are placeholder test content only — clearing them avoids a
-        // NOT NULL violation when adding the new bilingual columns below.
+        // Las filas existentes eran solo contenido de prueba: borrarlas evita violar el
+        // NOT NULL al añadir las nuevas columnas bilingües de abajo.
         await queryRunner.query(`DELETE FROM "content_article"`, undefined);
         await queryRunner.query(`ALTER TABLE "content_article" DROP COLUMN "title"`, undefined);
         await queryRunner.query(`ALTER TABLE "content_article" DROP COLUMN "excerpt"`, undefined);

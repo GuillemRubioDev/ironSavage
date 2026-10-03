@@ -11,39 +11,37 @@ export default defineConfig({
     },
     plugins: [
         vendureDashboardPlugin({
-            // The vendureDashboardPlugin will scan your configuration in order
-            // to find any plugins which have dashboard extensions, as well as
-            // to introspect the GraphQL schema based on any API extensions
-            // and custom fields that are configured.
+            // vendureDashboardPlugin analiza la configuración para encontrar los
+            // plugins con extensiones del dashboard y para introspeccionar el
+            // esquema GraphQL con las extensiones de API y campos personalizados
+            // configurados.
             vendureConfigPath: pathToFileURL('./src/vendure-config.ts'),
-            // Points to the location of your Vendure server.
-            // In production, 'auto' lets the dashboard derive the API URL from the
-            // server that serves it. In development, we use explicit defaults so that
-            // the Vite dev server can reach the Vendure backend.
+            // Dónde está el servidor Vendure.
+            // En producción, 'auto' hace que el dashboard deduzca la URL de la API del
+            // servidor que lo sirve. En desarrollo se usan valores explícitos para que
+            // el servidor de Vite pueda llegar al backend de Vendure.
             api: process.env.NODE_ENV === 'production'
                 ? { host: 'auto', port: 'auto' }
                 : { host: 'http://localhost', port: 3000 },
-            // When you start the Vite server, your Admin API schema will
-            // be introspected and the types will be generated in this location.
-            // These types can be used in your dashboard extensions to provide
-            // type safety when writing queries and mutations.
+            // Al arrancar Vite se introspecciona el esquema de la Admin API y se
+            // generan los tipos en esta ruta. Las extensiones del dashboard los usan
+            // para tener tipos al escribir consultas y mutaciones.
             gqlOutputPath: './src/gql',
-            // The Dashboard is used in Spanish (default) and occasionally in
-            // English; the language picker only offers these two. Our own
-            // extensions ship their translations in each plugin's
-            // dashboard/i18n/{es,en}.po (see docs/dashboard-i18n.md).
+            // El dashboard se usa en español (por defecto) y a veces en inglés; el
+            // selector de idioma solo ofrece estos dos. Nuestras extensiones traen
+            // sus traducciones en el dashboard/i18n/{es,en}.po de cada plugin (ver
+            // docs/dashboard-i18n.md).
             i18n: {
                 defaultLanguage: 'es' as LanguageCode,
                 availableLanguages: ['es', 'en'] as LanguageCode[],
                 defaultLocale: 'ES',
                 availableLocales: ['ES', 'GB'],
             },
-            // Iron Savage red as the Dashboard's accent color, via the
-            // official theme-override option (vendureDashboardPlugin's
-            // `theme.light`/`theme.dark`, since 3.5.1) — only the accent
-            // tokens are overridden, not layout/typography/radius, so the
-            // Dashboard keeps its own native look rather than mimicking the
-            // storefront. No global CSS overrides.
+            // El rojo de Iron Savage como color de acento del dashboard, con la
+            // opción oficial para personalizar el tema (`theme.light`/`theme.dark`
+            // de vendureDashboardPlugin, desde la 3.5.1). Solo se cambian los
+            // colores de acento, no la maquetación, tipografía ni bordes: el
+            // dashboard conserva su aspecto propio. Sin CSS global.
             theme: {
                 light: {
                     primary: 'oklch(0.577 0.245 27.325)',
@@ -66,8 +64,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            // This allows all plugins to reference a shared set of
-            // GraphQL types.
+            // Permite que todos los plugins usen un mismo conjunto de tipos GraphQL.
             '@/gql': resolve(__dirname, './src/gql/graphql.ts'),
         },
     },

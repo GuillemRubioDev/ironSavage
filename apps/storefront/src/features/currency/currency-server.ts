@@ -2,11 +2,11 @@ import {getCurrencyCookie} from './currency';
 import {getActiveChannel} from '@/platform/vendure/channel';
 
 /**
- * Get the active currency code for the current request.
- * Reads from cookie, falls back to channel default.
+ * Devuelve el código de moneda activo de la petición actual.
+ * Lo lee de la cookie; si no hay, usa el del canal.
  *
- * Safe inside 'use cache: private' (cookies are part of the per-user cache key).
- * NOT safe inside public 'use cache' — pass currency as a parameter instead.
+ * Seguro dentro de 'use cache: private' (las cookies forman parte de la clave de caché por usuario).
+ * NO es seguro dentro de un 'use cache' público: en ese caso pasa la moneda como parámetro.
  */
 export async function getActiveCurrencyCode(): Promise<string> {
     const cookieValue = await getCurrencyCookie();

@@ -61,7 +61,7 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
     const router = useRouter();
     const currentSearchParams = useSearchParams();
 
-    // Initialize selected options from URL
+    // Inicializa las opciones seleccionadas desde la URL
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
         const initialOptions: Record<string, string> = {};
 
@@ -78,7 +78,7 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
         return initialOptions;
     });
 
-    // Find the matching variant based on selected options
+    // Busca la variante que corresponde a las opciones seleccionadas
     const selectedVariant = useMemo(() => {
         if (product.variants.length === 1) {
             return product.variants[0];
@@ -95,7 +95,7 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
         });
     }, [selectedOptions, product.variants, product.optionGroups]);
 
-    // GA4 view_item — once per product, and again if another variant is picked.
+    // view_item de GA4: una vez por producto, y otra si se elige otra variante.
     const viewedVariantId = selectedVariant?.id;
     useEffect(() => {
         const variant = product.variants.find((v) => v.id === viewedVariantId) ?? product.variants[0];
@@ -124,8 +124,8 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
         }
     };
 
-    // Show the selected variant's own photo first, falling back to the product's
-    // general gallery when the variant has none of its own.
+    // Muestra primero la foto propia de la variante seleccionada; si no tiene, la
+    // galería general del producto.
     const images = useMemo(() => {
         const variantAsset = selectedVariant?.featuredAsset;
         if (variantAsset) {

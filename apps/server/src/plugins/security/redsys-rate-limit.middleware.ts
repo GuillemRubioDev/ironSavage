@@ -5,11 +5,11 @@ import { logSecurityEvent } from './security-events';
 
 const limiter = new RateLimiter();
 
-// Generous cap — this is a resource-abuse guard, not the real security
-// control (that's the HMAC signature check in RedsysService.handleNotification,
-// which still runs afterwards regardless of this limit). A genuine flood of
-// notification POSTs from one IP is cheap for an attacker since the endpoint
-// always answers 200; this just stops it from being free to repeat forever.
+// Límite generoso: es una protección contra abuso de recursos, no el control de
+// seguridad real (ese es la comprobación de la firma HMAC en
+// RedsysService.handleNotification, que se ejecuta igualmente después). Inundar de
+// POST de notificación desde una IP es barato para un atacante porque el endpoint
+// siempre responde 200; esto solo impide que pueda repetirlo sin coste para siempre.
 const LIMIT = 30;
 const WINDOW_MS = 60_000;
 

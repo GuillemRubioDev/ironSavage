@@ -112,7 +112,7 @@ export class BannersService {
         return { items, totalItems };
     }
 
-    /** Public: only enabled banners, in display order. */
+    /** Público: solo los banners activos, en orden de aparición. */
     async listActive(ctx: RequestContext): Promise<Banner[]> {
         return this.connection.getRepository(ctx, Banner).find({
             where: { enabled: true },

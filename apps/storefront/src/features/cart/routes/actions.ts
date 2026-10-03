@@ -9,12 +9,11 @@ import {getTranslations} from 'next-intl/server';
 export type CartActionResult = {success: true} | {success: false; error: string};
 
 /**
- * A previous checkout attempt that never finished (abandoned payment,
- * declined Redsys attempt) leaves the order stuck in ArrangingPayment —
- * Vendure then refuses any cart edit with ORDER_MODIFICATION_ERROR. This
- * mirrors add-to-cart.ts's recovery for that same situation: reopen the
- * order for editing and retry the mutation once. Any other error result is
- * returned as-is.
+ * Un intento de checkout que no terminó (pago abandonado, intento de Redsys
+ * denegado) deja el pedido atascado en ArrangingPayment, y Vendure rechaza entonces
+ * cualquier cambio en el carrito con ORDER_MODIFICATION_ERROR. Esto hace lo mismo
+ * que add-to-cart.ts en ese caso: reabre el pedido para editarlo y repite la
+ * mutación una vez. Cualquier otro error se devuelve tal cual.
  */
 async function withStuckOrderRecovery<T extends {__typename: string; errorCode?: string}>(
     attempt: () => Promise<T>,

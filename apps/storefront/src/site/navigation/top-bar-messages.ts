@@ -1,9 +1,9 @@
 import type {Locale} from '@/platform/i18n/routing';
 
 /**
- * Simple local config for the top announcement bar (site/navigation/top-bar.tsx).
- * Only real, currently-true claims — no invented "free shipping" or similar
- * commercial terms that don't exist.
+ * Configuración local sencilla de la barra de avisos superior
+ * (site/navigation/top-bar.tsx). Solo afirmaciones reales y vigentes: nada de «envío
+ * gratis» inventado ni condiciones comerciales que no existan.
  */
 export interface TopBarMessage {
     id: string;

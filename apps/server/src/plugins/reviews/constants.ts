@@ -7,9 +7,9 @@ export const MIN_RATING = 1;
 export const MAX_RATING = 5;
 
 /**
- * A Payment in this state is the ground truth for "the order was correctly
- * paid" — checked directly rather than trusting the Order's current state,
- * since an Order can move on to other states (Shipped, Cancelled, etc.)
- * after payment without that payment having been reversed.
+ * Un Payment en este estado es la prueba fiable de que «el pedido se pagó
+ * correctamente». Se comprueba directamente en vez de fiarse del estado actual del
+ * pedido, que puede pasar a otros estados (Shipped, Cancelled, etc.) después del
+ * pago sin que el pago se haya revertido.
  */
 export const PAID_PAYMENT_STATE = 'Settled';

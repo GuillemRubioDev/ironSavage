@@ -1,10 +1,10 @@
-# Contributing
+# Cómo contribuir
 
-Use conventional commit messages and keep changes localized to the feature or platform module that owns the behavior.
+Usa mensajes de commit convencionales (conventional commits) y limita cada cambio a la feature o al módulo de plataforma al que pertenece.
 
-Pull requests that affect downstream storefront source, runtime dependencies, configuration, generated-code inputs, or repository structure must include an upgrade note under `.upgrades/changes/`. Start from `_example.md`. A deliberate `.none.md` exemption is allowed only with a concrete reason.
+Los pull requests que afecten al código del storefront, a las dependencias de ejecución, a la configuración, a las entradas de código generado o a la estructura del repositorio deben incluir una nota de actualización en `.upgrades/changes/`. Parte de `_example.md`. Solo se admite una exención `.none.md` con un motivo concreto.
 
-Before submitting, run:
+Antes de enviarlo, ejecuta:
 
 ```bash
 npm run upgrade:validate
@@ -14,4 +14,4 @@ npm run check-types
 npm run build
 ```
 
-See [the architecture guide](./docs/architecture.md) for module ownership and [the upgrade guide](./docs/upgrades.md) for the managed release workflow.
+Consulta [la guía de arquitectura](./docs/architecture.md) para saber a qué módulo pertenece cada cosa y [la guía de actualizaciones](./docs/upgrades.md) para el flujo de versiones de la plantilla.

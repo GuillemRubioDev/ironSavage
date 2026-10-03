@@ -9,8 +9,8 @@ import { AthleteReward } from './athlete-reward.entity';
 import { AthleteRewardService } from './athlete-reward.service';
 import { AthleteCodeInput, AthleteService, CreateAthleteInput, UpdateAthleteInput } from './athlete.service';
 
-// Vendure auto-derives this ErrorCode value from the `AthleteError` type
-// name (see api-extensions.ts) — the generated TS enum doesn't know about it.
+// Vendure deduce este valor de ErrorCode del nombre del tipo `AthleteError`
+// (ver api-extensions.ts); el enum de TypeScript generado no lo conoce.
 const ATHLETE_ERROR = 'ATHLETE_ERROR' as ErrorCode;
 
 class AthleteError {

@@ -33,7 +33,7 @@ function AccordionTrigger({
   headingLevel = 3,
   ...props
 }: AccordionPrimitive.Trigger.Props & {
-  /** Level of the heading wrapping the trigger — pick the one that keeps the page's heading order (WCAG 1.3.1). */
+  /** Nivel del encabezado que envuelve el disparador: elige el que mantenga el orden de encabezados de la página (WCAG 1.3.1). */
   headingLevel?: keyof typeof HEADINGS
 }) {
   return (

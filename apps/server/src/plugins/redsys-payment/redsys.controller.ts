@@ -7,21 +7,20 @@ import { RedsysService } from './redsys.service';
 import type { RedsysNotificationBody } from './types';
 
 /**
- * Receives Redsys' server-to-server payment notification.
+ * Recibe la notificación de pago de Redsys (de servidor a servidor).
  *
- * Always responds 200 so Redsys doesn't endlessly retry a notification we've
- * already looked at (including ones we rejected as invalid) — retries are
- * only useful for transient failures on our side, not for a bad signature or
- * an unknown order, which will never become valid on retry.
+ * Responde siempre 200 para que Redsys no reintente sin fin una notificación que ya
+ * hemos mirado (incluidas las rechazadas por inválidas): los reintentos solo sirven
+ * para fallos pasajeros nuestros, no para una firma incorrecta o un pedido
+ * desconocido, que nunca serán válidos al reintentar.
  *
- * Note: this deliberately does NOT use Vendure's `@Transaction()` decorator.
- * That decorator attaches its QueryRunner to whatever RequestContext the
- * built-in AuthGuard already put on the request — but that ctx is an
- * unauthenticated one (there's no Vendure session on an incoming Redsys
- * webhook), and RedsysService needs a trusted admin-level ctx instead. Since
- * that admin ctx is constructed fresh, it has no connection to whatever the
- * interceptor attached, so the service manages its own transaction directly
- * via `TransactionalConnection.withTransaction()`.
+ * Nota: a propósito NO usa el decorador `@Transaction()` de Vendure. Ese decorador
+ * engancha su QueryRunner al RequestContext que el AuthGuard ya puso en la petición,
+ * pero ese ctx no está autenticado (un webhook de Redsys no trae sesión de Vendure)
+ * y RedsysService necesita un ctx de administrador de confianza. Como ese ctx se
+ * crea desde cero, no tiene relación con lo que enganchó el interceptor, así que el
+ * servicio gestiona su propia transacción con
+ * `TransactionalConnection.withTransaction()`.
  */
 @Controller('payments/redsys')
 export class RedsysController {

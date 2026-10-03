@@ -1,10 +1,10 @@
 import logoUrl from './assets/logo_titulo.png';
 
 /**
- * Replaces the default Vendure logo on the Dashboard login screen via the
- * official `login.logo` extension point (@vendure/dashboard, since 3.4.0).
- * Discreet by design — this is the only screen branded this way; see the
- * Fase 16.3 report for why a sitewide re-theme wasn't attempted.
+ * Sustituye el logo de Vendure en la pantalla de login del dashboard con el punto
+ * de extensión oficial `login.logo` (@vendure/dashboard, desde la 3.4.0). Discreto
+ * a propósito: es la única pantalla con la marca así; el informe de la Fase 16.3
+ * explica por qué no se cambió el tema de todo el dashboard.
  */
 export function LoginLogo() {
     return <img src={logoUrl} alt="Iron Savage" className="h-10 w-auto object-contain" />;

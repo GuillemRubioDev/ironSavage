@@ -9,17 +9,17 @@ import { ATHLETE_PROMOTION_CONDITION_CODE } from './constants';
 let connection: TransactionalConnection | undefined;
 
 /**
- * Attached to every Promotion that backs an AthleteCode. The coupon code
- * itself already makes the promotion opt-in; this condition adds the
- * athlete-specific rules on top, evaluated by Vendure's own promotion
- * engine every time the order is priced:
+ * Va en cada Promotion asociada a un AthleteCode. El propio código de cupón ya
+ * hace que la promoción solo se aplique si se introduce; esta condición añade las
+ * reglas propias de los atletas, que evalúa el motor de promociones de Vendure
+ * cada vez que se calcula el precio del pedido:
  *
- * - the athlete must be enabled;
- * - an athlete can't benefit from their own code;
- * - only the first athlete code applied to an order counts, so one order
- *   never stacks several athlete discounts nor credits several athletes.
+ * - el atleta debe estar activo;
+ * - un atleta no puede beneficiarse de su propio código;
+ * - solo cuenta el primer código de atleta aplicado a un pedido, así que un
+ *   pedido nunca acumula varios descuentos de atleta ni abona a varios atletas.
  *
- * Registered via AthletesPlugin's `configuration` hook.
+ * Se registra con el hook `configuration` de AthletesPlugin.
  */
 export const athleteCodeCondition = new PromotionCondition({
     code: ATHLETE_PROMOTION_CONDITION_CODE,
@@ -66,7 +66,7 @@ export const athleteCodeCondition = new PromotionCondition({
     },
 });
 
-// Exported for the spec only: lets it inject a fake connection without Nest.
+// Exportado solo para el test: permite inyectar una conexión falsa sin Nest.
 export function setAthleteConditionConnection(value: TransactionalConnection | undefined): void {
     connection = value;
 }

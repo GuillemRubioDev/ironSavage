@@ -37,8 +37,8 @@ export function CookiePreferencesDialog() {
     const [analytics, setAnalytics] = useState(consent.analytics);
     const [marketing, setMarketing] = useState(consent.marketing);
 
-    // Re-sync the draft toggles to the persisted consent every time the
-    // dialog opens, so a closed-without-saving edit doesn't linger.
+    // Al abrir el diálogo, los interruptores vuelven al consentimiento guardado,
+    // para que un cambio cerrado sin guardar no se quede.
     useEffect(() => {
         if (isPreferencesOpen) {
             setAnalytics(consent.analytics);

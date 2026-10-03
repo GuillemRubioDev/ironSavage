@@ -35,7 +35,7 @@ export async function loginAction(prevState: { error?: string } | undefined, for
         return { error: t('invalidCredentials') };
     }
 
-    // Store the token in a cookie if returned
+    // Guarda el token en una cookie si viene en la respuesta
     if (result.token) {
         await setAuthToken(result.token);
     }
@@ -43,7 +43,7 @@ export async function loginAction(prevState: { error?: string } | undefined, for
     const locale = await getLocale();
     revalidatePath(`/${locale}`, 'layout');
 
-    // Validate redirectTo is a safe internal path
+    // Comprueba que redirectTo sea una ruta interna segura
     const safeRedirect = redirectTo?.startsWith('/') && !redirectTo.startsWith('//')
         ? redirectTo
         : '/';

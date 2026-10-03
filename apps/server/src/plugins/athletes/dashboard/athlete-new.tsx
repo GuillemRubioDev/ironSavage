@@ -29,7 +29,7 @@ import { athleteCustomerByIdDocument, athleteCustomerSearchDocument, createAthle
 
 type Mode = 'existing' | 'new';
 
-/** Convert an existing customer into an athlete, or create the customer at the same time. */
+/** Convierte un cliente existente en atleta, o crea el cliente a la vez. */
 export function AthleteNewPage() {
     const { t } = useLingui();
     const navigate = useNavigate();
@@ -37,7 +37,7 @@ export function AthleteNewPage() {
     const [mode, setMode] = useState<Mode>('existing');
     const [searchTerm, setSearchTerm] = useState('');
     const [submittedTerm, setSubmittedTerm] = useState('');
-    // Coming from a customer's page ("Make athlete"): that customer is preselected.
+    // Si se llega desde la ficha de un cliente («Hacer atleta»), ese cliente sale preseleccionado.
     const preselectedCustomerId = (useSearch({ strict: false }) as { customerId?: string }).customerId;
     const [customerId, setCustomerId] = useState<string | null>(preselectedCustomerId ?? null);
     const [firstName, setFirstName] = useState('');

@@ -41,7 +41,7 @@ export type BuildPaymentFormResult =
     | { success: true; form: RedsysPaymentForm }
     | { success: false; message: string };
 
-/** Ds_Response 0000-0099 = approved; 0400 = cancellation authorized; 0900 = refund authorized. */
+/** Ds_Response 0000-0099 = aprobado; 0400 = anulación autorizada; 0900 = devolución autorizada. */
 function isApprovedResponseCode(code: string): boolean {
     const n = Number.parseInt(code, 10);
     return Number.isFinite(n) && ((n >= 0 && n < 100) || n === 400 || n === 900);
@@ -57,9 +57,9 @@ export class RedsysService {
     ) {}
 
     /**
-     * Builds the signed Ds_MerchantParameters/Ds_Signature that the storefront
-     * auto-submits to Redsys. The amount always comes from the Order itself —
-     * never from anything the browser sends.
+     * Construye el Ds_MerchantParameters/Ds_Signature firmado que el storefront envía
+     * automáticamente a Redsys. El importe sale siempre del propio pedido, nunca de
+     * nada que envíe el navegador.
      */
     async buildPaymentForm(ctx: RequestContext, order: Order): Promise<BuildPaymentFormResult> {
         const config = getRedsysConfig();
@@ -73,11 +73,11 @@ export class RedsysService {
             return { success: false, message: `Unsupported currency for Redsys: ${order.currencyCode}` };
         }
 
-        // Redsys rejects a new authorization request that reuses an order number
-        // it has already seen ("SIS0051 - Número de pedido repetido"), even if the
-        // earlier attempt was declined — so every attempt (including a retry of
-        // the same Vendure order after a declined card) gets its own fresh
-        // Ds_Merchant_Order, mapped back to the real order via RedsysPaymentAttempt.
+        // Redsys rechaza una nueva autorización que reutiliza un número de pedido ya
+        // visto («SIS0051 - Número de pedido repetido»), aunque el intento anterior se
+        // denegara; así que cada intento (incluido un reintento del mismo pedido tras
+        // una tarjeta denegada) recibe su propio Ds_Merchant_Order, que se relaciona
+        // con el pedido real mediante RedsysPaymentAttempt.
         const merchantOrder = generateRedsysOrderNumber();
         await this.connection
             .getRepository(ctx, RedsysPaymentAttempt)
@@ -115,15 +115,14 @@ export class RedsysService {
     }
 
     /**
-     * Verifies and processes an incoming Redsys notification (or UrlOK/UrlKO
-     * redirect, which carries the same signed payload). Idempotent: a
-     * duplicate/retried notification for an order that's already been recorded
-     * is a safe no-op.
+     * Verifica y procesa una notificación de Redsys (o la redirección UrlOK/UrlKO, que
+     * trae el mismo contenido firmado). Idempotente: una notificación duplicada o
+     * reintentada de un pedido ya registrado no hace nada.
      *
-     * Returns the order code on success so the caller can log/respond, or
-     * throws for anything that should NOT be treated as "handled" (invalid
-     * signature, unknown order) — callers must not let those crash the process
-     * or leak details back to the caller.
+     * Si va bien devuelve el código del pedido para que quien llama lo anote o
+     * responda; lanza un error en todo lo que NO debe tratarse como «gestionado»
+     * (firma inválida, pedido desconocido). Quien llama no debe dejar que eso tumbe el
+     * proceso ni devolver detalles al cliente.
      */
     async handleNotification(
         body: RedsysNotificationBody,
@@ -137,8 +136,8 @@ export class RedsysService {
 
         const config = getRedsysConfig();
         const params = decodeMerchantParameters(merchantParameters) as RedsysResponseParameters;
-        // Ds_Order is Redsys' echo of the Ds_Merchant_Order we sent — the
-        // per-attempt value from buildPaymentForm(), not the Vendure order code.
+        // Ds_Order es el eco de Redsys del Ds_Merchant_Order que enviamos: el valor de
+        // cada intento de buildPaymentForm(), no el código del pedido de Vendure.
         const merchantOrder = params.Ds_Order;
         const responseCode = params.Ds_Response;
 
@@ -149,11 +148,11 @@ export class RedsysService {
             throw new Error(`Notification for order ${merchantOrder} is missing Ds_Response`);
         }
 
-        // Signature MUST be verified before anything in `params` is trusted.
+        // La firma DEBE verificarse antes de fiarse de nada de `params`.
         const isValid = verifyMerchantParametersSignature(config.secretKey, merchantOrder, merchantParameters, signature);
         if (!isValid) {
-            // Deliberately no param values in this log — the signature didn't check out,
-            // so nothing in the payload is trustworthy.
+            // A propósito sin valores de los parámetros en el log: la firma no cuadra, así
+            // que nada del contenido es de fiar.
             Logger.error(`Rejected Redsys notification with invalid signature for order ${merchantOrder}`, loggerCtx);
             throw new Error('Invalid Redsys signature');
         }
@@ -161,11 +160,11 @@ export class RedsysService {
         const approved = isApprovedResponseCode(responseCode);
         const adminCtx = await this.createAdminContext(req);
 
-        // RedsysService constructs its own trusted admin ctx rather than reusing
-        // whatever (unauthenticated) RequestContext Vendure's AuthGuard attached
-        // to this raw REST request — so it must open its own transaction here
-        // rather than relying on the `@Transaction()` decorator, which only
-        // attaches to the ctx it can see, not to a freshly-constructed one.
+        // RedsysService crea su propio ctx de administrador de confianza en vez de
+        // reutilizar el RequestContext (sin autenticar) que el AuthGuard de Vendure puso
+        // en esta petición REST; por eso debe abrir aquí su propia transacción en vez de
+        // depender del decorador `@Transaction()`, que solo se engancha al ctx que ve,
+        // no a uno recién creado.
         return this.connection.withTransaction(adminCtx, async ctx => {
             const attempt = await this.connection
                 .getRepository(ctx, RedsysPaymentAttempt)
@@ -182,17 +181,16 @@ export class RedsysService {
                 throw new Error(`No order found with code ${orderCode}`);
             }
 
-            // Idempotency: the unique index on merchantOrder makes this insert
-            // atomic — a retried/duplicate notification for the same attempt fails
-            // here and is treated as already handled, without a second
-            // addPaymentToOrder call. Keyed per-attempt (not per Vendure order) so
-            // a genuine retry after a decline — which is a *different* attempt —
-            // still gets processed.
+            // Idempotencia: el índice único sobre merchantOrder hace atómica esta
+            // inserción; una notificación reintentada o duplicada del mismo intento falla
+            // aquí y se trata como ya gestionada, sin una segunda llamada a
+            // addPaymentToOrder. La clave es por intento (no por pedido) para que un
+            // reintento real tras una denegación, que es un intento *distinto*, se siga
+            // procesando.
             //
-            // The row is only inserted once recordPayment() has actually succeeded
-            // (see below) — a notification that fails partway through must NOT be
-            // marked as processed, or a legitimate Redsys retry would be silently
-            // and permanently ignored.
+            // La fila solo se inserta cuando recordPayment() ha ido bien (ver abajo):
+            // una notificación que falla a medias NO debe marcarse como procesada, o un
+            // reintento legítimo de Redsys se ignoraría en silencio para siempre.
             const repository = this.connection.getRepository(ctx, RedsysTransaction);
             const alreadyExists = await repository.findOne({ where: { merchantOrder } });
             if (alreadyExists) {
@@ -209,8 +207,8 @@ export class RedsysService {
                     responseCode,
                     approved,
                     authorisationCode: params.Ds_AuthorisationCode,
-                    // Explicitly not persisting `params` wholesale: Redsys' redirect flow never
-                    // sends full card data, but we only keep the fields we actually use.
+                    // A propósito no se guarda `params` entero: el flujo de redirección de Redsys
+                    // nunca envía datos completos de tarjeta, pero solo guardamos lo que usamos.
                     rawResponse: JSON.stringify({
                         Ds_Order: merchantOrder,
                         Ds_Response: responseCode,
@@ -223,9 +221,9 @@ export class RedsysService {
                 });
             } catch (err) {
                 if (this.isUniqueViolation(err)) {
-                    // Lost a race against a concurrent duplicate that also passed the check
-                    // above — the payment was still only recorded once, since recordPayment()
-                    // itself is guarded by order state (see below). Nothing more to do.
+                    // Un duplicado simultáneo que también pasó la comprobación de arriba ganó la
+                    // carrera; el pago solo se registró una vez porque recordPayment() está
+                    // protegido por el estado del pedido (ver abajo). No hay nada más que hacer.
                     Logger.info(`Redsys notification for attempt ${merchantOrder} (order ${orderCode}) was a concurrent duplicate`, loggerCtx);
                 } else {
                     throw err;
@@ -237,9 +235,9 @@ export class RedsysService {
     }
 
     /**
-     * Throws on failure (rather than swallowing it) so a failed attempt is never
-     * marked as processed above — that's what keeps a genuine Redsys retry able
-     * to succeed later instead of being permanently ignored as "already handled".
+     * Lanza un error si falla (en vez de tragárselo) para que un intento fallido nunca
+     * se marque como procesado arriba: así un reintento real de Redsys puede salir bien
+     * después en vez de ignorarse para siempre como «ya gestionado».
      */
     private async recordPayment(
         ctx: RequestContext,
@@ -264,12 +262,12 @@ export class RedsysService {
         });
 
         if (!(result instanceof Order)) {
-            // A declined payment is a normal, expected outcome — Vendure reports it as
-            // an ErrorResult even though the (Declined) Payment record is still saved
-            // and the order correctly stays in ArrangingPayment so the customer can
-            // retry. Only *this* case should be treated as "successfully handled";
-            // anything else (wrong order state, missing payment method, etc.) is a
-            // real failure and must throw so the notification isn't marked as processed.
+            // Un pago denegado es un resultado normal y esperado: Vendure lo devuelve como
+            // ErrorResult aunque el Payment (Declined) se guarda y el pedido sigue en
+            // ArrangingPayment para que el cliente reintente. Solo *este* caso debe
+            // tratarse como «gestionado correctamente»; cualquier otro (estado del pedido
+            // incorrecto, falta el método de pago, etc.) es un fallo real y debe lanzar
+            // error para que la notificación no se marque como procesada.
             if (result.__typename !== 'PaymentDeclinedError') {
                 throw new Error(`Failed to record Redsys payment for order ${order.code}: ${result.message}`);
             }
@@ -286,10 +284,10 @@ export class RedsysService {
     }
 
     /**
-     * `addPaymentToOrder({method})` expects a PaymentMethod *entity's* code —
-     * an admin-chosen identifier, not necessarily REDSYS_PAYMENT_HANDLER_CODE
-     * itself — so the entity that actually uses this plugin's handler has to be
-     * looked up rather than assumed.
+     * `addPaymentToOrder({method})` espera el código de la *entidad* PaymentMethod, un
+     * identificador elegido por el administrador y no necesariamente
+     * REDSYS_PAYMENT_HANDLER_CODE, así que hay que buscar la entidad que usa el
+     * handler de este plugin en vez de suponerlo.
      */
     private async getRedsysPaymentMethodCode(ctx: RequestContext): Promise<string> {
         const { items } = await this.paymentMethodService.findAll(ctx);
@@ -303,11 +301,11 @@ export class RedsysService {
     }
 
     /**
-     * Redsys notifications arrive server-to-server, with no customer session —
-     * so we construct a trusted internal RequestContext for the default channel,
-     * the same way the official Vendure payment plugins do for their webhooks.
-     * `req` is passed through mainly for consistency/logging; the transaction
-     * itself is established separately via `withTransaction()` in the caller.
+     * Las notificaciones de Redsys llegan de servidor a servidor, sin sesión de
+     * cliente, así que se crea un RequestContext interno de confianza para el canal
+     * por defecto, igual que hacen los plugins de pago oficiales de Vendure en sus
+     * webhooks. `req` se pasa sobre todo por coherencia y para el log; la transacción
+     * la abre por separado quien llama, con `withTransaction()`.
      */
     private async createAdminContext(req: Request): Promise<RequestContext> {
         const channel = await this.channelService.getDefaultChannel();

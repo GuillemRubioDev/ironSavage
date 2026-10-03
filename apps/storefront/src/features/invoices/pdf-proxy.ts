@@ -6,14 +6,14 @@ const VENDURE_CHANNEL_TOKEN = process.env.VENDURE_CHANNEL_TOKEN || process.env.N
 const VENDURE_CHANNEL_TOKEN_HEADER = process.env.VENDURE_CHANNEL_TOKEN_HEADER || 'vendure-token';
 
 /**
- * This storefront never talks to Vendure with a browser-visible session
- * cookie — every request carries a bearer token forwarded server-side (see
- * platform/vendure/api.ts). A PDF download can't go through that GraphQL
- * client, but it still needs the same bearer auth, so this proxies the
- * request: read the token from this app's own auth cookie, forward it to
- * the backend's `/invoices/:id/pdf`, and stream the response back. The
- * backend still does the real ownership check (see InvoicingController) —
- * this proxy adds no authorization logic of its own, only the token relay.
+ * Este storefront nunca habla con Vendure con una cookie de sesión visible para el
+ * navegador: cada petición lleva un token bearer reenviado desde el servidor (ver
+ * platform/vendure/api.ts). La descarga de un PDF no puede pasar por ese cliente
+ * GraphQL, pero necesita la misma autenticación, así que esto hace de intermediario:
+ * lee el token de la cookie de autenticación de esta aplicación, lo reenvía a
+ * `/invoices/:id/pdf` del backend y devuelve la respuesta. La comprobación real de
+ * propiedad la sigue haciendo el backend (ver InvoicingController); este
+ * intermediario no añade lógica de autorización, solo pasa el token.
  */
 export async function GET(_req: NextRequest, {params}: {params: Promise<{id: string}>}) {
     if (!VENDURE_API_URL) {

@@ -7,15 +7,15 @@ import { ReviewsShopResolver } from './reviews-shop.resolver';
 import { ReviewsService } from './reviews.service';
 
 /**
- * Product review plugin: authenticated customers can review a product once
- * they've bought it in a correctly-paid order, and only APPROVED reviews are
- * ever shown publicly. Entirely self-contained — no core Vendure behaviour
- * modified, and it doesn't touch the Redsys, Loyalty, or Invoicing plugins.
+ * Reseñas de productos: los clientes con sesión iniciada pueden reseñar un producto
+ * que hayan comprado en un pedido pagado correctamente, y solo se muestran en
+ * público las reseñas APPROVED. Totalmente independiente: no modifica nada del
+ * núcleo de Vendure ni toca los plugins de Redsys, fidelización o facturación.
  *
- * "Purchased and paid" is re-verified against the database on every write
- * (see ReviewsService.assertPurchased) — the customer id comes from the
- * authenticated session, never trusted from the client, and neither is any
- * claim about which order/product was purchased.
+ * «Comprado y pagado» se vuelve a comprobar en la base de datos en cada escritura
+ * (ver ReviewsService.assertPurchased): el id del cliente sale de la sesión, nunca
+ * de lo que diga el navegador, y tampoco se acepta sin comprobar qué pedido o
+ * producto se compró.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

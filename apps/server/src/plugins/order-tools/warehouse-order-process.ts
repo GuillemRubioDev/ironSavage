@@ -2,30 +2,30 @@ import { Injector, Order, OrderProcess, TransactionalConnection } from '@vendure
 
 let connection: TransactionalConnection | undefined;
 
-/** States from which an order can be sent back to ReadyToShip once its shipments are cancelled. */
+/** Estados desde los que un pedido puede volver a ReadyToShip una vez cancelados sus envíos. */
 const SHIPPED_STATES = ['PartiallyShipped', 'Shipped', 'PartiallyDelivered', 'Delivered'];
 
 /**
- * Adds the warehouse steps between "paid" and "shipped" to Vendure's default
- * order process:
+ * Añade los pasos de almacén entre «pagado» y «enviado» al proceso de pedido por
+ * defecto de Vendure:
  *
  *   PaymentSettled → InPreparation → ReadyToShip → (Partially)Shipped → (Partially)Delivered
  *
- * - InPreparation ("Preparando pedido"): the warehouse is picking/packing it.
- * - ReadyToShip ("Pedido preparado"): packed, waiting for the carrier.
+ * - InPreparation («Preparando pedido»): el almacén lo está preparando y empaquetando.
+ * - ReadyToShip («Pedido preparado»): empaquetado, esperando al transportista.
  *
- * Shipping is only offered from ReadyToShip: PaymentSettled no longer jumps
- * straight to Shipped/Delivered, so every order goes through the warehouse
- * steps (the Dashboard's "Fulfill" button follows the allowed transitions).
- * Both steps can be moved back one step to correct a mistake, and an order
- * can be cancelled from either of them (refunds, loyalty points and athlete
- * rewards keep reacting to Cancelled exactly as before).
+ * El envío solo se ofrece desde ReadyToShip: PaymentSettled ya no salta directamente
+ * a Shipped/Delivered, así que todo pedido pasa por los pasos de almacén (el botón
+ * «Preparar» del dashboard sigue las transiciones permitidas). Ambos pasos pueden
+ * retroceder uno para corregir un error, y el pedido puede cancelarse desde
+ * cualquiera de ellos (reembolsos, puntos y recompensas de atletas siguen
+ * reaccionando a Cancelled igual que antes).
  *
- * Shipped/Delivered themselves are still driven by fulfillments (Vendure's
- * own rule): create the fulfillment, then mark it shipped/delivered. If a
- * fulfillment was shipped by mistake and gets cancelled, Vendure leaves the
- * order in Shipped with nothing shipped — so a shipped/delivered order may go
- * back to ReadyToShip, but only once none of its fulfillments is active.
+ * Shipped/Delivered siguen dependiendo de los envíos (fulfillments, regla de
+ * Vendure): se crea el envío y luego se marca como enviado/entregado. Si un envío se
+ * marcó por error y se cancela, Vendure deja el pedido en Shipped sin nada enviado,
+ * así que un pedido enviado/entregado puede volver a ReadyToShip, pero solo cuando
+ * ninguno de sus envíos está activo.
  */
 export const warehouseOrderProcess: OrderProcess<'InPreparation' | 'ReadyToShip'> = {
     transitions: {
@@ -43,8 +43,8 @@ export const warehouseOrderProcess: OrderProcess<'InPreparation' | 'ReadyToShip'
         Shipped: { to: ['ReadyToShip'], mergeStrategy: 'merge' },
         PartiallyDelivered: { to: ['ReadyToShip'], mergeStrategy: 'merge' },
         Delivered: { to: ['ReadyToShip'], mergeStrategy: 'merge' },
-        // After an order modification Vendure returns the order to one of these
-        // states, so the warehouse states must be valid targets too.
+        // Tras modificar un pedido, Vendure lo devuelve a uno de estos estados, así que
+        // los estados de almacén también deben ser destinos válidos.
         Modifying: {
             to: ['InPreparation', 'ReadyToShip'],
             mergeStrategy: 'merge',
@@ -81,5 +81,5 @@ declare module '@vendure/core/dist/service/helpers/order-state-machine/order-sta
     }
 }
 
-/** States that still belong on the warehouse's "today's orders" sheet (paid, not shipped yet). */
+/** Estados que siguen apareciendo en la hoja de «pedidos de hoy» del almacén (pagados, aún sin enviar). */
 export const ORDER_STATES_TO_PREPARE = ['PaymentSettled', 'InPreparation', 'ReadyToShip'] as const;

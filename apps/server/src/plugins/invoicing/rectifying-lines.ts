@@ -6,18 +6,18 @@ interface Part {
     productName: string;
     sku: string;
     quantity: number;
-    /** Amount including tax, minor units, positive. */
+    /** Importe con IVA, en céntimos, positivo. */
     gross: number;
     taxRate: number;
 }
 
-/** Splits an amount that includes tax into base + tax (minor units). */
+/** Separa un importe con IVA en base + cuota (en céntimos). */
 export function splitGross(gross: number, taxRate: number): { net: number; tax: number } {
     const net = Math.round(gross / (1 + taxRate / 100));
     return { net, tax: gross - net };
 }
 
-/** Allocates `amount` over `weights` proportionally, in whole units, summing exactly to `amount`. */
+/** Reparte `amount` entre `weights` en proporción, en unidades enteras, sumando exactamente `amount`. */
 function allocate(amount: number, weights: number[]): number[] {
     const totalWeight = weights.reduce((a, b) => a + b, 0);
     if (totalWeight <= 0) {
@@ -33,13 +33,13 @@ function allocate(amount: number, weights: number[]): number[] {
 }
 
 /**
- * Lines of the rectifying invoice for a refund, with NEGATIVE amounts, so the
- * VAT reversed per rate matches what was refunded:
- * - each refunded order line at its prorated unit price (discounts included),
- * - the refunded shipping at the shipping tax rate,
- * - anything else in the refund total (a manual "amount" refund, adjustments)
- *   spread over the order's tax rates in proportion to what was charged.
- * The lines always add up exactly to the refund's total.
+ * Líneas de la factura rectificativa de un reembolso, con importes NEGATIVOS, para
+ * que el IVA revertido en cada tipo coincida con lo reembolsado:
+ * - cada línea del pedido reembolsada, a su precio unitario prorrateado (descuentos incluidos);
+ * - el envío reembolsado, al tipo de IVA del envío;
+ * - cualquier otra cosa del total reembolsado (un reembolso por importe libre,
+ *   ajustes), repartida entre los tipos de IVA del pedido en proporción a lo cobrado.
+ * Las líneas suman siempre exactamente el total del reembolso.
  */
 export function buildRectifyingLines(order: Order, refund: Refund): {
     lines: InvoiceLineData[];
@@ -71,7 +71,7 @@ export function buildRectifyingLines(order: Order, refund: Refund): {
 
     let itemised = parts.reduce((sum, p) => sum + p.gross, 0);
     if (itemised > refund.total) {
-        // The refund returned less than the lines' full value: scale them down.
+        // El reembolso devolvió menos que el valor completo de las líneas: se reducen en proporción.
         const scaled = allocate(refund.total, parts.map(p => p.gross));
         parts.forEach((p, i) => (p.gross = scaled[i]));
         itemised = refund.total;
@@ -79,7 +79,7 @@ export function buildRectifyingLines(order: Order, refund: Refund): {
 
     const remainder = refund.total - itemised;
     if (remainder > 0) {
-        // Weighted by what the order charged at each rate.
+        // Ponderado por lo que cobró el pedido en cada tipo.
         const byRate = new Map<number, number>();
         for (const line of order.lines) byRate.set(line.taxRate, (byRate.get(line.taxRate) ?? 0) + line.proratedLinePriceWithTax);
         for (const s of order.shippingLines) byRate.set(s.taxRate, (byRate.get(s.taxRate) ?? 0) + s.discountedPriceWithTax);

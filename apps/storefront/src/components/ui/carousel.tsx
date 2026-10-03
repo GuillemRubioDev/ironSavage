@@ -143,12 +143,11 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
     >
       <div
         className={cn(
-          // will-change-transform: Embla mutates this element's transform
-          // directly during drag; without this hint, a child that's on its
-          // own GPU layer (e.g. one with a `filter` for a glow effect) can
-          // round to a slightly different sub-pixel position than this
-          // container each frame, flickering a hairline seam against its
-          // siblings while dragging.
+          // will-change-transform: Embla cambia el transform de este elemento
+          // directamente al arrastrar; sin esta pista, un hijo en su propia capa de
+          // GPU (p. ej. uno con `filter` para un brillo) puede redondear a una posición
+          // subpíxel algo distinta en cada fotograma y hacer parpadear una fina línea
+          // junto a sus vecinos al arrastrar.
           "flex will-change-transform",
           orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
           className
@@ -185,10 +184,9 @@ function CarouselPrevious({
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollPrev, canScrollPrev, canScrollNext } = useCarousel()
 
-  // Nothing to scroll either direction (e.g. fewer items than fit in one
-  // view) — a permanently-disabled arrow is just visual noise sitting away
-  // from the (fully visible) content, not a real control. Hide both arrows
-  // rather than show one that can never be clicked.
+  // No hay nada que desplazar en ningún sentido (p. ej. menos elementos de los que
+  // caben): una flecha siempre desactivada es solo ruido visual, no un control real.
+  // Se ocultan las dos en vez de mostrar una que nunca se puede pulsar.
   if (!canScrollPrev && !canScrollNext) return null
 
   return (

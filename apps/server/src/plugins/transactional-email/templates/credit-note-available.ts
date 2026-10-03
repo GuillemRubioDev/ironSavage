@@ -1,7 +1,7 @@
 import type { EmailConfig, OrderSummaryData, RenderedEmail } from '../types';
 import { escapeHtml, renderEyebrow, renderLayout } from './layout';
 
-/** Sent with the factura rectificativa issued when a refund of the order is settled. */
+/** Se envía con la factura rectificativa emitida al liquidarse un reembolso del pedido. */
 export function renderCreditNoteAvailable(
     config: EmailConfig,
     data: { order: OrderSummaryData; invoiceNumber: string; rectifiedInvoiceNumber: string },

@@ -8,18 +8,18 @@ import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
 import {Languages, TriangleAlert} from 'lucide-react';
 import {PrintButton} from '@/site/legal/print-button';
 
-/** See LEGAL_VERSION (config/legal.ts) — bump it there when a legal text changes. */
+/** Ver LEGAL_VERSION (config/legal.ts): actualízala allí cuando cambie un texto legal. */
 const LEGAL_LAST_UPDATED = new Date(`${LEGAL_VERSION}T00:00:00Z`);
 
 export type LegalPageKey =
     | 'legalNotice' | 'privacyPolicy' | 'cookiePolicy' | 'termsAndConditions' | 'shippingReturns' | 'aiTransparency' | 'accessibility';
 
-/** Title + canonical/hreflang alternates, the same for every legal page. */
+/** Título + canonical/alternativas hreflang, igual en todas las páginas legales. */
 export async function legalPageMetadata(path: string, key: LegalPageKey): Promise<Metadata> {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Legal.pages'});
     return {
-        // The locale layout's title template appends "| SITE_NAME".
+        // La plantilla de título del layout de idioma añade "| SITE_NAME".
         title: t(key),
         alternates: {
             canonical: buildCanonicalUrl(localizedPath(locale, path)),
@@ -64,7 +64,7 @@ export async function LegalPageShell({title, children}: {title: string; children
     );
 }
 
-/** Wide tables (cookies, processing activities) scroll on their own on phones. */
+/** Las tablas anchas (cookies, actividades de tratamiento) se desplazan por sí solas en el móvil. */
 export function LegalTable({children}: {children: React.ReactNode}) {
     return (
         <div className="overflow-x-auto">
@@ -73,9 +73,9 @@ export function LegalTable({children}: {children: React.ReactNode}) {
     );
 }
 
-/** Inline marker for a placeholder value that must be filled in with real
- * company data before this page is used in production — never invent the
- * value, just flag where it goes. */
+/** Marcador en línea de un valor que hay que rellenar con datos reales de la empresa
+ * antes de usar esta página en producción: nunca inventes el valor, solo señala
+ * dónde va. */
 export function Placeholder({children}: {children: React.ReactNode}) {
     return (
         <mark className="rounded bg-warning/25 px-1 py-0.5 font-medium text-foreground print:text-black">

@@ -26,13 +26,13 @@ async function getRelatedProducts(collectionSlug: string, currentProductId: stri
         slug: collectionSlug,
         input: {
             collectionSlug: collectionSlug,
-            take: 13, // Fetch extra to account for filtering out current product
+            take: 13, // Se piden de más para compensar que se quita el producto actual
             skip: 0,
             groupByProduct: true
         }
     }, {languageCode: locale, currencyCode});
 
-    // Filter out the current product and hidden products, then limit to 12
+    // Quita el producto actual y los ocultos, y deja como máximo 12
     const visibleItems = await filterVisibleProducts(result.data.search.items);
     return visibleItems
         .filter(item => {

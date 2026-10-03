@@ -6,14 +6,14 @@ import { AthleteService } from './athlete.service';
 import { loggerCtx } from './constants';
 
 /**
- * Wires athlete rewards to the same order/refund lifecycle points the
- * LoyaltyPlugin uses for regular points:
- * - PaymentSettled → grant (never on an intermediate state, so an abandoned
- *   or declined payment never credits anything);
- * - Cancelled → revert whatever hasn't been reverted yet;
- * - Refund Settled → revert a proportional share (partial refunds supported).
- * All three are idempotent in AthleteRewardService.
- * It also removes the athlete role when its customer is deleted.
+ * Conecta las recompensas de los atletas a los mismos momentos del ciclo de vida
+ * de pedidos y reembolsos que usa LoyaltyPlugin para los puntos normales:
+ * - PaymentSettled → se concede (nunca en un estado intermedio, para que un pago
+ *   abandonado o rechazado no abone nada);
+ * - Cancelled → se revierte lo que aún no se haya revertido;
+ * - Reembolso Settled → se revierte la parte proporcional (admite reembolsos parciales).
+ * Las tres son idempotentes en AthleteRewardService.
+ * También quita el rol de atleta cuando se borra su cliente.
  */
 @Injectable()
 export class AthleteEventSubscriber implements OnApplicationBootstrap {
@@ -37,8 +37,9 @@ export class AthleteEventSubscriber implements OnApplicationBootstrap {
             }
         });
 
-        // An athlete can't outlive its customer (Vendure soft-deletes customers,
-        // so the DB cascade never fires): remove the role and kill its codes.
+        // Un atleta no puede existir sin su cliente (Vendure borra los clientes de
+        // forma lógica, así que la cascada de la base de datos nunca salta): se quita
+        // el rol y se desactivan sus códigos.
         this.eventBus.ofType(CustomerEvent).subscribe(event => {
             if (event.type === 'deleted') {
                 this.athleteService.removeForDeletedCustomer(event.ctx, event.entity.id).catch(err => {

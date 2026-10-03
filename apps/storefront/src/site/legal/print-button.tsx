@@ -4,10 +4,10 @@ import {Printer} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 
 /**
- * Opens the browser's print dialog, which also offers "Save as PDF" — the
- * way customers keep a copy of the legal texts they accept (LSSI-CE art. 27.4
- * requires the contract terms to be storable and reproducible). The site's
- * header, footer and cookie banner are hidden in print (`print:hidden`).
+ * Abre el diálogo de impresión del navegador, que también ofrece «Guardar como PDF»:
+ * así los clientes guardan una copia de los textos legales que aceptan (el art. 27.4
+ * de la LSSI-CE exige que las condiciones se puedan almacenar y reproducir). La
+ * cabecera, el pie y el banner de cookies se ocultan al imprimir (`print:hidden`).
  */
 export function PrintButton({label}: {label: string}) {
     return (

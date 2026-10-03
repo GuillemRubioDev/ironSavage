@@ -8,11 +8,11 @@ export interface RedsysConfig {
 }
 
 /**
- * The subset of DS_MERCHANT_* fields we send when building the redirect form.
+ * Los campos DS_MERCHANT_* que enviamos al construir el formulario de redirección.
  *
- * Redsys' outgoing request parameters are ALL UPPERCASE — this is not a typo.
- * Confirmed against Redsys' own official documentation example, which is
- * asymmetric with the response format below (mixed-case `Ds_*`).
+ * Los parámetros de petición de Redsys van TODO EN MAYÚSCULAS: no es una errata.
+ * Comprobado con el ejemplo de la documentación oficial de Redsys, que no coincide
+ * con el formato de respuesta de abajo (`Ds_*` en mayúsculas y minúsculas).
  */
 export interface RedsysMerchantParameters {
     DS_MERCHANT_AMOUNT: string;
@@ -28,8 +28,8 @@ export interface RedsysMerchantParameters {
 }
 
 /**
- * The subset of Ds_* fields we read back from a notification/redirect.
- * Unlike the request above, Redsys' response fields are mixed-case.
+ * Los campos Ds_* que leemos de una notificación o redirección. A diferencia de la
+ * petición de arriba, los campos de respuesta de Redsys mezclan mayúsculas y minúsculas.
  */
 export interface RedsysResponseParameters {
     Ds_Order: string;

@@ -106,8 +106,8 @@ export class ContentService {
             return null;
         }
         article.status = 'PUBLISHED';
-        // Keep the original publish date across an unpublish/republish cycle —
-        // only stamp it the first time an article actually goes live.
+        // Se conserva la fecha de publicación original aunque se despublique y se
+        // vuelva a publicar: solo se fija la primera vez que el artículo sale.
         if (!article.publishedAt) {
             article.publishedAt = new Date();
         }
@@ -152,7 +152,7 @@ export class ContentService {
         return { items, totalItems };
     }
 
-    /** Public: only ever PUBLISHED articles (rule: DRAFT/ARCHIVED never appear in the storefront). */
+    /** Público: solo artículos PUBLICADOS (regla: los borradores y archivados nunca salen en la tienda). */
     async listPublished(ctx: RequestContext, options?: { skip?: number; take?: number }): Promise<PaginatedList<ContentArticle>> {
         const [items, totalItems] = await this.connection.getRepository(ctx, ContentArticle).findAndCount({
             where: { status: 'PUBLISHED' },
@@ -164,7 +164,7 @@ export class ContentService {
         return { items, totalItems };
     }
 
-    /** Public: returns null for anything not PUBLISHED, including a DRAFT/ARCHIVED article at a guessed slug. */
+    /** Público: devuelve null para cualquier cosa no PUBLICADA, incluido un borrador o archivado buscado por su slug. */
     async findPublishedBySlug(ctx: RequestContext, slug: string): Promise<ContentArticle | null> {
         const article = await this.connection
             .getRepository(ctx, ContentArticle)

@@ -7,9 +7,9 @@ import {mutate} from '@/platform/vendure/api';
 import {LogoutMutation} from './graphql';
 
 export async function logoutAction() {
-    // Must attach the current token — otherwise Vendure has no session to
-    // identify and `logout` is a no-op server-side, leaving the token valid
-    // (usable as a Bearer token elsewhere) even after this "logs out".
+    // Hay que enviar el token actual: si no, Vendure no sabe qué sesión cerrar y
+    // `logout` no hace nada en el servidor, y el token sigue siendo válido (usable como
+    // Bearer en otro sitio) aunque aquí se «cierre la sesión».
     await mutate(LogoutMutation, {}, {useAuthToken: true});
     await removeAuthToken();
 

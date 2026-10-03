@@ -14,16 +14,15 @@ import {
 } from 'lucide-react';
 import {useTranslations} from 'next-intl';
 
-// Mapped onto the brand's constrained token palette rather than one unique
-// hue per state (there is no palette room for 9 distinct colors without
-// inventing hues outside black/graphite/gray/red) — icon + label still
-// differentiate every state; color communicates broad status category.
+// Se usan los pocos tokens de la paleta de marca en vez de un color por estado (no
+// caben 9 colores distintos sin inventar tonos fuera de negro/grafito/gris/rojo): el
+// icono y el texto distinguen cada estado y el color indica la categoría general.
 const STATUS_CONFIG: Record<string, { color: string; icon: LucideIcon }> = {
     AddingItems: {color: 'bg-muted text-muted-foreground', icon: ShoppingCart},
     ArrangingPayment: {color: 'bg-warning/15 text-warning-foreground dark:text-warning', icon: CreditCard},
     PaymentAuthorized: {color: 'bg-warning/15 text-warning-foreground dark:text-warning', icon: Clock},
     PaymentSettled: {color: 'bg-success/10 text-success', icon: CheckCircle},
-    // Warehouse steps (server: order-tools/warehouse-order-process.ts).
+    // Pasos de almacén (servidor: order-tools/warehouse-order-process.ts).
     InPreparation: {color: 'bg-secondary text-secondary-foreground', icon: PackageOpen},
     ReadyToShip: {color: 'bg-secondary text-secondary-foreground', icon: Boxes},
     PartiallyShipped: {color: 'bg-secondary text-secondary-foreground', icon: Package},

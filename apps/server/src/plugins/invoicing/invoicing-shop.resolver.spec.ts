@@ -20,8 +20,8 @@ test('myInvoices scopes the list query to the caller\'s own resolved customer id
         customer: { id: 'cust-42' },
     });
 
-    // A client could in principle pass an arbitrary `options` object — this
-    // must never let a `customerId` slip in and override the session-derived one.
+    // En teoría un cliente podría enviar un objeto `options` cualquiera: nunca debe
+    // colarse un `customerId` que sustituya al que sale de la sesión.
     await resolver.myInvoices(ctx, { options: { skip: 0, take: 10 } });
 
     assert.equal(findOneByUserId.mock.callCount(), 1);

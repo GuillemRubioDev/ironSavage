@@ -6,7 +6,7 @@ import type { EmailConfig, EmailProviderKind } from './types';
 
 let cached: EmailConfig | undefined;
 
-/** Secrets (SMTP credentials) are read directly from process.env and never cached anywhere but here. */
+/** Los secretos (credenciales SMTP) se leen directamente de process.env y no se guardan en ningún otro sitio. */
 export function getEmailConfig(): EmailConfig {
     if (cached) return cached;
 
@@ -28,8 +28,8 @@ export function getEmailConfig(): EmailConfig {
         provider: smtpConfigured ? 'smtp' : 'dev',
         fromAddress: process.env.EMAIL_FROM ?? 'Iron Savage <no-reply@example.com>',
         replyTo: process.env.EMAIL_REPLY_TO || undefined,
-        // Brand name customers see in emails ("Bienvenido/a a Iron Savage") — not the
-        // registered company name, which only belongs on invoices.
+        // Nombre de marca que ven los clientes en los emails («Bienvenido/a a Iron
+        // Savage»), no la razón social, que solo va en las facturas.
         storeName: process.env.EMAIL_STORE_NAME || process.env.INVOICE_STORE_NAME || 'Iron Savage',
         storefrontUrl: (process.env.STOREFRONT_URL ?? 'http://localhost:3001').replace(/\/$/, ''),
         devOutputDir: path.join(__dirname, '../../../static/transactional-emails'),

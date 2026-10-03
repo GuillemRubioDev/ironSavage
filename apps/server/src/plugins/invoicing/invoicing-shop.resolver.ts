@@ -12,9 +12,9 @@ export class InvoicingShopResolver {
     ) {}
 
     /**
-     * Always scoped to the signed-in session's own customer — there is no
-     * customer-id argument to accept from the client in the first place, so
-     * this can't be tricked into returning someone else's invoices.
+     * Siempre limitado al cliente de la sesión iniciada: ni siquiera existe un
+     * argumento de id de cliente que aceptar, así que no se le puede engañar para
+     * devolver facturas de otro.
      */
     @Query()
     @Allow(Permission.Owner)
@@ -30,10 +30,9 @@ export class InvoicingShopResolver {
     }
 
     /**
-     * Scoped the same way myInvoices() is — resolved from the signed-in
-     * session, never from a client-supplied customer id — and additionally
-     * checks the invoice's own customerId, so passing another customer's
-     * orderId can't leak their invoice.
+     * Limitado igual que myInvoices() (se obtiene de la sesión, nunca de un id de
+     * cliente enviado por el navegador) y además comprueba el customerId de la propia
+     * factura, para que pasar el orderId de otro cliente no filtre su factura.
      */
     @Query()
     @Allow(Permission.Owner)

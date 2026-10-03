@@ -20,8 +20,8 @@ export const GetMyLoyaltyQuery = graphql(`
     }
 `);
 
-// Athlete panel — only ever returns the signed-in customer's own data
-// (Owner-scoped on the server) and never the buyers behind each reward.
+// Panel de atleta: solo devuelve los datos del propio cliente con sesión iniciada
+// (limitado a Owner en el servidor) y nunca quién compró detrás de cada recompensa.
 export const GetMyAthleteProfileQuery = graphql(`
     query GetMyAthleteProfile {
         myAthleteProfile {

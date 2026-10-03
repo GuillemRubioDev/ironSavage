@@ -7,11 +7,11 @@ import { BannersShopResolver } from './banners-shop.resolver';
 import { BannersService } from './banners.service';
 
 /**
- * Admin-manageable slides for the storefront home carousel (the slides
- * after the fixed brand/hero slide, which stays hardcoded — see
- * apps/storefront/src/site/home/promo-carousel.tsx). Entirely self-contained
- * — no core Vendure behaviour modified, doesn't touch Redsys/Loyalty/
- * Invoicing/Reviews/Promotions/Content.
+ * Diapositivas del carrusel de la portada gestionables desde el panel (las que van
+ * después de la fija de marca, que sigue en el código; ver
+ * apps/storefront/src/site/home/promo-carousel.tsx). Totalmente independiente: no
+ * modifica nada del núcleo de Vendure ni toca Redsys, fidelización, facturación,
+ * reseñas, promociones ni contenido.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

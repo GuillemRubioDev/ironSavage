@@ -4,12 +4,11 @@ export class InvoiceLineImageAndResendableEmailLog1788964651145 implements Migra
 
    public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`ALTER TABLE "invoice_line" ADD "imagePreview" character varying`, undefined);
-        // Widen the dedup index so a manual "resend this invoice" (type
-        // 'invoice-resend') is never silently swallowed as "already sent" the
-        // way a second automatic 'invoice-available' send correctly still is —
-        // see EmailLog's doc comment. TypeORM's schema diff doesn't pick up a
-        // WHERE-clause-only change to an existing index, so this half is
-        // hand-written rather than generated.
+        // Amplía el índice de deduplicación para que un «reenviar esta factura» manual
+        // (tipo 'invoice-resend') nunca se descarte en silencio como «ya enviado», como sí
+        // ocurre (correctamente) con un segundo envío automático de 'invoice-available';
+        // ver el comentario de EmailLog. El diff de esquema de TypeORM no detecta un cambio
+        // solo en el WHERE de un índice existente, así que esta parte está escrita a mano.
         await queryRunner.query(`DROP INDEX "public"."IDX_email_log_type_order_unique"`, undefined);
         await queryRunner.query(`CREATE UNIQUE INDEX "IDX_email_log_type_order_unique" ON "email_log" ("type", "orderId") WHERE "orderId" IS NOT NULL AND "success" = true AND "type" != 'invoice-resend'`, undefined);
    }

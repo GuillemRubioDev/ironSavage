@@ -2,16 +2,16 @@ import { DeepPartial, EntityId, ID, VendureEntity } from '@vendure/core';
 import { Column, Entity, Index } from 'typeorm';
 
 /**
- * An append-only record of every send attempt — both to satisfy "registrar
- * errores de envío" and to dedup order-scoped emails (an order should get at
- * most one "payment confirmed" email even if the PaymentSettled event were
- * ever redelivered). Registration/verification/password-reset emails have no
- * orderId, so the partial unique index below only constrains the order-scoped
- * types (order-received/payment-confirmed/order-cancelled/invoice-available)
- * — a customer legitimately requesting a second password-reset email should
- * still get one. 'invoice-resend' is deliberately excluded too — an admin
- * resending an already-generated invoice (e.g. to a different address) is
- * meant to be repeatable, not deduped like the automatic sends above.
+ * Registro, solo de inserción, de cada intento de envío: sirve para «registrar
+ * errores de envío» y para no duplicar los emails de un pedido (un pedido debe
+ * recibir como mucho un email de «pago confirmado» aunque el evento PaymentSettled
+ * llegara dos veces). Los emails de registro, verificación y restablecimiento de
+ * contraseña no tienen orderId, así que el índice único parcial de abajo solo afecta
+ * a los tipos de pedido (order-received/payment-confirmed/order-cancelled/
+ * invoice-available): un cliente que pide con razón un segundo email de
+ * restablecimiento debe recibirlo. 'invoice-resend' también se excluye a propósito:
+ * que un administrador reenvíe una factura ya generada (p. ej. a otra dirección)
+ * debe poder repetirse, no deduplicarse como los envíos automáticos.
  */
 @Entity()
 @Index('IDX_email_log_type_order_unique', ['type', 'orderId'], {

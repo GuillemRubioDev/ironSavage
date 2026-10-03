@@ -9,7 +9,7 @@ import {getTranslations} from 'next-intl/server';
 
 const COPYRIGHT_YEAR = 2026;
 
-/** Root package.json "version", injected at build time by next.config.ts. */
+/** La "version" del package.json raíz, inyectada al compilar por next.config.ts. */
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? 'dev';
 
 async function Copyright() {
@@ -148,7 +148,7 @@ export async function Footer() {
                     </div>
                 </div>
 
-                {/* Bottom Section */}
+                {/* Sección inferior */}
                 <div
                     className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-center md:text-left">
                     <Copyright/>

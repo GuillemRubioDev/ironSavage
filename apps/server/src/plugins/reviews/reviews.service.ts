@@ -29,11 +29,10 @@ export class ReviewsService {
     constructor(private connection: TransactionalConnection) {}
 
     /**
-     * Creates a review. Eligibility (signed-in, purchased, order actually paid,
-     * not a duplicate) is fully re-checked here against the database — the
-     * caller's `customerId` must come from the authenticated session, never
-     * from client input, but everything else about "is this allowed" is
-     * verified server-side regardless of what the client claims.
+     * Crea una reseña. Los requisitos (sesión iniciada, comprado, pedido pagado de
+     * verdad, sin duplicado) se vuelven a comprobar aquí contra la base de datos. El
+     * `customerId` debe venir de la sesión, nunca del navegador, y todo lo demás sobre
+     * «¿está permitido?» se verifica en el servidor diga lo que diga el cliente.
      */
     async createReview(ctx: RequestContext, customerId: ID, input: CreateReviewInput): Promise<ReviewMutationResult> {
         const ratingError = this.validateRating(input.rating);
@@ -78,9 +77,9 @@ export class ReviewsService {
     }
 
     /**
-     * A review can only be edited by its own author, and only while still
-     * PENDING — once moderated, it's locked (matches rule 5: no editing after
-     * approve/reject, and rule 7: never another customer's review).
+     * Una reseña solo puede editarla su autor, y solo mientras está PENDING: una vez
+     * moderada, queda bloqueada (regla 5: no se edita tras aprobar/rechazar; regla 7:
+     * nunca la reseña de otro cliente).
      */
     async updateReview(ctx: RequestContext, customerId: ID, input: UpdateReviewInput): Promise<ReviewMutationResult> {
         if (input.rating !== undefined) {
@@ -93,8 +92,8 @@ export class ReviewsService {
         const repo = this.connection.getRepository(ctx, ProductReview);
         const review = await repo.findOne({ where: { id: input.id } });
         if (!review || String(review.customerId) !== String(customerId)) {
-            // Same message whether the review doesn't exist or belongs to someone
-            // else — distinguishing the two would let a client enumerate review ids.
+            // El mismo mensaje tanto si la reseña no existe como si es de otro:
+            // distinguirlos permitiría a un cliente enumerar ids de reseñas.
             return { success: false, reason: 'Review not found' };
         }
         if (review.status !== 'PENDING') {
@@ -128,7 +127,7 @@ export class ReviewsService {
         return saved;
     }
 
-    /** Public: only ever returns APPROVED reviews (rule 4). */
+    /** Público: solo devuelve reseñas APPROVED (regla 4). */
     async listApprovedForProduct(
         ctx: RequestContext,
         productId: ID,
@@ -159,10 +158,9 @@ export class ReviewsService {
     }
 
     /**
-     * The orders (of this customer, ground-truth checked against the DB) that
-     * make them eligible to review this product but haven't been reviewed yet —
-     * what the storefront uses to decide whether to show the review form, and
-     * for which purchase.
+     * Los pedidos del cliente (comprobados contra la base de datos) que le permiten
+     * reseñar este producto y aún no tienen reseña: lo que usa el storefront para
+     * decidir si muestra el formulario de reseña y para qué compra.
      */
     async listReviewableOrdersForProduct(
         ctx: RequestContext,
@@ -226,10 +224,10 @@ export class ReviewsService {
         }
         const productSearch = options?.filter?.productSearch?.contains;
         if (productSearch) {
-            // product_translation is Vendure's own storage for translatable Product
-            // fields (including name) — joined by raw SQL since ProductReview has
-            // no ORM relation to Product (deliberately: reviews only ever store the
-            // bare productId, never a live relation, to stay a clean bolt-on plugin).
+            // product_translation es donde Vendure guarda los campos traducibles de
+            // Product (incluido el nombre); se cruza con SQL directo porque ProductReview
+            // no tiene relación ORM con Product (a propósito: las reseñas solo guardan el
+            // productId, nunca una relación, para ser un plugin añadido limpio).
             qb.andWhere(
                 new Brackets(sub => {
                     sub.where(

@@ -26,9 +26,9 @@ interface VendureResponse<T> {
     errors?: Array<{ message: string; [key: string]: unknown }>;
 }
 
-/** Thrown when the Vendure API responds with a non-2xx status — carries the
- * status so callers can distinguish e.g. a 429 (rate limited) from a genuine
- * failure, without every call site having to re-parse a generic Error message. */
+/** Se lanza cuando la API de Vendure responde con un estado que no es 2xx. Lleva el
+ * estado para que quien llama distinga, p. ej., un 429 (límite de peticiones) de un
+ * fallo real, sin tener que interpretar el mensaje de un Error genérico. */
 export class VendureHttpError extends Error {
     constructor(public status: number, message: string) {
         super(message);
@@ -37,7 +37,7 @@ export class VendureHttpError extends Error {
 }
 
 /**
- * Extract the Vendure auth token from response headers
+ * Extrae el token de autenticación de Vendure de las cabeceras de la respuesta
  */
 function extractAuthToken(headers: Headers): string | null {
     return headers.get(VENDURE_AUTH_TOKEN_HEADER);
@@ -45,7 +45,7 @@ function extractAuthToken(headers: Headers): string | null {
 
 
 /**
- * Execute a GraphQL query against the Vendure API
+ * Ejecuta una consulta GraphQL contra la API de Vendure
  */
 export async function query<TResult, TVariables>(
     document: TadaDocumentNode<TResult, TVariables>,
@@ -68,7 +68,7 @@ export async function query<TResult, TVariables>(
         ...(fetchOptions?.headers as Record<string, string>),
     };
 
-    // Use the explicitly provided token, or fetch from cookies if useAuthToken is true
+    // Usa el token indicado o, si useAuthToken es true, el de las cookies
     let authToken = token;
     if (useAuthToken && !authToken) {
         authToken = await getAuthToken();
@@ -78,7 +78,7 @@ export async function query<TResult, TVariables>(
         headers['Authorization'] = `Bearer ${authToken}`;
     }
 
-    // Set the channel token header (use provided channelToken or default)
+    // Pone la cabecera del token de canal (el channelToken indicado o el de por defecto)
     headers[VENDURE_CHANNEL_TOKEN_HEADER] = channelToken || VENDURE_CHANNEL_TOKEN;
 
     const url = new URL(VENDURE_API_URL!);
@@ -123,7 +123,7 @@ export async function query<TResult, TVariables>(
 }
 
 /**
- * Execute a GraphQL mutation against the Vendure API
+ * Ejecuta una mutación GraphQL contra la API de Vendure
  */
 export async function mutate<TResult, TVariables>(
     document: TadaDocumentNode<TResult, TVariables>,
@@ -131,7 +131,7 @@ export async function mutate<TResult, TVariables>(
         ? [variables?: TVariables, options?: VendureRequestOptions]
         : [variables: TVariables, options?: VendureRequestOptions]
 ): Promise<{ data: TResult; token?: string }> {
-    // Mutations use the same underlying implementation as queries in GraphQL
+    // En GraphQL las mutaciones usan la misma implementación que las consultas
     // @ts-expect-error - Complex conditional type inference, runtime behavior is correct
     return query(document, variables, options);
 }

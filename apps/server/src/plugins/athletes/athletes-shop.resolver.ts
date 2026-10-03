@@ -5,10 +5,10 @@ import { AthleteRewardService } from './athlete-reward.service';
 import { AthleteService } from './athlete.service';
 
 /**
- * Owner-scoped: the athlete is always resolved from the session, never from
- * a client-supplied id, so nobody can read another athlete's panel. The
- * reward rows are mapped to an explicit allow-list of fields — the customer
- * who placed the order is never exposed to the athlete.
+ * Limitado al propio usuario: el atleta siempre se obtiene de la sesión, nunca de
+ * un id enviado por el cliente, así que nadie puede ver el panel de otro atleta.
+ * Las recompensas se devuelven con una lista explícita de campos permitidos: el
+ * cliente que hizo el pedido nunca se muestra al atleta.
  */
 @Resolver()
 export class AthletesShopResolver {

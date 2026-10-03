@@ -14,7 +14,7 @@ export async function LoyaltyTeaser() {
 
     let balance: number | null = null;
     if (customer) {
-        // take: 0 — this teaser only needs the running balance, not history rows.
+        // take: 0: este aviso solo necesita el saldo, no las filas del historial.
         const {data} = await query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true});
         balance = data.loyaltyAccount?.balance ?? 0;
     }

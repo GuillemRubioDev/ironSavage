@@ -92,9 +92,9 @@ test('an archived article does not appear in the public listing or by slug', asy
     const { service, db } = createService();
     const created = await service.create({}, validInput({ slug: 'archivado' }));
     await service.publish({}, created.article.id);
-    // Archiving happens through the generic status field (no dedicated service
-    // method), so the fixture is moved directly via the fake repo the service
-    // itself uses — same effect as an admin setting status: ARCHIVED via update.
+    // El archivado se hace con el campo de estado genérico (no hay método propio en
+    // el servicio), así que se cambia directamente en el repositorio falso que usa el
+    // servicio: el mismo efecto que un administrador poniendo status: ARCHIVED.
     db.articles.get(String(created.article.id)).status = 'ARCHIVED';
 
     const publicList = await service.listPublished({});

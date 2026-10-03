@@ -5,9 +5,9 @@ import { ActiveOrderService, Allow, Ctx, CustomerService, Order, OrderService, P
 import { getLoyaltyConfig } from './loyalty-config';
 import { LoyaltyService, RedeemPointsResult } from './loyalty.service';
 
-// Vendure auto-derives an ErrorCode enum member for every type implementing
-// ErrorResult (camelCase type name -> UPPER_SNAKE_CASE) — LoyaltyRedemptionError
-// becomes LOYALTY_REDEMPTION_ERROR. The generated TS enum doesn't know about it.
+// Vendure genera automáticamente un valor del enum ErrorCode por cada tipo que
+// implementa ErrorResult (nombre en camelCase -> UPPER_SNAKE_CASE):
+// LoyaltyRedemptionError pasa a LOYALTY_REDEMPTION_ERROR. El enum TS generado no lo conoce.
 const LOYALTY_REDEMPTION_ERROR = 'LOYALTY_REDEMPTION_ERROR' as ErrorCode;
 
 const REASON_MESSAGES: Record<Exclude<RedeemPointsResult, { success: true }>['reason'], string> = {

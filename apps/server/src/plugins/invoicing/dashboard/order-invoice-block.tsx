@@ -51,7 +51,7 @@ export function OrderInvoiceBlock({ context }: { context: PageContextValue }) {
 
     const invoice = data?.invoiceForOrder;
     if (!invoice) {
-        // Not paid yet — an invoice only exists from PaymentSettled onwards.
+        // Aún sin pagar: la factura solo existe a partir de PaymentSettled.
         return null;
     }
 

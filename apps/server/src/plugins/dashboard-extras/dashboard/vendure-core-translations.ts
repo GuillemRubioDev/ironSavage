@@ -1,23 +1,23 @@
 import { msg } from '@lingui/core/macro';
 
 /**
- * Not imported anywhere — this file only exists so `npm run i18n:extract`
- * puts these messages into this plugin's dashboard/i18n/*.po. They are
- * Dashboard (Vendure core) texts that ship without a Spanish translation in
- * @vendure/dashboard 3.7.2: because the message id is derived from the same
- * source text, our translation in es.po overrides Vendure's empty one (plugin
- * catalogs are merged after the built-in ones). Remove entries once upstream
- * translates them.
+ * No se importa en ningún sitio: este archivo solo existe para que
+ * `npm run i18n:extract` meta estos mensajes en el dashboard/i18n/*.po de este
+ * plugin. Son textos del dashboard (núcleo de Vendure) que vienen sin traducción al
+ * español en @vendure/dashboard 3.7.2: como el id del mensaje sale del mismo texto
+ * original, nuestra traducción de es.po sustituye a la vacía de Vendure (los
+ * catálogos de los plugins se combinan después de los de serie). Quita las entradas
+ * cuando Vendure las traduzca.
  */
 
-// Placeholder values, only there so the extracted messages get exactly the
-// same placeholders ({0}, {entityType}...) as Vendure's own source strings.
+// Valores de relleno, solo para que los mensajes extraídos tengan exactamente los
+// mismos marcadores ({0}, {entityType}…) que los textos originales de Vendure.
 const values: string[] = [];
 const entityType = '';
 const entityIdsLength = 0;
 
-// Explicit-id message: the bottom menu section heading (translated through
-// i18n.t('Administration'), see patches/@vendure+dashboard+*.patch).
+// Mensaje con id explícito: el título de la sección inferior del menú (se traduce
+// con i18n.t('Administration'); ver patches/@vendure+dashboard+*.patch).
 export const ADMINISTRATION = /* i18n*/ 'Administration';
 
 export const VENDURE_CORE_MESSAGES = [

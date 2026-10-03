@@ -38,7 +38,7 @@ export function ProductImageCarousel({ images, productName }: ProductImageCarous
 
     return (
         <div className="space-y-3">
-            {/* Main Image */}
+            {/* Imagen principal */}
             <div className="relative aspect-[4/5] bg-muted rounded-md overflow-hidden group cursor-crosshair">
                 <Image
                     src={images[currentIndex].source}
@@ -49,7 +49,7 @@ export function ProductImageCarousel({ images, productName }: ProductImageCarous
                     priority={currentIndex === 0}
                 />
 
-                {/* Navigation Arrows */}
+                {/* Flechas de navegación */}
                 {images.length > 1 && (
                     <>
                         <Button
@@ -73,7 +73,7 @@ export function ProductImageCarousel({ images, productName }: ProductImageCarous
                     </>
                 )}
 
-                {/* Image Counter */}
+                {/* Contador de imágenes */}
                 {images.length > 1 && (
                     <div className="absolute bottom-3 right-3 bg-background/85 px-2 py-0.5 text-xs font-mono tabular-nums" aria-hidden="true">
                         {currentIndex + 1} / {images.length}
@@ -81,7 +81,7 @@ export function ProductImageCarousel({ images, productName }: ProductImageCarous
                 )}
             </div>
 
-            {/* Thumbnail Strip */}
+            {/* Tira de miniaturas */}
             {images.length > 1 && (
                 <div className="grid grid-cols-5 gap-2">
                     {images.map((image, index) => (

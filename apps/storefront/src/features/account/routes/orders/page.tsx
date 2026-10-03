@@ -72,7 +72,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/mi-cuenta/p
                 </div>
             ) : (
                 <>
-                    {/* Mobile: Card-based layout */}
+                    {/* Móvil: diseño en tarjetas */}
                     <div className="md:hidden space-y-3">
                         {orders.map((order) => (
                             <Link
@@ -100,7 +100,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/mi-cuenta/p
                         ))}
                     </div>
 
-                    {/* Desktop: Table layout */}
+                    {/* Escritorio: diseño en tabla */}
                     <div className="hidden md:block border rounded-lg">
                         <Table>
                             <TableHeader className="bg-muted">

@@ -15,19 +15,18 @@ import {
 import { decimalTransformer } from './decimal.transformer';
 
 /**
- * One reward an athlete earned from one order placed with their code. Every
- * value that went into the calculation is snapshotted here at grant time
- * (code, terms, base amount, point value), so later changes to the athlete's
- * configuration never alter historical rewards.
+ * Una recompensa que ganó un atleta por un pedido hecho con su código. Todos los
+ * valores del cálculo se copian aquí al concederla (código, condiciones, base,
+ * valor del punto), para que los cambios posteriores en la configuración del
+ * atleta nunca alteren las recompensas pasadas.
  *
- * The points themselves live in the loyalty ledger (`loyaltyTransactionId`
- * points to the ATHLETE_REWARD LoyaltyTransaction that credited them), so
- * the athlete spends them through the regular redemption flow; this row is
- * the "why" behind that ledger entry.
+ * Los puntos en sí están en el libro de fidelización (`loyaltyTransactionId`
+ * apunta a la LoyaltyTransaction ATHLETE_REWARD que los abonó), así que el atleta
+ * los gasta con el flujo de canje normal; esta fila es el «porqué» de ese apunte.
  *
- * The unique index on `orderId` is what makes granting idempotent: an order
- * can produce at most one athlete reward, no matter how many times its
- * PaymentSettled event is delivered.
+ * El índice único sobre `orderId` es lo que hace idempotente la concesión: un
+ * pedido genera como mucho una recompensa de atleta, por muchas veces que llegue
+ * su evento PaymentSettled.
  */
 @Entity()
 @Check(
@@ -56,7 +55,7 @@ export class AthleteReward extends VendureEntity {
     @JoinColumn()
     athleteCode: AthleteCode | null;
 
-    /** Code as it was applied to the order (snapshot). */
+    /** Código tal como se aplicó al pedido (copia). */
     @Column({ length: 32 })
     code: string;
 
@@ -67,15 +66,15 @@ export class AthleteReward extends VendureEntity {
     @Column()
     orderCode: string;
 
-    /** The customer who placed the order. Admin-only — never exposed to the athlete. */
+    /** El cliente que hizo el pedido. Solo para administración: nunca se muestra al atleta. */
     @EntityId({ nullable: true })
     customerId: ID | null;
 
-    /** Monetary base the reward was computed on, in minor units (order subTotalWithTax: products after discounts, with tax, excluding shipping). */
+    /** Base sobre la que se calculó la recompensa, en céntimos (subTotalWithTax del pedido: productos tras descuentos, con IVA, sin envío). */
     @Column()
     baseAmount: number;
 
-    /** Discount the customer received from this code on the order, in minor units (positive number). */
+    /** Descuento que recibió el cliente por este código en el pedido, en céntimos (número positivo). */
     @Column({ default: 0 })
     customerDiscountAmount: number;
 
@@ -94,19 +93,19 @@ export class AthleteReward extends VendureEntity {
     @Column({ type: 'numeric', precision: 10, scale: 2, transformer: decimalTransformer })
     rewardValue: number;
 
-    /** Loyalty program point value at grant time. */
+    /** Valor del punto del programa de fidelización al concederla. */
     @Column()
     pointValueInCents: number;
 
-    /** Points granted. */
+    /** Puntos concedidos. */
     @Column()
     points: number;
 
-    /** Points reverted so far (cancellations, refunds, manual reversals) — as decided, regardless of balance. */
+    /** Puntos revertidos hasta ahora (cancelaciones, reembolsos, reversiones manuales), según lo decidido, haya saldo o no. */
     @Column({ default: 0 })
     revertedPoints: number;
 
-    /** Part of revertedPoints that couldn't be debited because the athlete had already spent them. */
+    /** Parte de revertedPoints que no se pudo descontar porque el atleta ya los había gastado. */
     @Column({ default: 0 })
     unrecoveredPoints: number;
 

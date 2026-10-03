@@ -1,9 +1,9 @@
 import { ID, NativeAuthenticationMethod, RequestContext, TransactionalConnection } from '@vendure/core';
 
 /**
- * Whether a User has chosen a password. Accounts created from the Dashboard
- * without one (e.g. a new athlete) choose it from the verification link.
- * passwordHash is `select: false` on the entity, hence the explicit select.
+ * Si un User ha elegido contraseña. Las cuentas creadas desde el dashboard sin
+ * contraseña (p. ej. un atleta nuevo) la eligen desde el enlace de verificación.
+ * passwordHash es `select: false` en la entidad, de ahí el select explícito.
  */
 export async function userHasPassword(connection: TransactionalConnection, ctx: RequestContext, userId: ID): Promise<boolean> {
     const method = await connection

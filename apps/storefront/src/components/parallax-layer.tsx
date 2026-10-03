@@ -4,12 +4,11 @@ import {useEffect, useRef} from "react";
 import {cn} from "@/lib/utils";
 
 /**
- * Cheap scroll parallax: one passive scroll listener (shared cost across
- * however many layers are mounted — each just does a getBoundingClientRect
- * + a CSS custom-property write, both trivial), rAF-throttled, GPU-only
- * transform (see `.parallax-layer` in globals.css). No animation library.
- * Skips attaching anything at all under prefers-reduced-motion — the layer
- * just renders static.
+ * Parallax de scroll barato: un único listener de scroll pasivo (coste compartido
+ * entre todas las capas montadas; cada una solo hace un getBoundingClientRect y
+ * escribe una variable CSS, ambas cosas triviales), limitado con rAF y con transform
+ * solo por GPU (ver `.parallax-layer` en globals.css). Sin librería de animación.
+ * Con prefers-reduced-motion no se engancha nada y la capa se muestra estática.
  */
 export function ParallaxLayer({
     speed = 0.15,

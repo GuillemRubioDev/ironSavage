@@ -22,8 +22,8 @@ export function CookieBanner() {
                     <p className="font-display font-semibold uppercase tracking-tight text-sm">{t("title")}</p>
                     <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{t("description")}</p>
                 </div>
-                {/* Accept/reject carry equal visual weight on purpose — neither
-                    is de-emphasized relative to the other. */}
+                {/* Aceptar y rechazar tienen el mismo peso visual a propósito: ninguno
+                    se destaca menos que el otro. */}
                 <div className="flex flex-col gap-2 sm:flex-row shrink-0">
                     <Button variant="outline" size="default" onClick={openPreferences}>
                         {t("customize")}

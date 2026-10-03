@@ -23,13 +23,13 @@ type OrderForReward = Pick<Order, 'id' | 'code' | 'customerId' | 'couponCodes' |
 };
 
 /**
- * Grants and reverts athlete rewards, driven by the order lifecycle (see
- * AthleteEventSubscriber). Idempotency never relies on "check then act"
- * alone: every grant/reversal first inserts a row guarded by a unique index
- * (AthleteReward.orderId, AthleteRewardReversal partial indexes) inside the
- * same DB transaction as the ledger write, so a duplicate or concurrent event
- * fails on that insert and its whole transaction — ledger credit included —
- * is rolled back.
+ * Concede y revierte las recompensas de los atletas según el ciclo de vida del
+ * pedido (ver AthleteEventSubscriber). La idempotencia nunca depende solo de
+ * «comprobar y luego actuar»: cada concesión o reversión inserta primero una fila
+ * protegida por un índice único (AthleteReward.orderId, índices parciales de
+ * AthleteRewardReversal) en la misma transacción que el apunte en el libro, así
+ * que un evento duplicado o simultáneo falla en ese insert y se deshace toda su
+ * transacción, incluido el abono de puntos.
  */
 @Injectable()
 export class AthleteRewardService {
@@ -39,7 +39,7 @@ export class AthleteRewardService {
         private loyaltyService: LoyaltyService,
     ) {}
 
-    /** Called when an order reaches PaymentSettled. */
+    /** Se llama cuando un pedido llega a PaymentSettled. */
     async grantForOrder(ctx: RequestContext, orderId: ID): Promise<{ granted: boolean; points?: number; reason?: string }> {
         const order = await this.loadOrder(ctx, orderId);
         if (!order) {
@@ -53,9 +53,9 @@ export class AthleteRewardService {
         if (promotionIds.length === 0) {
             return { granted: false, reason: 'NO_ATHLETE_CODE' };
         }
-        // Only codes whose Promotion actually applied to the order count — if
-        // the athlete_code condition rejected it (own code, disabled athlete,
-        // second athlete code), there was no discount and there's no reward.
+        // Solo cuentan los códigos cuya Promotion se aplicó de verdad al pedido: si
+        // la condición athlete_code la rechazó (código propio, atleta desactivado,
+        // segundo código de atleta), no hubo descuento y no hay recompensa.
         const candidates = await this.connection.getRepository(ctx, AthleteCode).find({
             where: { promotionId: In(promotionIds) },
             relations: { athlete: true },
@@ -71,7 +71,7 @@ export class AthleteRewardService {
             return { granted: false, reason: 'ATHLETE_DISABLED' };
         }
         if (order.customerId && idsAreEqual(order.customerId, athlete.customerId)) {
-            // Defence in depth: the promotion condition already blocks this.
+            // Doble protección: la condición de la promoción ya lo impide.
             return { granted: false, reason: 'OWN_CODE' };
         }
 
@@ -138,7 +138,7 @@ export class AthleteRewardService {
         }
     }
 
-    /** Called when an order is cancelled: reverts whatever part of the reward hasn't been reverted yet. */
+    /** Se llama al cancelar un pedido: revierte la parte de la recompensa que aún no se haya revertido. */
     async revertForCancellation(ctx: RequestContext, orderId: ID): Promise<{ reverted: number }> {
         const reward = await this.connection.getRepository(ctx, AthleteReward).findOne({ where: { orderId } });
         if (!reward) {
@@ -149,7 +149,7 @@ export class AthleteRewardService {
         });
     }
 
-    /** Called when a refund settles: reverts a proportional share, once per refund. */
+    /** Se llama al liquidarse un reembolso: revierte la parte proporcional, una vez por reembolso. */
     async revertForRefund(
         ctx: RequestContext,
         order: Pick<Order, 'id' | 'totalWithTax'>,
@@ -168,7 +168,7 @@ export class AthleteRewardService {
         );
     }
 
-    /** Admin action: annul the rest of a reward (e.g. a fraudulent order). */
+    /** Acción de administración: anula lo que quede de una recompensa (p. ej. un pedido fraudulento). */
     async revertManually(ctx: RequestContext, rewardId: ID, note: string, administratorUserId?: ID): Promise<{ reverted: number }> {
         return this.applyReversal(ctx, rewardId, 'MANUAL', r => r.points - r.revertedPoints, {
             note: note.trim() || 'Manual reversal',
@@ -218,10 +218,10 @@ export class AthleteRewardService {
     }
 
     /**
-     * Every order that has this code applied — including ones that never
-     * produced a reward (not paid yet, cancelled before payment, own code...).
-     * `couponCodes` is a TypeORM simple-array (comma-separated text), hence
-     * the delimited LIKE; codes can't contain commas (ATHLETE_CODE_PATTERN).
+     * Todos los pedidos con este código aplicado, incluidos los que nunca generaron
+     * recompensa (aún sin pagar, cancelados antes del pago, código propio…).
+     * `couponCodes` es un simple-array de TypeORM (texto separado por comas), de ahí
+     * el LIKE con delimitadores; los códigos no pueden llevar comas (ATHLETE_CODE_PATTERN).
      */
     async listOrdersForCode(
         ctx: RequestContext,
@@ -254,8 +254,8 @@ export class AthleteRewardService {
         try {
             return await this.connection.withTransaction(ctx, async txCtx => {
                 const rewardRepo = this.connection.getRepository(txCtx, AthleteReward);
-                // Row lock: serializes concurrent reversals of the same reward so
-                // their "remaining points" reads can't both see the same value.
+                // Bloqueo de fila: serializa las reversiones simultáneas de la misma
+                // recompensa para que no lean las dos el mismo «puntos restantes».
                 const reward = await rewardRepo.findOne({ where: { id: rewardId }, lock: { mode: 'pessimistic_write' } });
                 if (!reward) {
                     return { reverted: 0 };

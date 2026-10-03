@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Test-only in-memory stand-in for TransactionalConnection, shared by the
- * athletes specs. Same philosophy as loyalty.service.spec.ts's fake: faithful
- * to exactly the DB guarantees the code relies on — the unique indexes that
- * make grants/reversals idempotent, the conditional balance UPDATE, and
- * transaction rollback — so the specs exercise the real services (including
- * the real LoyaltyService) rather than mocks of them.
+ * Sustituto en memoria de TransactionalConnection, solo para tests, compartido por
+ * los tests de atletas. Misma filosofía que la imitación de loyalty.service.spec.ts:
+ * reproduce exactamente las garantías de la base de datos en las que se apoya el
+ * código (los índices únicos que hacen idempotentes concesiones y reversiones, el
+ * UPDATE condicional del saldo y el rollback de transacciones), para que los tests
+ * ejerciten los servicios reales (incluido el LoyaltyService real) y no mocks.
  */
 import { LoyaltyAccount } from '../loyalty/loyalty-account.entity';
 import { LoyaltyTransaction } from '../loyalty/loyalty-transaction.entity';
@@ -20,7 +20,7 @@ type Row = Record<string, any>;
 
 interface TableDef {
     rows: Row[];
-    /** Each entry is a set of columns that must be unique together (rows where any column is null are skipped), optionally filtered. */
+    /** Cada entrada es un conjunto de columnas que deben ser únicas juntas (se ignoran las filas con alguna columna nula), con filtro opcional. */
     unique: Array<{ columns: string[]; where?: (row: Row) => boolean }>;
 }
 
@@ -65,7 +65,7 @@ export function createFakeDb() {
     ]);
     let nextId = 1;
 
-    // Relations the services load, resolved by foreign key.
+    // Relaciones que cargan los servicios, resueltas por clave foránea.
     const relationResolvers: Record<string, (row: Row) => unknown> = {
         athlete: row => tables.get(Athlete)!.rows.find(a => String(a.id) === String(row.athleteId)),
         codes: row => tables.get(AthleteCode)!.rows.filter(c => String(c.athleteId) === String(row.id)),
@@ -106,7 +106,7 @@ export function createFakeDb() {
             find: async ({ where, relations }: { where?: Row; relations?: Row } = {}) =>
                 table.rows.filter(r => matches(r, where)).map(r => withRelations(r, relations)!),
             findAndCount: async ({ where, relations, skip = 0, take = 50 }: { where?: Row; relations?: Row; skip?: number; take?: number }) => {
-                const all = table.rows.filter(r => matches(r, where)).reverse(); // newest first, like order: createdAt DESC
+                const all = table.rows.filter(r => matches(r, where)).reverse(); // los más recientes primero, como order: createdAt DESC
                 return [all.slice(skip, skip + take).map(r => withRelations(r, relations)!), all.length] as const;
             },
             save: async (input: Row) => {
@@ -130,7 +130,7 @@ export function createFakeDb() {
                 }
                 return { affected: 1 };
             },
-            // Only the conditional balance UPDATE in LoyaltyService.applyBalanceChange uses this.
+            // Solo lo usa el UPDATE condicional del saldo de LoyaltyService.applyBalanceChange.
             createQueryBuilder: () => {
                 const params: Row = {};
                 const builder = {
@@ -155,7 +155,7 @@ export function createFakeDb() {
         return repo;
     }
 
-    // Serialized transactions with snapshot/rollback, like loyalty.service.spec.ts.
+    // Transacciones serializadas con copia y rollback, como en loyalty.service.spec.ts.
     let mutex: Promise<unknown> = Promise.resolve();
     const connection = {
         getRepository: (_ctx: unknown, Entity: unknown) => repoFor(Entity),
@@ -188,7 +188,7 @@ export function createFakeDb() {
 
 export type FakeDb = ReturnType<typeof createFakeDb>;
 
-/** Builds the real LoyaltyService + AthleteRewardService on top of one fake DB. */
+/** Construye los LoyaltyService y AthleteRewardService reales sobre una base de datos falsa. */
 export function createRewardServices(db: FakeDb = createFakeDb()) {
     const surcharges: Row[] = [];
     const orderService = {
@@ -204,7 +204,7 @@ export function createRewardServices(db: FakeDb = createFakeDb()) {
     return { db, loyaltyService, rewardService, surcharges };
 }
 
-/** Inserts an athlete (+ code) directly, as AthleteService would after creating the Promotion. */
+/** Inserta directamente un atleta (+ código), como haría AthleteService tras crear la Promotion. */
 export async function seedAthlete(
     db: FakeDb,
     input: { customerId: string; code: string; promotionId: string; discountValue?: number; rewardValue?: number; rewardType?: string; enabled?: boolean },
@@ -224,9 +224,9 @@ export async function seedAthlete(
 }
 
 /**
- * A settled order as AthleteRewardService loads it. `promotionIds` are the
- * promotions Vendure actually applied; the discount lines mimic what
- * order_percentage_discount produces.
+ * Un pedido pagado tal como lo carga AthleteRewardService. `promotionIds` son las
+ * promociones que aplicó Vendure de verdad; las líneas de descuento imitan lo que
+ * genera order_percentage_discount.
  */
 export function makeOrder(input: {
     id: string;

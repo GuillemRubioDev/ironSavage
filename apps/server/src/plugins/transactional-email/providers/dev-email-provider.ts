@@ -14,11 +14,10 @@ function slugify(value: string): string {
 }
 
 /**
- * Never delivers anything — writes the rendered HTML to disk and logs a
- * one-line summary, so a developer can open the file and see exactly what
- * would have been sent. This is the default provider (EMAIL_PROVIDER unset
- * or anything other than "smtp"), matching "no uses credenciales reales" and
- * "permitir un modo de email que no envíe correos reales".
+ * Nunca envía nada: escribe el HTML generado en disco y anota un resumen de una línea
+ * en el log, para que quien desarrolla abra el archivo y vea exactamente lo que se
+ * habría enviado. Es el proveedor por defecto (EMAIL_PROVIDER sin definir o distinto
+ * de "smtp"), para trabajar sin credenciales reales y sin enviar correos de verdad.
  */
 export class DevEmailProvider implements EmailProvider {
     constructor(private outputDir: string) {}

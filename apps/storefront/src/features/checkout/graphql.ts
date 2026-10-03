@@ -222,7 +222,7 @@ export const TransitionOrderToStateMutation = graphql(`
     }
 `);
 
-/** Records on the active order when (server time) and which version of the terms the customer accepted. */
+/** Anota en el pedido activo cuándo (hora del servidor) y qué versión de las condiciones aceptó el cliente. */
 export const AcceptTermsForActiveOrderMutation = graphql(`
     mutation AcceptTermsForActiveOrder($version: String!) {
         acceptTermsForActiveOrder(version: $version)

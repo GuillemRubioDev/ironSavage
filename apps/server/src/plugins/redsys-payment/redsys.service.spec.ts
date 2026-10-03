@@ -16,8 +16,8 @@ const { RedsysPaymentAttempt } = require('./redsys-payment-attempt.entity');
 const { Order } = require('@vendure/core');
 
 const SECRET_KEY = process.env.REDSYS_SECRET_KEY!;
-// handleNotification only forwards this to RequestContext for transaction affinity —
-// the fakes in this file don't care about its contents.
+// handleNotification solo pasa esto al RequestContext por afinidad de transacción;
+// a los sustitutos de este archivo no les importa su contenido.
 const FAKE_REQ = {} as any;
 
 function buildNotificationBody(order: string, responseCode: string, authorisationCode = '123456') {
@@ -34,9 +34,9 @@ function buildNotificationBody(order: string, responseCode: string, authorisatio
 }
 
 function createFakeRedsysTransactionRepository() {
-    // Minimal in-memory stand-in for the TypeORM repository, keyed by
-    // merchantOrder like the real unique index — enough to exercise the
-    // findOne-then-insert idempotency dance without a real database.
+    // Sustituto mínimo en memoria del repositorio TypeORM, con clave merchantOrder
+    // como el índice único real: basta para probar la idempotencia de
+    // «buscar y luego insertar» sin una base de datos real.
     const rows = new Map<string, {merchantOrder: string}>();
     return {
         findOne: mock.fn(async ({where: {merchantOrder}}: {where: {merchantOrder: string}}) => rows.get(merchantOrder) ?? null),
@@ -52,12 +52,12 @@ function createFakeRedsysTransactionRepository() {
 }
 
 /**
- * Minimal in-memory stand-in for RedsysPaymentAttempt, keyed by merchantOrder
- * like the real unique index. Pre-seeded with `merchantOrder === orderCode`
- * for the given order, so tests that build a notification body directly
- * (bypassing buildPaymentForm, which is what normally creates this mapping)
- * still resolve to the right order — matching how notification tests
- * already use order.code as the attempt identifier.
+ * Sustituto mínimo en memoria de RedsysPaymentAttempt, con clave merchantOrder como
+ * el índice único real. Viene precargado con `merchantOrder === orderCode` para el
+ * pedido dado, para que los tests que construyen la notificación directamente (sin
+ * buildPaymentForm, que es quien crea normalmente esta relación) sigan llegando al
+ * pedido correcto, igual que los tests de notificación ya usan order.code como
+ * identificador del intento.
  */
 function createFakeAttemptRepository(order: { code: string }) {
     const rows = new Map<string, {merchantOrder: string; orderCode: string}>([
@@ -72,10 +72,10 @@ function createFakeAttemptRepository(order: { code: string }) {
 }
 
 function createService(order: { id: string; code: string; state: string }) {
-    // The real code distinguishes success from failure via `result instanceof Order`,
-    // so the mock must return a real Order instance, not a duck-typed lookalike.
-    // A declined payment is real Vendure behaviour too: addPaymentToOrder reports it
-    // as a PaymentDeclinedError even though the Payment itself is still saved.
+    // El código real distingue éxito de fallo con `result instanceof Order`, así que el
+    // mock debe devolver una instancia real de Order, no algo con la misma forma. Un
+    // pago denegado también es comportamiento real de Vendure: addPaymentToOrder lo
+    // devuelve como PaymentDeclinedError aunque el Payment se guarde igualmente.
     const addPaymentToOrder = mock.fn(async (_ctx: unknown, _orderId: unknown, input: {metadata: {approved: boolean}}) =>
         input.metadata.approved
             ? new Order({ ...order, state: 'PaymentSettled' })
@@ -84,18 +84,18 @@ function createService(order: { id: string; code: string; state: string }) {
     const transitionToState = mock.fn(async (..._args: unknown[]) => new Order({ ...order, state: 'ArrangingPayment' }));
     const findOneByCode = mock.fn(async (..._args: unknown[]) => order);
 
-    // OrderService.addPaymentToOrder / transitionToState success is detected via
-    // `instanceof Order` in the real code — swap that check out for a duck-typed
-    // marker here so this test doesn't need to construct a real TypeORM entity.
+    // En el código real, el éxito de OrderService.addPaymentToOrder/transitionToState
+    // se detecta con `instanceof Order`; aquí se cambia por una marca por forma para
+    // que este test no tenga que construir una entidad TypeORM real.
     const orderServiceMock = { addPaymentToOrder, transitionToState, findOneByCode };
     const fakeRepository = createFakeRedsysTransactionRepository();
     const fakeAttemptRepository = createFakeAttemptRepository(order);
     const connectionMock = {
         getRepository: (_ctx: unknown, entity: unknown) =>
             entity === RedsysPaymentAttempt ? fakeAttemptRepository : fakeRepository,
-        // Real withTransaction opens/commits/rolls back a DB transaction; the fake
-        // just runs the callback with the same ctx, which is enough to exercise
-        // this service's own logic (idempotency, ordering, error propagation).
+        // El withTransaction real abre, confirma o deshace una transacción; el sustituto
+        // solo ejecuta la función con el mismo ctx, suficiente para probar la lógica
+        // del servicio (idempotencia, orden, propagación de errores).
         withTransaction: async (ctx: unknown, work: (ctx: unknown) => Promise<unknown>) => work(ctx),
     };
     const channelServiceMock = { getDefaultChannel: async () => ({ id: 1, token: 'default' }) };
@@ -125,10 +125,10 @@ test('buildPaymentForm takes the amount from the Order, not any external input',
 
     const decoded = JSON.parse(Buffer.from(result.form.merchantParameters, 'base64').toString('utf8'));
     assert.equal(decoded.DS_MERCHANT_AMOUNT, '4999');
-    // DS_MERCHANT_ORDER is a fresh per-attempt value (not the Vendure order
-    // code itself) — see RedsysPaymentAttempt: Redsys rejects a resend of the
-    // same order number, so each attempt needs a distinct one, in Redsys'
-    // required format (4 numeric + 8 alphanumeric).
+    // DS_MERCHANT_ORDER es un valor nuevo por intento (no el código del pedido); ver
+    // RedsysPaymentAttempt: Redsys rechaza repetir un número de pedido, así que cada
+    // intento necesita uno distinto, con el formato que exige Redsys (4 numéricos +
+    // 8 alfanuméricos).
     assert.match(decoded.DS_MERCHANT_ORDER, /^\d{4}[0-9A-Z]{8}$/);
     assert.notEqual(decoded.DS_MERCHANT_ORDER, '1234ABCD5678');
 });
@@ -159,17 +159,17 @@ test('buildPaymentForm rejects an order with no lines', async () => {
 });
 
 test('handleNotification records an approved payment for an OK response', async () => {
-    // Vendure's OrderService.addPaymentToOrder success path is `result instanceof Order`.
-    // We can't easily construct a real `Order` entity here, so this test instead
-    // asserts on *what the service attempted to do*: transition + addPaymentToOrder
-    // called once each, with approved:true metadata.
+    // El éxito de OrderService.addPaymentToOrder en Vendure es `result instanceof Order`.
+    // Aquí no es fácil construir una entidad `Order` real, así que este test comprueba
+    // *lo que el servicio intentó hacer*: transición y addPaymentToOrder llamados una
+    // vez cada uno, con metadatos approved:true.
     const order = { id: '1', code: '0001AAAAAAAA', state: 'ArrangingPayment' };
     const { service, addPaymentToOrder, transitionToState } = createService(order);
 
     const body = buildNotificationBody(order.code, '0000');
     await service.handleNotification(body, FAKE_REQ);
 
-    assert.equal(transitionToState.mock.callCount(), 0); // already ArrangingPayment
+    assert.equal(transitionToState.mock.callCount(), 0); // ya en ArrangingPayment
     assert.equal(addPaymentToOrder.mock.callCount(), 1);
     const [, , input] = addPaymentToOrder.mock.calls[0].arguments as [unknown, unknown, { metadata: { approved: boolean; responseCode: string } }];
     assert.equal(input.metadata.approved, true);
@@ -177,14 +177,14 @@ test('handleNotification records an approved payment for an OK response', async 
 });
 
 test('handleNotification records a declined payment for a KO response, without throwing', async () => {
-    // addPaymentToOrder reports a decline as a PaymentDeclinedError, not by throwing —
-    // that's an expected, terminal outcome and must be treated as "successfully
-    // handled" (not a system failure), or a declined order could never be marked
-    // as processed and every Redsys retry of the same decline would be reprocessed.
+    // addPaymentToOrder devuelve una denegación como PaymentDeclinedError, sin lanzar
+    // error: es un resultado esperado y final y debe tratarse como «gestionado
+    // correctamente» (no como fallo del sistema); si no, un pedido denegado nunca se
+    // marcaría como procesado y cada reintento de Redsys se volvería a procesar.
     const order = { id: '1', code: '0002BBBBBBBB', state: 'ArrangingPayment' };
     const { service, addPaymentToOrder } = createService(order);
 
-    const body = buildNotificationBody(order.code, '0180'); // 0180 = card declined
+    const body = buildNotificationBody(order.code, '0180'); // 0180 = tarjeta denegada
     const result = await service.handleNotification(body, FAKE_REQ);
 
     assert.equal(result.alreadyProcessed, false);
@@ -192,7 +192,7 @@ test('handleNotification records a declined payment for a KO response, without t
     const [, , input] = addPaymentToOrder.mock.calls[0].arguments as [unknown, unknown, { metadata: { approved: boolean; responseCode: string } }];
     assert.equal(input.metadata.approved, false);
 
-    // A retried notification for the same decline must be recognised as a duplicate.
+    // Una notificación reintentada de la misma denegación debe reconocerse como duplicada.
     const retry = await service.handleNotification(body, FAKE_REQ);
     assert.equal(retry.alreadyProcessed, true);
     assert.equal(addPaymentToOrder.mock.callCount(), 1);
@@ -224,21 +224,21 @@ test('handleNotification is idempotent: a duplicate notification is not processe
 });
 
 test('a second, distinct payment attempt for the same order (e.g. retry after a decline) is processed, not swallowed as a duplicate', async () => {
-    // Regression test for the real-world bug this fixes: a declined card
-    // followed by a successful retry of the *same Vendure order* must each be
-    // treated as their own attempt — not collapsed by orderCode-keyed
-    // idempotency, which would silently drop the successful retry.
+    // Test de regresión del fallo real que esto corrige: una tarjeta denegada y luego
+    // un reintento correcto del *mismo pedido* deben tratarse como intentos distintos,
+    // no fusionarse por una idempotencia basada en orderCode, que descartaría en
+    // silencio el reintento correcto.
     const order = { id: '1', code: '0006FFFFFFFF', state: 'ArrangingPayment' };
     const { service, addPaymentToOrder, fakeAttemptRepository } = createService(order);
 
-    // First attempt (declined) — distinct merchantOrder from the second.
+    // Primer intento (denegado): merchantOrder distinto del segundo.
     const firstAttemptOrder = '0006AAAAAAAA';
     await fakeAttemptRepository.insert({ merchantOrder: firstAttemptOrder, orderCode: order.code });
     const declinedBody = buildNotificationBody(firstAttemptOrder, '0180');
     const declinedResult = await service.handleNotification(declinedBody, FAKE_REQ);
     assert.equal(declinedResult.alreadyProcessed, false);
 
-    // Second, later attempt (approved) — a different merchantOrder, same order.
+    // Segundo intento, posterior (aprobado): otro merchantOrder, mismo pedido.
     const secondAttemptOrder = '0006BBBBBBBB';
     await fakeAttemptRepository.insert({ merchantOrder: secondAttemptOrder, orderCode: order.code });
     const approvedBody = buildNotificationBody(secondAttemptOrder, '0000');
@@ -254,10 +254,10 @@ test('a second, distinct payment attempt for the same order (e.g. retry after a 
 });
 
 test('a notification is NOT marked as processed if addPaymentToOrder fails, so a retry can still succeed', async () => {
-    // Regression test: an earlier version of this code recorded the dedup row
-    // *before* calling addPaymentToOrder, so a downstream failure (e.g. a missing
-    // DB transaction) permanently and silently blocked every future retry of an
-    // order that was never actually paid.
+    // Test de regresión: una versión anterior guardaba la fila de deduplicación
+    // *antes* de llamar a addPaymentToOrder, así que un fallo posterior (p. ej. una
+    // transacción ausente) bloqueaba para siempre y en silencio cualquier reintento
+    // de un pedido que en realidad nunca se pagó.
     const order = { id: '1', code: '0005EEEEEEEE', state: 'ArrangingPayment' };
     const { service, addPaymentToOrder, fakeRepository } = createService(order);
 
@@ -269,7 +269,7 @@ test('a notification is NOT marked as processed if addPaymentToOrder fails, so a
     await assert.rejects(() => service.handleNotification(body, FAKE_REQ));
     assert.equal(await fakeRepository.findOne({ where: { merchantOrder: order.code } }), null);
 
-    // Retry should be attempted again, not silently dropped as a duplicate.
+    // El reintento debe procesarse de nuevo, no descartarse en silencio como duplicado.
     const retry = await service.handleNotification(body, FAKE_REQ);
     assert.equal(retry.alreadyProcessed, false);
     assert.equal(addPaymentToOrder.mock.callCount(), 2);

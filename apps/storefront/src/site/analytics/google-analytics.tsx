@@ -5,16 +5,16 @@ import {clearPendingEvents, flushPendingEvents, GA_MEASUREMENT_ID} from '@/platf
 import {useCookieConsent} from '@/site/cookie-consent/consent-context';
 
 /**
- * Loads Google Analytics 4 only after the visitor accepts the "analytics"
- * cookie category (AEPD: no analytics cookies before consent), and turns it
- * off again — deleting its cookies — if they withdraw it from "Configurar
- * cookies". Renders nothing; does nothing at all without NEXT_PUBLIC_GA_ID
- * (development, or production before the property exists).
+ * Carga Google Analytics 4 solo después de que el visitante acepte la categoría de
+ * cookies «analíticas» (AEPD: nada de cookies analíticas antes del consentimiento), y
+ * lo vuelve a apagar (borrando sus cookies) si lo retira desde «Configurar cookies».
+ * No pinta nada; sin NEXT_PUBLIC_GA_ID no hace nada en absoluto (desarrollo, o
+ * producción antes de crear la propiedad).
  *
- * Consent Mode v2: advertising signals are always denied — this shop only
- * measures, it doesn't advertise with Google. Page views on client-side
- * navigations are sent by GA4's enhanced measurement ("page changes based on
- * browser history events", on by default in the GA4 data stream).
+ * Consent Mode v2: las señales publicitarias se deniegan siempre; la tienda solo
+ * mide, no hace publicidad con Google. Las páginas vistas en navegaciones del lado
+ * del cliente las envía la medición mejorada de GA4 («cambios de página según el
+ * historial del navegador», activa por defecto en el flujo de datos de GA4).
  */
 export function GoogleAnalytics() {
     const {consent, hasResponded} = useCookieConsent();
@@ -35,7 +35,7 @@ export function GoogleAnalytics() {
                 return;
             }
             window.dataLayer = window.dataLayer ?? [];
-            // gtag.js requires the real `arguments` object, not a rest array.
+            // gtag.js necesita el objeto `arguments` real, no un array rest.
             window.gtag = function gtag() {
                 // eslint-disable-next-line prefer-rest-params
                 window.dataLayer!.push(arguments);
@@ -55,13 +55,13 @@ export function GoogleAnalytics() {
             script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`;
             document.head.appendChild(script);
         } else if (hasResponded) {
-            // Only once the stored answer has been read: on the first render
-            // consent is still the default "no", and events queued by the page
-            // must survive until we know.
+            // Solo cuando ya se ha leído la respuesta guardada: en el primer render el
+            // consentimiento aún es el «no» por defecto, y los eventos en cola de la
+            // página deben sobrevivir hasta saberlo.
             clearPendingEvents();
             if (typeof window.gtag === 'function') {
                 window.gtag('consent', 'update', {analytics_storage: 'denied'});
-                // Stops gtag.js from sending anything else in this page session.
+                // Impide que gtag.js envíe nada más en esta sesión de página.
                 flags[disableFlag] = true;
                 deleteGoogleAnalyticsCookies();
             }
@@ -71,7 +71,7 @@ export function GoogleAnalytics() {
     return null;
 }
 
-/** Removes _ga / _ga_<id> for the current host and its parent domains. */
+/** Borra _ga / _ga_<id> del host actual y sus dominios superiores. */
 function deleteGoogleAnalyticsCookies() {
     const names = document.cookie
         .split(';')

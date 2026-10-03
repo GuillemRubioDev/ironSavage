@@ -1,26 +1,26 @@
 import type { Order, RequestContext } from '@vendure/core';
 
 export interface LoyaltyPluginOptions {
-    /** Points earned per whole euro spent (based on Order.totalWithTax). */
+    /** Puntos ganados por cada euro entero gastado (sobre Order.totalWithTax). */
     pointsPerEuro?: number;
-    /** Monetary value of a single point, in cents, when redeemed as a discount. */
+    /** Valor de un punto en céntimos al canjearlo como descuento. */
     pointValueInCents?: number;
-    /** Minimum number of points a customer must redeem at once. */
+    /** Mínimo de puntos que un cliente debe canjear de una vez. */
     minRedeemablePoints?: number;
-    /** Maximum discount (in cents) that points can apply to a single order. */
+    /** Descuento máximo (en céntimos) que los puntos pueden aplicar a un pedido. */
     maxDiscountPerOrderCents?: number;
 }
 
 /**
- * Lets another plugin veto the standard "earn points on your own purchase"
- * rule for specific orders without LoyaltyPlugin knowing why — e.g. the
- * AthletesPlugin uses this so athletes don't earn regular customer points.
- * Registered at bootstrap via `LoyaltyService.registerEarnPolicy()`.
+ * Permite a otro plugin anular la regla normal de «ganar puntos con tu propia
+ * compra» en pedidos concretos sin que LoyaltyPlugin sepa por qué; p. ej.
+ * AthletesPlugin lo usa para que los atletas no ganen los puntos de cliente normal.
+ * Se registra al arrancar con `LoyaltyService.registerEarnPolicy()`.
  */
 export interface LoyaltyEarnPolicy {
-    /** Short identifier, only used in log messages. */
+    /** Identificador corto; solo se usa en los mensajes de log. */
     name: string;
-    /** Return false to skip the regular EARN for this order. */
+    /** Devuelve false para no dar el EARN normal en este pedido. */
     canEarnForOrder(ctx: RequestContext, order: Order): Promise<boolean>;
 }
 

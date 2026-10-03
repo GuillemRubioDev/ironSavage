@@ -56,9 +56,9 @@ export default async function CheckoutPage({searchParams}: PageProps<'/[locale]/
 
     const addresses = addressesRes.data.activeCustomer?.addresses || [];
     const shippingMethods = shippingMethodsRes.data.eligibleShippingMethods || [];
-    // description is admin-authored rich HTML rendered via dangerouslySetInnerHTML
-    // in payment-step.tsx/review-step.tsx (both client components) — sanitize it
-    // here, server-side, before it ever reaches those renders.
+    // description es HTML enriquecido escrito por el administrador que se muestra con
+    // dangerouslySetInnerHTML en payment-step.tsx/review-step.tsx (ambos componentes de
+    // cliente): se limpia aquí, en el servidor, antes de que llegue a ellos.
     const paymentMethods = (paymentMethodsRes.data.eligiblePaymentMethods?.filter((m) => m.isEligible) || [])
         .map((m) => ({...m, description: sanitizeRichText(m.description)}));
 

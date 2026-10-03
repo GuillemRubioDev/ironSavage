@@ -67,10 +67,9 @@ export default async function RegisterPage({searchParams}: PageProps<'/[locale]/
 
     return (
         <div className="flex min-h-[calc(100vh-var(--header-offset))]">
-            {/* Branded panel - desktop only. Fixed dark background (not
-                theme-reactive): the logo's own red lettering needs a
-                dark/neutral backdrop for contrast, not the red primary
-                gradient this used to have. */}
+            {/* Panel de marca, solo escritorio. Fondo oscuro fijo (no depende del
+                tema): las letras rojas del logo necesitan un fondo oscuro o neutro
+                para contrastar, no el degradado rojo que tenía antes. */}
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[oklch(0.13_0.004_260)] items-center justify-center p-12 rounded-br-3xl">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,oklch(0.577_0.245_27.325_/_25%),transparent)]" />
                 <div className="relative max-w-md space-y-6">
@@ -95,7 +94,7 @@ export default async function RegisterPage({searchParams}: PageProps<'/[locale]/
                 </div>
             </div>
 
-            {/* Form panel */}
+            {/* Panel del formulario */}
             <div className="flex w-full lg:w-1/2 items-center justify-center px-4 py-12">
                 <div className="w-full max-w-md space-y-6">
                     <div className="space-y-2 text-center">

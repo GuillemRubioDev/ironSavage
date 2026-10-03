@@ -100,11 +100,10 @@ export async function generateMetadata({
 
 export interface ProductDetailPageProps extends PageProps<'/[locale]/productos/[slug]'> {
     /**
-     * Reviews are their own feature (own GraphQL, own review-eligibility
-     * check) — this feature doesn't reach into reviews' internals directly,
-     * it just leaves a slot at the right spot in the layout for whoever
-     * composes this page (see site/products/product-detail-page.tsx) to
-     * fill in.
+     * Las reseñas son su propia funcionalidad (GraphQL propio, comprobación propia de
+     * quién puede reseñar): esta funcionalidad no entra en sus detalles internos,
+     * solo deja un hueco en el sitio adecuado del diseño para que lo rellene quien
+     * compone la página (ver site/products/product-detail-page.tsx).
      */
     reviewsSlot?: (product: {productId: string; productSlug: string}) => ReactNode;
 }
@@ -128,14 +127,14 @@ export default async function ProductDetailPage({
         notFound();
     }
 
-    // Get the primary collection (prefer deepest nested / most specific)
+    // Obtiene la colección principal (prefiere la más anidada / más específica)
     const primaryCollection = product.collections?.find(c => c.parent?.id) ?? product.collections?.[0];
 
-    // Hide options that belong to a shared option group but have no variant on
-    // this product (Vendure 3.6 shared/global option groups).
-    // product.description is admin-authored rich HTML rendered via
-    // dangerouslySetInnerHTML in product-info.tsx (a client component) — sanitize
-    // it here, server-side, before it ever reaches that render.
+    // Oculta las opciones de un grupo compartido que no tienen variante en este
+    // producto (grupos de opciones compartidos/globales de Vendure 3.6).
+    // product.description es HTML enriquecido escrito por el administrador que se
+    // muestra con dangerouslySetInnerHTML en product-info.tsx (componente de cliente):
+    // se limpia aquí, en el servidor, antes de que llegue allí.
     const productForDisplay = {
         ...product,
         description: sanitizeRichText(product.description),
@@ -143,13 +142,13 @@ export default async function ProductDetailPage({
     };
 
     return (
-        // The mobile sticky Add-to-Cart bar (product-info.tsx) is `fixed`
-        // for the whole PDP, not just its own column — reserve clearance
-        // here, at the page's own root, so no section below it (trust
-        // badges, FAQ, related products) ever ends up scrolled underneath it.
+        // La barra fija de añadir al carrito en móvil (product-info.tsx) es `fixed`
+        // para toda la ficha, no solo su columna: se reserva hueco aquí, en la raíz de
+        // la página, para que ninguna sección de debajo (sellos de confianza,
+        // preguntas frecuentes, productos relacionados) quede tapada por ella.
         <div className="pb-24 lg:pb-0">
             <div className="container mx-auto px-4 py-8">
-                {/* Breadcrumb Navigation */}
+                {/* Migas de pan */}
                 <Breadcrumb className="mb-6">
                     <BreadcrumbList>
                         <BreadcrumbItem>
@@ -177,7 +176,7 @@ export default async function ProductDetailPage({
 
             <FoodInformation locale={locale} data={product.customFields ?? {}} />
 
-            {/* Shipping & Trust Badges */}
+            {/* Envío y sellos de confianza */}
             <section className="py-6 mt-8 border-y border-border">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -203,7 +202,7 @@ export default async function ProductDetailPage({
 
             {reviewsSlot?.({productId: product.id, productSlug: product.slug})}
 
-            {/* Store FAQ Section */}
+            {/* Preguntas frecuentes de la tienda */}
             <section className="py-16 md:py-24 bg-muted/30">
                 <div className="container mx-auto px-4 max-w-2xl">
                     <h2 className="text-display text-2xl md:text-3xl font-bold mb-8">{t('faq.title')}</h2>

@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export function CartSkeleton() {
     return (
         <div className="grid lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
+            {/* Artículos del carrito */}
             <div className="lg:col-span-2 space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="flex gap-4 p-4 border rounded-lg">
@@ -22,7 +22,7 @@ export function CartSkeleton() {
                 ))}
             </div>
 
-            {/* Order Summary */}
+            {/* Resumen del pedido */}
             <div className="lg:col-span-1 space-y-4">
                 <div className="border rounded-lg p-6 space-y-4">
                     <Skeleton className="h-6 w-32" />

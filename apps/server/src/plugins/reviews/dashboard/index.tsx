@@ -29,17 +29,15 @@ import { useState } from 'react';
 import { pendingReviewsWidget } from './pending-reviews-widget';
 
 /**
- * Deliberately NOT built on Vendure's <ListPage>/<PaginatedListDataTable>
- * auto-column-generation: for this plugin's custom paginated-list type,
- * that machinery's schema introspection ends up selecting only `id` from
- * the query (visible in the network tab as `{ items { id } totalItems }`)
- * and the table then renders "No results" despite the API returning real
- * rows — a framework issue with this Vendure version, not something
- * traceable to anything wrong in this plugin's schema (verified: Vendure's
- * own native list pages, e.g. Products, work fine; renaming the query
- * field and clearing all dashboard build caches made no difference). A
- * plain manual fetch + table sidesteps that machinery entirely and is
- * simple enough for what this screen needs to do.
+ * A propósito NO usa la generación automática de columnas de <ListPage>/
+ * <PaginatedListDataTable> de Vendure: con el tipo de lista paginada propio de este
+ * plugin, la introspección del esquema acaba pidiendo solo `id` (se ve en la pestaña
+ * de red como `{ items { id } totalItems }`) y la tabla muestra «Sin resultados»
+ * aunque la API devuelva filas. Es un problema del framework en esta versión de
+ * Vendure, no del esquema del plugin (comprobado: las listas nativas de Vendure, p.
+ * ej. Productos, funcionan; renombrar el campo de la consulta y borrar todas las
+ * cachés de compilación del dashboard no cambió nada). Una carga manual con una
+ * tabla simple evita esa maquinaria y basta para lo que necesita esta pantalla.
  */
 const PAGE_SIZE = 20;
 

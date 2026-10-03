@@ -5,11 +5,12 @@ import { CustomerAccountService } from './customer-account.service';
 import { CustomerAccountsAdminResolver } from './customer-accounts-admin.resolver';
 
 /**
- * Lets admins unblock a customer's access from the Dashboard (Customer
- * detail → "Account access" block): see the login status, resend the
- * activation email, verify the email manually, or send a password reset.
- * No new tables — it only drives Vendure's own User/verification data and
- * events, whose emails TransactionalEmailPlugin already sends.
+ * Permite a los administradores desbloquear el acceso de un cliente desde el
+ * dashboard (ficha del cliente → bloque «Acceso a la cuenta»): ver el estado del
+ * acceso, reenviar el email de activación, verificar el email a mano o enviar un
+ * restablecimiento de contraseña. Sin tablas nuevas: solo usa los datos de usuario
+ * y verificación y los eventos de Vendure, cuyos emails ya envía
+ * TransactionalEmailPlugin.
  */
 @VendurePlugin({
     imports: [PluginCommonModule],

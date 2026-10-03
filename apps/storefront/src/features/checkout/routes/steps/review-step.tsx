@@ -12,7 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Link } from '@/platform/i18n/navigation';
 
-/** Opens a legal text in a new tab, so the checkout in progress isn't lost. */
+/** Abre un texto legal en una pestaña nueva para no perder el checkout en curso. */
 function LegalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link href={href} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-primary">
@@ -25,12 +25,12 @@ interface ReviewStepProps {
   onEditStep: (step: 'contact' | 'shipping' | 'delivery' | 'payment') => void;
 }
 
-// Matches the `code` of the PaymentMethod created in the Admin UI for RedsysPlugin's
-// handler. Only this code triggers the redirect-to-Redsys flow; any other eligible
-// method (e.g. the dev-only dummy handler) goes through the normal placeOrder flow.
+// Coincide con el `code` del método de pago creado en el dashboard para el handler de
+// RedsysPlugin. Solo este código lanza la redirección a Redsys; cualquier otro método
+// válido (p. ej. el handler de prueba de desarrollo) usa el flujo normal de placeOrder.
 const REDSYS_PAYMENT_METHOD_CODE = 'redsys';
 
-/** Redsys' "Conexión por Redirección" requires a real browser POST navigation. */
+/** La «Conexión por Redirección» de Redsys exige una navegación POST real del navegador. */
 function submitRedsysRedirect(form: RedsysPaymentForm) {
   const formEl = document.createElement('form');
   formEl.method = 'POST';
@@ -74,7 +74,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
           return;
         }
         submitRedsysRedirect(result.form);
-        // Browser is navigating away to Redsys now — stay in the loading state.
+        // El navegador se va ahora a Redsys: se mantiene el estado de carga.
         return;
       }
 
@@ -121,7 +121,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
           </div>
         )}
 
-        {/* Shipping Address */}
+        {/* Dirección de envío */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-muted-foreground" />
@@ -155,7 +155,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
           )}
         </div>
 
-        {/* Delivery Method */}
+        {/* Método de envío */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-muted-foreground" />
@@ -185,7 +185,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
           )}
         </div>
 
-        {/* Payment Method */}
+        {/* Método de pago */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-muted-foreground" />
@@ -214,7 +214,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
         </div>
       </div>
 
-      {/* LSSI-CE art. 27 / TRLGDCU art. 98: the general terms must be available and accepted before paying. */}
+      {/* LSSI-CE art. 27 / TRLGDCU art. 98: las condiciones generales deben estar disponibles y aceptarse antes de pagar. */}
       <div className="flex items-start gap-2">
         <Checkbox
           id="checkout-terms"

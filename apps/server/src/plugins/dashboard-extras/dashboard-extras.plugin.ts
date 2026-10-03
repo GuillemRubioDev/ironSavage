@@ -1,13 +1,13 @@
 import { VendurePlugin } from '@vendure/core';
 
 /**
- * Dashboard-only plugin: no server-side schema/resolvers, exists purely so
- * its `dashboard/` folder gets picked up by the Vendure Dashboard's plugin
- * scanner (which requires an actual registered VendurePlugin with a
- * `dashboard` decorator property — see @vendure/dashboard's
- * vite/utils/plugin-discovery.js). Holds the Iron Savage login-page
- * branding and the low-stock widget, neither of which belongs to any one
- * existing plugin's domain (Reviews/Content/Loyalty/Invoicing).
+ * Plugin solo para el dashboard: sin esquema ni resolvers en el servidor. Existe
+ * únicamente para que el buscador de plugins del dashboard de Vendure recoja su
+ * carpeta `dashboard/` (exige un VendurePlugin registrado con la propiedad
+ * `dashboard` en el decorador; ver vite/utils/plugin-discovery.js de
+ * @vendure/dashboard). Contiene la marca de Iron Savage en la pantalla de login, el
+ * widget de stock bajo y traducciones del núcleo, que no pertenecen a ningún otro
+ * plugin (reseñas, contenido, fidelización, facturación).
  */
 @VendurePlugin({
     dashboard: './dashboard/index.tsx',
