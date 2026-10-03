@@ -1,17 +1,18 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Injectable } from '@nestjs/common';
-import { ConfigService, ID, Logger, Order, PaginatedList, RequestContext, TransactionalConnection } from '@vendure/core';
+import { ConfigService, ID, Logger, Order, PaginatedList, Refund, RequestContext, TransactionalConnection } from '@vendure/core';
 import { Brackets } from 'typeorm';
 
-import { DEFAULT_INVOICE_SERIES, loggerCtx } from './constants';
+import { DEFAULT_INVOICE_SERIES, loggerCtx, RECTIFYING_INVOICE_SERIES } from './constants';
 import { getInvoicingConfig } from './invoicing-config';
 import { generateInvoicePdfBuffer } from './invoice-pdf.generator';
 import { Invoice } from './invoice.entity';
 import { InvoiceLine } from './invoice-line.entity';
 import { InvoiceSequence } from './invoice-sequence.entity';
 import { LOGO_PNG_BASE64 } from './logo-base64';
-import { AddressSnapshot, CustomerSnapshot, InvoiceLineData } from './types';
+import { AddressSnapshot, CustomerSnapshot, FiscalInvoiceData, InvoiceLineData } from './types';
+import { buildRectifyingLines } from './rectifying-lines';
 
 export type GenerateInvoiceResult = { created: boolean; invoice: Invoice };
 
@@ -31,7 +32,7 @@ export class InvoicingService {
      * `shippingLines`, `surcharges` and `customer` relations loaded.
      */
     async generateForOrder(ctx: RequestContext, order: Order): Promise<GenerateInvoiceResult> {
-        const preCheck = await this.connection.getRepository(ctx, Invoice).findOne({ where: { orderId: order.id } });
+        const preCheck = await this.connection.getRepository(ctx, Invoice).findOne({ where: { orderId: order.id, type: 'ORDINARY' } });
         if (preCheck) {
             return { created: false, invoice: preCheck };
         }
@@ -40,7 +41,7 @@ export class InvoicingService {
         try {
             result = await this.connection.withTransaction(ctx, async txCtx => {
                 const invoiceRepo = this.connection.getRepository(txCtx, Invoice);
-                const alreadyExists = await invoiceRepo.findOne({ where: { orderId: order.id } });
+                const alreadyExists = await invoiceRepo.findOne({ where: { orderId: order.id, type: 'ORDINARY' } });
                 if (alreadyExists) {
                     return { created: false, invoice: alreadyExists };
                 }
@@ -64,6 +65,7 @@ export class InvoicingService {
                         total,
                         currencyCode: order.currencyCode,
                         status: 'ISSUED',
+                        type: 'ORDINARY',
                     }),
                 );
 
@@ -77,7 +79,7 @@ export class InvoicingService {
                 // Lost a race against a concurrent generation for the same order —
                 // the whole losing transaction (including its number allocation)
                 // was rolled back by the DB, so no number was wasted.
-                const existing = await this.connection.getRepository(ctx, Invoice).findOne({ where: { orderId: order.id } });
+                const existing = await this.connection.getRepository(ctx, Invoice).findOne({ where: { orderId: order.id, type: 'ORDINARY' } });
                 if (existing) {
                     return { created: false, invoice: existing };
                 }
@@ -87,9 +89,124 @@ export class InvoicingService {
 
         if (result.created) {
             Logger.info(`Generated invoice ${result.invoice.series}-${result.invoice.number} for order ${order.code}`, loggerCtx);
+            await this.registerFiscally(ctx, result.invoice);
             await this.ensurePdfFile(ctx, result.invoice);
         }
         return result;
+    }
+
+    /**
+     * Factura rectificativa for a settled refund (art. 15 RD 1619/2012): own
+     * series (R), negative amounts, and a reference to the invoice it
+     * corrects. Idempotent per refund (unique `refundId`). Does nothing when
+     * the order has no invoice (it was never paid). `order` needs
+     * `lines.productVariant` and `shippingLines`; `refund` its `lines`.
+     */
+    async generateRectifyingForRefund(ctx: RequestContext, order: Order, refund: Refund): Promise<GenerateInvoiceResult | null> {
+        const repo = this.connection.getRepository(ctx, Invoice);
+        const existing = await repo.findOne({ where: { refundId: refund.id } });
+        if (existing) {
+            return { created: false, invoice: existing };
+        }
+        const original = await this.findByOrderId(ctx, order.id);
+        if (!original || refund.total <= 0) {
+            return null;
+        }
+        const { lines, subtotal, tax, total } = buildRectifyingLines(order, refund);
+
+        let result: GenerateInvoiceResult;
+        try {
+            result = await this.connection.withTransaction(ctx, async txCtx => {
+                const number = await this.allocateNextNumber(txCtx, RECTIFYING_INVOICE_SERIES);
+                const invoice = await this.connection.getRepository(txCtx, Invoice).save(
+                    new Invoice({
+                        orderId: order.id,
+                        orderCode: order.code,
+                        customerId: original.customerId,
+                        series: RECTIFYING_INVOICE_SERIES,
+                        number,
+                        issueDate: new Date(),
+                        customerSnapshot: original.customerSnapshot,
+                        billingAddressSnapshot: original.billingAddressSnapshot,
+                        subtotal,
+                        tax,
+                        total,
+                        currencyCode: original.currencyCode,
+                        status: 'ISSUED',
+                        type: 'RECTIFYING',
+                        rectifiesInvoiceId: original.id,
+                        rectifiedInvoiceNumber: formatInvoiceNumber(original),
+                        rectifiedInvoiceDate: original.issueDate,
+                        refundId: refund.id,
+                        reason: refund.reason?.trim() || 'Devolución / reembolso de productos',
+                    }),
+                );
+                await this.connection.getRepository(txCtx, InvoiceLine).save(lines.map(l => new InvoiceLine({ invoiceId: invoice.id, ...l })));
+                return { created: true, invoice };
+            });
+        } catch (err) {
+            if (this.isUniqueViolation(err)) {
+                const raced = await repo.findOne({ where: { refundId: refund.id } });
+                if (raced) {
+                    return { created: false, invoice: raced };
+                }
+            }
+            throw err;
+        }
+
+        Logger.info(`Generated rectifying invoice ${formatInvoiceNumber(result.invoice)} for refund ${refund.id} of order ${order.code}`, loggerCtx);
+        await this.registerFiscally(ctx, result.invoice);
+        await this.ensurePdfFile(ctx, result.invoice);
+        return result;
+    }
+
+    /**
+     * Veri*Factu hook: hands the issued invoice to the configured
+     * FiscalRegistrationProvider (if any) and stores its answer on the
+     * invoice. A failure is recorded and logged but never blocks the invoice.
+     */
+    private async registerFiscally(ctx: RequestContext, invoice: Invoice): Promise<void> {
+        const config = getInvoicingConfig();
+        const provider = config.fiscalRegistration;
+        if (!provider) {
+            return;
+        }
+        const lines = await this.getLines(ctx, invoice.id);
+        const breakdown = new Map<number, { rate: number; base: number; tax: number }>();
+        for (const line of lines) {
+            const entry = breakdown.get(line.taxRate) ?? { rate: line.taxRate, base: 0, tax: 0 };
+            entry.base += line.lineTotal - line.taxAmount;
+            entry.tax += line.taxAmount;
+            breakdown.set(line.taxRate, entry);
+        }
+        const rectifies = invoice.type === 'RECTIFYING' && invoice.rectifiedInvoiceNumber && invoice.rectifiedInvoiceDate
+            ? { number: invoice.rectifiedInvoiceNumber, issueDate: invoice.rectifiedInvoiceDate, reason: invoice.reason ?? '' }
+            : undefined;
+        const data: FiscalInvoiceData = {
+            type: invoice.type,
+            number: formatInvoiceNumber(invoice),
+            issueDate: invoice.issueDate,
+            issuer: { name: config.storeName, taxId: config.storeTaxId },
+            recipient: {
+                name: invoice.billingAddressSnapshot.fullName || `${invoice.customerSnapshot.firstName} ${invoice.customerSnapshot.lastName}`.trim(),
+                countryCode: invoice.billingAddressSnapshot.countryCode,
+            },
+            currencyCode: invoice.currencyCode,
+            subtotal: invoice.subtotal,
+            tax: invoice.tax,
+            total: invoice.total,
+            taxBreakdown: [...breakdown.values()],
+            rectifies,
+        };
+        try {
+            const result = await provider.register(data);
+            invoice.fiscalRegistration = { ...result, status: 'REGISTERED', provider: provider.name, registeredAt: new Date().toISOString() };
+        } catch (err) {
+            const error = err instanceof Error ? err.message : String(err);
+            Logger.error(`Fiscal registration (${provider.name}) failed for invoice ${data.number}: ${error}`, loggerCtx);
+            invoice.fiscalRegistration = { status: 'FAILED', provider: provider.name, registeredAt: new Date().toISOString(), error };
+        }
+        await this.connection.getRepository(ctx, Invoice).update(invoice.id, { fiscalRegistration: invoice.fiscalRegistration });
     }
 
     async findById(ctx: RequestContext, id: ID): Promise<Invoice | null> {
@@ -97,7 +214,7 @@ export class InvoicingService {
     }
 
     async findByOrderId(ctx: RequestContext, orderId: ID): Promise<Invoice | null> {
-        return (await this.connection.getRepository(ctx, Invoice).findOne({ where: { orderId } })) ?? null;
+        return (await this.connection.getRepository(ctx, Invoice).findOne({ where: { orderId, type: 'ORDINARY' } })) ?? null;
     }
 
     async list(
@@ -146,7 +263,7 @@ export class InvoicingService {
     /** Absolute path to the PDF, generating it first if it's missing (e.g. a previous generation attempt failed). */
     async ensurePdfFile(ctx: RequestContext, invoice: Invoice): Promise<string> {
         const config = getInvoicingConfig();
-        const fileName = `${invoice.series}-${String(invoice.number).padStart(6, '0')}.pdf`;
+        const fileName = `${formatInvoiceNumber(invoice)}.pdf`;
         const absolutePath = path.join(config.pdfOutputDir, fileName);
 
         if (invoice.pdfPath) {
@@ -298,4 +415,9 @@ export class InvoicingService {
     private isUniqueViolation(err: unknown): boolean {
         return typeof err === 'object' && err !== null && 'code' in err && (err as { code: unknown }).code === '23505';
     }
+}
+
+/** "A-000123" — the human-readable number used everywhere (PDF, emails, API). */
+export function formatInvoiceNumber(invoice: Pick<Invoice, 'series' | 'number'>): string {
+    return `${invoice.series}-${String(invoice.number).padStart(6, '0')}`;
 }

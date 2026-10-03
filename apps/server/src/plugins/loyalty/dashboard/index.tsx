@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { DashboardRouteDefinition, defineDashboardExtension } from '@vendure/dashboard';
 
 import { LoyaltyPage } from './loyalty-page';
@@ -7,10 +8,10 @@ const loyaltyRoute: DashboardRouteDefinition = {
         sectionId: 'customers',
         id: 'loyalty',
         url: '/loyalty',
-        title: 'Loyalty',
+        title: /* i18n*/ 'Loyalty',
     },
     path: '/loyalty',
-    loader: () => ({ breadcrumb: 'Loyalty' }),
+    loader: () => ({ breadcrumb: <Trans>Loyalty</Trans> }),
     component: () => <LoyaltyPage />,
 };
 

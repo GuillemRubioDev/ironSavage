@@ -142,6 +142,10 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
         if (!event.invoice.customerSnapshot.emailAddress) {
             return;
         }
+        if (event.invoice.type === 'RECTIFYING') {
+            await this.sendCreditNoteEmail(event);
+            return;
+        }
         await this.sendInvoiceEmail(
             event.ctx,
             event.invoice,
@@ -161,6 +165,26 @@ export class TransactionalEmailSubscriber implements OnApplicationBootstrap {
      */
     private async onInvoiceResendRequested(event: InvoiceResendRequestedEvent): Promise<void> {
         await this.sendInvoiceEmail(event.ctx, event.invoice, event.lines, event.pdfPath, event.toEmail, 'invoice-resend');
+    }
+
+    private async sendCreditNoteEmail(event: InvoiceGeneratedEvent): Promise<void> {
+        const { invoice, lines } = event;
+        const invoiceNumber = `${invoice.series}-${String(invoice.number).padStart(6, '0')}`;
+        const pdfBuffer = await fs.readFile(event.pdfPath);
+        const order: OrderSummaryData = {
+            code: invoice.orderCode,
+            customerName: `${invoice.customerSnapshot.firstName} ${invoice.customerSnapshot.lastName}`.trim() || invoice.customerSnapshot.emailAddress,
+            lines: lines.map(l => ({ name: l.productName, quantity: l.quantity, linePrice: formatMoney(l.lineTotal, invoice.currencyCode) })),
+            // Shown as the refunded amount — positive, as the customer thinks of it.
+            total: formatMoney(Math.abs(invoice.total), invoice.currencyCode),
+            currencyCode: invoice.currencyCode,
+        };
+        await this.emailService.sendTemplate(event.ctx, {
+            type: 'credit-note-available',
+            to: invoice.customerSnapshot.emailAddress,
+            data: { order, invoiceNumber, rectifiedInvoiceNumber: invoice.rectifiedInvoiceNumber ?? '' },
+            attachments: [{ filename: `Factura-rectificativa-${invoiceNumber}.pdf`, content: pdfBuffer, contentType: 'application/pdf' }],
+        });
     }
 
     private async sendInvoiceEmail(

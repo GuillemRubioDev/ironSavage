@@ -21,13 +21,16 @@ import {
 } from '@vendure/core';
 
 import { includeDummyPaymentHandler } from './app-environment';
+import { OUTSIDE_VAT_ZONE_NAME, spainTerritoriesShippingChecker } from './plugins/spain-territories/spain-territories';
 import { config } from './vendure-config';
 
 /**
  * Reproducible initialization of the minimum commercial configuration a
  * clean Vendure install needs to process a real checkout: Spain as a
- * country/zone, the channel set to EUR + that zone, one "Standard" 21% tax
- * rate, the standard shipping method, and the Redsys payment method (plus a
+ * country, the "España (península y Baleares)" and "Canarias, Ceuta y
+ * Melilla" tax zones, the channel set to EUR + the first one, the IVA
+ * categories (General 21 %, Reducido 10 %, Superreducido 4 %; 0 % outside the
+ * VAT area), the standard shipping method, and the Redsys payment method (plus a
  * dummy payment method outside production, for local/CI testing without a
  * real gateway).
  *
@@ -43,11 +46,25 @@ import { config } from './vendure-config';
 const loggerCtx = 'Seed';
 
 const SPAIN_COUNTRY_CODE = 'ES';
-const SPAIN_ZONE_NAME = 'Spain';
-const STANDARD_TAX_CATEGORY_NAME = 'Standard';
+const SPAIN_ZONE_NAME = 'España (península y Baleares)';
+/** Names used by earlier versions of this seed — renamed in place. */
+const LEGACY_SPAIN_ZONE_NAME = 'Spain';
+const LEGACY_STANDARD_TAX_CATEGORY_NAME = 'Standard';
+/**
+ * Spanish IVA categories and their rate on the mainland/Baleares. Which one a
+ * product uses is chosen per variant in the Dashboard (default: General);
+ * confirm each product's rate with the tax advisor — food supplements are
+ * usually "Reducido" (10 %).
+ */
+const TAX_CATEGORIES = [
+    { name: 'General', rate: 21, isDefault: true },
+    { name: 'Reducido', rate: 10, isDefault: false },
+    { name: 'Superreducido', rate: 4, isDefault: false },
+];
 const STANDARD_TAX_RATE_PERCENT = 21;
 const STANDARD_SHIPPING_CODE = 'standard-shipping';
 const STANDARD_SHIPPING_RATE_CENTS = 500;
+const LEGACY_SHIPPING_NAME = 'Standard Shipping';
 const REDSYS_PAYMENT_CODE = 'redsys';
 const DUMMY_PAYMENT_CODE = 'standard-payment';
 
@@ -72,6 +89,12 @@ async function ensureCountry(ctx: RequestContext, service: CountryService): Prom
 
 async function ensureZone(ctx: RequestContext, service: ZoneService, country: Translated<Country>): Promise<Zone> {
     const { items } = await service.findAll(ctx, { take: 100 });
+    const legacy = items.find(z => z.name === LEGACY_SPAIN_ZONE_NAME);
+    if (legacy && !items.some(z => z.name === SPAIN_ZONE_NAME)) {
+        await service.update(ctx, { id: legacy.id, name: SPAIN_ZONE_NAME });
+        legacy.name = SPAIN_ZONE_NAME;
+        Logger.info(`Renamed zone "${LEGACY_SPAIN_ZONE_NAME}" to "${SPAIN_ZONE_NAME}".`, loggerCtx);
+    }
     const existing = items.find(z => z.name === SPAIN_ZONE_NAME);
     if (existing) {
         const alreadyMember = existing.members.some(m => String(m.id) === String(country.id));
@@ -85,6 +108,23 @@ async function ensureZone(ctx: RequestContext, service: ZoneService, country: Tr
     }
     const zone = await service.create(ctx, { name: SPAIN_ZONE_NAME, memberIds: [country.id] });
     Logger.info(`Created zone "${SPAIN_ZONE_NAME}".`, loggerCtx);
+    return zone;
+}
+
+/**
+ * Tax zone for the Canary Islands, Ceuta and Melilla (outside the Spanish VAT
+ * area). No member countries: SpainTerritoriesTaxZoneStrategy assigns it by
+ * postal code, matched on OUTSIDE_VAT_ZONE_NAME.
+ */
+async function ensureOutsideVatZone(ctx: RequestContext, service: ZoneService): Promise<Zone> {
+    const { items } = await service.findAll(ctx, { take: 100 });
+    const existing = items.find(z => z.name === OUTSIDE_VAT_ZONE_NAME);
+    if (existing) {
+        Logger.info(`Zone "${OUTSIDE_VAT_ZONE_NAME}" already exists — reusing.`, loggerCtx);
+        return existing;
+    }
+    const zone = await service.create(ctx, { name: OUTSIDE_VAT_ZONE_NAME, memberIds: [] });
+    Logger.info(`Created zone "${OUTSIDE_VAT_ZONE_NAME}".`, loggerCtx);
     return zone;
 }
 
@@ -134,68 +174,104 @@ async function ensureChannel(ctx: RequestContext, service: ChannelService, zone:
     Logger.info('Updated default channel: EUR currency, Spain tax/shipping zone.', loggerCtx);
 }
 
-async function ensureTaxCategory(ctx: RequestContext, service: TaxCategoryService) {
+/** The IVA categories (TAX_CATEGORIES), renaming the old "Standard" one to "General". */
+async function ensureTaxCategories(ctx: RequestContext, service: TaxCategoryService) {
     const { items } = await service.findAll(ctx, { take: 100 });
-    const existing = items.find(c => c.name === STANDARD_TAX_CATEGORY_NAME);
-    if (existing) {
-        Logger.info(`Tax category "${STANDARD_TAX_CATEGORY_NAME}" already exists — reusing.`, loggerCtx);
-        return existing;
+    const legacy = items.find(c => c.name === LEGACY_STANDARD_TAX_CATEGORY_NAME);
+    if (legacy && !items.some(c => c.name === 'General')) {
+        await service.update(ctx, { id: legacy.id, name: 'General' });
+        legacy.name = 'General';
+        Logger.info(`Renamed tax category "${LEGACY_STANDARD_TAX_CATEGORY_NAME}" to "General".`, loggerCtx);
     }
-    const category = await service.create(ctx, { name: STANDARD_TAX_CATEGORY_NAME, isDefault: true });
-    Logger.info(`Created tax category "${STANDARD_TAX_CATEGORY_NAME}".`, loggerCtx);
-    // Documented per FASE 14: Vendure does not require additional tax categories
-    // (e.g. reduced/super-reduced IVA) for the system to function — a single
-    // Standard category + rate is sufficient, as this project's own working
-    // setup already demonstrated before this seed existed. Add "Reducido 10%"
-    // / "Superreducido 4%" categories the same way, only if/when the catalog
-    // actually needs mixed IVA rates — never auto-applied to any product by
-    // this seed.
-    return category;
+    const categories: Array<{ id: string | number; name: string; rate: number }> = [];
+    for (const def of TAX_CATEGORIES) {
+        let category = items.find(c => c.name === def.name);
+        if (category) {
+            Logger.info(`Tax category "${def.name}" already exists — reusing.`, loggerCtx);
+        } else {
+            category = await service.create(ctx, { name: def.name, isDefault: def.isDefault });
+            Logger.info(`Created tax category "${def.name}".`, loggerCtx);
+        }
+        categories.push({ id: category.id, name: def.name, rate: def.rate });
+    }
+    return categories;
 }
 
-async function ensureTaxRate(
+/**
+ * One rate per category and zone. Only creates missing rates — never
+ * overwrites one an admin (or the tax advisor) has already adjusted.
+ */
+async function ensureTaxRates(
     ctx: RequestContext,
     service: TaxRateService,
-    taxCategory: { id: string | number },
+    categories: Array<{ id: string | number; name: string; rate: number }>,
     zone: Zone,
+    rateFor: (category: { rate: number }) => number,
 ): Promise<void> {
-    const { items } = await service.findAll(ctx, { take: 100 });
-    const existing = items.find(
-        r => String(r.categoryId) === String(taxCategory.id) && String(r.zoneId) === String(zone.id),
-    );
-    if (existing) {
-        if (existing.value !== STANDARD_TAX_RATE_PERCENT || !existing.enabled) {
-            await service.update(ctx, { id: existing.id, value: STANDARD_TAX_RATE_PERCENT, enabled: true });
-            Logger.info(`Updated existing Standard/Spain tax rate to ${STANDARD_TAX_RATE_PERCENT}%.`, loggerCtx);
-        } else {
-            Logger.info(`Tax rate for Standard/Spain already exists at ${STANDARD_TAX_RATE_PERCENT}% — reusing.`, loggerCtx);
+    const { items } = await service.findAll(ctx, { take: 200 });
+    for (const category of categories) {
+        const existing = items.find(r => String(r.categoryId) === String(category.id) && String(r.zoneId) === String(zone.id));
+        if (existing?.name.startsWith('Spain Standard')) {
+            // Name given by an earlier version of this seed; only the label changes.
+            await service.update(ctx, { id: existing.id, name: `${category.name} ${existing.value}% — ${zone.name}` });
         }
-        return;
+        if (existing) {
+            Logger.info(`Tax rate ${category.name} / ${zone.name} already exists — reusing.`, loggerCtx);
+            continue;
+        }
+        const value = rateFor(category);
+        await service.create(ctx, {
+            name: `${category.name} ${value}% — ${zone.name}`,
+            enabled: true,
+            value,
+            categoryId: category.id,
+            zoneId: zone.id,
+        });
+        Logger.info(`Created tax rate ${category.name} ${value}% for "${zone.name}".`, loggerCtx);
     }
-    await service.create(ctx, {
-        name: `Spain Standard ${STANDARD_TAX_RATE_PERCENT}%`,
-        enabled: true,
-        value: STANDARD_TAX_RATE_PERCENT,
-        categoryId: taxCategory.id,
-        zoneId: zone.id,
-    });
-    Logger.info(`Created tax rate "Spain Standard ${STANDARD_TAX_RATE_PERCENT}%".`, loggerCtx);
 }
 
+const STANDARD_SHIPPING_CHECKER = {
+    code: spainTerritoriesShippingChecker.code,
+    arguments: [
+        { name: 'orderMinimum', value: '0' },
+        { name: 'peninsula', value: 'true' },
+        { name: 'baleares', value: 'true' },
+        { name: 'canarias', value: 'false' },
+        { name: 'ceuta', value: 'false' },
+        { name: 'melilla', value: 'false' },
+    ],
+};
+const STANDARD_SHIPPING_TRANSLATIONS = [
+    { languageCode: LanguageCode.es, name: 'Envío estándar', description: 'Entrega a domicilio en España peninsular y Baleares' },
+    { languageCode: LanguageCode.en, name: 'Standard shipping', description: 'Home delivery in mainland Spain and the Balearic Islands' },
+];
+
+/**
+ * The standard shipping method. The rate is a placeholder (5 € + IVA) —
+ * the real rates are set in the Dashboard (Settings → Shipping methods),
+ * where more methods can be added with the "Territorios de España y pedido
+ * mínimo" condition (Baleares rate, free shipping from X €, Canarias…).
+ * A method still carrying this seed's old English name and default checker
+ * is upgraded in place; one an admin has edited is left alone.
+ */
 async function ensureShippingMethod(ctx: RequestContext, service: ShippingMethodService): Promise<void> {
     const { items } = await service.findAll(ctx, { take: 100 });
     const existing = items.find(m => m.code === STANDARD_SHIPPING_CODE);
     if (existing) {
-        Logger.info(`Shipping method "${STANDARD_SHIPPING_CODE}" already exists — reusing.`, loggerCtx);
+        const untouched = existing.name === LEGACY_SHIPPING_NAME && existing.checker.code === 'default-shipping-eligibility-checker';
+        if (untouched) {
+            await service.update(ctx, { id: existing.id, checker: STANDARD_SHIPPING_CHECKER, translations: STANDARD_SHIPPING_TRANSLATIONS });
+            Logger.info(`Updated shipping method "${STANDARD_SHIPPING_CODE}": Spanish name and territory checker.`, loggerCtx);
+        } else {
+            Logger.info(`Shipping method "${STANDARD_SHIPPING_CODE}" already exists — reusing.`, loggerCtx);
+        }
         return;
     }
     await service.create(ctx, {
         code: STANDARD_SHIPPING_CODE,
         fulfillmentHandler: 'manual-fulfillment',
-        checker: {
-            code: 'default-shipping-eligibility-checker',
-            arguments: [{ name: 'orderMinimum', value: '0' }],
-        },
+        checker: STANDARD_SHIPPING_CHECKER,
         calculator: {
             code: 'default-shipping-calculator',
             arguments: [
@@ -204,9 +280,7 @@ async function ensureShippingMethod(ctx: RequestContext, service: ShippingMethod
                 { name: 'taxRate', value: String(STANDARD_TAX_RATE_PERCENT) },
             ],
         },
-        translations: [
-            { languageCode: LanguageCode.en, name: 'Standard Shipping', description: 'Delivery in 3-5 business days' },
-        ],
+        translations: STANDARD_SHIPPING_TRANSLATIONS,
     });
     Logger.info(`Created shipping method "${STANDARD_SHIPPING_CODE}" (${(STANDARD_SHIPPING_RATE_CENTS / 100).toFixed(2)} EUR).`, loggerCtx);
 }
@@ -303,8 +377,10 @@ async function seed(): Promise<void> {
         const zone = await ensureZone(ctx, zoneService, country);
         await ensureGlobalSettings(ctx, globalSettingsService);
         await ensureChannel(ctx, channelService, zone);
-        const taxCategory = await ensureTaxCategory(ctx, taxCategoryService);
-        await ensureTaxRate(ctx, taxRateService, taxCategory, zone);
+        const outsideVatZone = await ensureOutsideVatZone(ctx, zoneService);
+        const taxCategories = await ensureTaxCategories(ctx, taxCategoryService);
+        await ensureTaxRates(ctx, taxRateService, taxCategories, zone, category => category.rate);
+        await ensureTaxRates(ctx, taxRateService, taxCategories, outsideVatZone, () => 0);
         await ensureShippingMethod(ctx, shippingMethodService);
         await ensurePaymentMethods(ctx, paymentMethodService);
 

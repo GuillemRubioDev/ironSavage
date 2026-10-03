@@ -15,6 +15,7 @@
     "start:worker": "node ./dist/index-worker.js",
     "start": "vendure start all",
     "seed": "node --require ts-node/register src/seed.ts",
+    "i18n:extract": "lingui extract",
     "test": "find src -name '*.spec.ts' -print0 | xargs -0 node --require ts-node/register --test"
   },
   "dependencies": {

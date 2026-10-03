@@ -111,7 +111,7 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                             <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                 {t('collections')}
                             </p>
-                            <nav className="flex flex-col gap-0.5">
+                            <nav aria-label={t('collections')} className="flex flex-col gap-0.5">
                                 {collections.map((collection) => (
                                     <SheetClose
                                         key={collection.slug}
@@ -136,7 +136,7 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                         <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             {t('account')}
                         </p>
-                        <nav className="flex flex-col gap-0.5">
+                        <nav aria-label={t('account')} className="flex flex-col gap-0.5">
                             <SheetClose
                                 render={
                                     <Link

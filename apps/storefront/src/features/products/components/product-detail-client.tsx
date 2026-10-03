@@ -1,6 +1,7 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
+import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
 import {useSearchParams} from 'next/navigation';
 import {usePathname, useRouter} from '@/platform/i18n/navigation';
 import {ProductImageCarousel} from '@/features/products/components/product-image-carousel';
@@ -18,6 +19,7 @@ interface ProductVariant {
     sku: string;
     priceWithTax: number;
     stockLevel: string;
+    customFields?: {netQuantity?: string | null} | null;
     featuredAsset?: Asset | null;
     options: Array<{
         id: string;
@@ -93,6 +95,19 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
         });
     }, [selectedOptions, product.variants, product.optionGroups]);
 
+    // GA4 view_item — once per product, and again if another variant is picked.
+    const viewedVariantId = selectedVariant?.id;
+    useEffect(() => {
+        const variant = product.variants.find((v) => v.id === viewedVariantId) ?? product.variants[0];
+        if (!variant) return;
+        const price = toMajorUnits(variant.priceWithTax);
+        trackEvent('view_item', {
+            currency: currencyCode,
+            value: price,
+            items: [{item_id: variant.sku || variant.id, item_name: product.name, item_variant: variant.name, price, quantity: 1}],
+        });
+    }, [viewedVariantId, product.id, product.name, product.variants, currencyCode]);
+
     const handleOptionChange = (groupId: string, optionId: string) => {
         setSelectedOptions((prev) => ({
             ...prev,
@@ -123,7 +138,7 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-8 lg:gap-16">
             <div className="lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)] lg:self-start">
-                <ProductImageCarousel key={selectedVariant?.id ?? 'default'} images={images} />
+                <ProductImageCarousel key={selectedVariant?.id ?? 'default'} images={images} productName={product.name} />
             </div>
             <div>
                 <ProductInfo

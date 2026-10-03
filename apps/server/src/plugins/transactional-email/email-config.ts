@@ -26,9 +26,11 @@ export function getEmailConfig(): EmailConfig {
     cached = {
         enabled,
         provider: smtpConfigured ? 'smtp' : 'dev',
-        fromAddress: process.env.EMAIL_FROM ?? 'Tienda Suple <no-reply@example.com>',
+        fromAddress: process.env.EMAIL_FROM ?? 'Iron Savage <no-reply@example.com>',
         replyTo: process.env.EMAIL_REPLY_TO || undefined,
-        storeName: process.env.INVOICE_STORE_NAME ?? 'Tienda Suple',
+        // Brand name customers see in emails ("Bienvenido/a a Iron Savage") — not the
+        // registered company name, which only belongs on invoices.
+        storeName: process.env.EMAIL_STORE_NAME || process.env.INVOICE_STORE_NAME || 'Iron Savage',
         storefrontUrl: (process.env.STOREFRONT_URL ?? 'http://localhost:3001').replace(/\/$/, ''),
         devOutputDir: path.join(__dirname, '../../../static/transactional-emails'),
         smtp: smtpConfigured

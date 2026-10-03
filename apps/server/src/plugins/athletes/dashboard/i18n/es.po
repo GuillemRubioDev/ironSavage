@@ -1,0 +1,514 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-28 13:54+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: es\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "Code active"
+msgstr "Código activo"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Athlete active"
+msgstr "Atleta activo"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Save code"
+msgstr "Guardar código"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Creating…"
+msgstr "Creando…"
+
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Codes"
+msgstr "Códigos"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "Percentage"
+msgstr "Porcentaje"
+
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Net reward points"
+msgstr "Puntos netos de recompensa"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "No codes yet."
+msgstr "Todavía no hay códigos."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Reason (required)"
+msgstr "Motivo (obligatorio)"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Create a new customer"
+msgstr "Crear un cliente nuevo"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Orders"
+msgstr "Pedidos"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Changing a code's terms only affects future orders — rewards already granted keep the terms they were calculated with. Each code is applied at checkout through a Vendure promotion that is kept in sync automatically; manage it from here, not from Marketing → Promotions."
+msgstr "Cambiar las condiciones de un código solo afecta a pedidos futuros: las recompensas ya concedidas conservan las condiciones con las que se calcularon. Cada código se aplica en el checkout mediante una promoción de Vendure que se sincroniza automáticamente; gestiónalo desde aquí, no desde Marketing → Promociones."
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Last name"
+msgstr "Apellidos"
+
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Search by name, email or code..."
+msgstr "Buscar por nombre, email o código..."
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "What the customer saves when using the code."
+msgstr "Lo que ahorra el cliente al usar el código."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Every order the code was applied to, including unpaid or cancelled ones that produced no reward."
+msgstr "Todos los pedidos en los que se aplicó el código, incluidos los no pagados o cancelados que no generaron recompensa."
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "{rewardValue} pts / order"
+msgstr "{rewardValue} pts / pedido"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Total"
+msgstr "Total"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Actions"
+msgstr "Acciones"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Customer"
+msgstr "Cliente"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Convert an existing customer"
+msgstr "Convertir un cliente existente"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Search"
+msgstr "Buscar"
+
+#. js-lingui-explicit-id
+#: src/plugins/athletes/dashboard/index.tsx
+msgid "Athletes"
+msgstr "Atletas"
+
+#: src/plugins/athletes/dashboard/customer-athlete-block.tsx
+msgid "Manage athlete"
+msgstr "Gestionar atleta"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Phone (optional)"
+msgstr "Teléfono (opcional)"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "No customers found."
+msgstr "No se han encontrado clientes."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Manual"
+msgstr "Manual"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Sport, agreement details… (never shown to the athlete)"
+msgstr "Deporte, detalles del acuerdo… (nunca se muestra al atleta)"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Points"
+msgstr "Puntos"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Disabled"
+msgstr "Desactivado"
+
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+#: src/plugins/athletes/dashboard/index.tsx
+msgid "Athletes"
+msgstr "Atletas"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "Fixed points"
+msgstr "Puntos fijos"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "An activation email is sent to this address: from that link the athlete verifies the email and chooses their password. If it doesn't arrive, resend it (or verify the account directly) from \"Account access\" on the customer page."
+msgstr "Se enviará un email de activación a esta dirección: desde ese enlace el atleta verifica el email y elige su contraseña. Si no le llega, reenvíaselo (o verifica la cuenta directamente) desde «Acceso a la cuenta» en la ficha del cliente."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Edit"
+msgstr "Editar"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Login, email verification and password emails are managed like for any customer, in the <0>customer page</0> (\"Account access\")."
+msgstr "El acceso, la verificación del email y los emails de contraseña se gestionan como en cualquier cliente, en la <0>ficha del cliente</0> («Acceso a la cuenta»)."
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Code"
+msgstr "Código"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "pts"
+msgstr "pts"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Remove the athlete role? {firstName} stays a regular customer (their points and reward history are kept), and all their codes stop working immediately."
+msgstr "¿Quitar el rol de atleta? {firstName} seguirá siendo un cliente normal (conserva sus puntos y su historial de recompensas) y todos sus códigos dejarán de funcionar al momento."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Active"
+msgstr "Activo"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "Letters, digits, \"-\" and \"_\". Not case-sensitive."
+msgstr "Letras, números, «-» y «_». No distingue mayúsculas y minúsculas."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Reward points earned (net)"
+msgstr "Puntos de recompensa ganados (netos)"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+#: src/plugins/athletes/dashboard/customer-athlete-block.tsx
+#: src/plugins/athletes/dashboard/index.tsx
+#: src/plugins/athletes/dashboard/index.tsx
+msgid "Athlete"
+msgstr "Atleta"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Order cancelled"
+msgstr "Pedido cancelado"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Customer discount"
+msgstr "Descuento para el cliente"
+
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Athletes don't earn regular points on their own purchases. Instead, they earn points when other customers buy with one of their codes, and can spend them like any customer."
+msgstr "Los atletas no ganan puntos normales por sus propias compras. En su lugar, ganan puntos cuando otros clientes compran con uno de sus códigos, y pueden gastarlos como cualquier cliente."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Reverted"
+msgstr "Anulada"
+
+#: src/plugins/athletes/dashboard/customer-athlete-block.tsx
+msgid "Athlete (disabled)"
+msgstr "Atleta (desactivado)"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "Fixed amount"
+msgstr "Importe fijo"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Refund"
+msgstr "Reembolso"
+
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "No athletes yet."
+msgstr "Todavía no hay atletas."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Save profile"
+msgstr "Guardar perfil"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Something went wrong while saving."
+msgstr "Algo ha fallado al guardar."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Rewarded orders"
+msgstr "Pedidos con recompensa"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Revert"
+msgstr "Anular"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Saving…"
+msgstr "Guardando…"
+
+#: src/plugins/athletes/dashboard/customer-athlete-block.tsx
+msgid "Regular customer — earns points on their own purchases."
+msgstr "Cliente normal: gana puntos con sus propias compras."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "−{revertedPoints} reverted"
+msgstr "−{revertedPoints} anulados"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Promotional codes"
+msgstr "Códigos promocionales"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Athlete reward"
+msgstr "Recompensa de atleta"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Apply adjustment"
+msgstr "Aplicar ajuste"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Required — shown in the athlete's points history"
+msgstr "Obligatorio: se muestra en el historial de puntos del atleta"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Athlete settings"
+msgstr "Configuración del atleta"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Athlete not found."
+msgstr "Atleta no encontrado."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Create code"
+msgstr "Crear código"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Rule applied"
+msgstr "Regla aplicada"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Internal notes"
+msgstr "Notas internas"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Saved."
+msgstr "Guardado."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Date"
+msgstr "Fecha"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Selected customer:"
+msgstr "Cliente seleccionado:"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Base"
+msgstr "Base"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Email"
+msgstr "Email"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "While disabled, the athlete's codes stop applying, no new rewards are granted, and they earn regular customer points on their own purchases again. Points already earned are kept."
+msgstr "Mientras esté desactivado, sus códigos dejan de aplicarse, no se conceden nuevas recompensas y vuelve a ganar puntos normales de cliente con sus propias compras. Los puntos ya ganados se conservan."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "1 pt = {pointValue}¢"
+msgstr "1 pt = {pointValue} cént."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Reward history"
+msgstr "Historial de recompensas"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Add code"
+msgstr "Añadir código"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Loading…"
+msgstr "Cargando…"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Create a promotional code now"
+msgstr "Crear un código promocional ahora"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Current balance"
+msgstr "Saldo actual"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Manual adjustment (+/-)"
+msgstr "Ajuste manual (+/-)"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+#: src/plugins/athletes/dashboard/index.tsx
+msgid "New athlete"
+msgstr "Nuevo atleta"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Remove athlete role"
+msgstr "Quitar rol de atleta"
+
+#: src/plugins/athletes/dashboard/athlete-code-form.tsx
+msgid "Percentage of the order (products after discounts, excl. shipping), paid in points at the loyalty program's point value."
+msgstr "Porcentaje del pedido (productos tras descuentos, sin envío), pagado en puntos según el valor del punto del programa de fidelización."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Athlete disabled"
+msgstr "Atleta desactivado"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Select"
+msgstr "Seleccionar"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "State"
+msgstr "Estado"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "{rewardPoints} pts"
+msgstr "{rewardPoints} pts"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Searching…"
+msgstr "Buscando…"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "({unrecoveredPoints} already spent)"
+msgstr "({unrecoveredPoints} ya gastados)"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Rewards are granted when payment settles, and reverted automatically when the order is cancelled or refunded (proportionally for partial refunds)."
+msgstr "Las recompensas se conceden cuando se confirma el pago, y se anulan automáticamente si el pedido se cancela o se reembolsa (proporcionalmente en reembolsos parciales)."
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Create athlete"
+msgstr "Crear atleta"
+
+#. placeholder {0}: ordersCode.code
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Orders using {0}"
+msgstr "Pedidos con {0}"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Points spent"
+msgstr "Puntos canjeados"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Status"
+msgstr "Estado"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "No rewards yet."
+msgstr "Todavía no hay recompensas."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Order"
+msgstr "Pedido"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "First name"
+msgstr "Nombre"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Profile"
+msgstr "Perfil"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Reason"
+msgstr "Motivo"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "{totalRewardPoints} granted · {revertedRewardPoints} reverted"
+msgstr "{totalRewardPoints} concedidos · {revertedRewardPoints} anulados"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Search by name or email..."
+msgstr "Buscar por nombre o email..."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Reward"
+msgstr "Recompensa"
+
+#: src/plugins/athletes/dashboard/customer-athlete-block.tsx
+msgid "Make athlete"
+msgstr "Hacer atleta"
+
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Manage"
+msgstr "Gestionar"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "No orders have used this code yet."
+msgstr "Todavía ningún pedido ha usado este código."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Applying…"
+msgstr "Aplicando…"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Open customer"
+msgstr "Abrir cliente"
+
+#: src/plugins/athletes/dashboard/customer-athlete-block.tsx
+msgid "{points} pts · {orders} orders"
+msgstr "{points} pts · {orders} pedidos"
+
+#: src/plugins/athletes/dashboard/athlete-new.tsx
+msgid "Selected"
+msgstr "Seleccionado"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Customer record"
+msgstr "Ficha del cliente"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Close"
+msgstr "Cerrar"
+
+#: src/plugins/athletes/dashboard/athletes-list.tsx
+msgid "Loading..."
+msgstr "Cargando..."
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Phone"
+msgstr "Teléfono"
+
+#: src/plugins/athletes/dashboard/athlete-detail.tsx
+msgid "Partially reverted"
+msgstr "Anulada parcialmente"

@@ -1,6 +1,7 @@
 import createMiddleware from 'next-intl/middleware';
 import {NextRequest} from 'next/server';
 import {routing} from './platform/i18n/routing';
+import {GA_MEASUREMENT_ID} from './platform/analytics/gtag';
 
 const middleware = createMiddleware(routing);
 
@@ -40,6 +41,15 @@ const middleware = createMiddleware(routing);
  * poweredByHeader convention in next.config.ts of gating hardening to prod.
  */
 function buildCsp(): string {
+    // Google Analytics 4 (only when configured — see platform/analytics/gtag.ts):
+    // the hosts Google documents for GA4 under a CSP.
+    const ga = GA_MEASUREMENT_ID
+        ? {
+            script: ' https://*.googletagmanager.com',
+            img: ' https://*.google-analytics.com https://*.googletagmanager.com',
+            connect: ' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com',
+        }
+        : {script: '', img: '', connect: ''};
     const imageHosts = [
         'https://readonlydemo.vendure.io',
         'https://demo.vendure.io',
@@ -47,11 +57,11 @@ function buildCsp(): string {
     ];
     return [
         `default-src 'self'`,
-        `script-src 'self' 'unsafe-inline'`,
+        `script-src 'self' 'unsafe-inline'${ga.script}`,
         `style-src 'self' 'unsafe-inline'`,
-        `img-src 'self' data: ${imageHosts.join(' ')}`,
+        `img-src 'self' data: ${imageHosts.join(' ')}${ga.img}`,
         `font-src 'self'`,
-        `connect-src 'self'`,
+        `connect-src 'self'${ga.connect}`,
         `form-action 'self' https://sis-t.redsys.es:25443 https://sis.redsys.es`,
         `frame-ancestors 'none'`,
         `base-uri 'self'`,

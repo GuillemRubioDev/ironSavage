@@ -15,10 +15,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Download, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { adminInvoiceForOrderDocument, resendInvoiceDocument } from './graphql';
 
 export function OrderInvoiceBlock({ context }: { context: PageContextValue }) {
+    const { t } = useLingui();
     const orderId = context.entity?.id;
     const [dialogOpen, setDialogOpen] = useState(false);
     const [email, setEmail] = useState('');
@@ -32,13 +34,13 @@ export function OrderInvoiceBlock({ context }: { context: PageContextValue }) {
     const resendMutation = useMutation({
         mutationFn: api.mutate(resendInvoiceDocument),
         onSuccess: () => {
-            toast(`Factura reenviada a ${email}`);
+            toast(t`Invoice resent to ${email}`);
             setDialogOpen(false);
             setEmail('');
         },
         onError: error => {
-            toast('No se pudo reenviar la factura', {
-                description: error instanceof Error ? error.message : 'Unknown error',
+            toast(t`Could not resend the invoice`, {
+                description: error instanceof Error ? error.message : t`Unknown error`,
             });
         },
     });
@@ -69,43 +71,42 @@ export function OrderInvoiceBlock({ context }: { context: PageContextValue }) {
                         render={<a href={`/invoices/${invoice.id}/pdf`} target="_blank" rel="noreferrer" />}
                     >
                         <Download className="mr-2 h-3.5 w-3.5" />
-                        Descargar
+                        <Trans>Download</Trans>
                     </Button>
                 )}
                 <Button variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
                     <Mail className="mr-2 h-3.5 w-3.5" />
-                    Reenviar
+                    <Trans>Resend</Trans>
                 </Button>
             </div>
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogContent className="sm:max-w-[420px]">
                     <DialogHeader>
-                        <DialogTitle>Reenviar factura</DialogTitle>
+                        <DialogTitle><Trans>Resend invoice</Trans></DialogTitle>
                         <DialogDescription>
-                            Se enviará {invoice.formattedNumber} en PDF a la dirección que indiques — no tiene por
-                            qué ser la del cliente.
+                            <Trans>{invoice.formattedNumber} will be sent as a PDF to the address you enter — it doesn't have to be the customer's.</Trans>
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-2">
-                        <Label htmlFor="resend-email">Correo de destino</Label>
+                        <Label htmlFor="resend-email"><Trans>Recipient email</Trans></Label>
                         <Input
                             id="resend-email"
                             type="email"
-                            placeholder="cliente@ejemplo.com"
+                            placeholder={t`customer@example.com`}
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                         />
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                            Cancelar
+                            <Trans>Cancel</Trans>
                         </Button>
                         <Button
                             disabled={!email || resendMutation.isPending}
                             onClick={() => resendMutation.mutate({ invoiceId: invoice.id, emailAddress: email })}
                         >
-                            {resendMutation.isPending ? 'Enviando...' : 'Enviar'}
+                            {resendMutation.isPending ? <Trans>Sending...</Trans> : <Trans>Send</Trans>}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

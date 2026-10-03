@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
     api,
     Button,
@@ -30,6 +31,7 @@ type Mode = 'existing' | 'new';
 
 /** Convert an existing customer into an athlete, or create the customer at the same time. */
 export function AthleteNewPage() {
+    const { t } = useLingui();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [mode, setMode] = useState<Mode>('existing');
@@ -84,7 +86,7 @@ export function AthleteNewPage() {
             await queryClient.invalidateQueries({ queryKey: ['athlete-list'] });
             void navigate({ to: '/athletes/$id', params: { id: payload.id } });
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Something went wrong while saving.');
+            setError(err instanceof Error ? err.message : t`Something went wrong while saving.`);
         } finally {
             setSaving(false);
         }
@@ -94,20 +96,24 @@ export function AthleteNewPage() {
 
     return (
         <Page pageId="athlete-new">
-            <PageTitle>New athlete</PageTitle>
+            <PageTitle>
+                <Trans>New athlete</Trans>
+            </PageTitle>
             <PageLayout>
                 <FullWidthPageBlock blockId="athlete-customer">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Customer</CardTitle>
+                            <CardTitle>
+                                <Trans>Customer</Trans>
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex gap-2">
                                 <Button variant={mode === 'existing' ? 'default' : 'outline'} onClick={() => setMode('existing')}>
-                                    Convert an existing customer
+                                    <Trans>Convert an existing customer</Trans>
                                 </Button>
                                 <Button variant={mode === 'new' ? 'default' : 'outline'} onClick={() => setMode('new')}>
-                                    Create a new customer
+                                    <Trans>Create a new customer</Trans>
                                 </Button>
                             </div>
 
@@ -122,33 +128,39 @@ export function AthleteNewPage() {
                                         }}
                                     >
                                         <Input
-                                            placeholder="Search by name or email..."
+                                            placeholder={t`Search by name or email...`}
                                             value={searchTerm}
                                             onChange={e => setSearchTerm(e.target.value)}
                                             className="max-w-sm"
                                         />
                                         <Button type="submit" variant="outline">
                                             <Search className="mr-2 h-4 w-4" />
-                                            Search
+                                            <Trans>Search</Trans>
                                         </Button>
                                     </form>
                                     {selectedCustomer && (
                                         <p className="text-sm">
-                                            Selected customer:{' '}
+                                            <Trans>Selected customer:</Trans>{' '}
                                             <span className="font-medium">
                                                 {selectedCustomer.firstName} {selectedCustomer.lastName}
                                             </span>{' '}
                                             <span className="text-muted-foreground">({selectedCustomer.emailAddress})</span>
                                         </p>
                                     )}
-                                    {isSearching && <p className="text-sm text-muted-foreground">Searching…</p>}
+                                    {isSearching && (
+                                        <p className="text-sm text-muted-foreground">
+                                            <Trans>Searching…</Trans>
+                                        </p>
+                                    )}
                                     {submittedTerm && !isSearching && (
                                         <div className="border rounded-lg">
                                             <Table>
                                                 <TableBody>
                                                     {customers.length === 0 ? (
                                                         <TableRow>
-                                                            <TableCell className="h-16 text-center text-muted-foreground">No customers found.</TableCell>
+                                                            <TableCell className="h-16 text-center text-muted-foreground">
+                                                                <Trans>No customers found.</Trans>
+                                                            </TableCell>
                                                         </TableRow>
                                                     ) : (
                                                         customers.map(customer => (
@@ -162,7 +174,7 @@ export function AthleteNewPage() {
                                                                 <TableCell className="text-muted-foreground">{customer.emailAddress}</TableCell>
                                                                 <TableCell className="text-right">
                                                                     <Button size="sm" variant="outline" onClick={() => setCustomerId(customer.id)}>
-                                                                        {customer.id === customerId ? 'Selected' : 'Select'}
+                                                                        {customer.id === customerId ? <Trans>Selected</Trans> : <Trans>Select</Trans>}
                                                                     </Button>
                                                                 </TableCell>
                                                             </TableRow>
@@ -176,24 +188,35 @@ export function AthleteNewPage() {
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <Label htmlFor="firstName">First name</Label>
+                                        <Label htmlFor="firstName">
+                                            <Trans>First name</Trans>
+                                        </Label>
                                         <Input id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label htmlFor="lastName">Last name</Label>
+                                        <Label htmlFor="lastName">
+                                            <Trans>Last name</Trans>
+                                        </Label>
                                         <Input id="lastName" value={lastName} onChange={e => setLastName(e.target.value)} />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label htmlFor="email">Email</Label>
+                                        <Label htmlFor="email">
+                                            <Trans>Email</Trans>
+                                        </Label>
                                         <Input id="email" type="email" value={emailAddress} onChange={e => setEmailAddress(e.target.value)} />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label htmlFor="phone">Phone (optional)</Label>
+                                        <Label htmlFor="phone">
+                                            <Trans>Phone (optional)</Trans>
+                                        </Label>
                                         <Input id="phone" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
                                     </div>
                                     <p className="text-xs text-muted-foreground md:col-span-2">
-                                        An activation email is sent to this address: from that link the athlete verifies the email and
-                                        chooses their password. If it doesn't arrive, resend it (or verify the account directly) from "Account access" on the customer page.
+                                        <Trans>
+                                            An activation email is sent to this address: from that link the athlete verifies the email
+                                            and chooses their password. If it doesn't arrive, resend it (or verify the account directly)
+                                            from "Account access" on the customer page.
+                                        </Trans>
                                     </p>
                                 </div>
                             )}
@@ -204,27 +227,41 @@ export function AthleteNewPage() {
                 <FullWidthPageBlock blockId="athlete-settings">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Athlete settings</CardTitle>
+                            <CardTitle>
+                                <Trans>Athlete settings</Trans>
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <Switch checked={enabled} onCheckedChange={setEnabled} />
-                                <Label>Athlete active</Label>
+                                <Label>
+                                    <Trans>Athlete active</Trans>
+                                </Label>
                             </div>
                             <div className="space-y-1">
-                                <Label htmlFor="notes">Internal notes</Label>
-                                <Textarea id="notes" rows={3} value={notes} onChange={e => setNotes(e.target.value)} placeholder="Sport, agreement details… (never shown to the athlete)" />
+                                <Label htmlFor="notes">
+                                    <Trans>Internal notes</Trans>
+                                </Label>
+                                <Textarea
+                                    id="notes"
+                                    rows={3}
+                                    value={notes}
+                                    onChange={e => setNotes(e.target.value)}
+                                    placeholder={t`Sport, agreement details… (never shown to the athlete)`}
+                                />
                             </div>
                             <div className="flex items-center gap-3">
                                 <Switch checked={withCode} onCheckedChange={setWithCode} />
-                                <Label>Create a promotional code now</Label>
+                                <Label>
+                                    <Trans>Create a promotional code now</Trans>
+                                </Label>
                             </div>
                             {withCode && (
                                 <AthleteCodeForm initialValue={EMPTY_CODE_FORM} submitLabel="" onSubmit={() => undefined} fieldsOnly onChange={setCode} />
                             )}
                             {error && <p className="text-sm text-destructive">{error}</p>}
                             <Button onClick={save} disabled={!canSave || saving}>
-                                {saving ? 'Creating…' : 'Create athlete'}
+                                {saving ? <Trans>Creating…</Trans> : <Trans>Create athlete</Trans>}
                             </Button>
                         </CardContent>
                     </Card>

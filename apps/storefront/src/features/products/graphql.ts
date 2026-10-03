@@ -35,6 +35,15 @@ export const GetProductDetailQuery = graphql(`
             enabled
             customFields {
                 visibleInStorefront
+                isFoodSupplement
+                foodIngredients
+                foodAllergens
+                foodNutrition
+                foodDirections
+                foodWarnings
+                foodStorage
+                foodOrigin
+                foodOperator
             }
             assets {
                 id
@@ -47,6 +56,9 @@ export const GetProductDetailQuery = graphql(`
                 sku
                 priceWithTax
                 stockLevel
+                customFields {
+                    netQuantity
+                }
                 featuredAsset {
                     id
                     preview

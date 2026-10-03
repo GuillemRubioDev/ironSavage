@@ -13,7 +13,7 @@ import {Navbar} from '@/site/navigation/navbar';
 import {Footer} from "@/site/footer";
 import {ThemeProvider} from "@/site/providers/theme-provider";
 import {CookieConsentRoot} from "@/site/cookie-consent/cookie-consent-root";
-import {SITE_NAME, SITE_URL} from "@/config/metadata";
+import {DEFAULT_OG_IMAGES, SITE_NAME, SITE_URL} from "@/config/metadata";
 
 // Inter: highly legible UI/body text. Oswald: condensed, strong-weight
 // display font for headings — the "athletic" brand voice, never used for
@@ -64,6 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
             type: "website",
             siteName: SITE_NAME,
             locale: ogLocale,
+            images: DEFAULT_OG_IMAGES,
         },
         twitter: {
             card: "summary_large_image",
@@ -106,6 +107,7 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
 
     setRequestLocale(locale);
     const messages = await getMessages({locale});
+    const tNav = await getTranslations({locale, namespace: 'Navigation'});
 
     return (
         <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
@@ -115,13 +117,21 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
                         <CookieConsentRoot>
+                            {/* WCAG 2.4.1: first focusable element, visible only when
+                                focused — keyboard users skip the header/menus. */}
+                            <a
+                                href="#main-content"
+                                className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-100 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg focus:outline-2 focus:outline-primary"
+                            >
+                                {tNav('skipToContent')}
+                            </a>
                             <TopBar />
                             <Navbar />
                             {/* Single centralized offset for the fixed TopBar+Navbar
                                 stack — every page's content starts here, below the
                                 header, with no per-page compensation needed. See
                                 --header-offset in globals.css. */}
-                            <main className="flex-1 pt-[var(--header-offset)]">
+                            <main id="main-content" tabIndex={-1} className="flex-1 pt-[var(--header-offset)] print:pt-0 focus:outline-none">
                                 {children}
                             </main>
                             <Footer/>

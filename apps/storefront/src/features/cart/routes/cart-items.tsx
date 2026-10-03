@@ -93,7 +93,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                         </p>
 
                         <div className="flex items-center gap-3 mt-4">
-                            <QuantityControl lineId={line.id} quantity={line.quantity}/>
+                            <QuantityControl lineId={line.id} quantity={line.quantity} productName={line.productVariant.name}/>
 
                             <div className="sm:hidden ml-auto">
                                 <p className="font-mono font-semibold text-lg tabular-nums">

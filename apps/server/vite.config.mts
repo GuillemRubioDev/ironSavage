@@ -1,3 +1,4 @@
+import type { LanguageCode } from '@vendure/common/lib/generated-types';
 import { vendureDashboardPlugin } from '@vendure/dashboard/vite';
 import { join, resolve } from 'path';
 import { pathToFileURL } from 'url';
@@ -27,6 +28,16 @@ export default defineConfig({
             // These types can be used in your dashboard extensions to provide
             // type safety when writing queries and mutations.
             gqlOutputPath: './src/gql',
+            // The Dashboard is used in Spanish (default) and occasionally in
+            // English; the language picker only offers these two. Our own
+            // extensions ship their translations in each plugin's
+            // dashboard/i18n/{es,en}.po (see docs/dashboard-i18n.md).
+            i18n: {
+                defaultLanguage: 'es' as LanguageCode,
+                availableLanguages: ['es', 'en'] as LanguageCode[],
+                defaultLocale: 'ES',
+                availableLocales: ['ES', 'GB'],
+            },
             // Iron Savage red as the Dashboard's accent color, via the
             // official theme-override option (vendureDashboardPlugin's
             // `theme.light`/`theme.dark`, since 3.5.1) — only the accent

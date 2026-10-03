@@ -47,13 +47,23 @@ export function buildCanonicalUrl(path: string): string {
 }
 
 /**
- * Build Open Graph image array from an image URL.
+ * Image shown when a page is shared (WhatsApp, social networks…) and has no
+ * picture of its own: public/og-image.png, 1200×630. Replace that file to
+ * change it.
+ */
+export const DEFAULT_OG_IMAGES = [
+  {url: '/og-image.png', width: 1200, height: 630, alt: `${SITE_NAME} — suplementación deportiva`},
+];
+
+/**
+ * Build Open Graph image array from an image URL — the default share image
+ * when there is none (a page that sets `openGraph` replaces the layout's).
  */
 export function buildOgImages(
   imageUrl: string | null | undefined,
   alt?: string
 ): NonNullable<Metadata['openGraph']>['images'] {
-  if (!imageUrl) return undefined;
+  if (!imageUrl) return DEFAULT_OG_IMAGES;
 
   return [
     {

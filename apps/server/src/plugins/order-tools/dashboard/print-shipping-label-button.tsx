@@ -1,4 +1,5 @@
 import { Button, PageContextValue } from '@vendure/dashboard';
+import { Trans } from '@lingui/react/macro';
 import { Printer } from 'lucide-react';
 
 export function PrintShippingLabelButton({ context }: { context: PageContextValue }) {
@@ -12,7 +13,7 @@ export function PrintShippingLabelButton({ context }: { context: PageContextValu
             onClick={() => window.open(`/order-tools/shipping-labels?orders=${orderId}`, '_blank')}
         >
             <Printer className="mr-2 h-4 w-4" />
-            Imprimir etiqueta
+            <Trans>Print shipping label</Trans>
         </Button>
     );
 }

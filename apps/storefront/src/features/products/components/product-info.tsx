@@ -8,6 +8,7 @@ import {Separator} from '@/components/ui/separator';
 import {ShoppingCart, CheckCircle2} from 'lucide-react';
 import {addToCart} from '@/features/products/add-to-cart';
 import {toast} from 'sonner';
+import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
 import {Price} from '@/features/pricing/price';
 import {useTranslations} from 'next-intl';
 
@@ -17,6 +18,7 @@ interface ProductVariant {
     sku: string;
     priceWithTax: number;
     stockLevel: string;
+    customFields?: {netQuantity?: string | null} | null;
     options: Array<{
         id: string;
         code: string;
@@ -66,6 +68,12 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
 
             if (result.success) {
                 setIsAdded(true);
+                const price = toMajorUnits(selectedVariant.priceWithTax);
+                trackEvent('add_to_cart', {
+                    currency: currencyCode,
+                    value: price,
+                    items: [{item_id: selectedVariant.sku || selectedVariant.id, item_name: product.name, item_variant: selectedVariant.name, price, quantity: 1}],
+                });
                 toast.success(t('addedToCartMessage'), {
                     description: t('addedToCartDescription', {name: product.name}),
                 });
@@ -182,6 +190,11 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
             </div>
 
             {/* SKU */}
+            {selectedVariant?.customFields?.netQuantity && (
+                <div className="text-sm text-muted-foreground">
+                    {t('netQuantity', {quantity: selectedVariant.customFields.netQuantity})}
+                </div>
+            )}
             {selectedVariant && (
                 <div className="font-mono text-xs text-muted-foreground">
                     {t('sku', {sku: selectedVariant.sku})}

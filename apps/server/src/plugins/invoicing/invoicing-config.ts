@@ -21,11 +21,13 @@ export function setInvoicingConfig(options: InvoicingPluginOptions): void {
         storeAddress: !options.storeAddress,
     };
     cached = {
-        storeName: options.storeName ?? 'Tienda Suple (nombre fiscal pendiente de configurar)',
+        storeName: options.storeName ?? 'Razón social pendiente de configurar',
         storeTaxId: options.storeTaxId ?? 'NIF/CIF PENDIENTE',
         storeAddress: options.storeAddress ?? 'Dirección fiscal pendiente de configurar',
         storeEmail: options.storeEmail ?? 'facturacion@example.com',
         storePhone: options.storePhone,
+        storeRegistry: options.storeRegistry || undefined,
+        fiscalRegistration: options.fiscalRegistration,
         pdfOutputDir: options.pdfOutputDir ?? path.join(__dirname, '../../../static/invoices'),
     };
     if (Object.values(placeholders).some(Boolean)) {

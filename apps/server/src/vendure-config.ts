@@ -17,6 +17,9 @@ import { ContentPlugin, contentPermission } from './plugins/content/content.plug
 import { DashboardExtrasPlugin } from './plugins/dashboard-extras/dashboard-extras.plugin';
 import { BannersPlugin } from './plugins/banners/banners.plugin';
 import { OrderToolsPlugin } from './plugins/order-tools/order-tools.plugin';
+import { LegalAcceptancePlugin } from './plugins/legal-acceptance/legal-acceptance.plugin';
+import { productFoodInformationFields, variantFoodInformationFields } from './product-food-information';
+import { SpainTerritoriesPlugin } from './plugins/spain-territories/spain-territories.plugin';
 import { AthletesPlugin, athletePermission } from './plugins/athletes/athletes.plugin';
 import { CustomerAccountsPlugin } from './plugins/customer-accounts/customer-accounts.plugin';
 import { bannerPermission } from './plugins/banners/banner.permission';
@@ -139,7 +142,9 @@ export const config: VendureConfig = {
                     },
                 ],
             },
+            ...productFoodInformationFields,
         ],
+        ProductVariant: [...variantFoodInformationFields],
     },
     plugins: [
         // Interactive GraphQL IDE for both APIs — dev-only. Auth is still
@@ -184,6 +189,7 @@ export const config: VendureConfig = {
             storeAddress: process.env.INVOICE_STORE_ADDRESS,
             storeEmail: process.env.INVOICE_STORE_EMAIL,
             storePhone: process.env.INVOICE_STORE_PHONE,
+            storeRegistry: process.env.INVOICE_STORE_REGISTRY,
         }),
         TransactionalEmailPlugin,
         CustomerAccountsPlugin,
@@ -192,5 +198,9 @@ export const config: VendureConfig = {
         DashboardExtrasPlugin,
         BannersPlugin,
         OrderToolsPlugin,
+        // Proof of acceptance of the terms (when + which version) on every storefront order.
+        LegalAcceptancePlugin,
+        // Canarias/Ceuta/Melilla outside the VAT area + territory-based shipping methods.
+        SpainTerritoriesPlugin,
     ],
 };

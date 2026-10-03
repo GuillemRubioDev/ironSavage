@@ -3,6 +3,7 @@
 import {useState} from 'react';
 import {Star} from 'lucide-react';
 import {cn} from '@/lib/utils';
+import {useTranslations} from 'next-intl';
 
 interface StarRatingInputProps {
     value: number;
@@ -11,11 +12,12 @@ interface StarRatingInputProps {
 }
 
 export function StarRatingInput({value, onChange, disabled}: StarRatingInputProps) {
+    const t = useTranslations('Reviews');
     const [hovered, setHovered] = useState<number | null>(null);
     const displayValue = hovered ?? value;
 
     return (
-        <div className="flex items-center gap-1" role="radiogroup" aria-label="Rating">
+        <div className="flex items-center gap-1" role="radiogroup" aria-label={t('rating')}>
             {[1, 2, 3, 4, 5].map(star => (
                 <button
                     key={star}
@@ -27,9 +29,10 @@ export function StarRatingInput({value, onChange, disabled}: StarRatingInputProp
                     onClick={() => onChange(star)}
                     aria-checked={value === star}
                     role="radio"
-                    aria-label={`${star} star${star > 1 ? 's' : ''}`}
+                    aria-label={t('starOption', {count: star})}
                 >
                     <Star
+                        aria-hidden="true"
                         className={cn(
                             'h-6 w-6 transition-colors',
                             star <= displayValue ? 'fill-primary text-primary' : 'fill-none text-muted-foreground'

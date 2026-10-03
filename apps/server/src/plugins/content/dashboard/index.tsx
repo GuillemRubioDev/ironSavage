@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { DashboardNavSectionDefinition, DashboardRouteDefinition, defineDashboardExtension } from '@vendure/dashboard';
 import { Newspaper } from 'lucide-react';
 
@@ -11,7 +12,7 @@ import { draftArticlesWidget } from './draft-articles-widget';
 // to group this (DashboardNavSectionDefinition, since 3.4.0).
 const contentSection: DashboardNavSectionDefinition = {
     id: 'content',
-    title: 'Content',
+    title: /* i18n*/ 'Content',
     icon: Newspaper,
     order: 250,
 };
@@ -21,22 +22,22 @@ const articlesList: DashboardRouteDefinition = {
         sectionId: 'content',
         id: 'content-articles',
         url: '/content-articles',
-        title: 'Articles',
+        title: /* i18n*/ 'Articles',
     },
     path: '/content-articles',
-    loader: () => ({ breadcrumb: 'Articles' }),
+    loader: () => ({ breadcrumb: <Trans>Articles</Trans> }),
     component: () => <ArticlesListPage />,
 };
 
 const articleNew: DashboardRouteDefinition = {
     path: '/content-articles/new',
-    loader: () => ({ breadcrumb: 'New article' }),
+    loader: () => ({ breadcrumb: <Trans>New article</Trans> }),
     component: () => <ArticleFormPage />,
 };
 
 const articleDetail: DashboardRouteDefinition = {
     path: '/content-articles/$id',
-    loader: () => ({ breadcrumb: 'Article' }),
+    loader: () => ({ breadcrumb: <Trans>Article</Trans> }),
     component: () => <ArticleFormPage />,
 };
 

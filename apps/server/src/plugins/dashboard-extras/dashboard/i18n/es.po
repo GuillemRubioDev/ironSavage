@@ -1,0 +1,251 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-28 13:54+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: es\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "The default currency is chosen from this list."
+msgstr "La moneda predeterminada se elige de esta lista."
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Add more ({0} selected)"
+msgstr "Añadir más ({0} seleccionados)"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "File Size"
+msgstr "Tamaño del archivo"
+
+#. placeholder {0}: outOfStock.length
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "<0>{0}</0> out of stock"
+msgstr "<0>{0}</0> agotados"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "You must first select an available currency to set a default currency"
+msgstr "Primero debes seleccionar una moneda disponible para fijar la moneda predeterminada"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to set shipping method for order: {0}"
+msgstr "No se ha podido establecer el método de envío del pedido: {0}"
+
+#. placeholder {0}: variant.stockOnHand
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "{0} left"
+msgstr "Quedan {0}"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to complete draft order: {0}"
+msgstr "No se ha podido completar el pedido borrador: {0}"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to set coupon code for order: {0}"
+msgstr "No se ha podido aplicar el código de cupón al pedido: {0}"
+
+#. js-lingui-explicit-id
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Administration"
+msgstr "Administración"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to remove coupon code from order: {0}"
+msgstr "No se ha podido quitar el código de cupón del pedido: {0}"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "This field is required"
+msgstr "Este campo es obligatorio"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to set customer for order: {0}"
+msgstr "No se ha podido asignar el cliente al pedido: {0}"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select Shipping Calculator"
+msgstr "Seleccionar calculadora de envío"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to unset billing address for order: {0}"
+msgstr "No se ha podido quitar la dirección de facturación del pedido: {0}"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to update order custom fields: {0}"
+msgstr "No se han podido actualizar los campos personalizados del pedido: {0}"
+
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "Out of stock"
+msgstr "Agotado"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select Shipping Eligibility Checker"
+msgstr "Seleccionar comprobador de elegibilidad de envío"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "You must select at least one available currency"
+msgstr "Debes seleccionar al menos una moneda disponible"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Change selection"
+msgstr "Cambiar selección"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to set shipping address for order: {0}"
+msgstr "No se ha podido establecer la dirección de envío del pedido: {0}"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select channels to assign {0} {entityType} to"
+msgstr "Selecciona los canales a los que asignar {0} {entityType}"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Add collection filter"
+msgstr "Añadir filtro de colección"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Successfully assigned {entityIdsLength} {entityType} to {0} channels"
+msgstr "{entityIdsLength} {entityType} asignados correctamente a {0} canales"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select value"
+msgstr "Seleccionar valor"
+
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "Out of stock, and at or below {LOW_STOCK_THRESHOLD} units"
+msgstr "Agotados, y con {LOW_STOCK_THRESHOLD} unidades o menos"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select Payment Handler"
+msgstr "Seleccionar gestor de pagos"
+
+#. placeholder {0}: values[0]
+#. placeholder {1}: values[1]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to assign {entityIdsLength} {entityType} to {0} of {1} channels"
+msgstr "No se han podido asignar {entityIdsLength} {entityType} a {0} de {1} canales"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "No checkers found"
+msgstr "No se han encontrado comprobadores"
+
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "Stock alerts"
+msgstr "Alertas de stock"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to remove order line: {0}"
+msgstr "No se ha podido eliminar la línea del pedido: {0}"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Source File"
+msgstr "Archivo de origen"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to update order line: {0}"
+msgstr "No se ha podido actualizar la línea del pedido: {0}"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Assign {entityType} to channels"
+msgstr "Asignar {entityType} a canales"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to delete draft order: {0}"
+msgstr "No se ha podido eliminar el pedido borrador: {0}"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select Payment Eligibility Checker"
+msgstr "Seleccionar comprobador de elegibilidad de pago"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select one or more channels"
+msgstr "Selecciona uno o más canales"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select operator"
+msgstr "Seleccionar operador"
+
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "Loading…"
+msgstr "Cargando…"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "You must select a default currency from the list of available currencies"
+msgstr "Debes seleccionar una moneda predeterminada de la lista de monedas disponibles"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Loading selected items..."
+msgstr "Cargando elementos seleccionados..."
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to set billing address for order: {0}"
+msgstr "No se ha podido establecer la dirección de facturación del pedido: {0}"
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to set address for order: {0}"
+msgstr "No se ha podido establecer la dirección del pedido: {0}"
+
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "All enabled variants are above the low-stock threshold."
+msgstr "Todas las variantes activas están por encima del umbral de stock bajo."
+
+#. placeholder {0}: flagged.length - 8
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "+{0} more"
+msgstr "+{0} más"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Select a fulfillment handler"
+msgstr "Selecciona un gestor de preparación"
+
+#. js-lingui-explicit-id
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "Stock alerts"
+msgstr "Alertas de stock"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Add item to order"
+msgstr "Añadir artículo al pedido"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to remove option group"
+msgstr "No se ha podido eliminar el grupo de opciones"
+
+#. placeholder {0}: lowStock.length
+#: src/plugins/dashboard-extras/dashboard/low-stock-widget.tsx
+msgid "<0>{0}</0> low stock"
+msgstr "<0>{0}</0> con poco stock"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Defaults to the default language."
+msgstr "Por defecto, el idioma predeterminado."
+
+#. placeholder {0}: values[0]
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Failed to unset shipping address for order: {0}"
+msgstr "No se ha podido quitar la dirección de envío del pedido: {0}"
+
+#: src/plugins/dashboard-extras/dashboard/vendure-core-translations.ts
+msgid "Search..."
+msgstr "Buscar..."

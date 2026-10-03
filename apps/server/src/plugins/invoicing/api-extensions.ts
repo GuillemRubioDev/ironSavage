@@ -28,6 +28,12 @@ const commonTypes = gql`
         total: Int!
         currencyCode: String!
         status: String!
+        "ORDINARY, or RECTIFYING for a factura rectificativa (negative amounts) issued for a refund."
+        type: String!
+        "Rectifying invoices only: number of the invoice they correct (e.g. A-000123)."
+        rectifiedInvoiceNumber: String
+        "Rectifying invoices only: reason of the rectification."
+        reason: String
         "Whether a PDF has been generated for this invoice yet."
         hasPdf: Boolean!
         lines: [InvoiceLine!]!

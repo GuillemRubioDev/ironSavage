@@ -9,15 +9,20 @@ import {LanguagePicker} from '@/site/navigation/navbar/language-picker';
 import {CurrencyPickerWrapper} from '@/site/navigation/navbar/currency-picker-wrapper';
 import {MobileNavWrapper} from '@/site/navigation/navbar/mobile-nav-wrapper';
 import {Suspense} from "react";
+import {getTranslations} from 'next-intl/server';
+import {getRouteLocale} from '@/platform/i18n/server';
 import {Search} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {SearchInput} from '@/site/navigation/search-input';
 import {NavbarUserSkeleton} from '@/site/navigation/skeletons/navbar-user-skeleton';
 import {SearchInputSkeleton} from '@/site/navigation/skeletons/search-input-skeleton';
 
-export function Navbar() {
+export async function Navbar() {
+    const locale = await getRouteLocale();
+    const t = await getTranslations({locale, namespace: 'Navigation'});
+
     return (
-        <header className="fixed top-[var(--top-bar-h)] left-0 right-0 z-40 border-b backdrop-blur-md bg-background/80">
+        <header className="fixed print:hidden top-[var(--top-bar-h)] left-0 right-0 z-40 border-b backdrop-blur-md bg-background/80">
             <div className="container mx-auto px-4">
                 <div className="flex items-center h-[var(--header-h)] gap-4">
                     <div className="flex items-center gap-4 shrink-0">
@@ -38,7 +43,7 @@ export function Navbar() {
                         for the full collection list even with the shrink/scroll above
                         — it silently clipped mid-word with no visible scroll cue, so
                         tablet keeps the (fully worked out) hamburger drawer instead. */}
-                    <nav className="hidden lg:flex flex-1 min-w-0 items-center gap-3 overflow-x-auto scrollbar-none">
+                    <nav aria-label={t('mainNavigation')} className="hidden lg:flex flex-1 min-w-0 items-center gap-3 overflow-x-auto scrollbar-none">
                         <Suspense>
                             <NavbarCollections/>
                         </Suspense>
@@ -61,9 +66,10 @@ export function Navbar() {
                             variant="ghost"
                             size="icon"
                             className="hidden lg:flex 2xl:hidden"
-                            render={<Link href="/search" />}
+                            render={<Link href="/search" aria-label={t('search')} />}
+                            nativeButton={false}
                         >
-                            <Search className="size-5" />
+                            <Search className="size-5" aria-hidden="true" />
                         </Button>
                         <div className="hidden lg:flex items-center gap-3">
                             <Suspense>

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
     api,
     Badge,
@@ -25,6 +26,7 @@ import { athleteListDocument } from './graphql';
 
 /** Same manual-fetch-and-table approach as the Banners/Loyalty extensions. */
 export function AthletesListPage() {
+    const { t } = useLingui();
     const [term, setTerm] = useState('');
     const [submittedTerm, setSubmittedTerm] = useState('');
     const { data, isLoading } = useQuery({
@@ -35,20 +37,24 @@ export function AthletesListPage() {
 
     return (
         <Page pageId="athlete-list">
-            <PageTitle>Athletes</PageTitle>
+            <PageTitle>
+                <Trans>Athletes</Trans>
+            </PageTitle>
             <PageActionBar>
                 <PageActionBarRight>
                     <Button render={<Link to="/athletes/new" />}>
                         <PlusIcon className="mr-2 h-4 w-4" />
-                        New athlete
+                        <Trans>New athlete</Trans>
                     </Button>
                 </PageActionBarRight>
             </PageActionBar>
             <PageLayout>
                 <FullWidthPageBlock blockId="list-table">
                     <p className="text-sm text-muted-foreground mb-4">
-                        Athletes don't earn regular points on their own purchases. Instead, they earn points when other customers buy
-                        with one of their codes, and can spend them like any customer.
+                        <Trans>
+                            Athletes don't earn regular points on their own purchases. Instead, they earn points when other customers
+                            buy with one of their codes, and can spend them like any customer.
+                        </Trans>
                     </p>
                     <form
                         className="flex gap-2 mb-4"
@@ -57,36 +63,55 @@ export function AthletesListPage() {
                             setSubmittedTerm(term.trim());
                         }}
                     >
-                        <Input placeholder="Search by name, email or code..." value={term} onChange={e => setTerm(e.target.value)} className="max-w-sm" />
+                        <Input
+                            placeholder={t`Search by name, email or code...`}
+                            value={term}
+                            onChange={e => setTerm(e.target.value)}
+                            className="max-w-sm"
+                        />
                         <Button type="submit" variant="outline">
                             <Search className="mr-2 h-4 w-4" />
-                            Search
+                            <Trans>Search</Trans>
                         </Button>
                     </form>
                     <div className="border rounded-lg">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Athlete</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Codes</TableHead>
-                                    <TableHead className="text-right">Rewarded orders</TableHead>
-                                    <TableHead className="text-right">Net reward points</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead>
+                                        <Trans>Athlete</Trans>
+                                    </TableHead>
+                                    <TableHead>
+                                        <Trans>Email</Trans>
+                                    </TableHead>
+                                    <TableHead>
+                                        <Trans>Codes</Trans>
+                                    </TableHead>
+                                    <TableHead className="text-right">
+                                        <Trans>Rewarded orders</Trans>
+                                    </TableHead>
+                                    <TableHead className="text-right">
+                                        <Trans>Net reward points</Trans>
+                                    </TableHead>
+                                    <TableHead>
+                                        <Trans>Status</Trans>
+                                    </TableHead>
+                                    <TableHead className="text-right">
+                                        <Trans>Actions</Trans>
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
                                         <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                                            Loading...
+                                            <Trans>Loading...</Trans>
                                         </TableCell>
                                     </TableRow>
                                 ) : items.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                                            No athletes yet.
+                                            <Trans>No athletes yet.</Trans>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -108,11 +133,13 @@ export function AthletesListPage() {
                                             <TableCell className="text-right">{athlete.stats.rewardedOrders}</TableCell>
                                             <TableCell className="text-right">{athlete.stats.netRewardPoints}</TableCell>
                                             <TableCell>
-                                                <Badge variant={athlete.enabled ? 'default' : 'outline'}>{athlete.enabled ? 'Active' : 'Disabled'}</Badge>
+                                                <Badge variant={athlete.enabled ? 'default' : 'outline'}>
+                                                    {athlete.enabled ? <Trans>Active</Trans> : <Trans>Disabled</Trans>}
+                                                </Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button size="sm" variant="outline" render={<Link to="/athletes/$id" params={{ id: athlete.id }} />}>
-                                                    Manage
+                                                    <Trans>Manage</Trans>
                                                 </Button>
                                             </TableCell>
                                         </TableRow>

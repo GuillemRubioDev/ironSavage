@@ -158,6 +158,49 @@ el dashboard (**Customers → Athletes**), igual que los clientes o productos.
   se vuelve a hacer atleta a ese cliente, se restaura el mismo registro y su
   historial de recompensas sigue asociado.
 
+## Cambio: prueba de aceptación de las condiciones en cada pedido (migración `AddOrderTermsAcceptance`)
+
+- **Fichero**: [`apps/server/src/migrations/1790607020732-AddOrderTermsAcceptance.ts`](../apps/server/src/migrations/1790607020732-AddOrderTermsAcceptance.ts)
+- **Plugin**: [`apps/server/src/plugins/legal-acceptance/`](../apps/server/src/plugins/legal-acceptance/)
+- **Por qué existe**: poder demostrar, ante una reclamación, cuándo aceptó el cliente los términos y condiciones y qué
+  versión aceptó.
+- **Esquema**: dos columnas nuevas en `order`, ambas `NULL`: `customFieldsTermsacceptedat` (`timestamp`) y
+  `customFieldsTermsversion` (`varchar(255)`). Son los campos personalizados de pedido `termsAcceptedAt` y
+  `termsVersion`.
+- **Solo añade columnas.** No transforma datos. Los pedidos existentes quedan con los dos campos vacíos. Es segura
+  sobre bases de datos con datos reales. El `down` elimina las dos columnas.
+- **API**: la Shop API gana la mutación `acceptTermsForActiveOrder(version: String!)`. Los tipos del storefront
+  (`apps/storefront/src/graphql-env.d.ts`) ya están regenerados. Detalles de funcionamiento en
+  [legal.md](legal.md#prueba-de-aceptación-en-cada-pedido).
+
+## Cambio: información alimentaria de los productos (migración `AddProductFoodInformation`)
+
+- **Fichero**: [`apps/server/src/migrations/1790677439821-AddProductFoodInformation.ts`](../apps/server/src/migrations/1790677439821-AddProductFoodInformation.ts)
+- **Definición**: [`apps/server/src/product-food-information.ts`](../apps/server/src/product-food-information.ts)
+- **Por qué existe**: la información alimentaria obligatoria de cada producto (Reglamento UE 1169/2011) y las
+  advertencias de los complementos alimenticios (RD 1487/2009). Ver [iva-envios-facturacion.md](iva-envios-facturacion.md).
+- **Esquema**: columnas nuevas de campos personalizados, todas vacías salvo una:
+  - `product_translation`: ingredientes, alérgenos, información nutricional, modo de empleo, advertencias,
+    conservación y país de origen (traducibles).
+  - `product`: `customFieldsIsfoodsupplement` (boolean, por defecto `true`) y `customFieldsFoodoperator`.
+  - `product_variant_translation`: `customFieldsNetquantity`.
+- **Solo añade columnas.** Segura con datos reales.
+
+## Cambio: facturas rectificativas y registro fiscal (migración `AddRectifyingInvoices`)
+
+- **Fichero**: [`apps/server/src/migrations/1790677970688-AddRectifyingInvoices.ts`](../apps/server/src/migrations/1790677970688-AddRectifyingInvoices.ts)
+- **Plugin**: [`apps/server/src/plugins/invoicing/`](../apps/server/src/plugins/invoicing/)
+- **Por qué existe**: emitir una factura rectificativa (serie R) por cada reembolso liquidado, y guardar el resultado
+  del registro en Veri*Factu cuando se configure un proveedor.
+- **Esquema** (tabla `invoice`):
+  - Columnas nuevas: `type` (`ORDINARY` por defecto), `rectifiesInvoiceId`, `rectifiedInvoiceNumber`,
+    `rectifiedInvoiceDate`, `refundId` (único), `reason` y `fiscalRegistration`.
+  - El índice único sobre `orderId` pasa a ser **parcial**: una sola factura **ordinaria** por pedido, pero varias
+    rectificativas.
+- **Datos**: las facturas existentes quedan como `ORDINARY`. No se transforma nada más. Segura con datos reales.
+- **No hay cambios de esquema** para IVA y envíos: las categorías, zonas y el método «Envío estándar» son datos que
+  crea o actualiza `npm run seed`. Ejecútalo una vez tras actualizar, porque es idempotente.
+
 ## Actualizar tu base de datos local después de `git pull`
 
 ```bash

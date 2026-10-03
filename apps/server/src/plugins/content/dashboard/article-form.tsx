@@ -13,6 +13,7 @@ import {
     PageTitle,
     Textarea,
 } from '@vendure/dashboard';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -41,6 +42,8 @@ interface AssetRef {
 }
 
 export function ArticleFormPage() {
+    const { t } = useLingui();
+    const statusLabel: Record<string, string> = { DRAFT: t`Draft`, PUBLISHED: t`Published`, ARCHIVED: t`Archived` };
     const params = useParams({ strict: false }) as { id?: string };
     const id = params.id;
     const isNew = !id || id === 'new';
@@ -104,7 +107,7 @@ export function ArticleFormPage() {
             await queryClient.invalidateQueries({ queryKey: ['content-article-list'] });
             void navigate({ to: '/content-articles/$id', params: { id: payload.id } });
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Something went wrong while saving.');
+            setError(err instanceof Error ? err.message : t`Something went wrong while saving.`);
         } finally {
             setSaving(false);
         }
@@ -127,10 +130,10 @@ export function ArticleFormPage() {
     if (!isNew && isLoading) {
         return (
             <Page pageId="content-article-detail">
-                <PageTitle>Article</PageTitle>
+                <PageTitle><Trans>Article</Trans></PageTitle>
                 <PageLayout>
                     <FullWidthPageBlock blockId="form">
-                        <p className="text-muted-foreground">Loading...</p>
+                        <p className="text-muted-foreground"><Trans>Loading...</Trans></p>
                     </FullWidthPageBlock>
                 </PageLayout>
             </Page>
@@ -139,24 +142,24 @@ export function ArticleFormPage() {
 
     return (
         <Page pageId="content-article-detail">
-            <PageTitle>{isNew ? 'New article' : titleEs || 'Article'}</PageTitle>
+            <PageTitle>{isNew ? <Trans>New article</Trans> : titleEs || <Trans>Article</Trans>}</PageTitle>
             <PageActionBar>
                 <PageActionBarRight>
                     {!isNew && article && (
                         <>
-                            <Badge variant={article.status === 'PUBLISHED' ? 'default' : 'secondary'}>{article.status}</Badge>
+                            <Badge variant={article.status === 'PUBLISHED' ? 'default' : 'secondary'}>{statusLabel[article.status] ?? article.status}</Badge>
                             {article.status !== 'ARCHIVED' && (
                                 <Button variant="outline" onClick={() => void togglePublish()}>
-                                    {article.status === 'PUBLISHED' ? 'Unpublish' : 'Publish'}
+                                    {article.status === 'PUBLISHED' ? <Trans>Unpublish</Trans> : <Trans>Publish</Trans>}
                                 </Button>
                             )}
                             <Button variant="outline" onClick={() => void remove()}>
-                                Delete
+                                <Trans>Delete</Trans>
                             </Button>
                         </>
                     )}
                     <Button onClick={() => void save()} disabled={saving}>
-                        {saving ? 'Saving...' : 'Save'}
+                        {saving ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
                     </Button>
                 </PageActionBarRight>
             </PageActionBar>
@@ -167,17 +170,17 @@ export function ArticleFormPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="titleEs">Title (Spanish)</Label>
+                                <Label htmlFor="titleEs"><Trans>Title (Spanish)</Trans></Label>
                                 <Input id="titleEs" value={titleEs} onChange={e => onTitleEsChange(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="titleEn">Title (English)</Label>
+                                <Label htmlFor="titleEn"><Trans>Title (English)</Trans></Label>
                                 <Input id="titleEn" value={titleEn} onChange={e => setTitleEn(e.target.value)} />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="slug">Slug</Label>
+                            <Label htmlFor="slug"><Trans>Slug</Trans></Label>
                             <Input
                                 id="slug"
                                 value={slug}
@@ -186,44 +189,44 @@ export function ArticleFormPage() {
                                     setSlug(slugify(e.target.value));
                                 }}
                             />
-                            <p className="text-xs text-muted-foreground">Shared across locales — one URL for both languages.</p>
+                            <p className="text-xs text-muted-foreground"><Trans>Shared across locales — one URL for both languages.</Trans></p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="excerptEs">Excerpt (Spanish)</Label>
+                                <Label htmlFor="excerptEs"><Trans>Excerpt (Spanish)</Trans></Label>
                                 <Textarea id="excerptEs" rows={2} value={excerptEs} onChange={e => setExcerptEs(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="excerptEn">Excerpt (English)</Label>
+                                <Label htmlFor="excerptEn"><Trans>Excerpt (English)</Trans></Label>
                                 <Textarea id="excerptEn" rows={2} value={excerptEn} onChange={e => setExcerptEn(e.target.value)} />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="contentEs">Content (Spanish)</Label>
+                                <Label htmlFor="contentEs"><Trans>Content (Spanish)</Trans></Label>
                                 <Textarea id="contentEs" rows={12} value={contentEs} onChange={e => setContentEs(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="contentEn">Content (English)</Label>
+                                <Label htmlFor="contentEn"><Trans>Content (English)</Trans></Label>
                                 <Textarea id="contentEn" rows={12} value={contentEn} onChange={e => setContentEn(e.target.value)} />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Cover image</Label>
+                            <Label><Trans>Cover image</Trans></Label>
                             <div className="flex items-center gap-4">
                                 {coverImage && (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={coverImage.preview + '?preset=thumb'} alt="" className="h-20 w-20 rounded object-cover border" />
                                 )}
                                 <Button variant="outline" onClick={() => setAssetPickerOpen(true)}>
-                                    {coverImage ? 'Change image' : 'Set image'}
+                                    {coverImage ? <Trans>Change image</Trans> : <Trans>Set image</Trans>}
                                 </Button>
                                 {coverImage && (
                                     <Button variant="ghost" onClick={() => setCoverImage(null)}>
-                                        Remove
+                                        <Trans>Remove</Trans>
                                     </Button>
                                 )}
                             </div>

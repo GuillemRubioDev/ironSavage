@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { DashboardRouteDefinition, defineDashboardExtension } from '@vendure/dashboard';
 
 import { AthleteDetailPage } from './athlete-detail';
@@ -12,23 +13,25 @@ const athletesList: DashboardRouteDefinition = {
         sectionId: 'customers',
         id: 'athletes',
         url: '/athletes',
-        title: 'Athletes',
+        // `/* i18n*/` marks an explicit-id message: the menu renders titles
+        // through i18n.t(title), same as the Dashboard's own menu entries.
+        title: /* i18n*/ 'Athletes',
         requiresPermission: 'ReadAthlete',
     },
     path: '/athletes',
-    loader: () => ({ breadcrumb: 'Athletes' }),
+    loader: () => ({ breadcrumb: <Trans>Athletes</Trans> }),
     component: () => <AthletesListPage />,
 };
 
 const athleteNew: DashboardRouteDefinition = {
     path: '/athletes/new',
-    loader: () => ({ breadcrumb: 'New athlete' }),
+    loader: () => ({ breadcrumb: <Trans>New athlete</Trans> }),
     component: () => <AthleteNewPage />,
 };
 
 const athleteDetail: DashboardRouteDefinition = {
     path: '/athletes/$id',
-    loader: () => ({ breadcrumb: 'Athlete' }),
+    loader: () => ({ breadcrumb: <Trans>Athlete</Trans> }),
     component: () => <AthleteDetailPage />,
 };
 
@@ -37,7 +40,7 @@ defineDashboardExtension({
     pageBlocks: [
         {
             id: 'customer-athlete',
-            title: 'Athlete',
+            title: <Trans>Athlete</Trans>,
             // After "Customer groups": account management (a customer-level
             // concern, see the customer-accounts plugin) stays right under Status.
             location: { pageId: 'customer-detail', column: 'side', position: { blockId: 'groups', order: 'after' } },

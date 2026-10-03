@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toMajorUnits, trackEvent } from '@/platform/analytics/gtag';
 import { Check } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import ContactStep from './steps/contact-step';
@@ -17,6 +18,32 @@ type CheckoutStep = 'contact' | 'shipping' | 'delivery' | 'payment' | 'review';
 export default function CheckoutFlow() {
   const t = useTranslations('Checkout');
   const { order, isGuest } = useCheckout();
+
+  // GA4 begin_checkout — once per order, not on every step/refresh.
+  const orderCode = order?.code;
+  useEffect(() => {
+    if (!order || !orderCode) return;
+    const key = `ga-begin-checkout-${orderCode}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch {
+      // Storage unavailable — at worst the event is sent more than once.
+    }
+    trackEvent('begin_checkout', {
+      currency: order.currencyCode,
+      value: toMajorUnits(order.totalWithTax),
+      coupon: order.couponCodes?.join(',') || undefined,
+      items: order.lines.map((line) => ({
+        item_id: line.productVariant.sku || line.productVariant.id,
+        item_name: line.productVariant.product.name,
+        item_variant: line.productVariant.name,
+        price: toMajorUnits(line.discountedUnitPriceWithTax),
+        quantity: line.quantity,
+      })),
+    });
+    // Once per order code: the order object changes on every checkout step.
+  }, [orderCode]);
 
   const getStepOrder = (): CheckoutStep[] => {
     if (isGuest) {
@@ -101,9 +128,9 @@ export default function CheckoutFlow() {
                   <div
                     className={`flex items-center justify-center w-9 h-9 rounded-full text-sm font-semibold transition-all duration-300 ${
                       completedSteps.has(step)
-                        ? 'bg-primary text-primary-foreground'
+                        ? 'bg-primary-solid text-primary-foreground'
                         : currentStep === step
-                        ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+                        ? 'bg-primary-solid text-primary-foreground ring-4 ring-primary/20'
                         : 'bg-muted text-muted-foreground'
                     }`}
                   >
@@ -145,13 +172,13 @@ export default function CheckoutFlow() {
         >
           {isGuest && (
             <AccordionItem value="contact" className="border rounded-lg px-6">
-              <AccordionTrigger className="hover:no-underline">
+              <AccordionTrigger headingLevel={2} className="hover:no-underline">
                 <div className="flex items-center gap-3">
                   <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
                     completedSteps.has('contact')
                       ? 'bg-success text-success-foreground'
                       : currentStep === 'contact'
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-primary-solid text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
                   }`}>
                     {completedSteps.has('contact') ? <Check className="size-4" /> : getStepNumber('contact')}
@@ -172,7 +199,7 @@ export default function CheckoutFlow() {
             className="border rounded-lg px-6"
             disabled={!canAccessStep('shipping')}
           >
-            <AccordionTrigger
+            <AccordionTrigger headingLevel={2}
               className="hover:no-underline"
               disabled={!canAccessStep('shipping')}
             >
@@ -181,7 +208,7 @@ export default function CheckoutFlow() {
                   completedSteps.has('shipping')
                     ? 'bg-success text-success-foreground'
                     : currentStep === 'shipping'
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-primary-solid text-primary-foreground'
                     : 'bg-muted text-muted-foreground'
                 }`}>
                   {completedSteps.has('shipping') ? <Check className="size-4" /> : getStepNumber('shipping')}
@@ -201,7 +228,7 @@ export default function CheckoutFlow() {
             className="border rounded-lg px-6"
             disabled={!canAccessStep('delivery')}
           >
-            <AccordionTrigger
+            <AccordionTrigger headingLevel={2}
               className="hover:no-underline"
               disabled={!canAccessStep('delivery')}
             >
@@ -210,7 +237,7 @@ export default function CheckoutFlow() {
                   completedSteps.has('delivery')
                     ? 'bg-success text-success-foreground'
                     : currentStep === 'delivery'
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-primary-solid text-primary-foreground'
                     : 'bg-muted text-muted-foreground'
                 }`}>
                   {completedSteps.has('delivery') ? <Check className="size-4" /> : getStepNumber('delivery')}
@@ -230,7 +257,7 @@ export default function CheckoutFlow() {
             className="border rounded-lg px-6"
             disabled={!canAccessStep('payment')}
           >
-            <AccordionTrigger
+            <AccordionTrigger headingLevel={2}
               className="hover:no-underline"
               disabled={!canAccessStep('payment')}
             >
@@ -239,7 +266,7 @@ export default function CheckoutFlow() {
                   completedSteps.has('payment')
                     ? 'bg-success text-success-foreground'
                     : currentStep === 'payment'
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-primary-solid text-primary-foreground'
                     : 'bg-muted text-muted-foreground'
                 }`}>
                   {completedSteps.has('payment') ? <Check className="size-4" /> : getStepNumber('payment')}
@@ -259,14 +286,14 @@ export default function CheckoutFlow() {
             className="border rounded-lg px-6"
             disabled={!canAccessStep('review')}
           >
-            <AccordionTrigger
+            <AccordionTrigger headingLevel={2}
               className="hover:no-underline"
               disabled={!canAccessStep('review')}
             >
               <div className="flex items-center gap-3">
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
                   currentStep === 'review'
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-primary-solid text-primary-foreground'
                     : 'bg-muted text-muted-foreground'
                 }`}>
                   {getStepNumber('review')}
