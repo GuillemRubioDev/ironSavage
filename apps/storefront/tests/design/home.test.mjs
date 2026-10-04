@@ -131,3 +131,12 @@ test('la cabecera tiene un desplegable "Objetivos" que solo aparece si hay objet
     const es = await json('site/navigation/messages/es.json');
     assert.equal(es.Navigation.goals, 'Objetivos');
 });
+
+test('la zona en caché de la cabecera no usa el Link de next-intl en servidor (lee headers())', async () => {
+    const nav = await read('site/navigation/navbar/navbar-collections.tsx');
+    assert.doesNotMatch(nav, /from '@\/platform\/i18n\/navigation'/);
+    assert.match(nav, /<NavbarDropdownLink/);
+    const link = await read('site/navigation/navbar/navbar-link.tsx');
+    assert.match(link, /^'use client';/);
+    assert.match(link, /export function NavbarDropdownLink\b/);
+});

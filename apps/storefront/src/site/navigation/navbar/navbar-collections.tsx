@@ -7,10 +7,8 @@ import {
     NavigationMenuItem,
     NavigationMenuTrigger,
     NavigationMenuContent,
-    NavigationMenuLink,
 } from '@/components/ui/navigation-menu';
-import {NavbarLink} from '@/site/navigation/navbar/navbar-link';
-import {Link} from '@/platform/i18n/navigation';
+import {NavbarDropdownLink, NavbarLink} from '@/site/navigation/navbar/navbar-link';
 import {getTranslations} from 'next-intl/server';
 
 export async function NavbarCollections() {
@@ -50,9 +48,7 @@ export async function NavbarCollections() {
                             <ul className="grid w-56 gap-0.5 p-1">
                                 {goals.map((goal) => (
                                     <li key={goal.slug}>
-                                        <NavigationMenuLink render={<Link href={`/categorias/${goal.slug}`} />} className="w-full font-medium">
-                                            {goal.name}
-                                        </NavigationMenuLink>
+                                        <NavbarDropdownLink href={`/categorias/${goal.slug}`}>{goal.name}</NavbarDropdownLink>
                                     </li>
                                 ))}
                             </ul>
