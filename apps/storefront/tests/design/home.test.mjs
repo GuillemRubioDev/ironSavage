@@ -140,3 +140,10 @@ test('la zona en caché de la cabecera no usa el Link de next-intl en servidor (
     assert.match(link, /^'use client';/);
     assert.match(link, /export function NavbarDropdownLink\b/);
 });
+
+test('"Objetivos" va antes que las categorías y su botón abierto se lee sobre la cabecera oscura', async () => {
+    const nav = await read('site/navigation/navbar/navbar-collections.tsx');
+    assert.ok(nav.indexOf('<NavigationMenuTrigger') < nav.indexOf('collections.map'), 'Objetivos debe ir primero (las categorías pueden no caber)');
+    assert.match(nav, /data-popup-open:hover:bg-white\/10/);
+    assert.match(nav, /data-open:hover:bg-white\/10/);
+});

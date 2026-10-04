@@ -29,19 +29,13 @@ export async function NavbarCollections() {
     return (
         <NavigationMenu>
             <NavigationMenuList>
-                {collections.map((collection) => (
-                    <NavigationMenuItem key={collection.slug}>
-                        <NavbarLink href={`/categorias/${collection.slug}`}>
-                            {collection.name}
-                        </NavbarLink>
-                    </NavigationMenuItem>
-                ))}
-                {/* Objetivos (seed): desplegable; sin objetivos en la tienda, no aparece.
+                {/* Objetivos (seed): desplegable; sin objetivos en la tienda, no aparece. Va
+                    primero porque las categorías pueden no caber y quedar tras el degradado.
                     Las clases claras van aquí porque el selector de navbar.tsx solo
                     alcanza a los [data-slot=button], no a este trigger. */}
                 {goals.length > 0 && (
                     <NavigationMenuItem>
-                        <NavigationMenuTrigger className="bg-transparent px-2.5 text-xs font-semibold uppercase tracking-wide text-brand-fg/80 hover:bg-white/10 hover:text-brand-fg focus:bg-white/10 focus:text-brand-fg data-popup-open:bg-white/10 data-popup-open:text-brand-fg data-open:bg-white/10 data-open:text-brand-fg">
+                        <NavigationMenuTrigger className="bg-transparent px-2.5 text-xs font-semibold uppercase tracking-wide text-brand-fg/80 hover:bg-white/10 hover:text-brand-fg focus:bg-white/10 focus:text-brand-fg data-popup-open:bg-white/10 data-popup-open:text-brand-fg data-open:bg-white/10 data-open:text-brand-fg data-popup-open:hover:bg-white/10 data-open:hover:bg-white/10 data-open:focus:bg-white/10">
                             {t('goals')}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
@@ -55,6 +49,13 @@ export async function NavbarCollections() {
                         </NavigationMenuContent>
                     </NavigationMenuItem>
                 )}
+                {collections.map((collection) => (
+                    <NavigationMenuItem key={collection.slug}>
+                        <NavbarLink href={`/categorias/${collection.slug}`}>
+                            {collection.name}
+                        </NavbarLink>
+                    </NavigationMenuItem>
+                ))}
                 <NavigationMenuItem>
                     <NavbarLink href="/noticias">{t('news')}</NavbarLink>
                 </NavigationMenuItem>
