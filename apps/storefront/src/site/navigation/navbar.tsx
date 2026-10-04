@@ -45,7 +45,7 @@ export async function Navbar() {
                         ni siquiera encogiéndola, y se cortaba a mitad de palabra sin
                         indicación de scroll, así que en tablet se mantiene el menú
                         hamburguesa (ya completo). */}
-                    <nav aria-label={t('mainNavigation')} className="hidden lg:flex flex-1 min-w-0 items-center gap-3 overflow-x-auto scrollbar-none">
+                    <nav aria-label={t('mainNavigation')} className="hidden lg:flex flex-1 min-w-0 items-center gap-3 overflow-x-auto scrollbar-none pr-8 [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)]">
                         <Suspense>
                             <NavbarCollections/>
                         </Suspense>
