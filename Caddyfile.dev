@@ -1,0 +1,59 @@
+# Proxy inverso del SERVIDOR DE DESARROLLO. Es el Caddyfile de producción con dos
+# diferencias (lo monta docker-compose.dev-server.yml en lugar del normal):
+#
+#   - La tienda (PUBLIC_DOMAIN) pide usuario y contraseña (DEV_BASIC_AUTH_*): es un
+#     entorno de pruebas y no debe verlo ni usarlo nadie de fuera.
+#   - Las dos webs envían `X-Robots-Tag: noindex, nofollow` para que ningún
+#     buscador indexe el entorno de desarrollo.
+#
+# La API (API_DOMAIN) NO lleva contraseña: Redsys tiene que poder enviar sus
+# notificaciones de pago a /payments/redsys/notify, las imágenes se sirven desde
+# /assets y el dashboard ya tiene su propio inicio de sesión.
+#
+# Si cambias algo común (cabeceras, logs), cámbialo también en Caddyfile.
+
+{
+	email {$CADDY_EMAIL}
+}
+
+(common_headers) {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+}
+
+(access_log) {
+	# Sin el parámetro `token` (verificación de cuenta y contraseña), como en producción.
+	log {
+		format filter {
+			wrap console
+			fields {
+				request>uri query {
+					delete token
+				}
+			}
+		}
+	}
+}
+
+{$PUBLIC_DOMAIN} {
+	import common_headers
+	import access_log
+	basic_auth {
+		{$DEV_BASIC_AUTH_USER} {$DEV_BASIC_AUTH_HASH}
+	}
+	reverse_proxy storefront:3001
+}
+
+{$API_DOMAIN} {
+	import common_headers
+	import access_log
+	reverse_proxy vendure-server:3000
+}

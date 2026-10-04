@@ -24,6 +24,13 @@ explicaciones del proyecto van en español.
 - No subas valores de `.env` ni datos generados en ejecución.
 - No uses `dbConnectionOptions.synchronize: true` con datos de producción.
 
+## Ramas y despliegue
+
+- `master` = producción, `develop` = servidor de desarrollo; cualquier otra rama se prueba solo en local.
+- El trabajo nuevo sale de `develop` y vuelve a ella por PR; `develop` pasa a `master` por PR.
+- Nunca hagas push directo a `develop` ni a `master`: cada push a ellas despliega (`.github/workflows/deploy.yml`).
+- Guía completa: `docs/despliegue.md`.
+
 ## Comandos
 
 - Desarrollo: `npm run dev`

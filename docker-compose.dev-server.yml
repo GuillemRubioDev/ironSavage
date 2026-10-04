@@ -1,0 +1,18 @@
+# Ajustes del SERVIDOR DE DESARROLLO sobre docker-compose.prod.yml. Lo añade
+# scripts/deploy.sh cuando DEPLOY_ENV=development:
+#
+#   docker compose -f docker-compose.prod.yml -f docker-compose.dev-server.yml --env-file .env.prod ...
+#
+# Solo cambia Caddy: usa Caddyfile.dev, que pide usuario y contraseña para ver la
+# tienda y pide a los buscadores que no indexen nada. Todo lo demás (Redsys de
+# pruebas, emails, analítica) se decide en el .env.prod de ese servidor.
+services:
+  caddy:
+    environment:
+      DEV_BASIC_AUTH_USER: ${DEV_BASIC_AUTH_USER}
+      # Hash bcrypt de la contraseña (`docker run --rm caddy:2-alpine caddy hash-password`).
+      # En .env.prod cada `$` del hash debe escribirse `$$` (ver docs/despliegue.md).
+      DEV_BASIC_AUTH_HASH: ${DEV_BASIC_AUTH_HASH}
+    volumes:
+      # Mismo destino que en docker-compose.prod.yml: sustituye al Caddyfile normal.
+      - ./Caddyfile.dev:/etc/caddy/Caddyfile:ro
