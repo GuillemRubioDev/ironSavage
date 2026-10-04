@@ -1,13 +1,17 @@
 import {
     bootstrapWorker,
     ChannelService,
+    CollectionService,
     Country,
     CountryService,
     CurrencyCode,
+    FacetService,
+    FacetValueService,
     GlobalSettingsService,
     LanguageCode,
     Logger,
     PaymentMethodService,
+    ProductService,
     RequestContext,
     RequestContextService,
     ShippingMethodService,
@@ -21,6 +25,7 @@ import {
 } from '@vendure/core';
 
 import { includeDummyPaymentHandler } from './app-environment';
+import { ensureGoals } from './seed-goals';
 import { OUTSIDE_VAT_ZONE_NAME, spainTerritoriesShippingChecker } from './plugins/spain-territories/spain-territories';
 import { config } from './vendure-config';
 
@@ -31,7 +36,8 @@ import { config } from './vendure-config';
  * Melilla», el canal en EUR con la primera de ellas, las categorías de IVA
  * (General 21 %, Reducido 10 %, Superreducido 4 %; 0 % fuera del IVA), el
  * método de envío estándar y el método de pago Redsys (más un método de pago de
- * pruebas fuera de producción, para probar en local o en la CI sin pasarela).
+ * pruebas fuera de producción, para probar en local o en la CI sin pasarela), y la
+ * navegación por objetivos (faceta "Objetivo" y sus colecciones; ver seed-goals.ts).
  *
  * Idempotente en todo: cada paso busca una fila existente (por la clave que
  * reconocería un administrador: código de país, nombre de zona, nombre de
@@ -39,7 +45,8 @@ import { config } from './vendure-config';
  * veces actualiza en vez de duplicar.
  *
  * A propósito NO crea: productos, variantes, clientes, usuarios, pedidos,
- * facturas, reseñas ni contenido (ver el alcance de la FASE 14).
+ * facturas, reseñas ni contenido (ver el alcance de la FASE 14). Solo marca con
+ * objetivos los productos que ya existan y aún no tengan ninguno.
  */
 
 const loggerCtx = 'Seed';
@@ -382,6 +389,12 @@ async function seed(): Promise<void> {
         await ensureTaxRates(ctx, taxRateService, taxCategories, outsideVatZone, () => 0);
         await ensureShippingMethod(ctx, shippingMethodService);
         await ensurePaymentMethods(ctx, paymentMethodService);
+        await ensureGoals(ctx, {
+            facetService: app.get(FacetService),
+            facetValueService: app.get(FacetValueService),
+            collectionService: app.get(CollectionService),
+            productService: app.get(ProductService),
+        });
 
         Logger.info('Seed completed successfully.', loggerCtx);
     } finally {
