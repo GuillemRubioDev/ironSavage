@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useTransition} from 'react';
+import {useRef, useState, useTransition} from 'react';
 import Image from 'next/image';
 import {Minus, Plus, ShoppingBag} from 'lucide-react';
 import {toast} from 'sonner';
@@ -15,7 +15,7 @@ import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
 import {addToCart} from '@/features/products/add-to-cart';
 import {getQuickAddProduct} from '@/features/products/quick-add';
 import type {QuickAddProduct, QuickAddVariant} from '@/features/products/quick-add-data';
-import {findVariant, initialSelection, isOptionAvailable, type Selection} from '@/features/products/variant-selection';
+import {findVariant, initialSelection, isOptionAvailable, selectOption, type Selection} from '@/features/products/variant-selection';
 import {Price} from '@/features/pricing/price';
 import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
 
@@ -23,7 +23,7 @@ type Loaded = QuickAddProduct & {currencyCode: string};
 
 /**
  * Botón "Añadir" de las tarjetas. Al pulsarlo pide el producto (precio y stock al
- * día). Con una sola variante la añade directamente; si no, abre el selector rápido:
+ * día de la caché del catálogo). Con una sola variante la añade directamente; si no, abre el selector rápido:
  * un diálogo en escritorio o un panel desde abajo en móvil. La selección empieza
  * vacía en cada apertura, salvo los grupos de una sola opción, y no se guarda.
  */
@@ -36,6 +36,7 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
     const [quantity, setQuantity] = useState(1);
     const [loading, startLoading] = useTransition();
     const [adding, startAdding] = useTransition();
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
     const add = (loaded: Loaded, variant: QuickAddVariant, qty: number) => startAdding(async () => {
         const result = await addToCart(variant.id, qty);
@@ -53,7 +54,11 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
         setOpen(false);
     });
 
-    const handleClick = () => startLoading(async () => {
+    const busy = loading || adding;
+
+    const handleClick = () => {
+        if (busy) return;
+        startLoading(async () => {
         const loaded = await getQuickAddProduct(slug);
         if (!loaded) {
             toast.error(t('errorTitle'), {description: t('productUnavailable')});
@@ -68,14 +73,13 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
             return;
         }
         setOpen(true);
-    });
-
-    const busy = loading || adding;
+        });
+    };
     const body = product && (
         <QuickAddBody
             product={product}
             selection={selection}
-            onSelect={(groupId, optionId) => setSelection(current => ({...current, [groupId]: optionId}))}
+            onSelect={(groupId, optionId) => setSelection(current => selectOption(product.variants, current, groupId, optionId))}
             quantity={quantity}
             onQuantity={setQuantity}
             adding={adding}
@@ -85,11 +89,15 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
 
     return (
         <>
+            {/* Mientras trabaja no se desactiva (aria-disabled): un botón desactivado pierde
+                el foco y el teclado perdería su sitio en la rejilla. */}
             <Button
+                ref={buttonRef}
                 type="button"
                 size="sm"
-                className="w-full"
-                disabled={!inStock || busy}
+                className="w-full aria-disabled:opacity-70"
+                disabled={!inStock}
+                aria-disabled={busy || undefined}
                 onClick={handleClick}
                 // El nombre accesible incluye el texto visible ("Añadir") más el producto.
                 aria-label={inStock && !busy ? t('quickAddLabel', {name: productName}) : undefined}
@@ -99,14 +107,14 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
             </Button>
             {product && (isMobile ? (
                 <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-xl p-5">
+                    <SheetContent side="bottom" finalFocus={buttonRef} className="max-h-[85vh] overflow-y-auto rounded-t-xl p-5">
                         <SheetTitle className="sr-only">{t('quickAddTitle')}</SheetTitle>
                         {body}
                     </SheetContent>
                 </Sheet>
             ) : (
                 <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogContent className="sm:max-w-lg">
+                    <DialogContent finalFocus={buttonRef} className="sm:max-w-lg">
                         <DialogTitle className="sr-only">{t('quickAddTitle')}</DialogTitle>
                         {body}
                     </DialogContent>
@@ -168,11 +176,16 @@ function QuickAddBody({product, selection, onSelect, quantity, onQuantity, addin
                                     key={option.id}
                                     type="button"
                                     aria-pressed={selected}
-                                    disabled={!available}
                                     onClick={() => onSelect(group.id, option.id)}
+                                    // Sin variante con lo ya elegido: se ve tachada pero se puede pulsar;
+                                    // al pulsarla se quitan las elecciones que chocan (selectOption).
                                     className={cn(
-                                        'press rounded-md border px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:line-through disabled:opacity-40',
-                                        selected ? 'border-primary-solid bg-primary-solid text-primary-foreground' : 'border-border hover:border-foreground',
+                                        'press rounded-md border px-3 py-2 text-sm font-medium transition-colors',
+                                        selected
+                                            ? 'border-primary-solid bg-primary-solid text-primary-foreground'
+                                            : available
+                                                ? 'border-border hover:border-foreground'
+                                                : 'border-dashed border-border text-muted-foreground line-through hover:border-foreground',
                                     )}
                                 >
                                     {option.name}

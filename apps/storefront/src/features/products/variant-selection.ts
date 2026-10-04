@@ -61,3 +61,25 @@ export function isOptionAvailable(
     const next = {...selection, [groupId]: optionId};
     return variants.some(variant => matches(variant, next));
 }
+
+/**
+ * Selección tras pulsar una opción. Si con lo ya elegido no hay variante, se conserva
+ * la opción pulsada y solo las demás elecciones que sigan siendo compatibles con ella:
+ * así ninguna combinación deja al cliente bloqueado sin poder llegar a otra variante.
+ */
+export function selectOption(
+    variants: SelectableVariant[],
+    selection: Selection,
+    groupId: string,
+    optionId: string,
+): Selection {
+    const next: Selection = {...selection, [groupId]: optionId};
+    if (variants.some(variant => matches(variant, next))) return next;
+    const kept: Selection = {[groupId]: optionId};
+    for (const [otherGroup, otherOption] of Object.entries(selection)) {
+        if (otherGroup === groupId) continue;
+        const candidate = {...kept, [otherGroup]: otherOption};
+        if (variants.some(variant => matches(variant, candidate))) kept[otherGroup] = otherOption;
+    }
+    return kept;
+}

@@ -62,7 +62,7 @@ test('Añadir mete directamente un producto de una sola variante y si no abre el
     assert.match(button, /initialSelection\(loaded\.optionGroups\)/);
     assert.match(button, /side="bottom"/);
     assert.match(button, /<DialogContent/);
-    assert.match(button, /disabled=\{!available\}/);
+    assert.match(button, /isOptionAvailable\(product\.variants, selection, group\.id, option\.id\)/);
     assert.match(button, /t\('productUnavailable'\)/);
     assert.doesNotMatch(button, /localStorage|sessionStorage|searchParams/);
 });
@@ -120,4 +120,31 @@ test('en móvil los filtros salen desde abajo, no se cierran al marcar y muestra
         for (const k of ['showResults', 'removeFilter', 'activeFilters']) assert.ok(m.Filters[k], `${loc}: falta Filters.${k}`);
         assert.ok(m.Search.home, `${loc}: falta Search.home`);
     }
+});
+
+// Arreglos de la revisión final de la fase 3A.
+test('elegir una opción incompatible quita las elecciones que chocan: nunca queda bloqueado', async () => {
+    const {selectOption, isOptionAvailable} = await load('features/products/variant-selection.ts');
+    const diagonal = [v('a', ['g1', 'choc'], ['g2', '1kg']), v('b', ['g1', 'van'], ['g2', '2kg'])];
+    const blocked = {g1: 'choc', g2: '1kg'};
+    assert.equal(isOptionAvailable(diagonal, blocked, 'g1', 'van'), false);
+    assert.deepEqual(selectOption(diagonal, blocked, 'g1', 'van'), {g1: 'van'});
+    assert.deepEqual(selectOption(diagonal, {g1: 'van'}, 'g2', '2kg'), {g1: 'van', g2: '2kg'});
+    // Lo compatible se conserva.
+    assert.deepEqual(selectOption(variants, {g1: 'choc', g3: 'bote'}, 'g2', '2kg'), {g1: 'choc', g2: '2kg'});
+});
+
+test('las opciones sin variante se pueden pulsar y el botón Añadir no pierde el foco', async () => {
+    const button = await read('features/products/components/quick-add-button.tsx');
+    assert.match(button, /selectOption\(product\.variants, current, groupId, optionId\)/);
+    assert.doesNotMatch(button, /disabled=\{!available\}/);
+    assert.match(button, /aria-disabled=\{busy \|\| undefined\}/);
+    assert.match(button, /if \(busy\) return;/);
+    assert.match(button, /finalFocus=\{buttonRef\}/);
+});
+
+test('marcar varios filtros seguidos en móvil no pierde ninguno (lista optimista)', async () => {
+    const filters = await read('features/search/facet-filters.tsx');
+    assert.match(filters, /useOptimistic\(urlFacets\)/);
+    assert.match(filters, /setOptimisticFacets\(next\)/);
 });

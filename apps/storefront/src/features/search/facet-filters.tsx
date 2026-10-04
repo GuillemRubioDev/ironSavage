@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useOptimistic, useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { usePathname, useRouter } from '@/platform/i18n/navigation';
 import { ResultOf } from '@/platform/vendure/graphql';
@@ -118,7 +118,11 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
         return acc;
     }, {});
 
-    const selectedFacets = searchParams.getAll('facets');
+    // Lista optimista: si se marcan varios filtros antes de que acabe la navegación, cada
+    // toque parte de lo ya marcado y no de la URL vieja (no se pierde ninguno).
+    const urlFacets = searchParams.getAll('facets');
+    const [selectedFacets, setOptimisticFacets] = useOptimistic(urlFacets);
+    const [, startTransition] = useTransition();
 
     // Marcar o quitar un filtro navega al momento; en móvil el panel sigue abierto
     // para poder marcar varios y se cierra con "Ver X productos".
@@ -126,11 +130,17 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
         const next = selectedFacets.includes(facetId)
             ? selectedFacets.filter(id => id !== facetId)
             : [...selectedFacets, facetId];
-        router.push(`${pathname}?${withFacets(new URLSearchParams(searchParams), next)}`);
+        startTransition(() => {
+            setOptimisticFacets(next);
+            router.push(`${pathname}?${withFacets(new URLSearchParams(searchParams), next)}`);
+        });
     };
 
     const clearFilters = () => {
-        router.push(`${pathname}?${withFacets(new URLSearchParams(searchParams), [])}`);
+        startTransition(() => {
+            setOptimisticFacets([]);
+            router.push(`${pathname}?${withFacets(new URLSearchParams(searchParams), [])}`);
+        });
     };
 
     const hasActiveFilters = selectedFacets.length > 0;
