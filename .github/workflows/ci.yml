@@ -17,10 +17,10 @@ permissions:
   contents: read
 
 env:
-  # Misma versión de Node que los Dockerfile del repo (node:20-alpine); ver
-  # apps/server/Dockerfile y apps/storefront/Dockerfile. No hay .nvmrc ni campo
-  # engines de donde leerla: si cambia en los Dockerfile, actualízala aquí a mano.
-  NODE_VERSION: "20"
+  # Misma versión de Node que los Dockerfile del repo (node:24-alpine) y que el
+  # .nvmrc de la raíz; ver apps/server/Dockerfile y apps/storefront/Dockerfile. Si
+  # cambia, actualiza los tres a la vez.
+  NODE_VERSION: "24"
 
 jobs:
   verify:

@@ -12,7 +12,7 @@
 # el árbol de dependencias del lockfile. Copiar solo apps/server/package.json
 # fallaría o resolvería otro árbol sin avisar.
 
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/server/package.json apps/server/package.json
@@ -37,7 +37,7 @@ RUN npm ci && mkdir -p apps/server/node_modules
 # exigen configuración real (CORS_ORIGIN, etc.) fuera de dev. El APP_ENV=dev de
 # aquí es solo para el build, para pasar esa comprobación; no afecta a la imagen
 # final, que recibe su APP_ENV real desde docker-compose.prod.yml.
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 ENV APP_ENV=dev
 COPY --from=deps /app/node_modules ./node_modules
@@ -59,7 +59,7 @@ RUN npm run build:server -w server \
 # workspace) requiere otra herramienta (pnpm --filter, turbo prune) o lockfiles
 # separados; queda fuera de esta fase. Ver «problemas encontrados» del informe de
 # la Fase 15, donde se acepta el tamaño de imagen resultante (~2,3 GB).
-FROM node:20-alpine AS prod-deps
+FROM node:24-alpine AS prod-deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/server/package.json apps/server/package.json
@@ -75,7 +75,7 @@ RUN npm pkg delete scripts.postinstall \
  && mkdir -p apps/server/node_modules
 
 # ---- runtime (imagen final) ----
-FROM node:20-alpine AS runtime
+FROM node:24-alpine AS runtime
 ENV NODE_ENV=production
 RUN addgroup -S vendure && adduser -S vendure -G vendure
 WORKDIR /app

@@ -53,14 +53,14 @@ Para poder descargar (clonar) el repositorio.
 - Mac: viene instalado, o `brew install git`
 - Linux: `sudo apt install git` (Ubuntu/Debian)
 
-### 2.2. Node.js — versión 20 (LTS)
-Es el motor que ejecuta tanto el backend como el frontend. **Usa exactamente la versión 20**, no una más nueva ni una más vieja — es la misma que usa este proyecto en producción y en las pruebas automáticas.
+### 2.2. Node.js — versión 24 (LTS)
+Es el motor que ejecuta tanto el backend como el frontend. **Usa la versión 24**, no una más vieja: es la misma que usa este proyecto en los servidores y en las pruebas automáticas (ver `.nvmrc`).
 
-- Descárgalo de https://nodejs.org — elige la versión **LTS** (ahora mismo la 20.x)
+- Descárgalo de https://nodejs.org — elige la versión **24.x LTS**
 - Comprueba que se instaló bien abriendo una terminal y escribiendo:
   ```bash
   node --version
-  # debe empezar por v20.x
+  # debe empezar por v24.x
   npm --version
   # debe salir un número (npm viene incluido con Node)
   ```
@@ -275,7 +275,7 @@ Y si necesitas la lista de lo que hay que contratar (dominio, servidor, email, T
 ## 7. Solución de problemas comunes
 
 ### `Error: Could not load the "sharp" module...`
-La versión de Node no es compatible. Asegúrate de tener exactamente Node 20 (`node --version`).
+La versión de Node no es compatible. Asegúrate de tener Node 24 (`node --version`, ver `.nvmrc`) y vuelve a ejecutar `npm install`.
 
 ### El panel de administración carga y luego se queda en blanco
 Bug conocido del paquete `@vendure/dashboard`, ya solucionado con un parche que se aplica solo (`patches/`). Si aparece, prueba a borrar `node_modules` y volver a ejecutar `npm install` — el parche se reaplica automáticamente en el `postinstall`.
