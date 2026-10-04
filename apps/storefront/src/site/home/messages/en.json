@@ -3,8 +3,7 @@
     "title": "Train",
     "titleHighlight": "Savage",
     "subtitle": "Premium sports supplementation for athletes who train hard and recover harder.",
-    "shopNow": "Shop Now",
-    "viewCollections": "View Collections"
+    "shopNow": "Shop Now"
   },
   "Home": {
     "pageTitle": "Premium Sports Supplements",
@@ -27,14 +26,6 @@
     },
     "categories": {
       "title": "Shop by Category"
-    },
-    "carousel": {
-      "regionLabel": "Promotional carousel",
-      "goToSlide": "Go to slide {number}",
-      "pause": "Pause carousel",
-      "play": "Play carousel",
-      "previous": "Previous slide",
-      "next": "Next slide"
     }
   }
 }

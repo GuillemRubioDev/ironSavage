@@ -83,9 +83,6 @@
      llegar al redondeo de estilo SaaS. */
   --radius: 0.5rem;
 
-  /* Alias temporal hasta rehacer la portada (Fase 2): el carrusel actual usa esta
-     variable, que antes era Black Ops One. */
-  --font-brand-display: var(--font-barlow-condensed);
 
   /*
    * Medidas centralizadas de la cabecera fija: la única fuente de verdad de la
@@ -322,150 +319,6 @@
   }
 }
 
-/* Letras del título de portada que van «apareciendo»: cada letra es su propio
-   span, escalonado con un animation-delay en línea que pone el componente. Se
-   ejecuta una sola vez, así que no se condiciona, igual que .animate-fade-up de
-   arriba (WCAG acepta animaciones de entrada cortas que no se repiten; solo el
-   brillo en bucle de abajo se condiciona). */
-@keyframes letter-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.4em) rotateX(-40deg);
-    filter: blur(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) rotateX(0);
-    filter: blur(0);
-  }
-}
-
-.animate-letter-in {
-  animation: letter-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-/* Pulso de brillo lento en la palabra destacada de la portada: puramente
-   decorativo y en bucle, así que se condiciona a reduced-motion igual que el
-   parallax de arriba; quien pide menos movimiento ve un brillo estático. */
-@keyframes glow-pulse {
-  0%,
-  100% {
-    text-shadow: 0 0 18px oklch(0.577 0.245 27.325 / 55%), 0 0 36px oklch(0.577 0.245 27.325 / 25%);
-  }
-  50% {
-    text-shadow: 0 0 28px oklch(0.577 0.245 27.325 / 80%), 0 0 54px oklch(0.577 0.245 27.325 / 40%);
-  }
-}
-
-.hero-glow {
-  text-shadow: 0 0 18px oklch(0.577 0.245 27.325 / 55%), 0 0 36px oklch(0.577 0.245 27.325 / 25%);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .hero-glow {
-    animation: glow-pulse 2.8s ease-in-out infinite;
-  }
-}
-
-/* Versión reutilizable del estilo «arena oscura» de la portada
-   (promo-carousel.tsx), extraída para que otras secciones (pruebas/recompensas)
-   compartan el mismo fondo casi negro, el leve brillo rojo y la textura de
-   cuadrícula, en vez de quedarse en una sección bg-muted/blanca, que hacía sentir
-   que la identidad de marca se acababa tras la portada. Colores fijos (no tokens
-   del tema) a propósito: debe verse igual en modo claro y oscuro, como la portada. */
-.section-spotlight {
-  position: relative;
-  background-color: oklch(0.13 0.004 260);
-  isolation: isolate;
-}
-
-.section-spotlight::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image: radial-gradient(ellipse 70% 60% at 50% 0%, oklch(0.577 0.245 27.325 / 16%), transparent);
-}
-
-.section-spotlight::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(to right, white 1px, transparent 1px),
-    linear-gradient(to bottom, white 1px, transparent 1px);
-  background-size: 4rem 4rem;
-  opacity: 0.035;
-}
-
-.section-spotlight > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Logotipo animado (AnimatedWordmark en components/brand/logo.tsx): el archivo
-   real logo_titulo.png usado como máscara CSS (solo su canal alfa; la textura
-   fotográfica metálica del PNG se descarta), relleno plano blanco/rojo y revelado
-   con un barrido de izquierda a derecha. */
-@keyframes logo-wipe {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-.animate-logo-wipe {
-  animation: logo-wipe 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.logo-glow-white {
-  filter: drop-shadow(0 0 10px oklch(0.99 0 0 / 45%));
-}
-
-.logo-glow-red {
-  filter: drop-shadow(0 0 14px oklch(0.577 0.245 27.325 / 70%));
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  /* Finita (no infinita): pulsa unas veces justo después de aparecer y vuelve al
-     valor estático .logo-glow-* de arriba (mismo valor en 0 %/100 %, así que no hay
-     salto al parar). Un `filter` lleva este elemento a su propia capa de GPU; si la
-     animación no parara, se repintaría *continuamente* con su propio reloj,
-     independiente (y algo desacompasado) de los repintados al arrastrar el
-     carrusel, que es lo que causaba la fina línea junto al texto vecino al
-     arrastrar. Parar tras unos pulsos elimina ese reloj de repintado durante el
-     resto del tiempo que la diapositiva está en pantalla. */
-  .logo-glow-white {
-    animation: logo-glow-white-pulse 2.8s ease-in-out 3;
-  }
-  .logo-glow-red {
-    animation: logo-glow-red-pulse 2.8s ease-in-out 3;
-  }
-}
-
-@keyframes logo-glow-white-pulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 8px oklch(0.99 0 0 / 35%));
-  }
-  50% {
-    filter: drop-shadow(0 0 14px oklch(0.99 0 0 / 55%));
-  }
-}
-
-@keyframes logo-glow-red-pulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 10px oklch(0.577 0.245 27.325 / 55%));
-  }
-  50% {
-    filter: drop-shadow(0 0 20px oklch(0.577 0.245 27.325 / 85%));
-  }
-}
-
 /* --- Movimiento (Fase 1 del rediseño) --- */
 /* Reveal: el script pone data-reveal="pending" (oculto) y luego "visible". */
 .reveal {
@@ -493,6 +346,10 @@
 /* Entrada enérgica de titulares (portada y bloques de marca). */
 @keyframes hero-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 .animate-hero-in { animation: hero-in var(--dur-hero) var(--ease-out) both; animation-delay: var(--reveal-delay, 0ms); }
+
+/* Zoom lento de la foto del banner de portada (site/home/hero-banner.tsx). */
+@keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+.animate-hero-zoom { animation: hero-zoom 9s var(--ease-out) both; }
 
 /* Cinta de avisos (components/brand/marquee.tsx): bucle continuo; se para al pasar el ratón. */
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -529,7 +386,7 @@
     scroll-behavior: auto !important;
   }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
-  .stagger > *, .animate-hero-in, .marquee-track { animation: none !important; }
+  .stagger > *, .animate-hero-in, .animate-hero-zoom, .marquee-track { animation: none !important; }
   /* React ViewTransition nombra sus propios nodos: se anulan todos, no solo (root). */
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }

@@ -25,3 +25,32 @@ test('las cifras de Iron Rewards salen de loyaltyProgramConfig, no de valores fi
     assert.match(cfg, /export async function getLoyaltyProgramConfig\(\)/);
     assert.match(cfg, /'use cache'/);
 });
+
+test('la portada usa un banner fijo y ya no el carrusel con SVG', async () => {
+    assert.equal(await exists('site/home/promo-carousel.tsx'), false);
+    const page = await read('site/home/page.tsx');
+    assert.match(page, /<HeroBanner/);
+    assert.match(page, /banner=\{banners\[0\] \?\? null\}/);
+    const hero = await read('site/home/hero-banner.tsx');
+    assert.match(hero, /<h1/);
+    assert.match(hero, /className="stagger/);
+    assert.match(hero, /animate-hero-zoom/);
+});
+
+test('sin banner activo se pinta el banner de marca; con foto de fondo, degradado para leer el texto', async () => {
+    const hero = await read('site/home/hero-banner.tsx');
+    assert.match(hero, /if \(!banner\)/);
+    assert.match(hero, /bg-brand/);
+    assert.match(hero, /bg-gradient-to-r from-black\/80/);
+});
+
+test('el zoom del banner existe y se anula con reducir movimiento; se retira el CSS del carrusel', async () => {
+    const css = await read('app/[locale]/globals.css');
+    assert.match(css, /@keyframes hero-zoom/);
+    const tail = css.slice(css.lastIndexOf('@media (prefers-reduced-motion: reduce)'));
+    assert.match(tail, /\.animate-hero-zoom/);
+    for (const old of ['--font-brand-display', '.section-spotlight', '.hero-glow', 'logo-wipe', 'logo-glow']) {
+        assert.equal(css.includes(old), false, `queda ${old} en globals.css`);
+    }
+    assert.doesNotMatch(await read('components/brand/logo.tsx'), /AnimatedWordmark|LogoWordCrop/);
+});

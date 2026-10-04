@@ -1,7 +1,7 @@
 import type {Metadata} from "next";
 import {Suspense} from "react";
 import {getRouteLocale} from "@/platform/i18n/server";
-import {PromoCarousel} from "@/site/home/promo-carousel";
+import {HeroBanner} from "@/site/home/hero-banner";
 import {getActiveBanners} from "@/site/home/banners-data";
 import {CategoriesShowcase} from '@/site/home/categories-showcase';
 import {FeaturedProducts} from '@/features/products/featured-products';
@@ -55,13 +55,15 @@ export default async function Home() {
 
     return (
         <div className="min-h-screen">
-            <PromoCarousel
-                heroTitle={tHero('title')}
-                heroTitleHighlight={tHero('titleHighlight')}
-                heroSubtitle={tHero('subtitle')}
-                heroCta={tHero('shopNow')}
-                heroCtaSecondary={tHero('viewCollections')}
-                banners={banners}
+            <HeroBanner
+                banner={banners[0] ?? null}
+                locale={locale}
+                fallback={{
+                    title: tHero('title'),
+                    highlight: tHero('titleHighlight'),
+                    subtitle: tHero('subtitle'),
+                    cta: tHero('shopNow'),
+                }}
             />
 
             <Suspense>
@@ -72,7 +74,7 @@ export default async function Home() {
                 <FeaturedProducts/>
             </Suspense>
 
-            <section className="section-spotlight py-16 md:py-28">
+            <section className="bg-brand py-16 md:py-28">
                 <div className="container mx-auto px-4">
                     <h2 className="text-display text-3xl md:text-5xl font-bold text-white max-w-2xl mb-12 md:mb-16">
                         {t('whyShopWithUs')}

@@ -3,8 +3,7 @@
     "title": "Entrena",
     "titleHighlight": "Savage",
     "subtitle": "Suplementación deportiva premium para atletas que entrenan duro y se recuperan más duro todavía.",
-    "shopNow": "Comprar ahora",
-    "viewCollections": "Ver categorías"
+    "shopNow": "Comprar ahora"
   },
   "Home": {
     "pageTitle": "Suplementación deportiva premium",
@@ -27,14 +26,6 @@
     },
     "categories": {
       "title": "Compra por categoría"
-    },
-    "carousel": {
-      "regionLabel": "Carrusel promocional",
-      "goToSlide": "Ir a la diapositiva {number}",
-      "pause": "Pausar carrusel",
-      "play": "Reproducir carrusel",
-      "previous": "Diapositiva anterior",
-      "next": "Diapositiva siguiente"
     }
   }
 }
