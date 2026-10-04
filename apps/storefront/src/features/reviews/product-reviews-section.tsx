@@ -35,7 +35,7 @@ export async function ProductReviewsSection({productId, productSlug}: ProductRev
     const reviews = data.productReviews.items;
 
     return (
-        <section className="py-16 border-t border-border/50">
+        <section id="resenas" className="scroll-mt-24 py-16 border-t border-border/50">
             <div className="container mx-auto px-4 max-w-3xl">
                 <h2 className="text-2xl font-bold mb-2">{t('title')}</h2>
 

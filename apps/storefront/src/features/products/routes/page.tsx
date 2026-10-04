@@ -4,7 +4,9 @@ import { Link } from '@/platform/i18n/navigation';
 import { query } from '@/platform/vendure/api';
 import {GetProductDetailQuery} from '@/features/products/graphql';
 import { ProductDetailClient } from '@/features/products/components/product-detail-client';
-import { FoodInformation } from '@/features/products/components/food-information';
+import { ProductDetails } from '@/features/products/components/product-details';
+import { KeyFigures } from '@/features/products/components/key-figures';
+import { SectionHeader } from '@/components/brand/section-header';
 import {getDisplayOptionGroups} from '@/features/products/product-options';
 import {getLoyaltyProgramConfig} from '@/features/loyalty/program-config';
 import {sanitizeRichText} from '@/platform/security/sanitize-html';
@@ -25,7 +27,6 @@ import {
 } from '@/components/ui/breadcrumb';
 import { notFound } from 'next/navigation';
 import { cacheLife, cacheTag } from 'next/cache';
-import { Truck, RotateCcw, ShieldCheck, Clock } from 'lucide-react';
 import { routing } from '@/platform/i18n/routing';
 import {
     SITE_NAME,
@@ -134,12 +135,10 @@ export default async function ProductDetailPage({
 
     // Oculta las opciones de un grupo compartido que no tienen variante en este
     // producto (grupos de opciones compartidos/globales de Vendure 3.6).
-    // product.description es HTML enriquecido escrito por el administrador que se
-    // muestra con dangerouslySetInnerHTML en product-info.tsx (componente de cliente):
-    // se limpia aquí, en el servidor, antes de que llegue allí.
+    // product.description es HTML enriquecido escrito por el administrador: se limpia
+    // en el servidor (sanitizeRichText) al pasarlo a los desplegables (ProductDetails).
     const productForDisplay = {
         ...product,
-        description: sanitizeRichText(product.description),
         optionGroups: getDisplayOptionGroups(product),
     };
 
@@ -179,41 +178,23 @@ export default async function ProductDetailPage({
                     categoryName={primaryCollection?.name}
                     pointsPerEuro={loyalty.pointsPerEuro}
                     ratingSlot={ratingSlot?.({productId: product.id})}
+                    detailsSlot={<ProductDetails locale={locale} description={sanitizeRichText(product.description)} data={product.customFields ?? {}} />}
                 />
             </div>
 
-            <FoodInformation locale={locale} data={product.customFields ?? {}} />
-
-            {/* Envío y sellos de confianza */}
-            <section className="py-6 mt-8 border-y border-border">
-                <div className="container mx-auto px-4">
-                    <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        <div className="inline-flex items-center gap-2">
-                            <Truck className="h-4 w-4 text-primary" />
-                            {t('trustBadges.fastShipping')}
-                        </div>
-                        <div className="inline-flex items-center gap-2">
-                            <RotateCcw className="h-4 w-4 text-primary" />
-                            {t('trustBadges.freeReturns')}
-                        </div>
-                        <div className="inline-flex items-center gap-2">
-                            <ShieldCheck className="h-4 w-4 text-primary" />
-                            {t('trustBadges.secureCheckout')}
-                        </div>
-                        <div className="inline-flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-primary" />
-                            {t('trustBadges.guarantee')}
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <KeyFigures
+                locale={locale}
+                nutrition={product.customFields?.foodNutrition}
+                optionGroups={productForDisplay.optionGroups}
+                variants={product.variants}
+            />
 
             {reviewsSlot?.({productId: product.id, productSlug: product.slug})}
 
             {/* Preguntas frecuentes de la tienda */}
             <section className="py-16 md:py-24 bg-muted/30">
                 <div className="container mx-auto px-4 max-w-2xl">
-                    <h2 className="text-display text-2xl md:text-3xl font-bold mb-8">{t('faq.title')}</h2>
+                    <SectionHeader title={t('faq.title')} />
                     <Accordion className="w-full">
                         <AccordionItem value="shipping">
                             <AccordionTrigger>{t('faq.shipping.question')}</AccordionTrigger>

@@ -86,3 +86,38 @@ test('galería única: carrusel deslizable en móvil, zoom que sigue al ratón e
     assert.equal((gallery.match(/src=\{image\.source\}/g) ?? []).length, 1);
     assert.match(await read('features/products/components/product-detail-client.tsx'), /<ProductGallery/);
 });
+
+test('desplegables con la información (montada aunque estén cerrados) y la descripción', async () => {
+    assert.equal(await exists('features/products/components/food-information.tsx'), false);
+    const details = await read('features/products/components/product-details.tsx');
+    assert.match(details, /<Accordion multiple defaultValue=\{\['description'\]\}/);
+    assert.match(details, /keepMounted/);
+    for (const key of ['nutrition', 'directions', 'ingredientsAllergens', 'warnings', 'storage']) assert.match(details, new RegExp(`'${key}'`));
+    assert.match(details, /legalWarnings\.dose/);
+});
+
+test('franja de cifras clave con datos reales; nada si no hay ninguna', async () => {
+    const figures = await read('features/products/components/key-figures.tsx');
+    assert.match(figures, /proteinPerServing\(nutrition\)/);
+    assert.match(figures, /flavorCount\(optionGroups\)/);
+    assert.match(figures, /netQuantityLabel\(variants, optionGroups\)/);
+    assert.match(figures, /if \(!figures\.length\) return null/);
+    assert.match(figures, /bg-brand/);
+});
+
+test('la ficha compone desplegables, cifras, reseñas con ancla y estrellas junto al nombre', async () => {
+    const page = await read('features/products/routes/page.tsx');
+    assert.match(page, /detailsSlot=\{<ProductDetails/);
+    assert.match(page, /<KeyFigures/);
+    assert.doesNotMatch(page, /FoodInformation|trustBadges\.guarantee/);
+    const site = await read('site/products/product-detail-page.tsx');
+    assert.match(site, /ratingSlot=\{/);
+    assert.match(site, /<ProductRatingSummary productId=\{productId\}/);
+    assert.match(await read('features/reviews/product-rating-summary.tsx'), /if \(!reviewCount\) return null/);
+    assert.match(await read('features/reviews/product-reviews-section.tsx'), /id="resenas"/);
+    for (const loc of ['es', 'en']) {
+        const p = (await json(`features/products/messages/${loc}.json`)).Product;
+        for (const k of ['description', 'ingredientsAllergens', 'otherInfo']) assert.ok(p.food[k], `${loc}: falta food.${k}`);
+        for (const k of ['title', 'protein', 'flavors', 'netQuantity']) assert.ok(p.facts?.[k], `${loc}: falta facts.${k}`);
+    }
+});

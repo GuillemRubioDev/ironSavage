@@ -46,3 +46,13 @@ export const CreateProductReviewMutation = graphql(`
         }
     }
 `);
+
+// Resumen para la ficha (junto al nombre): solo la media y el nº de reseñas.
+export const GetProductRatingSummaryQuery = graphql(`
+    query GetProductRatingSummary($productId: ID!) {
+        productReviewSummary(productId: $productId) {
+            averageRating
+            reviewCount
+        }
+    }
+`);
