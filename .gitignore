@@ -27,3 +27,6 @@ apps/server/.tanstack/
 # desplegado (.deployed-sha).
 /.deploy.sh
 /.deployed-sha
+
+# Maquetas del asistente de diseño (brainstorming visual); solo para trabajar en local.
+/.superpowers/
