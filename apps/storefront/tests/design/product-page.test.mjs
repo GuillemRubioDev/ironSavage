@@ -73,3 +73,16 @@ test('bloque de compra con cantidad, puntos y mini franja de confianza', async (
         assert.ok((await json(`features/products/messages/${loc}.json`)).Product.pointsEarned, `${loc}: falta pointsEarned`);
     }
 });
+
+test('galería única: carrusel deslizable en móvil, zoom que sigue al ratón en escritorio y nombre si no hay fotos', async () => {
+    assert.equal(await exists('features/products/components/product-image-carousel.tsx'), false);
+    const gallery = await read('features/products/components/product-gallery.tsx');
+    assert.match(gallery, /snap-x snap-mandatory/);
+    assert.match(gallery, /transformOrigin: `\$\{zoom\.x\}% \$\{zoom\.y\}%`/);
+    assert.match(gallery, /\(hover: hover\)/);
+    assert.match(gallery, /prefers-reduced-motion: reduce/);
+    assert.doesNotMatch(gallery, /noImagesAvailable/);
+    // Un solo juego de imágenes (no uno para móvil y otro para escritorio).
+    assert.equal((gallery.match(/src=\{image\.source\}/g) ?? []).length, 1);
+    assert.match(await read('features/products/components/product-detail-client.tsx'), /<ProductGallery/);
+});

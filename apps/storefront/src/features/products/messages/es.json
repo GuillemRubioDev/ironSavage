@@ -81,6 +81,7 @@
     "increaseQuantity": "Añadir uno",
     "viewDetails": "Ver ficha completa",
     "productUnavailable": "Este producto ya no está disponible",
-    "pointsEarned": "{points, plural, one {Con esta compra sumas # punto} other {Con esta compra sumas # puntos}}"
+    "pointsEarned": "{points, plural, one {Con esta compra sumas # punto} other {Con esta compra sumas # puntos}}",
+    "gallery": "Galería de fotos"
   }
 }

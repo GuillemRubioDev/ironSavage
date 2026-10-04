@@ -2,7 +2,7 @@
 
 import {useEffect, useMemo, useState, type ReactNode} from 'react';
 import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
-import {ProductImageCarousel} from '@/features/products/components/product-image-carousel';
+import {ProductGallery} from '@/features/products/components/product-gallery';
 import {ProductInfo} from '@/features/products/components/product-info';
 import {ProductBadges} from '@/features/products/components/product-badges';
 import {discountPercent} from '@/features/pricing/discount-percent';
@@ -51,7 +51,7 @@ export function ProductDetailClient({product, currencyCode, categoryName, points
     return (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
             <div className="relative lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)] lg:self-start">
-                <ProductImageCarousel key={selectedVariant?.id ?? 'default'} images={images} productName={product.name} />
+                <ProductGallery key={selectedVariant?.id ?? 'default'} images={images} productName={product.name} />
                 <ProductBadges
                     percent={selectedVariant ? discountPercent(selectedVariant.priceWithTax, selectedVariant.discountedPriceWithTax) : 0}
                     isNew={(product.customFields?.isNew ?? false) || (selectedVariant?.customFields?.isNew ?? false)}
