@@ -7,7 +7,8 @@ import { ResultOf } from '@/platform/vendure/graphql';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetClose, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { withFacets } from '@/features/search/search-helpers';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import {SearchProductsQuery} from '@/features/search/graphql';
@@ -119,30 +120,17 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
 
     const selectedFacets = searchParams.getAll('facets');
 
+    // Marcar o quitar un filtro navega al momento; en móvil el panel sigue abierto
+    // para poder marcar varios y se cierra con "Ver X productos".
     const toggleFacet = (facetId: string) => {
-        const params = new URLSearchParams(searchParams);
-        const current = params.getAll('facets');
-
-        if (current.includes(facetId)) {
-            params.delete('facets');
-            current.filter(id => id !== facetId).forEach(id => params.append('facets', id));
-        } else {
-            params.append('facets', facetId);
-        }
-
-        // Vuelve a la página 1 al cambiar los filtros
-        params.delete('page');
-
-        router.push(`${pathname}?${params.toString()}`);
-        setSheetOpen(false);
+        const next = selectedFacets.includes(facetId)
+            ? selectedFacets.filter(id => id !== facetId)
+            : [...selectedFacets, facetId];
+        router.push(`${pathname}?${withFacets(new URLSearchParams(searchParams), next)}`);
     };
 
     const clearFilters = () => {
-        const params = new URLSearchParams(searchParams);
-        params.delete('facets');
-        params.delete('page');
-        router.push(`${pathname}?${params.toString()}`);
-        setSheetOpen(false);
+        router.push(`${pathname}?${withFacets(new URLSearchParams(searchParams), [])}`);
     };
 
     const hasActiveFilters = selectedFacets.length > 0;
@@ -177,12 +165,17 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
                             </Button>
                         }
                     />
-                    <SheetContent side="left" className="overflow-y-auto p-6">
+                    <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-xl p-6">
                         <SheetHeader className="sr-only">
                             <SheetTitle>{t('title')}</SheetTitle>
                         </SheetHeader>
                         <div>
                             <FilterContent {...filterContentProps} />
+                        </div>
+                        <div className="sticky bottom-0 -mx-6 mt-4 border-t border-border bg-background px-6 pt-4">
+                            <SheetClose render={<Button size="lg" className="w-full" />}>
+                                {t('showResults', {count: searchResult.totalItems})}
+                            </SheetClose>
                         </div>
                     </SheetContent>
                 </Sheet>

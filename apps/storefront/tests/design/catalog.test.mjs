@@ -88,3 +88,36 @@ test('la tarjeta tiene imagen fuera del tabulador, nombre como enlace y Añadir 
     const links = card.split('<Link').slice(1).map(s => s.split('</Link>')[0]);
     assert.ok(links.every(l => !l.includes('QuickAddButton')));
 });
+
+test('los tres listados usan la franja oscura y la misma estructura de filtros y rejilla', async () => {
+    for (const f of ['features/products/routes/list-page.tsx', 'features/collections/routes/page.tsx', 'features/search/routes/search-term.tsx']) {
+        assert.match(await read(f), /<ListingHeader/, `${f} sin ListingHeader`);
+    }
+    for (const f of ['features/products/routes/list-page.tsx', 'features/collections/routes/page.tsx', 'features/search/routes/search-results.tsx']) {
+        assert.match(await read(f), /<CatalogResults/, `${f} sin CatalogResults`);
+    }
+    assert.match(await read('features/products/routes/list-page.tsx'), /<ProductCount/);
+});
+
+test('etiquetas de filtros activos que se quitan y orden encima de la rejilla', async () => {
+    const grid = await read('features/products/product-grid.tsx');
+    assert.match(grid, /<ActiveFilters/);
+    assert.match(grid, /<SortDropdown/);
+    assert.match(grid, /grid-cols-2/);
+    const chips = await read('features/search/active-filters.tsx');
+    assert.match(chips, /withFacets\(/);
+    assert.match(chips, /t\('removeFilter', \{name: value\.name\}\)/);
+});
+
+test('en móvil los filtros salen desde abajo, no se cierran al marcar y muestran "Ver X productos"', async () => {
+    const filters = await read('features/search/facet-filters.tsx');
+    assert.match(filters, /side="bottom"/);
+    assert.match(filters, /t\('showResults', \{count: searchResult\.totalItems\}\)/);
+    assert.doesNotMatch(filters, /setSheetOpen\(false\)/);
+    assert.match(filters, /withFacets\(/);
+    for (const loc of ['es', 'en']) {
+        const m = await json(`features/search/messages/${loc}.json`);
+        for (const k of ['showResults', 'removeFilter', 'activeFilters']) assert.ok(m.Filters[k], `${loc}: falta Filters.${k}`);
+        assert.ok(m.Search.home, `${loc}: falta Search.home`);
+    }
+});
