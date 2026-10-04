@@ -51,7 +51,10 @@ export async function ProductGrid({productDataPromise, currentPage, take}: Produ
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {visibleItems.map((product, i) => {
                     const {collectionIds} = readFragment(ProductCardFragment, product);
-                    const categoryName = collectionIds[0] ? collectionsMap.get(collectionIds[0])?.name : undefined;
+                    // Un producto también está en colecciones de objetivos (Ganar músculo…): la
+                    // etiqueta de la tarjeta es siempre su categoría principal.
+                    const categoryId = collectionIds.find(id => collectionsMap.get(id)?.isCategory) ?? collectionIds[0];
+                    const categoryName = categoryId ? collectionsMap.get(categoryId)?.name : undefined;
                     return <ProductCard key={'product-grid-item' + i} product={product} categoryName={categoryName}/>;
                 })}
             </div>

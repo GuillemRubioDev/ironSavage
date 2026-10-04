@@ -78,6 +78,8 @@ export async function getTopCollectionsWithImages(locale: string): Promise<Colle
 export interface CollectionSummary {
     name: string;
     slug: string;
+    /** Categoría principal (cuelga de la raíz), no un objetivo ni una subcolección. */
+    isCategory: boolean;
 }
 
 /**
@@ -92,5 +94,6 @@ export async function getCollectionsMap(locale: string): Promise<Map<string, Col
     cacheTag('collections');
 
     const result = await query(GetAllCollectionsQuery, undefined, {languageCode: locale});
-    return new Map(result.data.collections.items.map(c => [c.id, {name: c.name, slug: c.slug}]));
+    // "1" es la colección raíz de Vendure, como en GetTopCollectionsQuery.
+    return new Map(result.data.collections.items.map(c => [c.id, {name: c.name, slug: c.slug, isCategory: c.parentId === '1'}]));
 }

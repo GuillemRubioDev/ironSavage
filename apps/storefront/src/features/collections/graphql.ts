@@ -39,6 +39,7 @@ export const GetAllCollectionsQuery = graphql(`
                 id
                 name
                 slug
+                parentId
             }
         }
     }
