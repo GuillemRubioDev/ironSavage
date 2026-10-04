@@ -4,6 +4,7 @@ import {hasLocale, NextIntlClientProvider} from "next-intl";
 import {Barlow_Condensed, Inter} from "next/font/google";
 import {getMessages, getTranslations, setRequestLocale} from "next-intl/server";
 import {notFound} from "next/navigation";
+import {ViewTransition} from "react";
 import {routing} from "@/platform/i18n/routing";
 import {toOgLocale} from "@/platform/i18n/locale-utils";
 import {getRouteLocale} from "@/platform/i18n/server";
@@ -123,7 +124,8 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                                 debajo de la cabecera, sin compensaciones por página. Ver
                                 --header-offset en globals.css. */}
                             <main id="main-content" tabIndex={-1} className="flex-1 pt-[var(--header-offset)] print:pt-0 focus:outline-none">
-                                {children}
+                                {/* Fundido entre páginas en navegadores que lo soportan; ver ::view-transition en globals.css. */}
+                                <ViewTransition>{children}</ViewTransition>
                             </main>
                             <Footer/>
                             <Toaster/>

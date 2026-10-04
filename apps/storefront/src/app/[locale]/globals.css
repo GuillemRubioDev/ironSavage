@@ -466,6 +466,37 @@
   }
 }
 
+/* --- Movimiento (Fase 1 del rediseño) --- */
+/* Reveal: el script pone data-reveal="pending" (oculto) y luego "visible". */
+.reveal {
+  transition: opacity var(--dur-slow) var(--ease-out) var(--reveal-delay, 0ms),
+              transform var(--dur-slow) var(--ease-out) var(--reveal-delay, 0ms);
+}
+[data-reveal="pending"] { opacity: 0; transform: translateY(16px); }
+[data-reveal="visible"] { opacity: 1; transform: none; }
+
+/* Escalonado: cada hijo lleva style="--i: n". */
+.stagger > * { animation: fade-up var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 60ms); }
+
+/* Tarjetas y bloques que se elevan al pasar el ratón (solo con puntero fino). */
+@media (hover: hover) {
+  .hover-lift { transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+  .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgb(0 0 0 / 12%); }
+  .img-zoom img { transition: transform var(--dur-slow) var(--ease-out); }
+  .img-zoom:hover img { transform: scale(1.06); }
+}
+
+/* Respuesta al pulsar. */
+.press { transition: transform var(--dur-fast) var(--ease-out); }
+.press:active { transform: scale(.97); }
+
+/* Entrada enérgica de titulares (portada y bloques de marca). */
+@keyframes hero-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.animate-hero-in { animation: hero-in var(--dur-hero) var(--ease-out) both; animation-delay: var(--reveal-delay, 0ms); }
+
+/* Transiciones entre páginas (React ViewTransition): fundido corto. */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur-base); animation-timing-function: var(--ease-out); }
+
 /* Impresión / «Guardar como PDF» (p. ej. el botón de imprimir de las páginas
    legales): siempre texto negro sobre papel blanco, sea cual sea el tema. Cabecera,
    pie y banner de cookies se ocultan con `print:hidden`. */
@@ -489,4 +520,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  .stagger > *, .animate-hero-in { animation: none !important; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }
