@@ -2,6 +2,7 @@
   "Product": {
     "inStock": "En stock",
     "outOfStock": "Agotado",
+    "newBadge": "Novedad",
     "addToCart": "Añadir al carrito",
     "addedToCart": "Añadido al carrito",
     "adding": "Añadiendo...",

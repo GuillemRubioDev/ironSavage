@@ -24,6 +24,7 @@ import { AthletesPlugin, athletePermission } from './plugins/athletes/athletes.p
 import { CustomerAccountsPlugin } from './plugins/customer-accounts/customer-accounts.plugin';
 import { bannerPermission } from './plugins/banners/banner.permission';
 import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
+import { PriceDisplayPlugin } from './plugins/price-display/price-display.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
 import { posixAssetStorageStrategyFactory } from './posix-asset-storage-strategy-factory';
 import { getAssetUrlPrefix, getCorsOrigin, runProductionSafetyChecks } from './production-safety';
@@ -121,6 +122,27 @@ export const config: VendureConfig = {
     customFields: {
         Product: [
             {
+                name: 'isNew',
+                type: 'boolean',
+                defaultValue: false,
+                nullable: false,
+                public: true,
+                label: [
+                    { languageCode: LanguageCode.en, value: 'New arrival' },
+                    { languageCode: LanguageCode.es, value: 'Novedad' },
+                ],
+                description: [
+                    {
+                        languageCode: LanguageCode.en,
+                        value: 'Shows a "New" badge on the product card and product page.',
+                    },
+                    {
+                        languageCode: LanguageCode.es,
+                        value: 'Muestra el distintivo "Novedad" en la tarjeta y la ficha del producto.',
+                    },
+                ],
+            },
+            {
                 name: 'visibleInStorefront',
                 type: 'boolean',
                 defaultValue: true,
@@ -143,7 +165,30 @@ export const config: VendureConfig = {
             },
             ...productFoodInformationFields,
         ],
-        ProductVariant: [...variantFoodInformationFields],
+        ProductVariant: [
+            {
+                name: 'isNew',
+                type: 'boolean',
+                defaultValue: false,
+                nullable: false,
+                public: true,
+                label: [
+                    { languageCode: LanguageCode.en, value: 'New variant' },
+                    { languageCode: LanguageCode.es, value: 'Novedad (variante)' },
+                ],
+                description: [
+                    {
+                        languageCode: LanguageCode.en,
+                        value: 'Marks only this variant (e.g. a new size) as new, without flagging the whole product.',
+                    },
+                    {
+                        languageCode: LanguageCode.es,
+                        value: 'Marca solo esta variante (p. ej. un tamaño nuevo) como novedad, sin marcar todo el producto.',
+                    },
+                ],
+            },
+            ...variantFoodInformationFields,
+        ],
     },
     plugins: [
         // IDE interactivo de GraphQL para las dos APIs, solo en desarrollo. Lo
@@ -190,6 +235,7 @@ export const config: VendureConfig = {
             storeRegistry: process.env.INVOICE_STORE_REGISTRY,
         }),
         TransactionalEmailPlugin,
+        PriceDisplayPlugin,
         CustomerAccountsPlugin,
         ReviewsPlugin,
         ContentPlugin,

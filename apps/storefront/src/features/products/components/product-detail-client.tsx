@@ -6,6 +6,8 @@ import {useSearchParams} from 'next/navigation';
 import {usePathname, useRouter} from '@/platform/i18n/navigation';
 import {ProductImageCarousel} from '@/features/products/components/product-image-carousel';
 import {ProductInfo} from '@/features/products/components/product-info';
+import {ProductBadges} from '@/features/products/components/product-badges';
+import {discountPercent} from '@/features/pricing/discount-percent';
 
 interface Asset {
     id: string;
@@ -18,8 +20,9 @@ interface ProductVariant {
     name: string;
     sku: string;
     priceWithTax: number;
+    discountedPriceWithTax: number;
     stockLevel: string;
-    customFields?: {netQuantity?: string | null} | null;
+    customFields?: {netQuantity?: string | null; isNew?: boolean | null} | null;
     featuredAsset?: Asset | null;
     options: Array<{
         id: string;
@@ -39,6 +42,7 @@ interface ProductDetailClientProps {
         id: string;
         name: string;
         description: string;
+        customFields?: {isNew?: boolean | null} | null;
         assets: Asset[];
         variants: ProductVariant[];
         optionGroups: Array<{
@@ -137,8 +141,16 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-8 lg:gap-16">
-            <div className="lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)] lg:self-start">
+            <div className="relative lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)] lg:self-start">
                 <ProductImageCarousel key={selectedVariant?.id ?? 'default'} images={images} productName={product.name} />
+                <ProductBadges
+                    percent={
+                        selectedVariant
+                            ? discountPercent(selectedVariant.priceWithTax, selectedVariant.discountedPriceWithTax)
+                            : 0
+                    }
+                    isNew={(product.customFields?.isNew ?? false) || (selectedVariant?.customFields?.isNew ?? false)}
+                />
             </div>
             <div>
                 <ProductInfo

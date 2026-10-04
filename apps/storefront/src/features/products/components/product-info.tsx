@@ -9,7 +9,7 @@ import {ShoppingCart, CheckCircle2} from 'lucide-react';
 import {addToCart} from '@/features/products/add-to-cart';
 import {toast} from 'sonner';
 import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
-import {Price} from '@/features/pricing/price';
+import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
 import {useTranslations} from 'next-intl';
 
 interface ProductVariant {
@@ -17,6 +17,7 @@ interface ProductVariant {
     name: string;
     sku: string;
     priceWithTax: number;
+    discountedPriceWithTax: number;
     stockLevel: string;
     customFields?: {netQuantity?: string | null} | null;
     options: Array<{
@@ -110,7 +111,12 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
                 {selectedVariant && (
                     <div>
                         <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums">
-                            <Price value={selectedVariant.priceWithTax} currencyCode={currencyCode}/>
+                            <PriceWithDiscount
+                                before={selectedVariant.priceWithTax}
+                                after={selectedVariant.discountedPriceWithTax}
+                                currencyCode={currencyCode}
+                                size="lg"
+                            />
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">{t('taxIncluded')}</p>
                     </div>
@@ -212,7 +218,11 @@ export function ProductInfo({product, currencyCode, selectedOptions, selectedVar
         >
             {selectedVariant && (
                 <p className="font-mono text-lg font-semibold tabular-nums shrink-0">
-                    <Price value={selectedVariant.priceWithTax} currencyCode={currencyCode}/>
+                    <PriceWithDiscount
+                        before={selectedVariant.priceWithTax}
+                        after={selectedVariant.discountedPriceWithTax}
+                        currencyCode={currencyCode}
+                    />
                 </p>
             )}
             <Button

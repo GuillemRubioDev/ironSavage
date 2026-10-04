@@ -83,6 +83,10 @@ services:
       REDSYS_ENVIRONMENT: ${REDSYS_ENVIRONMENT}
       REDSYS_NOTIFICATION_URL: ${REDSYS_NOTIFICATION_URL}
       STOREFRONT_URL: ${STOREFRONT_URL}
+      # Interno (red Docker): el servidor avisa al storefront de los cambios de
+      # precio para refrescar su caché, sin salir a internet.
+      STOREFRONT_REVALIDATE_URL: http://storefront:3001/api/revalidate
+      REVALIDATION_SECRET: ${REVALIDATION_SECRET}
       INVOICE_STORE_NAME: ${INVOICE_STORE_NAME}
       INVOICE_STORE_TAX_ID: ${INVOICE_STORE_TAX_ID}
       INVOICE_STORE_ADDRESS: ${INVOICE_STORE_ADDRESS}

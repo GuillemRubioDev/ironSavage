@@ -18,7 +18,6 @@ import {
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { routing } from '@/platform/i18n/routing';
-import Image from 'next/image';
 import {
     SITE_NAME,
     truncateDescription,
@@ -122,31 +121,9 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
     const collectionResult = await getCollectionMetadata(slug);
     const collection = collectionResult.data.collection;
     const collectionName = collection?.name ?? slug;
-    const bannerImage = collection?.featuredAsset?.preview;
 
     return (
         <div>
-            {/* Banner de la colección: el mismo tratamiento fotográfico que las
-                categorías de la portada, para que llegar aquí desde una de ellas no
-                parezca un paso atrás a una simple cabecera de texto. */}
-            {bannerImage ? (
-                <div className="relative h-48 md:h-64 w-full overflow-hidden">
-                    {/* Estos carteles de colección son ilustraciones en vertical (con su
-                        título integrado a un tercio de altura), no fotos para una franja
-                        ancha y baja: object-center recortaría por la franja inferior de
-                        iconos y la cortaría en pantallas anchas, donde la ventana de recorte
-                        es mucho más ancha que la proporción de la imagen. Anclar más arriba
-                        deja centrado en el recorte el título del propio cartel. */}
-                    <Image src={bannerImage} alt="" fill className="object-cover object-[50%_33%]" sizes="100vw" priority />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
-                    <div className="absolute inset-0 flex items-end">
-                        <div className="container mx-auto px-4 pb-6">
-                            <h1 className="text-display text-3xl md:text-5xl font-bold text-white">{collectionName}</h1>
-                        </div>
-                    </div>
-                </div>
-            ) : null}
-
             <div className="container mx-auto px-4 py-8">
                 {/* Migas de pan */}
                 <Breadcrumb className="mb-6">
@@ -161,11 +138,9 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
                     </BreadcrumbList>
                 </Breadcrumb>
 
-                {!bannerImage && (
-                    <div className="mb-8">
-                        <h1 className="text-display text-3xl md:text-4xl font-bold">{collectionName}</h1>
-                    </div>
-                )}
+                <div className="mb-8">
+                    <h1 className="text-display text-3xl md:text-4xl font-bold">{collectionName}</h1>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* Barra lateral de filtros */}

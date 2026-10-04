@@ -19,6 +19,11 @@ export const ProductCardFragment = graphql(`
                 value
             }
         }
+        discountedPriceWithTax {
+            min
+            max
+        }
+        isNew
         currencyCode
         inStock
         collectionIds
@@ -35,6 +40,7 @@ export const GetProductDetailQuery = graphql(`
             enabled
             customFields {
                 visibleInStorefront
+                isNew
                 isFoodSupplement
                 foodIngredients
                 foodAllergens
@@ -55,9 +61,11 @@ export const GetProductDetailQuery = graphql(`
                 name
                 sku
                 priceWithTax
+                discountedPriceWithTax
                 stockLevel
                 customFields {
                     netQuantity
+                    isNew
                 }
                 featuredAsset {
                     id
