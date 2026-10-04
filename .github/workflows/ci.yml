@@ -1,12 +1,11 @@
 name: CI
 
-# Se ejecuta en cada PR y en cada push a main/master (este repo usa "master";
-# se listan las dos para que siga funcionando si algún día se renombra a "main",
-# y no cuesta nada mientras esa rama no exista).
+# Se ejecuta en cada PR. En los push a develop y master no se lanza por su cuenta:
+# lo llama deploy.yml (workflow_call) y solo despliega si este CI pasa, así no
+# se ejecuta dos veces por cada push.
 on:
   pull_request:
-  push:
-    branches: [main, master]
+  workflow_call:
 
 # Un commit nuevo en el mismo PR o rama cancela la ejecución de CI en curso: no
 # tiene sentido terminar de comprobar código que ya está desfasado.

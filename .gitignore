@@ -21,3 +21,9 @@ apps/server/.tanstack/
 
 # Capturas de red/consola del navegador hechas al depurar en local; no se suben.
 /_debug-postbodies.txt
+
+# Archivos que scripts/deploy.sh deja en el servidor: la copia del script que se
+# ejecuta (.deploy.sh, la extrae deploy.yml de la rama a desplegar) y el commit
+# desplegado (.deployed-sha).
+/.deploy.sh
+/.deployed-sha

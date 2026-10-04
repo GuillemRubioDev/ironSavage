@@ -1,0 +1,3 @@
+# Los scripts de shell se ejecutan en los servidores Linux: siempre con finales de
+# línea LF, aunque se editen en Windows (con CRLF, bash falla al leer los saltos de línea).
+*.sh text eol=lf

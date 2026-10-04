@@ -1,0 +1,93 @@
+name: Deploy
+
+# Despliegue continuo por ramas (ver docs/despliegue.md):
+#   develop -> servidor de desarrollo (environment "development")
+#   master  -> servidor de producción (environment "production")
+# Cualquier otra rama no se despliega: se prueba en el equipo de cada persona.
+#
+# Primero se ejecuta el CI completo (ci.yml como workflow reutilizable); solo si
+# pasa, se entra por SSH al servidor y se lanza scripts/deploy.sh, que hace el
+# resto allí (backup en producción, checkout, build de las imágenes y arranque).
+#
+# Los datos de conexión son secretos de cada environment de GitHub (Settings →
+# Environments): DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_KNOWN_HOSTS,
+# DEPLOY_PATH y, opcional, DEPLOY_PORT. Mientras un environment no los tenga, el
+# despliegue se salta con un aviso en vez de fallar. En "production" conviene
+# activar "Required reviewers" para que nada llegue a producción sin aprobación.
+on:
+  push:
+    branches: [develop, master]
+  # Para relanzar a mano el despliegue de develop o master desde la pestaña
+  # Actions (p. ej. tras cambiar el .env.prod del servidor).
+  workflow_dispatch:
+
+# Un despliegue nunca se cancela a medias (dejaría el servidor con imágenes a
+# medio construir): los siguientes esperan en cola, uno por rama.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: CI
+    if: github.ref_name == 'develop' || github.ref_name == 'master'
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Desplegar en ${{ github.ref_name == 'master' && 'producción' || 'desarrollo' }}
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: ${{ github.ref_name == 'master' && 'production' || 'development' }}
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+
+    steps:
+      - name: Comprobar configuración del servidor
+        id: check
+        run: |
+          if [ -z "$DEPLOY_HOST" ] || [ -z "$DEPLOY_USER" ] || [ -z "$DEPLOY_PATH" ]; then
+            echo "::warning::El environment no tiene configurados los secretos DEPLOY_*: no se despliega. Ver docs/despliegue.md."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Preparar clave SSH
+        if: steps.check.outputs.configured == 'true'
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Huella fija del servidor (salida de `ssh-keyscan`): sin ella se rechaza la
+          # conexión, para no entregar nunca la clave a un servidor suplantado.
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Ejecutar scripts/deploy.sh en el servidor
+        if: steps.check.outputs.configured == 'true'
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" \
+            -o StrictHostKeyChecking=yes -o BatchMode=yes -o ServerAliveInterval=30 \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "cd '$DEPLOY_PATH' && git fetch --prune origin && git show 'origin/${{ github.ref_name }}:scripts/deploy.sh' > .deploy.sh && bash .deploy.sh '${{ github.ref_name }}' '${{ github.sha }}'"
+
+      - name: Resumen
+        if: always() && steps.check.outputs.configured == 'true'
+        run: |
+          {
+            echo "### Despliegue de \`${{ github.ref_name }}\`"
+            echo ""
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Resultado: ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"

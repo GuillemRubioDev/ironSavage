@@ -10,7 +10,7 @@ name: Build images
 on:
   pull_request:
   push:
-    branches: [main, master]
+    branches: [develop, master]
 
 concurrency:
   group: build-images-${{ github.ref }}
@@ -40,6 +40,25 @@ jobs:
 
       - name: Validate docker-compose.prod.yml
         run: docker compose -f docker-compose.prod.yml --env-file .env.ci config --quiet
+
+      - name: Validate dev-server override
+        # La combinación que usa scripts/deploy.sh en el servidor de desarrollo.
+        run: docker compose -f docker-compose.prod.yml -f docker-compose.dev-server.yml --env-file .env.ci config --quiet
+
+      - name: Validate Caddyfiles
+        # `caddy adapt` solo traduce la configuración (no arranca nada ni pide
+        # certificados): detecta errores de sintaxis en Caddyfile y Caddyfile.dev antes
+        # de que lleguen a un servidor. Los dominios y el hash son valores de prueba.
+        run: |
+          for f in Caddyfile Caddyfile.dev; do
+            docker run --rm \
+              -e PUBLIC_DOMAIN=tienda.example.com -e API_DOMAIN=api.example.com \
+              -e CADDY_EMAIL=ci@example.com -e DEV_BASIC_AUTH_USER=ci \
+              -e 'DEV_BASIC_AUTH_HASH=$2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG' \
+              -v "$PWD/$f:/etc/caddy/Caddyfile:ro" caddy:2-alpine \
+              caddy adapt --config /etc/caddy/Caddyfile --adapter caddyfile > /dev/null
+            echo "$f OK"
+          done
 
       - name: Build vendure-server image
         run: docker compose -f docker-compose.prod.yml --env-file .env.ci build vendure-server

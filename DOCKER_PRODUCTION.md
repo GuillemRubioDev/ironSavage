@@ -32,6 +32,9 @@ mínimo: `PUBLIC_DOMAIN`, `API_DOMAIN`, `CADDY_EMAIL`, `CORS_ORIGIN`,
 
 ## Cómo arrancar
 
+En los servidores reales esto lo hace `scripts/deploy.sh` en cada despliegue (ver
+[docs/despliegue.md](docs/despliegue.md)). Estos son los pasos a mano:
+
 ```bash
 cp .env.prod.example .env.prod   # y rellenar valores reales
 docker compose -f docker-compose.prod.yml --env-file .env.prod up -d postgres vendure-server vendure-worker
