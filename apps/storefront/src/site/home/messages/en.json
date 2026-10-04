@@ -44,6 +44,11 @@
         "title": "Iron Rewards",
         "text": "Points on every order"
       }
+    },
+    "goals": {
+      "eyebrow": "Shop by goal",
+      "title": "What's your",
+      "highlight": "goal?"
     }
   }
 }

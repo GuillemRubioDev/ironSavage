@@ -81,3 +81,14 @@ test('los destacados usan SectionHeader con palabra destacada y enlace a todos l
     assert.match(featured, /highlight=\{t\('featuredHighlight'\)\}/);
     assert.match(featured, /action=\{\{href: '\/productos', label: t\('viewAllProducts'\)\}\}/);
 });
+
+test('el bloque de objetivos aparece solo si existen y enlaza a cada colección', async () => {
+    const goals = await read('site/home/goals-section.tsx');
+    assert.match(goals, /getGoalCollections\(locale\)/);
+    assert.match(goals, /if \(!goals\.length\) return null/);
+    assert.match(goals, /variant="goal"/);
+    assert.match(goals, /href=\{`\/categorias\/\$\{goal\.slug\}`\}/);
+    assert.match(await read('site/home/page.tsx'), /<GoalsSection\s*\/>/);
+    const es = await json('site/home/messages/es.json');
+    assert.ok(es.Home.goals?.title && es.Home.goals?.highlight && es.Home.goals?.eyebrow);
+});

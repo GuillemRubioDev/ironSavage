@@ -44,6 +44,11 @@
         "title": "Iron Rewards",
         "text": "Puntos en cada pedido"
       }
+    },
+    "goals": {
+      "eyebrow": "Compra por objetivo",
+      "title": "¿Cuál es tu",
+      "highlight": "objetivo?"
     }
   }
 }

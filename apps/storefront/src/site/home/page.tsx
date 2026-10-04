@@ -4,6 +4,7 @@ import {getRouteLocale} from "@/platform/i18n/server";
 import {HeroBanner} from "@/site/home/hero-banner";
 import {getActiveBanners} from "@/site/home/banners-data";
 import {CategoriesShowcase} from '@/site/home/categories-showcase';
+import {GoalsSection} from '@/site/home/goals-section';
 import {FeaturedProducts} from '@/features/products/featured-products';
 import {LoyaltyTeaser} from '@/features/loyalty/loyalty-teaser';
 import {LatestNewsSection} from '@/features/news/latest-news-section';
@@ -82,6 +83,10 @@ export default async function Home() {
 
             <Suspense>
                 <FeaturedProducts/>
+            </Suspense>
+
+            <Suspense>
+                <GoalsSection/>
             </Suspense>
 
             <section className="bg-brand py-16 md:py-28">
