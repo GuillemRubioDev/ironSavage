@@ -1,6 +1,6 @@
 import {cacheLife, cacheTag} from 'next/cache';
 import {query} from '@/platform/vendure/api';
-import {GetTopCollectionsQuery, GetAllCollectionsQuery, GetCollectionFallbackImagesQuery} from './graphql';
+import {GetTopCollectionsQuery, GetAllCollectionsQuery, GetCollectionFallbackImagesQuery, GetGoalCollectionsQuery} from './graphql';
 
 export async function getTopCollections(locale: string) {
     'use cache';
@@ -93,4 +93,17 @@ export async function getCollectionsMap(locale: string): Promise<Map<string, Col
 
     const result = await query(GetAllCollectionsQuery, undefined, {languageCode: locale});
     return new Map(result.data.collections.items.map(c => [c.id, {name: c.name, slug: c.slug}]));
+}
+
+/** Objetivos para la portada y la cabecera; vacío si la tienda no tiene el seed de objetivos. */
+export async function getGoalCollections(locale: string): Promise<CollectionWithImage[]> {
+    'use cache';
+    cacheLife('days');
+    cacheTag(`goal-collections-${locale}`);
+    cacheTag('collections');
+
+    const result = await query(GetGoalCollectionsQuery, undefined, {languageCode: locale});
+    return [...result.data.collections.items]
+        .sort((a, b) => a.position - b.position)
+        .map(c => ({id: c.id, name: c.name, slug: c.slug, imageUrl: c.featuredAsset?.preview ?? null}));
 }

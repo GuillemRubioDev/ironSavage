@@ -60,3 +60,15 @@ export const GetMyAthleteRewardsQuery = graphql(`
         }
     }
 `);
+
+// Reglas públicas del programa de puntos (las mismas que aplica el servidor).
+export const GetLoyaltyProgramConfigQuery = graphql(`
+    query GetLoyaltyProgramConfig {
+        loyaltyProgramConfig {
+            pointsPerEuro
+            pointValueInCents
+            minRedeemablePoints
+            maxDiscountPerOrderCents
+        }
+    }
+`);
