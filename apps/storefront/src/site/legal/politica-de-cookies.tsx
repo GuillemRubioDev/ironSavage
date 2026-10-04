@@ -88,9 +88,9 @@ export default async function CookiePolicyPage() {
                         </tr>
                         <tr>
                             <td>iron-savage-cookie-consent</td>
-                            <td>Almacenamiento local propio, técnico</td>
+                            <td>Cookie propia, técnica</td>
                             <td>Recordar tus preferencias de cookies.</td>
-                            <td>Hasta que lo borres</td>
+                            <td>12 meses</td>
                         </tr>
                         {GA_MEASUREMENT_ID && (
                             <>

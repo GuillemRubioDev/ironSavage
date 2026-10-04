@@ -6,4 +6,4 @@
  * pedido; ver LegalAcceptancePlugin en el servidor), para que la empresa pueda
  * demostrar qué versión aceptó cada cliente.
  */
-export const LEGAL_VERSION = '2026-09-28';
+export const LEGAL_VERSION = '2026-10-04';

@@ -10,8 +10,16 @@ export interface ConsentState {
     marketing: boolean;
 }
 
+/**
+ * La respuesta del banner se guarda en una cookie propia (técnica, exenta de
+ * consentimiento), no en localStorage: así, si el visitante borra las cookies, el
+ * banner vuelve a salir, que es lo que espera. Caduca a los 12 meses para volver a
+ * preguntar (la AEPD recomienda no pasar de 24). Subir STORAGE_VERSION vuelve a
+ * pedir el consentimiento a todos, p. ej. al añadir una categoría o un proveedor.
+ */
 const STORAGE_KEY = "iron-savage-cookie-consent";
 const STORAGE_VERSION = 1;
+const MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 const DEFAULT_CONSENT: ConsentState = {
     necessary: true,
@@ -24,10 +32,16 @@ interface StoredConsent {
     consent: ConsentState;
 }
 
+function readCookie(name: string): string | null {
+    const prefix = `${name}=`;
+    const entry = document.cookie.split("; ").find(part => part.startsWith(prefix));
+    return entry ? decodeURIComponent(entry.slice(prefix.length)) : null;
+}
+
 function readStoredConsent(): ConsentState | null {
     if (typeof window === "undefined") return null;
     try {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
+        const raw = readCookie(STORAGE_KEY);
         if (!raw) return null;
         const parsed = JSON.parse(raw) as StoredConsent;
         if (parsed.version !== STORAGE_VERSION) return null;
@@ -38,11 +52,14 @@ function readStoredConsent(): ConsentState | null {
 }
 
 function writeStoredConsent(consent: ConsentState) {
+    const value = encodeURIComponent(JSON.stringify({version: STORAGE_VERSION, consent} satisfies StoredConsent));
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${STORAGE_KEY}=${value}; Max-Age=${MAX_AGE_SECONDS}; Path=/; SameSite=Lax${secure}`;
     try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify({version: STORAGE_VERSION, consent} satisfies StoredConsent));
+        // Versiones anteriores lo guardaban en localStorage: se limpia.
+        window.localStorage.removeItem(STORAGE_KEY);
     } catch {
-        // Almacenamiento no disponible (modo privado, desactivado): el consentimiento no
-        // se guardará entre visitas y el banner volverá a salir la próxima vez.
+        // Sin localStorage no hay nada que limpiar.
     }
 }
 
