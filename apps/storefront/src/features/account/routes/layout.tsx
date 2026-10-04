@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import {Suspense} from 'react';
 import {noIndexRobots} from '@/config/metadata';
 import {AccountNav} from '@/features/account/components/account-nav';
+import {RequireCustomer} from '@/features/account/components/require-customer';
 
 export const metadata: Metadata = {
     robots: noIndexRobots(),
@@ -25,7 +26,10 @@ export default async function AccountLayout({children}: LayoutProps<'/[locale]/m
                     </Suspense>
                 </aside>
                 <main className="flex-1 min-w-0">
-                    {children}
+                    {/* Nada de la cuenta se pinta sin sesión: ver RequireCustomer. */}
+                    <Suspense>
+                        <RequireCustomer>{children}</RequireCustomer>
+                    </Suspense>
                 </main>
             </div>
         </div>

@@ -31,14 +31,17 @@ export default async function CheckoutPage({searchParams}: PageProps<'/[locale]/
     const currencyCode = await getActiveCurrencyCode();
     const t = await getTranslations({locale, namespace: 'Checkout'});
     const customer = await getActiveCustomer();
-    const isGuest = !customer;
+    // Solo se compra con sesión iniciada (lo exige también el servidor, ver
+    // guestCheckoutStrategy en vendure-config.ts). proxy.ts ya corta a quien no tiene
+    // cookie; esto cubre la sesión caducada. Tras el login se vuelve aquí.
+    if (!customer) {
+        return redirect({href: '/login?redirectTo=/checkout', locale});
+    }
 
     const [orderRes, addressesRes, countries, shippingMethodsRes, paymentMethodsRes] =
         await Promise.all([
             query(GetActiveOrderForCheckoutQuery, {}, {useAuthToken: true, currencyCode}),
-            isGuest
-                ? Promise.resolve({ data: { activeCustomer: null } })
-                : query(GetCustomerAddressesQuery, {}, {useAuthToken: true}),
+            query(GetCustomerAddressesQuery, {}, {useAuthToken: true}),
             getAvailableCountriesCached(locale),
             query(GetEligibleShippingMethodsQuery, {}, {useAuthToken: true, currencyCode}),
             query(GetEligiblePaymentMethodsQuery, {}, {useAuthToken: true, currencyCode}),
@@ -77,7 +80,7 @@ export default async function CheckoutPage({searchParams}: PageProps<'/[locale]/
                 countries={countries}
                 shippingMethods={shippingMethods}
                 paymentMethods={paymentMethods}
-                isGuest={isGuest}
+                isGuest={false}
             >
                 <CheckoutFlow/>
             </CheckoutProvider>

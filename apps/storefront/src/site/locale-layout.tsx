@@ -13,6 +13,8 @@ import {Navbar} from '@/site/navigation/navbar';
 import {Footer} from "@/site/footer";
 import {ThemeProvider} from "@/site/providers/theme-provider";
 import {CookieConsentRoot} from "@/site/cookie-consent/cookie-consent-root";
+import {EnvironmentBadge} from "@/site/app-shell/environment-badge";
+import {AppFreshness} from "@/site/app-shell/app-freshness";
 import {DEFAULT_OG_IMAGES, SITE_NAME, SITE_URL} from "@/config/metadata";
 
 // Inter: texto de interfaz y cuerpo muy legible. Oswald: fuente condensada y de trazo
@@ -88,6 +90,9 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
+// maximumScale 5 a propósito: el zoom con dos dedos debe seguir funcionando por
+// accesibilidad (WCAG 1.4.4, Ley 11/2023). Lo que sí se quita es el zoom por doble
+// toque, con `touch-action: manipulation` en globals.css.
 export const viewport: Viewport = {
     width: "device-width",
     initialScale: 1,
@@ -114,6 +119,7 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
             <body
                 className={`${inter.variable} ${oswald.variable} ${geistMono.variable} ${blackOpsOne.variable} antialiased flex flex-col min-h-screen`}
             >
+                <EnvironmentBadge />
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
                         <CookieConsentRoot>
@@ -136,6 +142,7 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                             </main>
                             <Footer/>
                             <Toaster/>
+                            <AppFreshness/>
                         </CookieConsentRoot>
                     </ThemeProvider>
                 </NextIntlClientProvider>

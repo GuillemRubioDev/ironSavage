@@ -28,6 +28,8 @@
     "search": "Buscar",
     "mainNavigation": "Navegación principal",
     "skipToContent": "Saltar al contenido principal",
-    "announcements": "Avisos de la tienda"
+    "announcements": "Avisos de la tienda",
+    "createAccount": "Crear cuenta",
+    "accountSignedOutHint": "Inicia sesión para ver tu perfil, pedidos, facturas y puntos."
   }
 }

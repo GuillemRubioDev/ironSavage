@@ -9,16 +9,18 @@ import {MobileNav} from '@/site/navigation/navbar/mobile-nav';
  * este componente es `"use cache"` y CurrencyPickerWrapper es dinámico a propósito
  * (lee la cookie de moneda, nunca en caché). Meterlo dentro de esta zona en caché
  * rompería la separación dinámico/caché de Cache Components o guardaría en silencio
- * durante días un valor propio de cada sesión.
+ * durante días un valor propio de cada sesión. Lo mismo con `accountLinks`, que
+ * depende de si hay sesión iniciada.
  */
-export async function MobileNavWrapper({currencyPicker}: {currencyPicker: ReactNode}) {
+export async function MobileNavWrapper({currencyPicker, accountLinks}: {currencyPicker: ReactNode; accountLinks: ReactNode}) {
     "use cache";
     cacheLife('days');
 
     const locale = await getRouteLocale();
     cacheTag(`mobile-nav-${locale}`);
+    cacheTag('collections');
 
     const collections = await getTopCollections(locale);
 
-    return <MobileNav collections={collections} currencyPicker={currencyPicker} />;
+    return <MobileNav collections={collections} currencyPicker={currencyPicker} accountLinks={accountLinks} />;
 }

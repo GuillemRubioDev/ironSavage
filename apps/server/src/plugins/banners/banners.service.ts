@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ID, PaginatedList, RequestContext, TransactionalConnection } from '@vendure/core';
+import { EventBus, ID, PaginatedList, RequestContext, TransactionalConnection } from '@vendure/core';
+
+import { StorefrontCacheEvent } from '../../storefront-cache-event';
 
 import { Banner, BannerAlignment, BANNER_ALIGNMENTS, BannerImageLayout, BANNER_IMAGE_LAYOUTS } from './banner.entity';
 
@@ -22,7 +24,15 @@ export type BannerMutationResult = { success: true; banner: Banner } | { success
 
 @Injectable()
 export class BannersService {
-    constructor(private connection: TransactionalConnection) {}
+    constructor(
+        private connection: TransactionalConnection,
+        private eventBus: EventBus,
+    ) {}
+
+    /** Avisa al storefront para que el carrusel de la portada muestre el cambio al momento. */
+    private notifyStorefront(ctx: RequestContext): void {
+        void this.eventBus.publish(new StorefrontCacheEvent(ctx, ['banners']));
+    }
 
     async create(ctx: RequestContext, input: BannerInput): Promise<BannerMutationResult> {
         const validationError = this.validate(input);
@@ -47,6 +57,7 @@ export class BannersService {
                 enabled: input.enabled ?? true,
             }),
         );
+        this.notifyStorefront(ctx);
         return { success: true, banner };
     }
 
@@ -90,11 +101,13 @@ export class BannersService {
         banner.enabled = merged.enabled ?? true;
 
         const saved = await repo.save(banner);
+        this.notifyStorefront(ctx);
         return { success: true, banner: saved };
     }
 
     async delete(ctx: RequestContext, id: ID): Promise<boolean> {
         const result = await this.connection.getRepository(ctx, Banner).delete(id);
+        this.notifyStorefront(ctx);
         return !!result.affected;
     }
 

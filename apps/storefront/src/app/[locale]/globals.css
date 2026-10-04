@@ -195,7 +195,12 @@
 }
 
 @layer base {
-  html {}
+  /* Sin zoom por doble toque en el móvil (se comporta más como una app), pero
+     manteniendo el zoom con dos dedos por accesibilidad: `manipulation` solo
+     permite desplazar y pellizcar. */
+  html {
+    touch-action: manipulation;
+  }
   * {
     @apply border-border outline-ring/50;
   }

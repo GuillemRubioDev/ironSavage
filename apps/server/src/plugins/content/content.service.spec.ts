@@ -48,7 +48,9 @@ function createFakeDb() {
 function createService() {
     const db = createFakeDb();
     const connectionMock = { getRepository: (_ctx: unknown, _entity: unknown) => db.repo };
-    return { service: new ContentService(connectionMock), db };
+    // Sin bus real: los avisos al storefront no interesan en estos tests.
+    const eventBusMock = { publish: () => Promise.resolve() } as any;
+    return { service: new ContentService(connectionMock, eventBusMock), db };
 }
 
 function validInput(overrides: Record<string, unknown> = {}) {

@@ -1,5 +1,6 @@
 import {
     dummyPaymentHandler,
+    DefaultGuestCheckoutStrategy,
     DefaultJobQueuePlugin,
     DefaultSchedulerPlugin,
     DefaultSearchPlugin,
@@ -115,6 +116,17 @@ export const config: VendureConfig = {
         // método de pago que apunte a un handler no registrado. RedsysPlugin
         // registra el suyo siempre, con su hook `configuration` de abajo.
         paymentMethodHandlers: includeDummyPaymentHandler() ? [dummyPaymentHandler] : [],
+    },
+    orderOptions: {
+        // Solo compran clientes con cuenta y sesión iniciada: sin esto, la Shop API
+        // permite asignar un cliente invitado al pedido (setCustomerForOrder) y pagar
+        // sin registrarse. El storefront también lo exige (proxy.ts y checkout), pero
+        // la garantía real está aquí. El carrito anónimo sigue funcionando y se une al
+        // del cliente al iniciar sesión.
+        guestCheckoutStrategy: new DefaultGuestCheckoutStrategy({
+            allowGuestCheckouts: false,
+            allowGuestCheckoutForRegisteredCustomers: false,
+        }),
     },
     // Al añadir o cambiar campos personalizados hay que actualizar la base de
     // datos con una migración. Ver la sección «Migraciones» del README.md y

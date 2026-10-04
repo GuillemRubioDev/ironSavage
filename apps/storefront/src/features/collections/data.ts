@@ -6,6 +6,7 @@ export async function getTopCollections(locale: string) {
     'use cache';
     cacheLife('days');
     cacheTag(`collections-${locale}`);
+    cacheTag('collections');
 
     const result = await query(GetTopCollectionsQuery, undefined, {languageCode: locale});
     return result.data.collections.items;
@@ -49,6 +50,7 @@ export async function getTopCollectionsWithImages(locale: string): Promise<Colle
     'use cache';
     cacheLife('days');
     cacheTag(`collections-with-images-${locale}`);
+    cacheTag('collections');
 
     const collections = await getTopCollections(locale);
 
@@ -87,6 +89,7 @@ export async function getCollectionsMap(locale: string): Promise<Map<string, Col
     'use cache';
     cacheLife('days');
     cacheTag(`collections-map-${locale}`);
+    cacheTag('collections');
 
     const result = await query(GetAllCollectionsQuery, undefined, {languageCode: locale});
     return new Map(result.data.collections.items.map(c => [c.id, {name: c.name, slug: c.slug}]));

@@ -1,5 +1,5 @@
 import createMiddleware from 'next-intl/middleware';
-import {NextRequest} from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 import {routing} from './platform/i18n/routing';
 import {GA_MEASUREMENT_ID} from './platform/analytics/gtag';
 
@@ -68,8 +68,32 @@ function buildCsp(): string {
     ].join('; ');
 }
 
+const AUTH_TOKEN_COOKIE = process.env.VENDURE_AUTH_TOKEN_COOKIE || 'vendure-auth-token';
+const LOCALE_PREFIX = new RegExp(`^/(${routing.locales.join('|')})(?=/|$)`);
+
+/** Rutas que exigen sesión iniciada: la cuenta y el proceso de compra. */
+const PROTECTED_PATH = /^\/(mi-cuenta|checkout)(\/|$)/;
+
+/**
+ * Sin cookie de sesión no se entra en "Mi cuenta" ni en el checkout: redirige al
+ * login guardando la página pedida (con su query, p. ej. el ?token de verificar el
+ * email) para volver a ella tras iniciar sesión. Una cookie caducada la detectan
+ * después RequireCustomer (cuenta) y la propia página de checkout.
+ */
+function redirectToLoginIfAnonymous(request: NextRequest): NextResponse | null {
+    const {pathname, search} = request.nextUrl;
+    const prefix = pathname.match(LOCALE_PREFIX)?.[0] ?? '';
+    const path = pathname.slice(prefix.length) || '/';
+    if (!PROTECTED_PATH.test(path) || request.cookies.has(AUTH_TOKEN_COOKIE)) {
+        return null;
+    }
+    const loginUrl = new URL(`${prefix}/login`, request.url);
+    loginUrl.searchParams.set('redirectTo', `${path}${search}`);
+    return NextResponse.redirect(loginUrl);
+}
+
 export function proxy(request: NextRequest) {
-    const response = middleware(request);
+    const response = redirectToLoginIfAnonymous(request) ?? middleware(request);
     if (process.env.NODE_ENV === 'production') {
         response.headers.set('Content-Security-Policy', buildCsp());
     }

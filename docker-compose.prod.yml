@@ -190,6 +190,8 @@ services:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
         NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME}
         NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
+        # Indicador de entorno de la tienda (EnvironmentBadge): solo se ve en desarrollo.
+        NEXT_PUBLIC_DEPLOY_ENV: ${DEPLOY_ENV:-production}
         VENDURE_SHOP_API_URL: http://vendure-server:3000/shop-api
         VENDURE_CHANNEL_TOKEN: ${VENDURE_CHANNEL_TOKEN}
         API_DOMAIN: ${API_DOMAIN}

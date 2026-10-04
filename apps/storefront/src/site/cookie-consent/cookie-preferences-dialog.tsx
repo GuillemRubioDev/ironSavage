@@ -48,13 +48,16 @@ export function CookiePreferencesDialog() {
 
     return (
         <Dialog open={isPreferencesOpen} onOpenChange={(open) => !open && closePreferences()}>
-            <DialogContent className="sm:max-w-lg">
+            {/* En móvil las tres categorías no caben: el diálogo se limita al alto de la
+                pantalla, con cabecera y botones fijos y la lista desplazable en medio
+                (minmax(0,1fr) deja encoger esa fila por debajo de su contenido). */}
+            <DialogContent className="sm:max-w-lg max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto]">
                 <DialogHeader>
                     <DialogTitle>{t("title")}</DialogTitle>
                     <DialogDescription>{t("description")}</DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-3">
+                <div className="space-y-3 overflow-y-auto overscroll-contain -mx-1 px-1">
                     <ConsentRow title={t("necessary.title")} description={t("necessary.description")} checked disabled />
                     <ConsentRow
                         title={t("analytics.title")}
