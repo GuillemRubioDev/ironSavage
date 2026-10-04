@@ -7,7 +7,8 @@ import {Search} from 'lucide-react';
 import {Input} from '@/components/ui/input';
 import {useTranslations} from 'next-intl';
 
-export function SearchInput() {
+/** `inputClassName` permite adaptar el campo a la zona de marca (cabecera oscura). */
+export function SearchInput({inputClassName}: {inputClassName?: string} = {}) {
     const t = useTranslations('Navigation');
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -32,7 +33,7 @@ export function SearchInput() {
             <Input
                 type="search"
                 placeholder={t('searchProducts')}
-                className="pl-9 w-64 bg-transparent"
+                className={inputClassName ? `pl-9 w-56 xl:w-64 ${inputClassName}` : 'pl-9 w-64 bg-transparent'}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 disabled={isPending}

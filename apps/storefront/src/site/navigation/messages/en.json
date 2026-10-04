@@ -30,6 +30,7 @@
     "skipToContent": "Skip to main content",
     "announcements": "Store announcements",
     "createAccount": "Create account",
-    "accountSignedOutHint": "Sign in to see your profile, orders, invoices and points."
+    "accountSignedOutHint": "Sign in to see your profile, orders, invoices and points.",
+    "cartTotal": "Cart, {count, plural, =0 {empty} one {# item} other {# items}}"
   }
 }

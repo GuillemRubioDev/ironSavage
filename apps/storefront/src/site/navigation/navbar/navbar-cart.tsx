@@ -14,7 +14,12 @@ export async function NavbarCart() {
         tags: ['cart'],
     });
 
-    const cartItemCount = orderResult.data.activeOrder?.totalQuantity || 0;
-
-    return <CartIcon cartItemCount={cartItemCount} />;
+    const order = orderResult.data.activeOrder;
+    return (
+        <CartIcon
+            cartItemCount={order?.totalQuantity || 0}
+            totalWithTax={order?.totalWithTax || 0}
+            currencyCode={order?.currencyCode || 'EUR'}
+        />
+    );
 }
