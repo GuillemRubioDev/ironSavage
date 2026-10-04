@@ -31,6 +31,7 @@
     "announcements": "Avisos de la tienda",
     "createAccount": "Crear cuenta",
     "accountSignedOutHint": "Inicia sesión para ver tu perfil, pedidos, facturas y puntos.",
-    "cartTotal": "Carrito, {count, plural, =0 {vacío} one {# artículo} other {# artículos}}"
+    "cartTotal": "Carrito, {count, plural, =0 {vacío} one {# artículo} other {# artículos}}",
+    "pauseAnnouncements": "Pausar los avisos"
   }
 }

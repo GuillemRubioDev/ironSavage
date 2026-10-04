@@ -12,6 +12,9 @@ import {Suspense} from "react";
 import {getTranslations} from 'next-intl/server';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {SearchInput} from '@/site/navigation/search-input';
+import {Link} from '@/platform/i18n/navigation';
+import {Search} from 'lucide-react';
+import {Button} from '@/components/ui/button';
 import {NavbarUserSkeleton} from '@/site/navigation/skeletons/navbar-user-skeleton';
 import {SearchInputSkeleton} from '@/site/navigation/skeletons/search-input-skeleton';
 
@@ -22,7 +25,7 @@ export async function Navbar() {
     // Zona de marca: siempre oscura y opaca en los dos temas. Los botones fantasma de
     // dentro (idioma, tema, cuenta, menú) se adaptan al fondo oscuro con la regla del header.
     return (
-        <header className="fixed print:hidden top-[var(--top-bar-h)] left-0 right-0 z-40 border-b border-brand-line bg-brand text-brand-fg [&_[data-slot=button]]:text-brand-fg/85 [&_[data-slot=button]:hover]:bg-white/10 [&_[data-slot=button]:hover]:text-brand-fg">
+        <header className="fixed print:hidden top-[var(--top-bar-h)] left-0 right-0 z-40 border-b border-brand-line bg-brand text-brand-fg [&_[data-slot=button]]:text-brand-fg/85 [&_[data-slot=button]:hover]:bg-white/10 [&_[data-slot=button]:hover]:text-brand-fg [&_[data-slot=button][aria-expanded=true]]:bg-white/10 [&_[data-slot=button][aria-expanded=true]]:text-brand-fg [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-white">
             <div className="container mx-auto px-4">
                 <div className="flex items-center h-[var(--header-h)] gap-4">
                     <div className="flex items-center gap-4 shrink-0">
@@ -51,14 +54,24 @@ export async function Navbar() {
                         </Suspense>
                     </nav>
                     <div className="flex items-center gap-3 shrink-0">
-                        {/* Buscador visible desde lg (1024 px): el campo encoge a w-56 hasta xl y la
-                            navegación de colecciones tiene min-w-0 + scroll propio, así ninguno
-                            invade al otro. En móvil el buscador está en el menú lateral. */}
-                        <div className="hidden lg:flex">
+                        {/* Buscador completo desde xl (1280 px); entre lg y xl, un icono a /search para
+                            dejar sitio a las categorías (que además tienen min-w-0 y scroll propio).
+                            En móvil el buscador está en el menú lateral. */}
+                        <div className="hidden xl:flex">
                             <Suspense fallback={<SearchInputSkeleton />}>
                                 <SearchInput inputClassName="border-white/10 bg-brand-surface text-brand-fg placeholder:text-brand-muted"/>
                             </Suspense>
                         </div>
+                        {/* Entre lg y xl el campo no cabe junto a las categorías: icono a /search. */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="hidden lg:flex xl:hidden"
+                            render={<Link href="/search" aria-label={t('search')} />}
+                            nativeButton={false}
+                        >
+                            <Search className="size-5" aria-hidden="true" />
+                        </Button>
                         <div className="hidden lg:flex items-center gap-3">
                             <Suspense>
                                 <LanguagePicker />

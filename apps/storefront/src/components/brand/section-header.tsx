@@ -8,7 +8,8 @@ export function SectionHeader({title, highlight, action, tone = 'content'}: {
     action?: {href: string; label: string};
     tone?: 'content' | 'brand';
 }) {
-    const accent = tone === 'brand' ? 'text-primary-text' : 'text-primary-solid';
+    // text-primary es el rojo de texto de cada tema (AA en claro y en oscuro).
+    const accent = tone === 'brand' ? 'text-primary-text' : 'text-primary';
     return (
         <div className="mb-6 flex items-end justify-between gap-4">
             <h2 className="text-4xl md:text-5xl">

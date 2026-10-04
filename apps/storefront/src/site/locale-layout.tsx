@@ -101,10 +101,10 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
     const tNav = await getTranslations({locale, namespace: 'Navigation'});
 
     return (
-        <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
-            <body
-                className={`${inter.variable} ${barlowCondensed.variable} antialiased flex flex-col min-h-screen`}
-            >
+        // Las variables de fuente van en <html>: los tokens (--font-display, --font-sans…)
+        // se definen en :root y solo se resuelven si la variable existe en ese mismo nivel.
+        <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning className={`${inter.variable} ${barlowCondensed.variable}`}>
+            <body className="antialiased flex flex-col min-h-screen">
                 <EnvironmentBadge />
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>

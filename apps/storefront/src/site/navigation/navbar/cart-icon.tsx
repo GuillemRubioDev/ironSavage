@@ -21,7 +21,7 @@ export function CartIcon({cartItemCount, totalWithTax, currencyCode}: CartIconPr
     return (
         <Link
             href="/carrito"
-            className="press relative inline-flex h-9 items-center gap-2 rounded-lg bg-primary-solid px-3 text-sm font-bold text-primary-foreground hover:bg-[#c50009]"
+            className="press relative inline-flex h-9 items-center gap-2 rounded-lg bg-primary-solid px-3 text-sm font-bold text-primary-foreground hover:bg-[#c50009] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
             <ShoppingCart className="size-4" aria-hidden="true" />
             <span className="hidden font-mono md:inline" aria-hidden="true"><Price value={totalWithTax} currencyCode={currencyCode} /></span>

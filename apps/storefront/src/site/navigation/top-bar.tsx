@@ -18,7 +18,7 @@ export async function TopBar() {
 
     return (
         <aside className="fixed top-0 left-0 right-0 z-50 print:hidden h-[var(--top-bar-h)] bg-primary-solid">
-            <Marquee items={topBarMessages.map(msg => msg.text[locale])} label={t('announcements')} />
+            <Marquee items={topBarMessages.map(msg => msg.text[locale])} label={t('announcements')} pauseLabel={t('pauseAnnouncements')} />
         </aside>
     );
 }
