@@ -118,3 +118,16 @@ test('la portada sigue el orden del spec y sin la sección antigua "por qué"', 
     assert.deepEqual([...idx].sort((a, b) => a - b), idx, 'orden incorrecto');
     assert.doesNotMatch(page, /whyShopWithUs|section-spotlight|featureKeys/);
 });
+
+test('la cabecera tiene un desplegable "Objetivos" que solo aparece si hay objetivos', async () => {
+    const nav = await read('site/navigation/navbar/navbar-collections.tsx');
+    assert.match(nav, /getGoalCollections\(locale\)/);
+    assert.match(nav, /goals\.length > 0 &&/);
+    assert.match(nav, /<NavigationMenuTrigger/);
+    assert.match(nav, /<NavigationMenuContent/);
+    const mobile = await read('site/navigation/navbar/mobile-nav.tsx');
+    assert.match(mobile, /goals\.length > 0 &&/);
+    assert.match(await read('site/navigation/navbar/mobile-nav-wrapper.tsx'), /goals=\{goals\}/);
+    const es = await json('site/navigation/messages/es.json');
+    assert.equal(es.Navigation.goals, 'Objetivos');
+});
