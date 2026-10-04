@@ -11,7 +11,7 @@
 # misma red que un vendure-server ya arrancado y sano, no con un `docker compose
 # build` aislado. Ver la nota «problemas encontrados» del informe de la Fase 15.
 
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/server/package.json apps/server/package.json
@@ -22,7 +22,7 @@ COPY apps/storefront/package.json apps/storefront/package.json
 # el mkdir mantiene válido ese COPY si algún día se suben a la raíz.
 RUN npm ci && mkdir -p apps/storefront/node_modules
 
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
@@ -50,7 +50,7 @@ ENV API_DOMAIN=$API_DOMAIN
 RUN npm run build -w storefront
 
 # ---- runtime (imagen final) ----
-FROM node:20-alpine AS runtime
+FROM node:24-alpine AS runtime
 ENV NODE_ENV=production
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
 WORKDIR /app
