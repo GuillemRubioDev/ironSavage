@@ -35,6 +35,10 @@ ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_SITE_NAME
 # ID de medición de Google Analytics 4 (G-XXXXXXX). Vacío = sin analítica.
 ARG NEXT_PUBLIC_GA_ID
+# Entorno del servidor (DEPLOY_ENV): "development" muestra el indicador "Develop"
+# en la esquina superior izquierda; "production" no muestra nada.
+ARG NEXT_PUBLIC_DEPLOY_ENV=production
+ENV NEXT_PUBLIC_DEPLOY_ENV=$NEXT_PUBLIC_DEPLOY_ENV
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
 ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID

@@ -13,6 +13,8 @@ import {Navbar} from '@/site/navigation/navbar';
 import {Footer} from "@/site/footer";
 import {ThemeProvider} from "@/site/providers/theme-provider";
 import {CookieConsentRoot} from "@/site/cookie-consent/cookie-consent-root";
+import {DisablePinchZoom} from "@/site/app-shell/disable-pinch-zoom";
+import {EnvironmentBadge} from "@/site/app-shell/environment-badge";
 import {DEFAULT_OG_IMAGES, SITE_NAME, SITE_URL} from "@/config/metadata";
 
 // Inter: texto de interfaz y cuerpo muy legible. Oswald: fuente condensada y de trazo
@@ -88,10 +90,15 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
+// Sin zoom con dos dedos: la tienda debe comportarse como una app en el móvil
+// (decisión de producto; ver DisablePinchZoom para Safari de iOS, que ignora
+// userScalable). Ojo: impide ampliar con los dedos (WCAG 1.4.4); el tamaño de texto
+// del sistema o del navegador sigue funcionando.
 export const viewport: Viewport = {
     width: "device-width",
     initialScale: 1,
-    maximumScale: 5,
+    maximumScale: 1,
+    userScalable: false,
     themeColor: [
         {media: "(prefers-color-scheme: light)", color: "#ffffff"},
         {media: "(prefers-color-scheme: dark)", color: "#000000"},
@@ -114,6 +121,8 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
             <body
                 className={`${inter.variable} ${oswald.variable} ${geistMono.variable} ${blackOpsOne.variable} antialiased flex flex-col min-h-screen`}
             >
+                <EnvironmentBadge />
+                <DisablePinchZoom />
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
                         <CookieConsentRoot>
