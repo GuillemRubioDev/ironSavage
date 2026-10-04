@@ -26,7 +26,10 @@
     "copyright": "Iron Savage. Todos los derechos reservados.",
     "aiNotice": "Este sitio se ha desarrollado con ayuda de herramientas de inteligencia artificial.",
     "aiNoticeLink": "Más información",
-    "version": "Versión {version}"
+    "version": "Versión {version}",
+    "shop": "Tienda",
+    "help": "Ayuda",
+    "paymentMethods": "Medios de pago aceptados"
   },
   "ErrorPage": {
     "title": "Algo ha fallado",
