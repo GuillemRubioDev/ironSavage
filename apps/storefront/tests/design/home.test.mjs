@@ -92,3 +92,14 @@ test('el bloque de objetivos aparece solo si existen y enlaza a cada colección'
     const es = await json('site/home/messages/es.json');
     assert.ok(es.Home.goals?.title && es.Home.goals?.highlight && es.Home.goals?.eyebrow);
 });
+
+test('Iron Rewards muestra las cifras de la configuración del programa', async () => {
+    const teaser = await read('features/loyalty/loyalty-teaser.tsx');
+    assert.match(teaser, /getLoyaltyProgramConfig\(\)/);
+    assert.match(teaser, /config\.pointsPerEuro/);
+    assert.match(teaser, /config\.minRedeemablePoints/);
+    assert.match(teaser, /config\.maxDiscountPerOrderCents/);
+    assert.match(teaser, /bg-brand/);
+    const es = await json('features/loyalty/messages/es.json');
+    for (const k of ['earn', 'redeem', 'cap']) assert.ok(es.Loyalty.teaser.stats?.[k], `falta teaser.stats.${k}`);
+});
