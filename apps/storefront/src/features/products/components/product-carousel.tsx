@@ -30,10 +30,10 @@ export function ProductCarousel({title, highlight, action, products}: ProductCar
                     }}
                     className="w-full"
                 >
-                    <CarouselContent className="-ml-2 md:-ml-4">
+                    <CarouselContent className="-ml-2 py-2 md:-ml-4">
                         {products.map((product, i) => (
                             <CarouselItem key={id + i}
-                                          className="hover-lift pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                                          className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                                 <ProductCard product={product}/>
                             </CarouselItem>
                         ))}

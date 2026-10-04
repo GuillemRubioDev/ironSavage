@@ -75,3 +75,16 @@ test('textos nuevos del selector rápido en es y en', async () => {
         }
     }
 });
+
+test('la tarjeta tiene imagen fuera del tabulador, nombre como enlace y Añadir fuera del enlace', async () => {
+    const card = await read('features/products/components/product-card.tsx');
+    assert.match(card, /<article/);
+    assert.match(card, /tabIndex=\{-1\} aria-hidden="true"/);
+    assert.match(card, /<QuickAddButton slug=\{product\.slug\}/);
+    assert.match(card, /hover-lift/);
+    // Sin foto: el nombre en grande, no "Sin imagen".
+    assert.doesNotMatch(card, /t\('noImage'\)/);
+    // El botón no puede ir dentro de un <Link> (interactivo dentro de interactivo).
+    const links = card.split('<Link').slice(1).map(s => s.split('</Link>')[0]);
+    assert.ok(links.every(l => !l.includes('QuickAddButton')));
+});
