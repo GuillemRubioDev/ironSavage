@@ -72,6 +72,11 @@ export const GetProductDetailQuery = graphql(`
                     preview
                     source
                 }
+                assets {
+                    id
+                    preview
+                    source
+                }
                 options {
                     id
                     code
