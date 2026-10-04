@@ -29,5 +29,5 @@ export function NavbarLink({href, ...rest}: ComponentProps<typeof Link>) {
  * para saber el idioma, y la navegación se pinta dentro de un "use cache".
  */
 export function NavbarDropdownLink({href, ...rest}: ComponentProps<typeof Link>) {
-    return <NavigationMenuLink render={<Link href={href} {...rest} />} className="w-full font-medium" />;
+    return <NavigationMenuLink closeOnClick render={<Link href={href} {...rest} />} className="w-full font-medium" />;
 }

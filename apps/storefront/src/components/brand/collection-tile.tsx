@@ -25,7 +25,7 @@ export function CollectionTile({href, name, imageUrl, variant = 'category', inde
             {imageUrl ? (
                 <Image src={imageUrl} alt="" fill className="object-cover" sizes={variant === 'goal' ? '(min-width: 768px) 20vw, 45vw' : '(min-width: 768px) 16vw, 40vw'} />
             ) : (
-                <span aria-hidden="true" className="absolute -right-2 -top-6 font-display text-[9rem] font-black italic leading-none text-white/[.07] transition-transform duration-[var(--dur-slow)] group-hover:scale-110">
+                <span aria-hidden="true" className="absolute -right-2 -top-6 font-display text-[9rem] font-black italic leading-none text-white/20 transition-transform duration-[var(--dur-slow)] group-hover:scale-110">
                     {name.charAt(0)}
                 </span>
             )}

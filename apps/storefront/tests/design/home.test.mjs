@@ -147,3 +147,22 @@ test('"Objetivos" va antes que las categorías y su botón abierto se lee sobre 
     assert.match(nav, /data-popup-open:hover:bg-white\/10/);
     assert.match(nav, /data-open:hover:bg-white\/10/);
 });
+
+// Arreglos de la revisión final de la fase 2.
+test('el degradado del banner con foto de fondo oscurece el lado donde va el texto', async () => {
+    const hero = await read('site/home/hero-banner.tsx');
+    assert.match(hero, /left: 'bg-gradient-to-r from-black\/80/);
+    assert.match(hero, /right: 'bg-gradient-to-l from-black\/80/);
+    assert.match(hero, /center: 'bg-black\/55'/);
+    assert.match(hero, /OVERLAY\[banner\.align\] \?\? OVERLAY\.left/);
+});
+
+test('elegir un objetivo del desplegable lo cierra', async () => {
+    assert.match(await read('site/navigation/navbar/navbar-link.tsx'), /<NavigationMenuLink closeOnClick/);
+});
+
+test('la inicial de las tarjetas sin imagen se ve lo bastante', async () => {
+    const tile = await read('components/brand/collection-tile.tsx');
+    assert.doesNotMatch(tile, /text-white\/\[\.07\]/);
+    assert.match(tile, /text-white\/20/);
+});

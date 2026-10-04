@@ -14,6 +14,13 @@ const ALIGN: Record<string, string> = {
     right: 'items-end text-right ml-auto',
 };
 
+/** Velo sobre la foto de fondo: oscuro en el lado del texto para que el blanco se lea siempre. */
+const OVERLAY: Record<string, string> = {
+    left: 'bg-gradient-to-r from-black/80 via-black/45 to-black/10',
+    right: 'bg-gradient-to-l from-black/80 via-black/45 to-black/10',
+    center: 'bg-black/55',
+};
+
 /** Posición en el escalonado de .stagger (cada hijo entra 60 ms después del anterior). */
 const step = (i: number) => ({'--i': i}) as CSSProperties;
 
@@ -82,13 +89,13 @@ export function HeroBanner({banner, locale, fallback}: {banner: PromoBanner | nu
         );
     }
 
-    // Foto de fondo a todo el ancho con degradado oscuro hacia el lado del texto.
+    // Foto de fondo a todo el ancho con el velo oscuro del lado del texto (OVERLAY).
     return (
         <section className="relative overflow-hidden bg-brand text-brand-fg">
             {banner.image && (
                 <Image src={banner.image.preview} alt="" fill priority sizes="100vw" className="animate-hero-zoom object-cover" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/10" aria-hidden="true" />
+            <div className={cn('absolute inset-0', OVERLAY[banner.align] ?? OVERLAY.left)} aria-hidden="true" />
             <div className="container relative mx-auto flex min-h-[60vh] flex-col justify-center px-4 pb-28 pt-12 md:min-h-[68vh] md:pb-36">
                 {text}
             </div>
