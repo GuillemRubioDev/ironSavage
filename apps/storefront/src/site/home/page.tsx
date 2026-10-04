@@ -8,7 +8,8 @@ import {FeaturedProducts} from '@/features/products/featured-products';
 import {LoyaltyTeaser} from '@/features/loyalty/loyalty-teaser';
 import {LatestNewsSection} from '@/features/news/latest-news-section';
 import {DEFAULT_OG_IMAGES, SITE_NAME, buildCanonicalUrl, localizedPath} from "@/config/metadata";
-import {BadgeCheck, Tag, Zap} from "lucide-react";
+import {BadgeCheck, RotateCcw, ShieldCheck, Star, Tag, Truck, Zap} from "lucide-react";
+import {TrustStrip} from '@/components/brand/trust-strip';
 import {getTranslations} from 'next-intl/server';
 import {toOgLocale} from '@/platform/i18n/locale-utils';
 import {routing} from '@/platform/i18n/routing';
@@ -69,6 +70,15 @@ export default async function Home() {
             <Suspense>
                 <CategoriesShowcase/>
             </Suspense>
+
+            <div className="container mx-auto mt-10 px-4">
+                <TrustStrip items={[
+                    {icon: Truck, title: t('trust.shipping.title'), text: t('trust.shipping.text')},
+                    {icon: ShieldCheck, title: t('trust.payment.title'), text: t('trust.payment.text')},
+                    {icon: RotateCcw, title: t('trust.returns.title'), text: t('trust.returns.text')},
+                    {icon: Star, title: t('trust.points.title'), text: t('trust.points.text')},
+                ]} />
+            </div>
 
             <Suspense>
                 <FeaturedProducts/>

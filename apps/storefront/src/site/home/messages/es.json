@@ -26,6 +26,24 @@
     },
     "categories": {
       "title": "Compra por categoría"
+    },
+    "trust": {
+      "shipping": {
+        "title": "Envío rápido",
+        "text": "Sigue tu pedido desde tu cuenta"
+      },
+      "payment": {
+        "title": "Pago seguro",
+        "text": "Tarjeta con Redsys"
+      },
+      "returns": {
+        "title": "Devolución en 14 días",
+        "text": "Derecho de desistimiento"
+      },
+      "points": {
+        "title": "Iron Rewards",
+        "text": "Puntos en cada pedido"
+      }
     }
   }
 }

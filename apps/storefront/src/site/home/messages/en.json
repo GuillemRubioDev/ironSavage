@@ -26,6 +26,24 @@
     },
     "categories": {
       "title": "Shop by Category"
+    },
+    "trust": {
+      "shipping": {
+        "title": "Fast shipping",
+        "text": "Track your order from your account"
+      },
+      "payment": {
+        "title": "Secure payment",
+        "text": "Card via Redsys"
+      },
+      "returns": {
+        "title": "14-day returns",
+        "text": "Right of withdrawal"
+      },
+      "points": {
+        "title": "Iron Rewards",
+        "text": "Points on every order"
+      }
     }
   }
 }

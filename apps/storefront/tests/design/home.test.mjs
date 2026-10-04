@@ -54,3 +54,22 @@ test('el zoom del banner existe y se anula con reducir movimiento; se retira el 
     }
     assert.doesNotMatch(await read('components/brand/logo.tsx'), /AnimatedWordmark|LogoWordCrop/);
 });
+
+test('las tarjetas de colección usan imagen o, si no hay, una inicial grande', async () => {
+    const tile = await read('components/brand/collection-tile.tsx');
+    assert.match(tile, /export function CollectionTile\b/);
+    assert.match(tile, /imageUrl \?/);
+    assert.match(tile, /name\.charAt\(0\)/);
+    assert.match(tile, /img-zoom/);
+    assert.doesNotMatch(tile, /from '@\/(site|features)\//);
+});
+
+test('las categorías se superponen al borde del banner y la portada muestra la franja de confianza', async () => {
+    const cats = await read('site/home/categories-showcase.tsx');
+    assert.match(cats, /<CollectionTile/);
+    assert.match(cats, /-mt-20 md:-mt-24/);
+    const page = await read('site/home/page.tsx');
+    assert.match(page, /<TrustStrip/);
+    const es = await json('site/home/messages/es.json');
+    assert.deepEqual(Object.keys(es.Home.trust ?? {}), ['shipping', 'payment', 'returns', 'points']);
+});
