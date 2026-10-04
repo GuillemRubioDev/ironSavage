@@ -30,13 +30,13 @@ export async function generateMetadata({
 
 export default async function SearchPage({searchParams}: PageProps<'/[locale]/search'>) {
     return (
-        <div className="container mx-auto px-4 py-8">
+        <>
             <Suspense fallback={<SearchTermSkeleton/>}>
                 <SearchTerm searchParams={searchParams}/>
             </Suspense>
             <Suspense fallback={<SearchResultsSkeleton />}>
                 <SearchResults searchParams={searchParams}/>
             </Suspense>
-        </div>
+        </>
     );
 }

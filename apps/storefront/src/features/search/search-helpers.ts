@@ -51,3 +51,15 @@ export function buildSearchInput({ searchParams, collectionSlug }: BuildSearchIn
 export function getCurrentPage(searchParams: { [key: string]: string | string[] | undefined }): number {
     return Number(searchParams.page) || 1;
 }
+
+/**
+ * Query de un listado con esta lista de filtros. Quita `page`, porque cambiar los
+ * filtros vuelve a la página 1, y conserva el resto (búsqueda, orden).
+ */
+export function withFacets(params: URLSearchParams, facetIds: string[]): string {
+    const next = new URLSearchParams(params);
+    next.delete('facets');
+    next.delete('page');
+    facetIds.forEach(id => next.append('facets', id));
+    return next.toString();
+}

@@ -9,7 +9,10 @@
   "Filters": {
     "title": "Filtros",
     "clearAll": "Borrar todo",
-    "filtersButton": "Filtros"
+    "filtersButton": "Filtros",
+    "showResults": "{count, plural, one {Ver # producto} other {Ver # productos}}",
+    "removeFilter": "Quitar filtro: {name}",
+    "activeFilters": "Filtros activos"
   },
   "Search": {
     "title": "Buscar",
@@ -17,6 +20,7 @@
     "resultsFor": "Resultados de búsqueda para \"{query}\"",
     "resultsTitle": "Resultados de búsqueda para \"{query}\"",
     "metaDescription": "Encuentra productos que coincidan con \"{query}\" en {siteName}",
-    "metaCatalogDescription": "Busca en nuestro catálogo de productos en {siteName}"
+    "metaCatalogDescription": "Busca en nuestro catálogo de productos en {siteName}",
+    "home": "Inicio"
   }
 }

@@ -1,22 +1,13 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Link } from '@/platform/i18n/navigation';
 import { query } from '@/platform/vendure/api';
 import {SearchProductsQuery} from '@/features/search/graphql';
 import {GetCollectionProductsQuery} from '@/features/collections/graphql';
-import {ProductGrid} from '@/features/products/product-grid';
-import {FacetFilters} from '@/features/search/facet-filters';
-import {ProductGridSkeleton} from '@/features/products/product-grid-skeleton';
+import {ProductCount} from '@/features/products/product-grid';
+import {ListingHeader} from '@/features/products/listing-header';
+import {CatalogResults} from '@/features/search/catalog-results';
 import { buildSearchInput, getCurrentPage } from '@/features/search/search-helpers';
 import { cacheLife, cacheTag } from 'next/cache';
-import {
-    Breadcrumb,
-    BreadcrumbList,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
 import { routing } from '@/platform/i18n/routing';
 import {
     SITE_NAME,
@@ -123,41 +114,14 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
     const collectionName = collection?.name ?? slug;
 
     return (
-        <div>
-            <div className="container mx-auto px-4 py-8">
-                {/* Migas de pan */}
-                <Breadcrumb className="mb-6">
-                    <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink render={<Link href="/" />}>{t('home')}</BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>{collectionName}</BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
-
-                <div className="mb-8">
-                    <h1 className="text-display text-3xl md:text-4xl font-bold">{collectionName}</h1>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Barra lateral de filtros */}
-                <aside className="lg:col-span-1">
-                    <Suspense fallback={<div className="h-64 animate-pulse bg-muted rounded-lg" />}>
-                        <FacetFilters productDataPromise={productDataPromise} />
-                    </Suspense>
-                </aside>
-
-                {/* Rejilla de productos */}
-                <div className="lg:col-span-3">
-                    <Suspense fallback={<ProductGridSkeleton />}>
-                        <ProductGrid productDataPromise={productDataPromise} currentPage={page} take={12} />
-                    </Suspense>
-                </div>
-                </div>
-            </div>
-        </div>
+        <>
+            <ListingHeader
+                crumbs={[{label: t('home'), href: '/'}, {label: collectionName}]}
+                title={collectionName}
+                watermark={collectionName.charAt(0)}
+                count={<Suspense fallback={null}><ProductCount productDataPromise={productDataPromise} /></Suspense>}
+            />
+            <CatalogResults productDataPromise={productDataPromise} currentPage={page} />
+        </>
     );
 }

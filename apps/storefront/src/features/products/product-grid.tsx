@@ -8,6 +8,7 @@ import {filterVisibleProducts} from '@/features/products/visibility';
 import {getCollectionsMap} from '@/features/collections/data';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
+import {ActiveFilters} from '@/features/search/active-filters';
 
 interface ProductGridProps {
     productDataPromise: Promise<{
@@ -16,19 +17,38 @@ interface ProductGridProps {
     }>;
     currentPage: number;
     take: number;
+    /** Muestra el nº de productos en la barra (la búsqueda; los otros listados lo llevan en la franja). */
+    showCount?: boolean;
 }
 
-export async function ProductGrid({productDataPromise, currentPage, take}: ProductGridProps) {
+type SearchResult = ResultOf<typeof SearchProductsQuery>['search'];
+
+/** Productos visibles y su total: los ocultos en la tienda (visibleInStorefront) no cuentan. */
+async function countVisible(searchResult: SearchResult) {
+    const visibleItems = await filterVisibleProducts(searchResult.items);
+    const totalItems = searchResult.totalItems - (searchResult.items.length - visibleItems.length);
+    return {visibleItems, totalItems};
+}
+
+/** Nº de productos del listado, para la franja oscura (va dentro de su propio Suspense). */
+export async function ProductCount({productDataPromise}: Pick<ProductGridProps, 'productDataPromise'>) {
+    const locale = await getRouteLocale();
+    const t = await getTranslations({locale, namespace: 'Product'});
+    const result = await productDataPromise;
+    const {totalItems} = await countVisible(result.data.search);
+    return <>{t('productCount', {count: totalItems})}</>;
+}
+
+export async function ProductGrid({productDataPromise, currentPage, take, showCount = false}: ProductGridProps) {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Product'});
     const result = await productDataPromise;
 
     const searchResult = result.data.search;
-    const [visibleItems, collectionsMap] = await Promise.all([
-        filterVisibleProducts(searchResult.items),
+    const [{visibleItems, totalItems}, collectionsMap] = await Promise.all([
+        countVisible(searchResult),
         getCollectionsMap(locale),
     ]);
-    const totalItems = searchResult.totalItems - (searchResult.items.length - visibleItems.length);
     const totalPages = Math.ceil(totalItems / take);
 
     if (!visibleItems.length) {
@@ -41,14 +61,15 @@ export async function ProductGrid({productDataPromise, currentPage, take}: Produ
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                    {t('productCount', {count: totalItems})}
-                </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                    {showCount && <p className="text-sm text-muted-foreground">{t('productCount', {count: totalItems})}</p>}
+                    <ActiveFilters facetValues={searchResult.facetValues.map(f => ({id: f.facetValue.id, name: f.facetValue.name}))} />
+                </div>
                 <SortDropdown/>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-3">
                 {visibleItems.map((product, i) => {
                     const {collectionIds} = readFragment(ProductCardFragment, product);
                     // Un producto también está en colecciones de objetivos (Ganar músculo…): la

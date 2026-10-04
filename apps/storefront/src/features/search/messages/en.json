@@ -9,7 +9,10 @@
   "Filters": {
     "title": "Filters",
     "clearAll": "Clear all",
-    "filtersButton": "Filters"
+    "filtersButton": "Filters",
+    "showResults": "{count, plural, one {Show # product} other {Show # products}}",
+    "removeFilter": "Remove filter: {name}",
+    "activeFilters": "Active filters"
   },
   "Search": {
     "title": "Search",
@@ -17,6 +20,7 @@
     "resultsFor": "Search results for \"{query}\"",
     "resultsTitle": "Search results for \"{query}\"",
     "metaDescription": "Find products matching \"{query}\" at {siteName}",
-    "metaCatalogDescription": "Search our product catalog at {siteName}"
+    "metaCatalogDescription": "Search our product catalog at {siteName}",
+    "home": "Home"
   }
 }
