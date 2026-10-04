@@ -2,8 +2,9 @@
   "News": {
     "pageTitle": "News",
     "metaDescription": "The latest news and updates from {siteName}.",
-    "homeTitle": "Latest News",
-    "viewAll": "View all news",
+    "homeTitle": "Latest",
+    "homeHighlight": "news",
+    "viewAll": "View all",
     "noArticles": "No news yet — check back soon.",
     "readMore": "Read more",
     "backToNews": "Back to news",

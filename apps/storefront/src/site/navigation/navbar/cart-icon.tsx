@@ -1,27 +1,36 @@
 'use client';
 
-import {ShoppingCart} from "lucide-react";
-import {Button} from "@/components/ui/button";
-import { Link } from '@/platform/i18n/navigation';
+import {ShoppingCart} from 'lucide-react';
+import {Link} from '@/platform/i18n/navigation';
 import {useTranslations} from 'next-intl';
-
+import {Price} from '@/features/pricing/price';
 
 interface CartIconProps {
     cartItemCount: number;
+    totalWithTax: number;
+    currencyCode: string;
 }
 
-export function CartIcon({cartItemCount}: CartIconProps) {
+/**
+ * Carrito de la cabecera: icono, nº de artículos e importe (el importe desde md).
+ * `key={cartItemCount}` reinicia la animación pop-in del contador cada vez que cambia:
+ * es el "salto" del carrito al añadir un producto.
+ */
+export function CartIcon({cartItemCount, totalWithTax, currencyCode}: CartIconProps) {
     const t = useTranslations('Navigation');
     return (
-        <Button render={<Link href="/carrito" />} nativeButton={false} variant="ghost" size="icon" className="relative">
-            <ShoppingCart className="h-5 w-5"/>
+        <Link
+            href="/carrito"
+            className="press relative inline-flex h-9 items-center gap-2 rounded-lg bg-primary-solid px-3 text-sm font-bold text-primary-foreground hover:bg-[#c50009] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+            <ShoppingCart className="size-4" aria-hidden="true" />
+            <span className="hidden font-mono md:inline" aria-hidden="true"><Price value={totalWithTax} currencyCode={currencyCode} /></span>
             {cartItemCount > 0 && (
-                <span
-                    className="absolute -top-1 -right-1 bg-primary-solid text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <span key={cartItemCount} aria-hidden="true" className="animate-pop-in grid size-5 place-items-center rounded-full bg-white text-[11px] text-primary-solid">
                     {cartItemCount}
                 </span>
             )}
-            <span className="sr-only">{t('shoppingCart')}</span>
-        </Button>
+            <span className="sr-only">{t('cartTotal', {count: cartItemCount})}</span>
+        </Link>
     );
 }

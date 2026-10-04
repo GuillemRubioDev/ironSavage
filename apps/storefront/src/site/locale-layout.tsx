@@ -1,9 +1,10 @@
 import type {Metadata, Viewport} from "next";
 import {locale as rootLocale} from "next/root-params";
 import {hasLocale, NextIntlClientProvider} from "next-intl";
-import {Black_Ops_One, Geist_Mono, Inter, Oswald} from "next/font/google";
+import {Barlow_Condensed, Inter} from "next/font/google";
 import {getMessages, getTranslations, setRequestLocale} from "next-intl/server";
 import {notFound} from "next/navigation";
+import {ViewTransition} from "react";
 import {routing} from "@/platform/i18n/routing";
 import {toOgLocale} from "@/platform/i18n/locale-utils";
 import {getRouteLocale} from "@/platform/i18n/server";
@@ -17,33 +18,18 @@ import {EnvironmentBadge} from "@/site/app-shell/environment-badge";
 import {AppFreshness} from "@/site/app-shell/app-freshness";
 import {DEFAULT_OG_IMAGES, SITE_NAME, SITE_URL} from "@/config/metadata";
 
-// Inter: texto de interfaz y cuerpo muy legible. Oswald: fuente condensada y de trazo
-// grueso para títulos, la «voz deportiva» de la marca; nunca para el texto normal (ver
-// las reglas `.text-display`/`h1..h6` en globals.css).
+// Inter: texto de interfaz, cuerpo y precios (con cifras tabulares).
 const inter = Inter({
     variable: "--font-inter",
     subsets: ["latin"],
 });
 
-const oswald = Oswald({
-    variable: "--font-oswald",
+// Barlow Condensed cursiva: titulares, nombres de producto y cifras grandes de marca.
+const barlowCondensed = Barlow_Condensed({
+    variable: "--font-barlow-condensed",
     subsets: ["latin"],
-    weight: ["400", "500", "600", "700"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
-
-// Fuente gruesa de estarcido militar, con remates angulosos parecidos a las letras del
-// logo real de IRON SAVAGE. Solo para el «ENTRENA» de la portada
-// (site/home/promo-carousel.tsx), nunca como fuente de títulos general: Oswald sigue
-// siendo la «voz deportiva» de los títulos normales.
-const blackOpsOne = Black_Ops_One({
-    variable: "--font-brand-display",
-    subsets: ["latin"],
-    weight: "400",
+    weight: ["700", "800", "900"],
+    style: ["italic"],
 });
 
 export function generateStaticParams() {
@@ -115,10 +101,10 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
     const tNav = await getTranslations({locale, namespace: 'Navigation'});
 
     return (
-        <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
-            <body
-                className={`${inter.variable} ${oswald.variable} ${geistMono.variable} ${blackOpsOne.variable} antialiased flex flex-col min-h-screen`}
-            >
+        // Las variables de fuente van en <html>: los tokens (--font-display, --font-sans…)
+        // se definen en :root y solo se resuelven si la variable existe en ese mismo nivel.
+        <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning className={`${inter.variable} ${barlowCondensed.variable}`}>
+            <body className="antialiased flex flex-col min-h-screen">
                 <EnvironmentBadge />
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
@@ -138,7 +124,8 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                                 debajo de la cabecera, sin compensaciones por página. Ver
                                 --header-offset en globals.css. */}
                             <main id="main-content" tabIndex={-1} className="flex-1 pt-[var(--header-offset)] print:pt-0 focus:outline-none">
-                                {children}
+                                {/* Fundido entre páginas en navegadores que lo soportan; ver ::view-transition en globals.css. */}
+                                <ViewTransition>{children}</ViewTransition>
                             </main>
                             <Footer/>
                             <Toaster/>

@@ -15,13 +15,19 @@
     "pointsDescription": "Description",
     "pointsAmount": "Points",
     "teaser": {
-      "title": "Iron Rewards",
+      "titleLead": "Iron",
+      "titleHighlight": "Rewards",
       "description": "Earn points on every order and redeem them for discounts on your next one.",
       "balanceLabel": "Your balance",
       "pointsSuffix": "pts",
       "cta": "View my points",
       "signedOutCta": "Sign in to start earning",
-      "guestDescription": "Create an account to start earning points on every order."
+      "guestDescription": "Create an account to start earning points on every order.",
+      "stats": {
+        "earn": "point per euro spent",
+        "redeem": "points = {amount} off",
+        "cap": "maximum discount per order"
+      }
     },
     "pointsTypeAthleteReward": "Athlete reward",
     "pointsTypeAthleteRewardReversal": "Reward reversed",

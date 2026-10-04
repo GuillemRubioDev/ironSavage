@@ -65,3 +65,22 @@ export const GetCollectionProductsQuery = graphql(`
         }
     }
 `, [ProductCardFragment]);
+
+// Colecciones de objetivo (las crea el seed de objetivos con slug `objetivo-<código>`).
+// Se buscan por el prefijo del slug: la colección padre «Objetivos» es privada y no
+// sale en la Shop API, así que filtrar por parentId no serviría.
+export const GetGoalCollectionsQuery = graphql(`
+    query GetGoalCollections {
+        collections(options: { filter: { slug: { contains: "objetivo-" } }, take: 20 }) {
+            items {
+                id
+                name
+                slug
+                position
+                featuredAsset {
+                    preview
+                }
+            }
+        }
+    }
+`);

@@ -1,7 +1,7 @@
 import {ReactNode} from 'react';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {cacheLife, cacheTag} from 'next/cache';
-import {getTopCollections} from '@/features/collections/data';
+import {getGoalCollections, getTopCollections} from '@/features/collections/data';
 import {MobileNav} from '@/site/navigation/navbar/mobile-nav';
 
 /**
@@ -18,9 +18,10 @@ export async function MobileNavWrapper({currencyPicker, accountLinks}: {currency
 
     const locale = await getRouteLocale();
     cacheTag(`mobile-nav-${locale}`);
+    cacheTag(`goal-collections-${locale}`);
     cacheTag('collections');
 
-    const collections = await getTopCollections(locale);
+    const [collections, goals] = await Promise.all([getTopCollections(locale), getGoalCollections(locale)]);
 
-    return <MobileNav collections={collections} currencyPicker={currencyPicker} accountLinks={accountLinks} />;
+    return <MobileNav collections={collections} goals={goals} currencyPicker={currencyPicker} accountLinks={accountLinks} />;
 }

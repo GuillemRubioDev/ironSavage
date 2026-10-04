@@ -25,6 +25,8 @@ interface Collection {
 
 interface MobileNavProps {
     collections: Collection[];
+    /** Colecciones de objetivo (seed); vacío si la tienda no las tiene. */
+    goals: Collection[];
     /** Se renderiza en el servidor (necesita las monedas de la tienda): se pasa como prop
      * en vez de importarse, porque este es un componente de cliente. */
     currencyPicker?: ReactNode;
@@ -32,7 +34,7 @@ interface MobileNavProps {
     accountLinks?: ReactNode;
 }
 
-export function MobileNav({collections, currencyPicker, accountLinks}: MobileNavProps) {
+export function MobileNav({collections, goals, currencyPicker, accountLinks}: MobileNavProps) {
     const t = useTranslations('Navigation');
     const [open, setOpen] = useState(false);
     const [searchValue, setSearchValue] = useState('');
@@ -127,6 +129,32 @@ export function MobileNav({collections, currencyPicker, accountLinks}: MobileNav
                                         onClick={handleLinkClick}
                                     >
                                         {collection.name}
+                                    </SheetClose>
+                                ))}
+                            </nav>
+                        </div>
+                    )}
+
+                    {/* Objetivos */}
+                    {goals.length > 0 && (
+                        <div>
+                            <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                {t('goals')}
+                            </p>
+                            <nav aria-label={t('goals')} className="flex flex-col gap-0.5">
+                                {goals.map((goal) => (
+                                    <SheetClose
+                                        key={goal.slug}
+                                        render={
+                                            <Link
+                                                href={`/categorias/${goal.slug}`}
+                                                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                                            />
+                                        }
+                                        nativeButton={false}
+                                        onClick={handleLinkClick}
+                                    >
+                                        {goal.name}
                                     </SheetClose>
                                 ))}
                             </nav>

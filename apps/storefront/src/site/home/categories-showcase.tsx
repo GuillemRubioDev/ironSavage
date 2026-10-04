@@ -1,9 +1,14 @@
-import Image from 'next/image';
+import type {CSSProperties} from 'react';
 import {getTranslations} from 'next-intl/server';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTopCollectionsWithImages} from '@/features/collections/data';
-import {Link} from '@/platform/i18n/navigation';
+import {CollectionTile} from '@/components/brand/collection-tile';
 
+/**
+ * Fila de categorías superpuesta al borde inferior del banner de portada (el banner
+ * deja el hueco con su relleno inferior). El titular queda solo para lectores de
+ * pantalla: visualmente la fila va pegada al banner.
+ */
 export async function CategoriesShowcase() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Home.categories'});
@@ -12,51 +17,17 @@ export async function CategoriesShowcase() {
     if (!collections.length) return null;
 
     return (
-        <section className="py-16 md:py-24">
+        <section aria-labelledby="home-categories" className="relative z-10 -mt-20 md:-mt-24">
             <div className="container mx-auto px-4">
-                <h2 className="text-display text-2xl md:text-4xl font-bold mb-8 md:mb-12">
-                    {t('title')}
-                </h2>
-                {/* Móvil: fila con desplazamiento horizontal, no una rejilla apretada; cada
-                    elemento se ve como una tarjeta, no como una celda de escritorio
-                    encogida. Escritorio: rejilla de 3 columnas, elegida a propósito (no 4)
-                    para que un número de colecciones múltiplo de 3 llene las filas sin
-                    dejar una a medias (hoy la tienda tiene exactamente 6). */}
-                <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none">
-                    {collections.slice(0, 9).map((collection) => (
-                        <Link
-                            key={collection.id}
-                            href={`/categorias/${collection.slug}`}
-                            className="group relative aspect-[4/5] shrink-0 w-[68vw] sm:w-[42vw] md:w-auto snap-start overflow-hidden rounded-lg bg-muted"
-                        >
-                            {collection.imageUrl ? (
-                                <Image
-                                    src={collection.imageUrl}
-                                    alt={collection.name}
-                                    fill
-                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                    sizes="(max-width: 768px) 70vw, 33vw"
-                                />
-                            ) : (
-                                // Ni imagen de colección ni producto con imagen: una imagen de
-                                // marca en vez de una caja rota o vacía.
-                                <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.13_0.004_260)] via-secondary to-[oklch(0.577_0.245_27.325_/_35%)]" />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
-                            <div className="absolute inset-x-0 bottom-0 p-5 flex items-center justify-between gap-2">
-                                <span className="font-display font-semibold uppercase tracking-tight text-white text-lg leading-tight">
-                                    {collection.name}
-                                </span>
-                                <span
-                                    aria-hidden="true"
-                                    className="shrink-0 text-white/70 transition-all duration-300 group-hover:text-primary group-hover:translate-x-0.5"
-                                >
-                                    →
-                                </span>
-                            </div>
-                        </Link>
+                <h2 id="home-categories" className="sr-only">{t('title')}</h2>
+                {/* Móvil: fila con desplazamiento horizontal; escritorio: una fila de 6. */}
+                <ul className="stagger -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 scrollbar-none md:mx-0 md:grid md:grid-cols-6 md:gap-4 md:overflow-visible md:px-0">
+                    {collections.slice(0, 6).map((collection, i) => (
+                        <li key={collection.id} style={{'--i': i} as CSSProperties} className="w-[40vw] shrink-0 snap-start sm:w-[28vw] md:w-auto">
+                            <CollectionTile href={`/categorias/${collection.slug}`} name={collection.name} imageUrl={collection.imageUrl} />
+                        </li>
                     ))}
-                </div>
+                </ul>
             </div>
         </section>
     );

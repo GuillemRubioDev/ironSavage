@@ -3,38 +3,37 @@
     "title": "Train",
     "titleHighlight": "Savage",
     "subtitle": "Premium sports supplementation for athletes who train hard and recover harder.",
-    "shopNow": "Shop Now",
-    "viewCollections": "View Collections"
+    "shopNow": "Shop Now"
   },
   "Home": {
     "pageTitle": "Premium Sports Supplements",
     "description": "Iron Savage: premium sports supplementation for athletes who train hard. Protein, creatine, pre-workout and recovery, backed by real quality.",
     "ogDescription": "Premium sports supplementation for athletes who train hard and recover harder.",
-    "whyShopWithUs": "Why Train With Iron Savage",
-    "features": {
-      "highQuality": {
-        "title": "Rigorous Quality",
-        "description": "Every batch selected for purity and performance — no shortcuts."
-      },
-      "bestPrices": {
-        "title": "Fair Prices",
-        "description": "Premium supplementation without the premium markup."
-      },
-      "fastDelivery": {
-        "title": "Fast Delivery",
-        "description": "Your order shipped quickly, so your training never waits."
-      }
-    },
     "categories": {
       "title": "Shop by Category"
     },
-    "carousel": {
-      "regionLabel": "Promotional carousel",
-      "goToSlide": "Go to slide {number}",
-      "pause": "Pause carousel",
-      "play": "Play carousel",
-      "previous": "Previous slide",
-      "next": "Next slide"
+    "trust": {
+      "shipping": {
+        "title": "Fast shipping",
+        "text": "Track your order from your account"
+      },
+      "payment": {
+        "title": "Secure payment",
+        "text": "Card via Redsys"
+      },
+      "returns": {
+        "title": "14-day returns",
+        "text": "Right of withdrawal"
+      },
+      "points": {
+        "title": "Iron Rewards",
+        "text": "Points on every order"
+      }
+    },
+    "goals": {
+      "eyebrow": "Shop by goal",
+      "title": "What's your",
+      "highlight": "goal?"
     }
   }
 }

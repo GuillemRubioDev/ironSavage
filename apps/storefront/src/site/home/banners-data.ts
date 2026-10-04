@@ -1,7 +1,21 @@
 import {cacheLife, cacheTag} from 'next/cache';
 import {query} from '@/platform/vendure/api';
 import {GetActiveBannersQuery} from './banners-graphql';
-import type {PromoBanner} from './promo-carousel';
+
+/** Banner de portada tal como lo devuelve `activeBanners` (Marketing → Banners de portada). */
+export interface PromoBanner {
+    id: string;
+    titleEs: string;
+    titleEn: string;
+    subtitleEs?: string | null;
+    subtitleEn?: string | null;
+    ctaLabelEs: string;
+    ctaLabelEn: string;
+    href: string;
+    align: string;
+    imageLayout: string;
+    image?: {preview: string} | null;
+}
 
 export async function getActiveBanners(): Promise<PromoBanner[]> {
     'use cache';

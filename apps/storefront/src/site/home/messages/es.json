@@ -3,38 +3,37 @@
     "title": "Entrena",
     "titleHighlight": "Savage",
     "subtitle": "Suplementación deportiva premium para atletas que entrenan duro y se recuperan más duro todavía.",
-    "shopNow": "Comprar ahora",
-    "viewCollections": "Ver categorías"
+    "shopNow": "Comprar ahora"
   },
   "Home": {
     "pageTitle": "Suplementación deportiva premium",
     "description": "Iron Savage: suplementación deportiva premium para atletas que entrenan duro. Proteína, creatina, pre-entreno y recuperación, con calidad real.",
     "ogDescription": "Suplementación deportiva premium para atletas que entrenan duro y se recuperan más duro todavía.",
-    "whyShopWithUs": "Por qué entrenar con Iron Savage",
-    "features": {
-      "highQuality": {
-        "title": "Calidad rigurosa",
-        "description": "Cada lote seleccionado por pureza y rendimiento — sin atajos."
-      },
-      "bestPrices": {
-        "title": "Precios justos",
-        "description": "Suplementación premium sin el sobreprecio premium."
-      },
-      "fastDelivery": {
-        "title": "Entrega rápida",
-        "description": "Tu pedido enviado rápido, para que tu entrenamiento no espere."
-      }
-    },
     "categories": {
       "title": "Compra por categoría"
     },
-    "carousel": {
-      "regionLabel": "Carrusel promocional",
-      "goToSlide": "Ir a la diapositiva {number}",
-      "pause": "Pausar carrusel",
-      "play": "Reproducir carrusel",
-      "previous": "Diapositiva anterior",
-      "next": "Diapositiva siguiente"
+    "trust": {
+      "shipping": {
+        "title": "Envío rápido",
+        "text": "Sigue tu pedido desde tu cuenta"
+      },
+      "payment": {
+        "title": "Pago seguro",
+        "text": "Tarjeta con Redsys"
+      },
+      "returns": {
+        "title": "Devolución en 14 días",
+        "text": "Derecho de desistimiento"
+      },
+      "points": {
+        "title": "Iron Rewards",
+        "text": "Puntos en cada pedido"
+      }
+    },
+    "goals": {
+      "eyebrow": "Compra por objetivo",
+      "title": "¿Cuál es tu",
+      "highlight": "objetivo?"
     }
   }
 }

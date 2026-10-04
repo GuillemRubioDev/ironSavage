@@ -26,7 +26,10 @@
     "copyright": "Iron Savage. All rights reserved.",
     "aiNotice": "This site was built with the help of artificial intelligence tools.",
     "aiNoticeLink": "Learn more",
-    "version": "Version {version}"
+    "version": "Version {version}",
+    "shop": "Shop",
+    "help": "Help",
+    "paymentMethods": "Accepted payment methods"
   },
   "ErrorPage": {
     "title": "Something went wrong",

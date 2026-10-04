@@ -19,8 +19,18 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
-  --font-display: var(--font-oswald);
-  --font-mono: var(--font-geist-mono);
+  /* Titulares: Barlow Condensed cursiva (ver la regla de h1–h6 y .text-display). */
+  --font-display: var(--font-barlow-condensed);
+  /* Antes Geist Mono para precios: ahora Inter con cifras tabulares (ver .font-mono). */
+  --font-mono: var(--font-inter);
+  /* Zona de MARCA: siempre oscura (cabecera, portada, bloques de marca, pie). */
+  --color-brand: var(--brand);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-line: var(--brand-line);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-muted: var(--brand-muted);
+  /* Rojo para TEXTO sobre fondo oscuro (el rojo de fondo con texto blanco es --primary-solid). */
+  --color-primary-text: var(--primary-text);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -68,10 +78,11 @@
 }
 
 :root {
-  /* Algo más cerrado que el valor por defecto de shadcn (0.5rem): un borde más
-     anguloso e industrial que encaja mejor con el logo condensado y de esquinas
-     cortadas que una esquina redondeada suave de estilo SaaS. */
-  --radius: 0.375rem;
+  /* Radio base del rediseño: 8 px en controles (rounded-lg) y 12 px en tarjetas
+     (rounded-xl). Más suave que antes, como las tiendas de referencia, pero sin
+     llegar al redondeo de estilo SaaS. */
+  --radius: 0.5rem;
+
 
   /*
    * Medidas centralizadas de la cabecera fija: la única fuente de verdad de la
@@ -100,9 +111,9 @@
   --primary-foreground: oklch(0.99 0 0);
 
   /* Superficies gris metálico. */
-  --secondary: oklch(0.95 0.003 260);
+  --secondary: #f3f3f4;
   --secondary-foreground: oklch(0.2 0.006 260);
-  --muted: oklch(0.96 0.003 260);
+  --muted: #f3f3f4;
   --muted-foreground: oklch(0.5 0.008 260);
   --accent: oklch(0.95 0.003 260);
   --accent-foreground: oklch(0.2 0.006 260);
@@ -132,15 +143,31 @@
   --sidebar-accent-foreground: oklch(0.2 0.006 260);
   --sidebar-border: oklch(0.9 0.004 260);
   --sidebar-ring: oklch(0.577 0.245 27.325 / 60%);
+
+  /* Zona de marca (igual en claro y en oscuro). */
+  --brand: #0b0b0c;
+  --brand-surface: #17181b;
+  --brand-line: rgb(255 255 255 / 8%);
+  --brand-fg: #ffffff;
+  --brand-muted: #a1a1a7;
+  --primary-text: #ff4d4d;
+
+  /* Movimiento: curvas y duraciones comunes. */
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-spring: cubic-bezier(.3, 1.6, .5, 1);
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --dur-hero: 600ms;
 }
 
 .dark {
   /* Fondo negro profundo y superficies grafito/antracita: el aspecto principal de
      la marca. */
-  --background: oklch(0.13 0.004 260);
+  --background: #0f1012;
   --foreground: oklch(0.97 0.002 260);
 
-  --card: oklch(0.19 0.006 260);
+  --card: #1a1b1e;
   --card-foreground: oklch(0.97 0.002 260);
   --popover: oklch(0.19 0.006 260);
   --popover-foreground: oklch(0.97 0.002 260);
@@ -182,6 +209,14 @@
   --sidebar-accent-foreground: oklch(0.97 0.002 260);
   --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: oklch(0.63 0.23 27.325 / 65%);
+
+  /* Zona de marca (igual en claro y en oscuro). */
+  --brand: #0b0b0c;
+  --brand-surface: #17181b;
+  --brand-line: rgb(255 255 255 / 8%);
+  --brand-fg: #ffffff;
+  --brand-muted: #a1a1a7;
+  --primary-text: #ff4d4d;
 }
 
 /* TopBar muestra una sola línea en móvil y varios mensajes en fila a partir de md
@@ -209,6 +244,10 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: .92;
   }
 }
 
@@ -217,8 +256,15 @@
      títulos de portada y secciones. Nunca se usa en el texto normal ni en la interfaz. */
   .text-display {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    font-style: italic;
+    font-weight: 800;
+    letter-spacing: -0.005em;
+    line-height: .92;
     text-transform: uppercase;
+  }
+  /* Precios y cifras: Inter con números del mismo ancho (las columnas cuadran). */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
   }
 
   /* Para las filas con desplazamiento horizontal en móvil (categorías, etc.): el
@@ -273,149 +319,48 @@
   }
 }
 
-/* Letras del título de portada que van «apareciendo»: cada letra es su propio
-   span, escalonado con un animation-delay en línea que pone el componente. Se
-   ejecuta una sola vez, así que no se condiciona, igual que .animate-fade-up de
-   arriba (WCAG acepta animaciones de entrada cortas que no se repiten; solo el
-   brillo en bucle de abajo se condiciona). */
-@keyframes letter-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.4em) rotateX(-40deg);
-    filter: blur(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) rotateX(0);
-    filter: blur(0);
-  }
+/* --- Movimiento (Fase 1 del rediseño) --- */
+/* Reveal: el script pone data-reveal="pending" (oculto) y luego "visible". */
+.reveal {
+  transition: opacity var(--dur-slow) var(--ease-out) var(--reveal-delay, 0ms),
+              transform var(--dur-slow) var(--ease-out) var(--reveal-delay, 0ms);
+}
+[data-reveal="pending"] { opacity: 0; transform: translateY(16px); }
+[data-reveal="visible"] { opacity: 1; transform: none; }
+
+/* Escalonado: cada hijo lleva style="--i: n". */
+.stagger > * { animation: fade-up var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 60ms); }
+
+/* Tarjetas y bloques que se elevan al pasar el ratón (solo con puntero fino). */
+@media (hover: hover) {
+  .hover-lift { transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+  .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgb(0 0 0 / 12%); }
+  .img-zoom img { transition: transform var(--dur-slow) var(--ease-out); }
+  .img-zoom:hover img { transform: scale(1.06); }
 }
 
-.animate-letter-in {
-  animation: letter-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
+/* Respuesta al pulsar. */
+.press { transition: transform var(--dur-fast) var(--ease-out); }
+.press:active { transform: scale(.97); }
 
-/* Pulso de brillo lento en la palabra destacada de la portada: puramente
-   decorativo y en bucle, así que se condiciona a reduced-motion igual que el
-   parallax de arriba; quien pide menos movimiento ve un brillo estático. */
-@keyframes glow-pulse {
-  0%,
-  100% {
-    text-shadow: 0 0 18px oklch(0.577 0.245 27.325 / 55%), 0 0 36px oklch(0.577 0.245 27.325 / 25%);
-  }
-  50% {
-    text-shadow: 0 0 28px oklch(0.577 0.245 27.325 / 80%), 0 0 54px oklch(0.577 0.245 27.325 / 40%);
-  }
-}
+/* Entrada enérgica de titulares (portada y bloques de marca). */
+@keyframes hero-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.animate-hero-in { animation: hero-in var(--dur-hero) var(--ease-out) both; animation-delay: var(--reveal-delay, 0ms); }
 
-.hero-glow {
-  text-shadow: 0 0 18px oklch(0.577 0.245 27.325 / 55%), 0 0 36px oklch(0.577 0.245 27.325 / 25%);
-}
+/* Zoom lento de la foto del banner de portada (site/home/hero-banner.tsx). */
+@keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+.animate-hero-zoom { animation: hero-zoom 9s var(--ease-out) both; }
 
-@media (prefers-reduced-motion: no-preference) {
-  .hero-glow {
-    animation: glow-pulse 2.8s ease-in-out infinite;
-  }
-}
+/* Cinta de avisos (components/brand/marquee.tsx): bucle continuo; se para al pasar el ratón. */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 28s linear infinite; }
+/* Se para al pasar el ratón, al recibir el foco (teclado) o con el botón de pausa (WCAG 2.2.2). */
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track,
+.marquee[data-paused="true"] .marquee-track { animation-play-state: paused; }
 
-/* Versión reutilizable del estilo «arena oscura» de la portada
-   (promo-carousel.tsx), extraída para que otras secciones (pruebas/recompensas)
-   compartan el mismo fondo casi negro, el leve brillo rojo y la textura de
-   cuadrícula, en vez de quedarse en una sección bg-muted/blanca, que hacía sentir
-   que la identidad de marca se acababa tras la portada. Colores fijos (no tokens
-   del tema) a propósito: debe verse igual en modo claro y oscuro, como la portada. */
-.section-spotlight {
-  position: relative;
-  background-color: oklch(0.13 0.004 260);
-  isolation: isolate;
-}
-
-.section-spotlight::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image: radial-gradient(ellipse 70% 60% at 50% 0%, oklch(0.577 0.245 27.325 / 16%), transparent);
-}
-
-.section-spotlight::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(to right, white 1px, transparent 1px),
-    linear-gradient(to bottom, white 1px, transparent 1px);
-  background-size: 4rem 4rem;
-  opacity: 0.035;
-}
-
-.section-spotlight > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Logotipo animado (AnimatedWordmark en components/brand/logo.tsx): el archivo
-   real logo_titulo.png usado como máscara CSS (solo su canal alfa; la textura
-   fotográfica metálica del PNG se descarta), relleno plano blanco/rojo y revelado
-   con un barrido de izquierda a derecha. */
-@keyframes logo-wipe {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-.animate-logo-wipe {
-  animation: logo-wipe 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.logo-glow-white {
-  filter: drop-shadow(0 0 10px oklch(0.99 0 0 / 45%));
-}
-
-.logo-glow-red {
-  filter: drop-shadow(0 0 14px oklch(0.577 0.245 27.325 / 70%));
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  /* Finita (no infinita): pulsa unas veces justo después de aparecer y vuelve al
-     valor estático .logo-glow-* de arriba (mismo valor en 0 %/100 %, así que no hay
-     salto al parar). Un `filter` lleva este elemento a su propia capa de GPU; si la
-     animación no parara, se repintaría *continuamente* con su propio reloj,
-     independiente (y algo desacompasado) de los repintados al arrastrar el
-     carrusel, que es lo que causaba la fina línea junto al texto vecino al
-     arrastrar. Parar tras unos pulsos elimina ese reloj de repintado durante el
-     resto del tiempo que la diapositiva está en pantalla. */
-  .logo-glow-white {
-    animation: logo-glow-white-pulse 2.8s ease-in-out 3;
-  }
-  .logo-glow-red {
-    animation: logo-glow-red-pulse 2.8s ease-in-out 3;
-  }
-}
-
-@keyframes logo-glow-white-pulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 8px oklch(0.99 0 0 / 35%));
-  }
-  50% {
-    filter: drop-shadow(0 0 14px oklch(0.99 0 0 / 55%));
-  }
-}
-
-@keyframes logo-glow-red-pulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 10px oklch(0.577 0.245 27.325 / 55%));
-  }
-  50% {
-    filter: drop-shadow(0 0 20px oklch(0.577 0.245 27.325 / 85%));
-  }
-}
+/* Transiciones entre páginas (React ViewTransition): fundido corto. */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur-base); animation-timing-function: var(--ease-out); }
 
 /* Impresión / «Guardar como PDF» (p. ej. el botón de imprimir de las páginas
    legales): siempre texto negro sobre papel blanco, sea cual sea el tema. Cabecera,
@@ -440,4 +385,8 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  .stagger > *, .animate-hero-in, .animate-hero-zoom, .marquee-track { animation: none !important; }
+  /* React ViewTransition nombra sus propios nodos: se anulan todos, no solo (root). */
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }

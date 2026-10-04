@@ -37,125 +37,76 @@ export async function Footer() {
     const t = await getTranslations({locale, namespace: 'Footer'});
     const collections = await getTopCollections(locale);
 
-    return (
-        <footer className="mt-auto print:hidden bg-[oklch(0.13_0.004_260)] text-white/60">
-            <div className="container mx-auto px-4 py-16">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
-                    <div className="md:col-span-1">
-                        <NavigationLink href="/" className="inline-block mb-4">
-                            <Logo variant="full" className="h-20" />
-                        </NavigationLink>
-                        <p className="text-sm text-balance leading-relaxed">
-                            {t('description')}
-                        </p>
-                    </div>
+    const linkClass = 'hover:text-brand-fg transition-colors';
+    const headingClass = 'text-display text-lg text-brand-fg mb-4';
+    const legalLinks: Array<[string, string]> = [
+        ['/aviso-legal', t('legalNotice')],
+        ['/politica-de-privacidad', t('privacyPolicy')],
+        ['/politica-de-cookies', t('cookiePolicy')],
+        ['/terminos-y-condiciones', t('termsAndConditions')],
+        ['/uso-de-inteligencia-artificial', t('aiTransparency')],
+        ['/accesibilidad', t('accessibility')],
+    ];
 
+    return (
+        <footer className="mt-auto print:hidden border-t border-brand-line bg-brand text-brand-muted">
+            <div className="container mx-auto px-4 py-16">
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.3fr_1fr_1fr_1fr] md:gap-8">
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-white mb-4">{t('categories')}</p>
-                        <ul className="space-y-2 text-sm">
-                            {collections.map((collection) => (
-                                <li key={collection.id}>
-                                    <NavigationLink
-                                        href={`/categorias/${collection.slug}`}
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        {collection.name}
-                                    </NavigationLink>
+                        <NavigationLink href="/" className="mb-4 inline-block">
+                            <Logo variant="full" className="h-24" />
+                        </NavigationLink>
+                        <p className="text-sm text-balance leading-relaxed">{t('description')}</p>
+                        <ul aria-label={t('paymentMethods')} className="mt-5 flex flex-wrap gap-2">
+                            {['Visa', 'Mastercard', 'Redsys'].map(method => (
+                                <li key={method} className="rounded border border-white/10 bg-brand-surface px-2 py-1 text-[10px] font-bold uppercase text-brand-fg">
+                                    {method}
                                 </li>
                             ))}
                         </ul>
                     </div>
 
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-white mb-4">{t('customer')}</p>
+                        <p className={headingClass}>{t('shop')}</p>
                         <ul className="space-y-2 text-sm">
-                            <li>
-                                <NavigationLink
-                                    href="/productos"
-                                    className="hover:text-white transition-colors"
-                                >
-                                    {t('shopAll')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink
-                                    href="/mi-cuenta/pedidos"
-                                    className="hover:text-white transition-colors"
-                                >
-                                    {t('orders')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink
-                                    href="/mi-cuenta/puntos"
-                                    className="hover:text-white transition-colors"
-                                >
-                                    {t('points')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink
-                                    href="/mi-cuenta/profile"
-                                    className="hover:text-white transition-colors"
-                                >
-                                    {t('account')}
-                                </NavigationLink>
-                            </li>
+                            {collections.map((collection) => (
+                                <li key={collection.id}>
+                                    <NavigationLink href={`/categorias/${collection.slug}`} className={linkClass}>
+                                        {collection.name}
+                                    </NavigationLink>
+                                </li>
+                            ))}
+                            <li><NavigationLink href="/productos" className={linkClass}>{t('shopAll')}</NavigationLink></li>
                         </ul>
                     </div>
 
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-white mb-4">{t('legal')}</p>
+                        <p className={headingClass}>{t('help')}</p>
                         <ul className="space-y-2 text-sm">
-                            <li>
-                                <NavigationLink href="/aviso-legal" className="hover:text-white transition-colors">
-                                    {t('legalNotice')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink href="/politica-de-privacidad" className="hover:text-white transition-colors">
-                                    {t('privacyPolicy')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink href="/politica-de-cookies" className="hover:text-white transition-colors">
-                                    {t('cookiePolicy')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink href="/terminos-y-condiciones" className="hover:text-white transition-colors">
-                                    {t('termsAndConditions')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink href="/envios-y-devoluciones" className="hover:text-white transition-colors">
-                                    {t('shippingReturns')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink href="/uso-de-inteligencia-artificial" className="hover:text-white transition-colors">
-                                    {t('aiTransparency')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <NavigationLink href="/accesibilidad" className="hover:text-white transition-colors">
-                                    {t('accessibility')}
-                                </NavigationLink>
-                            </li>
-                            <li>
-                                <CookieSettingsLink className="hover:text-white transition-colors text-left" />
-                            </li>
+                            <li><NavigationLink href="/mi-cuenta/pedidos" className={linkClass}>{t('orders')}</NavigationLink></li>
+                            <li><NavigationLink href="/mi-cuenta/puntos" className={linkClass}>{t('points')}</NavigationLink></li>
+                            <li><NavigationLink href="/mi-cuenta/profile" className={linkClass}>{t('account')}</NavigationLink></li>
+                            <li><NavigationLink href="/envios-y-devoluciones" className={linkClass}>{t('shippingReturns')}</NavigationLink></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <p className={headingClass}>{t('legal')}</p>
+                        <ul className="space-y-2 text-sm">
+                            {legalLinks.map(([href, label]) => (
+                                <li key={href}><NavigationLink href={href} className={linkClass}>{label}</NavigationLink></li>
+                            ))}
+                            <li><CookieSettingsLink className={`${linkClass} text-left`} /></li>
                         </ul>
                     </div>
                 </div>
 
                 {/* Sección inferior */}
-                <div
-                    className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-center md:text-left">
+                <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-brand-line pt-8 text-center text-xs md:flex-row md:text-left">
                     <Copyright/>
                     <p>
                         {t('aiNotice')}{' '}
-                        <NavigationLink href="/uso-de-inteligencia-artificial" className="underline underline-offset-2 hover:text-white transition-colors">
+                        <NavigationLink href="/uso-de-inteligencia-artificial" className={`underline underline-offset-2 ${linkClass}`}>
                             {t('aiNoticeLink')}
                         </NavigationLink>
                     </p>
