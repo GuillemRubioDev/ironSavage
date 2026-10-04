@@ -37,5 +37,11 @@
     "goHome": "Go to home page",
     "stay": "Stay here",
     "reference": "Error reference: {digest}"
+  },
+  "AppUpdate": {
+    "newVersion": "A new version of the shop is available. Updating…",
+    "newVersionManual": "A new version of the shop is available.",
+    "refresh": "Update",
+    "updated": "Shop updated to the latest version"
   }
 }

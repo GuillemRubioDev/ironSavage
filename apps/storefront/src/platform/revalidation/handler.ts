@@ -3,11 +3,17 @@ import {NextRequest, NextResponse} from 'next/server';
 import {routing} from '@/platform/i18n/routing';
 import {getActiveChannel} from '@/platform/vendure/channel';
 
-type TagKind = 'locale-only' | 'currency-dependent';
+type TagKind = 'locale-only' | 'currency-dependent' | 'exact';
 
+// Cada etiqueta pedida se invalida TAL CUAL y, según su tipo, también en sus
+// variantes por idioma (y moneda). Las páginas cachean con las dos formas: la
+// general (`products`, `collection`, `collections`, `news`, `banners`) cubre a la
+// vez listados, fichas, destacados, relacionados… de todos los idiomas, y es la que
+// envía el servidor (StorefrontRevalidationSubscriber).
 // El orden importa: `collection-meta-` debe ir antes que `collection-` para que el
 // patrón más general de colección no tape al de meta.
 const TAG_RULES: ReadonlyArray<{match: string | RegExp; kind: TagKind}> = [
+    {match: 'news', kind: 'exact'},
     {match: 'collections', kind: 'locale-only'},
     {match: 'products', kind: 'currency-dependent'},
     {match: 'collection', kind: 'currency-dependent'},
@@ -86,8 +92,10 @@ export async function POST(request: NextRequest) {
                 continue;
             }
 
-            const expanded: string[] = [];
-            if (kind === 'locale-only') {
+            const expanded: string[] = [tag];
+            if (kind === 'exact') {
+                // Solo la etiqueta tal cual.
+            } else if (kind === 'locale-only') {
                 for (const locale of routing.locales) {
                     expanded.push(`${tag}-${locale}`);
                 }

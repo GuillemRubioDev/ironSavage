@@ -28,6 +28,8 @@
     "search": "Search",
     "mainNavigation": "Main navigation",
     "skipToContent": "Skip to main content",
-    "announcements": "Store announcements"
+    "announcements": "Store announcements",
+    "createAccount": "Create account",
+    "accountSignedOutHint": "Sign in to see your profile, orders, invoices and points."
   }
 }

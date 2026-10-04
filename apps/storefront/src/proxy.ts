@@ -71,16 +71,20 @@ function buildCsp(): string {
 const AUTH_TOKEN_COOKIE = process.env.VENDURE_AUTH_TOKEN_COOKIE || 'vendure-auth-token';
 const LOCALE_PREFIX = new RegExp(`^/(${routing.locales.join('|')})(?=/|$)`);
 
+/** Rutas que exigen sesión iniciada: la cuenta y el proceso de compra. */
+const PROTECTED_PATH = /^\/(mi-cuenta|checkout)(\/|$)/;
+
 /**
- * Sin cookie de sesión no se entra en "Mi cuenta": redirige al login guardando la
- * página pedida (con su query, p. ej. el ?token de verificar el email) para volver
- * a ella tras iniciar sesión. Una cookie caducada la detecta después RequireCustomer.
+ * Sin cookie de sesión no se entra en "Mi cuenta" ni en el checkout: redirige al
+ * login guardando la página pedida (con su query, p. ej. el ?token de verificar el
+ * email) para volver a ella tras iniciar sesión. Una cookie caducada la detectan
+ * después RequireCustomer (cuenta) y la propia página de checkout.
  */
 function redirectToLoginIfAnonymous(request: NextRequest): NextResponse | null {
     const {pathname, search} = request.nextUrl;
     const prefix = pathname.match(LOCALE_PREFIX)?.[0] ?? '';
     const path = pathname.slice(prefix.length) || '/';
-    if (!/^\/mi-cuenta(\/|$)/.test(path) || request.cookies.has(AUTH_TOKEN_COOKIE)) {
+    if (!PROTECTED_PATH.test(path) || request.cookies.has(AUTH_TOKEN_COOKIE)) {
         return null;
     }
     const loginUrl = new URL(`${prefix}/login`, request.url);

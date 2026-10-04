@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ID, PaginatedList, RequestContext, TransactionalConnection } from '@vendure/core';
+import { EventBus, ID, PaginatedList, RequestContext, TransactionalConnection } from '@vendure/core';
+
+import { StorefrontCacheEvent } from '../../storefront-cache-event';
 
 import { ContentArticle } from './content-article.entity';
 
@@ -20,7 +22,15 @@ const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 @Injectable()
 export class ContentService {
-    constructor(private connection: TransactionalConnection) {}
+    constructor(
+        private connection: TransactionalConnection,
+        private eventBus: EventBus,
+    ) {}
+
+    /** Avisa al storefront para que las noticias muestren el cambio al momento. */
+    private notifyStorefront(ctx: RequestContext): void {
+        void this.eventBus.publish(new StorefrontCacheEvent(ctx, ['news']));
+    }
 
     async create(ctx: RequestContext, input: ArticleInput): Promise<ArticleMutationResult> {
         const validationError = this.validate(input);
@@ -43,6 +53,7 @@ export class ContentService {
                     status: 'DRAFT',
                 }),
             );
+            this.notifyStorefront(ctx);
             return { success: true, article };
         } catch (err) {
             if (this.isUniqueViolation(err)) {
@@ -85,6 +96,7 @@ export class ContentService {
 
         try {
             const saved = await repo.save(article);
+            this.notifyStorefront(ctx);
             return { success: true, article: saved };
         } catch (err) {
             if (this.isUniqueViolation(err)) {
@@ -96,6 +108,7 @@ export class ContentService {
 
     async delete(ctx: RequestContext, id: ID): Promise<boolean> {
         const result = await this.connection.getRepository(ctx, ContentArticle).delete(id);
+        this.notifyStorefront(ctx);
         return !!result.affected;
     }
 
@@ -111,7 +124,9 @@ export class ContentService {
         if (!article.publishedAt) {
             article.publishedAt = new Date();
         }
-        return repo.save(article);
+        const saved = await repo.save(article);
+        this.notifyStorefront(ctx);
+        return saved;
     }
 
     async unpublish(ctx: RequestContext, id: ID): Promise<ContentArticle | null> {
@@ -121,7 +136,9 @@ export class ContentService {
             return null;
         }
         article.status = 'DRAFT';
-        return repo.save(article);
+        const saved = await repo.save(article);
+        this.notifyStorefront(ctx);
+        return saved;
     }
 
     async findById(ctx: RequestContext, id: ID): Promise<ContentArticle | null> {

@@ -37,5 +37,11 @@
     "goHome": "Ir al inicio",
     "stay": "Quedarme aquí",
     "reference": "Referencia del error: {digest}"
+  },
+  "AppUpdate": {
+    "newVersion": "Hay una versión nueva de la tienda. Actualizando…",
+    "newVersionManual": "Hay una versión nueva de la tienda.",
+    "refresh": "Actualizar",
+    "updated": "Tienda actualizada a la última versión"
   }
 }

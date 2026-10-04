@@ -32,6 +32,7 @@ export async function Footer() {
 
     const locale = await getRouteLocale();
     cacheTag(`footer-${locale}`);
+    cacheTag('collections');
 
     const t = await getTranslations({locale, namespace: 'Footer'});
     const collections = await getTopCollections(locale);

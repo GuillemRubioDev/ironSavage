@@ -2,7 +2,7 @@
 
 import {ReactNode, useState} from 'react';
 import { Link, useRouter } from '@/platform/i18n/navigation';
-import {Menu, Search, ShoppingBag, User, Package, MapPin, FileText, Star, Newspaper} from 'lucide-react';
+import {Menu, Search, ShoppingBag, Newspaper} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {
@@ -28,9 +28,11 @@ interface MobileNavProps {
     /** Se renderiza en el servidor (necesita las monedas de la tienda): se pasa como prop
      * en vez de importarse, porque este es un componente de cliente. */
     currencyPicker?: ReactNode;
+    /** Sección "Cuenta" según la sesión del visitante (MobileAccountLinks, renderizada por navbar.tsx). */
+    accountLinks?: ReactNode;
 }
 
-export function MobileNav({collections, currencyPicker}: MobileNavProps) {
+export function MobileNav({collections, currencyPicker, accountLinks}: MobileNavProps) {
     const t = useTranslations('Navigation');
     const [open, setOpen] = useState(false);
     const [searchValue, setSearchValue] = useState('');
@@ -131,79 +133,9 @@ export function MobileNav({collections, currencyPicker}: MobileNavProps) {
                         </div>
                     )}
 
-                    {/* Enlaces de la cuenta */}
-                    <div>
-                        <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            {t('account')}
-                        </p>
-                        <nav aria-label={t('account')} className="flex flex-col gap-0.5">
-                            <SheetClose
-                                render={
-                                    <Link
-                                        href="/mi-cuenta/profile"
-                                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                                    />
-                                }
-                                nativeButton={false}
-                                onClick={handleLinkClick}
-                            >
-                                <User className="h-5 w-5" />
-                                {t('profile')}
-                            </SheetClose>
-                            <SheetClose
-                                render={
-                                    <Link
-                                        href="/mi-cuenta/pedidos"
-                                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                                    />
-                                }
-                                nativeButton={false}
-                                onClick={handleLinkClick}
-                            >
-                                <Package className="h-5 w-5" />
-                                {t('orders')}
-                            </SheetClose>
-                            <SheetClose
-                                render={
-                                    <Link
-                                        href="/mi-cuenta/facturas"
-                                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                                    />
-                                }
-                                nativeButton={false}
-                                onClick={handleLinkClick}
-                            >
-                                <FileText className="h-5 w-5" />
-                                {t('invoices')}
-                            </SheetClose>
-                            <SheetClose
-                                render={
-                                    <Link
-                                        href="/mi-cuenta/puntos"
-                                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                                    />
-                                }
-                                nativeButton={false}
-                                onClick={handleLinkClick}
-                            >
-                                <Star className="h-5 w-5" />
-                                {t('points')}
-                            </SheetClose>
-                            <SheetClose
-                                render={
-                                    <Link
-                                        href="/mi-cuenta/addresses"
-                                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                                    />
-                                }
-                                nativeButton={false}
-                                onClick={handleLinkClick}
-                            >
-                                <MapPin className="h-5 w-5" />
-                                {t('addresses')}
-                            </SheetClose>
-                        </nav>
-                    </div>
+                    {/* Sección de cuenta: depende de la sesión, así que llega como hueco
+                        (ver MobileAccountLinks); este menú se sirve desde caché pública. */}
+                    {accountLinks}
 
                     {/* Preferencias: en móvil, idioma/moneda/tema solo están aquí; la
                         cabecera principal los oculta por debajo de md para dejar sitio a

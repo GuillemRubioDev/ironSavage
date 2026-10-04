@@ -8,6 +8,7 @@ import {ThemeSwitcher} from '@/site/navigation/navbar/theme-switcher';
 import {LanguagePicker} from '@/site/navigation/navbar/language-picker';
 import {CurrencyPickerWrapper} from '@/site/navigation/navbar/currency-picker-wrapper';
 import {MobileNavWrapper} from '@/site/navigation/navbar/mobile-nav-wrapper';
+import {MobileAccountLinks} from '@/site/navigation/navbar/mobile-account-links';
 import {Suspense} from "react";
 import {getTranslations} from 'next-intl/server';
 import {getRouteLocale} from '@/platform/i18n/server';
@@ -27,7 +28,10 @@ export async function Navbar() {
                 <div className="flex items-center h-[var(--header-h)] gap-4">
                     <div className="flex items-center gap-4 shrink-0">
                         <Suspense>
-                            <MobileNavWrapper currencyPicker={<CurrencyPickerWrapper />} />
+                            <MobileNavWrapper
+                                currencyPicker={<CurrencyPickerWrapper />}
+                                accountLinks={<Suspense><MobileAccountLinks /></Suspense>}
+                            />
                         </Suspense>
                         <NavigationLink href="/" className="shrink-0">
                             <Logo variant="wordmark" priority className="h-6 md:h-7" />

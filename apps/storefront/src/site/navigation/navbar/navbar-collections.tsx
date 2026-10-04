@@ -15,6 +15,7 @@ export async function NavbarCollections() {
 
     const locale = await getRouteLocale();
     cacheTag(`navbar-collections-${locale}`);
+    cacheTag('collections');
 
     const [collections, t] = await Promise.all([
         getTopCollections(locale),

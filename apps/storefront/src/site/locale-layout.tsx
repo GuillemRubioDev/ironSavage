@@ -14,6 +14,7 @@ import {Footer} from "@/site/footer";
 import {ThemeProvider} from "@/site/providers/theme-provider";
 import {CookieConsentRoot} from "@/site/cookie-consent/cookie-consent-root";
 import {EnvironmentBadge} from "@/site/app-shell/environment-badge";
+import {AppFreshness} from "@/site/app-shell/app-freshness";
 import {DEFAULT_OG_IMAGES, SITE_NAME, SITE_URL} from "@/config/metadata";
 
 // Inter: texto de interfaz y cuerpo muy legible. Oswald: fuente condensada y de trazo
@@ -141,6 +142,7 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                             </main>
                             <Footer/>
                             <Toaster/>
+                            <AppFreshness/>
                         </CookieConsentRoot>
                     </ThemeProvider>
                 </NextIntlClientProvider>

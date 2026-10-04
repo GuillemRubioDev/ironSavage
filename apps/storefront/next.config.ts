@@ -12,9 +12,15 @@ const withNextIntl = createNextIntlPlugin('./src/site/i18n/request.ts');
 // Dockerfile copia el package.json de la raíz en la etapa de build).
 const {version: APP_VERSION} = JSON.parse(readFileSync(resolve(process.cwd(), '../../package.json'), 'utf8')) as {version: string};
 
+// Identificador único de cada compilación: la app abierta en el navegador lo compara
+// con el de /api/version para saber si se ha desplegado una versión nueva y
+// recargarse sola (ver site/app-shell/app-freshness.tsx).
+const BUILD_ID = `${APP_VERSION}-${Date.now().toString(36)}`;
+
 const nextConfig: NextConfig = {
     env: {
         NEXT_PUBLIC_APP_VERSION: APP_VERSION,
+        NEXT_PUBLIC_BUILD_ID: BUILD_ID,
     },
     // Genera .next/standalone: un servidor autocontenido con solo los
     // node_modules que se usan de verdad, en vez de necesitar todos los del
