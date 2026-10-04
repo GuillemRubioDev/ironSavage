@@ -72,6 +72,14 @@
         "children": "Keep out of the reach of young children."
       }
     },
-    "netQuantity": "Net quantity: {quantity}"
+    "netQuantity": "Net quantity: {quantity}",
+    "quickAdd": "Add",
+    "quickAddLabel": "Add {name} to cart",
+    "quickAddTitle": "Choose your option",
+    "quantity": "Quantity",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "viewDetails": "View full details",
+    "productUnavailable": "This product is no longer available"
   }
 }

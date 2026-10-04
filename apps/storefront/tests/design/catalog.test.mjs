@@ -46,3 +46,32 @@ test('withFacets cambia los filtros y vuelve a la página 1 sin tocar el resto',
     assert.equal(withFacets(params, ['2', '5']), 'q=iso&sort=price-asc&facets=2&facets=5');
     assert.equal(withFacets(params, []), 'q=iso&sort=price-asc');
 });
+
+test('el selector rápido carga el producto al pulsar y lo oculta si no está a la venta', async () => {
+    const data = await read('features/products/quick-add-data.ts');
+    assert.match(data, /'use cache'/);
+    assert.match(data, /!product\.enabled \|\| product\.customFields\?\.visibleInStorefront === false/);
+    assert.match(data, /getDisplayOptionGroups\(product\)/);
+    assert.match(await read('features/products/quick-add.ts'), /^'use server';/);
+});
+
+test('Añadir mete directamente un producto de una sola variante y si no abre el selector', async () => {
+    const button = await read('features/products/components/quick-add-button.tsx');
+    assert.match(button, /loaded\.variants\.length === 1/);
+    assert.match(button, /addToCart\(variant\.id, qty\)/);
+    assert.match(button, /initialSelection\(loaded\.optionGroups\)/);
+    assert.match(button, /side="bottom"/);
+    assert.match(button, /<DialogContent/);
+    assert.match(button, /disabled=\{!available\}/);
+    assert.match(button, /t\('productUnavailable'\)/);
+    assert.doesNotMatch(button, /localStorage|sessionStorage|searchParams/);
+});
+
+test('textos nuevos del selector rápido en es y en', async () => {
+    for (const loc of ['es', 'en']) {
+        const p = (await json(`features/products/messages/${loc}.json`)).Product;
+        for (const k of ['quickAdd', 'quickAddLabel', 'quickAddTitle', 'quantity', 'decreaseQuantity', 'increaseQuantity', 'viewDetails', 'productUnavailable']) {
+            assert.ok(p[k], `${loc}: falta Product.${k}`);
+        }
+    }
+});
