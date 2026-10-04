@@ -3,9 +3,14 @@
 #
 #   docker compose -f docker-compose.prod.yml -f docker-compose.dev-server.yml --env-file .env.prod ...
 #
-# Solo cambia Caddy: usa Caddyfile.dev, que pide usuario y contraseña para ver la
-# tienda y pide a los buscadores que no indexen nada. Todo lo demás (Redsys de
-# pruebas, emails, analítica) se decide en el .env.prod de ese servidor.
+# Cambia dos cosas:
+#   - Caddy usa Caddyfile.dev, que pide usuario y contraseña para ver la tienda y
+#     pide a los buscadores que no indexen nada.
+#   - Postgres se publica en 127.0.0.1:5432 del servidor, para conectar con un
+#     cliente (DBeaver, psql…) a través de un túnel SSH. Solo escucha en la
+#     interfaz local: desde internet sigue sin ser accesible (ver docs/despliegue.md).
+# Todo lo demás (Redsys de pruebas, emails, analítica) se decide en el .env.prod
+# de ese servidor.
 services:
   caddy:
     environment:
@@ -16,3 +21,9 @@ services:
     volumes:
       # Mismo destino que en docker-compose.prod.yml: sustituye al Caddyfile normal.
       - ./Caddyfile.dev:/etc/caddy/Caddyfile:ro
+
+  postgres:
+    ports:
+      # 127.0.0.1 es imprescindible: con "5432:5432" Docker abriría el puerto a
+      # internet saltándose el cortafuegos (ufw no filtra los puertos de Docker).
+      - "127.0.0.1:5432:5432"
