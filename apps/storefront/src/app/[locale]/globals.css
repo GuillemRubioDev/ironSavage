@@ -494,6 +494,11 @@
 @keyframes hero-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 .animate-hero-in { animation: hero-in var(--dur-hero) var(--ease-out) both; animation-delay: var(--reveal-delay, 0ms); }
 
+/* Cinta de avisos (components/brand/marquee.tsx): bucle continuo; se para al pasar el ratón. */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 28s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
 /* Transiciones entre páginas (React ViewTransition): fundido corto. */
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur-base); animation-timing-function: var(--ease-out); }
 
@@ -521,6 +526,6 @@
     scroll-behavior: auto !important;
   }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
-  .stagger > *, .animate-hero-in { animation: none !important; }
+  .stagger > *, .animate-hero-in, .marquee-track { animation: none !important; }
   ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }

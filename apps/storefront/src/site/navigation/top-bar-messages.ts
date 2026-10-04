@@ -14,4 +14,5 @@ export const topBarMessages: TopBarMessage[] = [
     {id: 'fast-shipping', text: {es: 'Envío rápido', en: 'Fast shipping'}},
     {id: 'secure-payment', text: {es: 'Pago seguro con Redsys', en: 'Secure payment with Redsys'}},
     {id: 'loyalty-points', text: {es: 'Acumula puntos en tus compras', en: 'Earn points on every order'}},
+    {id: 'returns', text: {es: 'Devolución en 14 días', en: '14-day returns'}},
 ];
