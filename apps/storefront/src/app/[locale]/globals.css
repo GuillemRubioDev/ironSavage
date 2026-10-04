@@ -19,8 +19,18 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
-  --font-display: var(--font-oswald);
-  --font-mono: var(--font-geist-mono);
+  /* Titulares: Barlow Condensed cursiva (ver la regla de h1–h6 y .text-display). */
+  --font-display: var(--font-barlow-condensed);
+  /* Antes Geist Mono para precios: ahora Inter con cifras tabulares (ver .font-mono). */
+  --font-mono: var(--font-inter);
+  /* Zona de MARCA: siempre oscura (cabecera, portada, bloques de marca, pie). */
+  --color-brand: var(--brand);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-line: var(--brand-line);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-muted: var(--brand-muted);
+  /* Rojo para TEXTO sobre fondo oscuro (el rojo de fondo con texto blanco es --primary-solid). */
+  --color-primary-text: var(--primary-text);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -68,10 +78,14 @@
 }
 
 :root {
-  /* Algo más cerrado que el valor por defecto de shadcn (0.5rem): un borde más
-     anguloso e industrial que encaja mejor con el logo condensado y de esquinas
-     cortadas que una esquina redondeada suave de estilo SaaS. */
-  --radius: 0.375rem;
+  /* Radio base del rediseño: 8 px en controles (rounded-lg) y 12 px en tarjetas
+     (rounded-xl). Más suave que antes, como las tiendas de referencia, pero sin
+     llegar al redondeo de estilo SaaS. */
+  --radius: 0.5rem;
+
+  /* Alias temporal hasta rehacer la portada (Fase 2): el carrusel actual usa esta
+     variable, que antes era Black Ops One. */
+  --font-brand-display: var(--font-barlow-condensed);
 
   /*
    * Medidas centralizadas de la cabecera fija: la única fuente de verdad de la
@@ -100,9 +114,9 @@
   --primary-foreground: oklch(0.99 0 0);
 
   /* Superficies gris metálico. */
-  --secondary: oklch(0.95 0.003 260);
+  --secondary: #f3f3f4;
   --secondary-foreground: oklch(0.2 0.006 260);
-  --muted: oklch(0.96 0.003 260);
+  --muted: #f3f3f4;
   --muted-foreground: oklch(0.5 0.008 260);
   --accent: oklch(0.95 0.003 260);
   --accent-foreground: oklch(0.2 0.006 260);
@@ -132,15 +146,31 @@
   --sidebar-accent-foreground: oklch(0.2 0.006 260);
   --sidebar-border: oklch(0.9 0.004 260);
   --sidebar-ring: oklch(0.577 0.245 27.325 / 60%);
+
+  /* Zona de marca (igual en claro y en oscuro). */
+  --brand: #0b0b0c;
+  --brand-surface: #17181b;
+  --brand-line: rgb(255 255 255 / 8%);
+  --brand-fg: #ffffff;
+  --brand-muted: #a1a1a7;
+  --primary-text: #ff4d4d;
+
+  /* Movimiento: curvas y duraciones comunes. */
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-spring: cubic-bezier(.3, 1.6, .5, 1);
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --dur-hero: 600ms;
 }
 
 .dark {
   /* Fondo negro profundo y superficies grafito/antracita: el aspecto principal de
      la marca. */
-  --background: oklch(0.13 0.004 260);
+  --background: #0f1012;
   --foreground: oklch(0.97 0.002 260);
 
-  --card: oklch(0.19 0.006 260);
+  --card: #1a1b1e;
   --card-foreground: oklch(0.97 0.002 260);
   --popover: oklch(0.19 0.006 260);
   --popover-foreground: oklch(0.97 0.002 260);
@@ -182,6 +212,14 @@
   --sidebar-accent-foreground: oklch(0.97 0.002 260);
   --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: oklch(0.63 0.23 27.325 / 65%);
+
+  /* Zona de marca (igual en claro y en oscuro). */
+  --brand: #0b0b0c;
+  --brand-surface: #17181b;
+  --brand-line: rgb(255 255 255 / 8%);
+  --brand-fg: #ffffff;
+  --brand-muted: #a1a1a7;
+  --primary-text: #ff4d4d;
 }
 
 /* TopBar muestra una sola línea en móvil y varios mensajes en fila a partir de md
@@ -209,6 +247,10 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: .92;
   }
 }
 
@@ -217,8 +259,15 @@
      títulos de portada y secciones. Nunca se usa en el texto normal ni en la interfaz. */
   .text-display {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    font-style: italic;
+    font-weight: 800;
+    letter-spacing: -0.005em;
+    line-height: .92;
     text-transform: uppercase;
+  }
+  /* Precios y cifras: Inter con números del mismo ancho (las columnas cuadran). */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
   }
 
   /* Para las filas con desplazamiento horizontal en móvil (categorías, etc.): el
