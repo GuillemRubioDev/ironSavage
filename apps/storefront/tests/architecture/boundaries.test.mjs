@@ -44,12 +44,17 @@ test('Next.js app files remain re-export shims', async () => {
                 && !statement.importClause
                 && ts.isStringLiteral(statement.moduleSpecifier)
                 && statement.moduleSpecifier.text.endsWith('.css');
+            // error.tsx y global-error.tsx deben ser componentes de cliente: Next exige la
+            // directiva 'use client' en el propio archivo de ruta, no basta con el módulo reexportado.
+            const isUseClientDirective = ts.isExpressionStatement(statement)
+                && ts.isStringLiteral(statement.expression)
+                && statement.expression.text === 'use client';
             const isExplicitReExport = ts.isExportDeclaration(statement)
                 && ts.isNamedExports(statement.exportClause)
                 && statement.moduleSpecifier
                 && ts.isStringLiteral(statement.moduleSpecifier);
             if (isExplicitReExport) hasReExport = true;
-            if (!isStylesheetImport && !isExplicitReExport) {
+            if (!isStylesheetImport && !isUseClientDirective && !isExplicitReExport) {
                 violations.push(`${path.relative(root, file)} contains behavior instead of only explicit re-exports`);
             }
         }

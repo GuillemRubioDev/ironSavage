@@ -27,5 +27,15 @@
     "aiNotice": "This site was built with the help of artificial intelligence tools.",
     "aiNoticeLink": "Learn more",
     "version": "Version {version}"
+  },
+  "ErrorPage": {
+    "title": "Something went wrong",
+    "message": "We couldn't load this page. It's usually a temporary problem.",
+    "redirecting": "Taking you to the home page in {seconds} s…",
+    "reloading": "Trying again in {seconds} s…",
+    "retry": "Try again",
+    "goHome": "Go to home page",
+    "stay": "Stay here",
+    "reference": "Error reference: {digest}"
   }
 }

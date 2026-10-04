@@ -27,5 +27,15 @@
     "aiNotice": "Este sitio se ha desarrollado con ayuda de herramientas de inteligencia artificial.",
     "aiNoticeLink": "Más información",
     "version": "Versión {version}"
+  },
+  "ErrorPage": {
+    "title": "Algo ha fallado",
+    "message": "No hemos podido cargar esta página. Suele ser un problema puntual.",
+    "redirecting": "Te llevamos al inicio en {seconds} s…",
+    "reloading": "Volvemos a intentarlo en {seconds} s…",
+    "retry": "Reintentar",
+    "goHome": "Ir al inicio",
+    "stay": "Quedarme aquí",
+    "reference": "Referencia del error: {digest}"
   }
 }
