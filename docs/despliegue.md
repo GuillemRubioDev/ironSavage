@@ -82,6 +82,31 @@ cd /opt/ironsavage
 Las migraciones de base de datos no se deshacen solas: si el problema es una migración,
 restaura la copia previa al despliegue con `scripts/restore.sh` (ver `backups/postgres/`).
 
+## Conectar a la base de datos de desarrollo (DBeaver, psql…)
+
+En el servidor de desarrollo, Postgres escucha en `127.0.0.1:5432`: solo es accesible desde el
+propio servidor, nunca desde internet. Se conecta con un **túnel SSH** que pasa por el usuario
+`deploy` con tu clave.
+
+En DBeaver: **Nueva conexión → PostgreSQL**.
+
+- Pestaña **SSH**: marca *Use SSH Tunnel*.
+  - Host: la IP del servidor · Puerto: `22` · Usuario: `deploy`
+  - Autenticación: *Public Key* · Clave privada: tu clave SSH del servidor (p. ej. `~/.ssh/ironsavage_dev`)
+- Pestaña **Principal**:
+  - Host: `localhost` · Puerto: `5432`
+  - Base de datos, usuario y contraseña: `DB_NAME`, `DB_USERNAME` y `DB_PASSWORD` del `.env.prod` del servidor.
+
+Con psql, abre primero el túnel y conecta a tu puerto local:
+
+```bash
+ssh -N -L 15432:127.0.0.1:5432 deploy@<ip-del-servidor>
+psql -h localhost -p 15432 -U vendure vendure
+```
+
+Es la base de datos del entorno de desarrollo: lo que cambies se ve en la tienda de desarrollo.
+En producción Postgres **no** se publica; si algún día hace falta, mejor con un usuario de solo lectura.
+
 ## Preparar un servidor (una vez por servidor)
 
 Lo mismo para desarrollo y producción; cambian el `.env.prod` y los dominios.
