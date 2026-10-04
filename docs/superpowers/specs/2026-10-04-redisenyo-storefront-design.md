@@ -100,7 +100,8 @@ con etiquetas de filtros activos y ordenación; rejilla de `ProductCard`; pagina
 Filtrar y Ordenar, filtros en panel desde abajo con "Ver X productos".
 
 ### 5.4 Ficha de producto
-Galería con miniaturas y zoom; **al elegir una variante se ven todas sus fotos** y después las del producto
+Galería con miniaturas y zoom; al entrar no hay nada marcado salvo las opciones únicas (ver 7.8 y 7.9);
+**al elegir una variante se ven todas sus fotos** y después las del producto
 (hoy solo se ve la principal de la variante). Información: categoría, nombre, reseñas, precio con "IVA
 incluido", stock, selectores con muestra de color, cantidad, Añadir al carrito, "Con esta compra sumas X
 puntos" (configuración real), mini franja de confianza, desplegables (descripción, información alimentaria
@@ -153,11 +154,22 @@ con el mismo estilo.
 4. **Repetir último pedido:** toma el pedido más reciente que el cliente haya realizado (ya pagado; se
    excluyen el carrito en curso y los cancelados) y añade sus líneas al carrito con la acción de añadir
    existente, una a una y con las mismas cantidades; omite variantes desactivadas o sin stock e informa de las
-   omitidas. Solo con sesión iniciada; si no hay pedidos, el acceso rápido no aparece.
+   omitidas. Solo con sesión iniciada; si no hay pedidos, el acceso rápido no aparece. **Solo copia productos y
+   cantidades al carrito:** a partir de ahí es una compra nueva normal (checkout, pago, pedido nuevo, factura
+   nueva, puntos nuevos) con los precios y promociones vigentes en ese momento; el pedido anterior no se toca.
 5. **Imagen del panel de acceso configurable** (`GlobalSettings.authPanelImage`) con su migración.
 6. **Página de resumen de la cuenta** (`/mi-cuenta`).
 7. **Objetivos:** la faceta y las colecciones vienen del seed (rama `feat/objetivos`); el storefront solo
    las muestra.
+
+
+8. **Opciones únicas marcadas por defecto** (selector rápido y ficha): si un grupo de opciones tiene una sola
+   opción (p. ej. un único tamaño), aparece ya marcada; si el producto tiene una sola variante, todo está
+   marcado y el botón Añadir funciona directamente (en las tarjetas, sin abrir el selector).
+9. **La selección no se recuerda:** al salir de una ficha y volver (con un enlace o con "atrás"), las opciones
+   aparecen sin marcar, salvo las únicas del punto 8. La selección vive solo en el estado de la página y deja
+   de guardarse en la URL (hoy se guarda como `?grupo=opcion`); por tanto los enlaces ya no llevan el sabor
+   elegido.
 
 ## 8. Fases de implementación
 
