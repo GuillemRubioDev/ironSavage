@@ -23,7 +23,7 @@ export function ArticleCard({article, locale}: ArticleCardProps) {
     return (
         <Link
             href={`/noticias/${article.slug}`}
-            className="group block rounded-xl border border-border overflow-hidden bg-card hover:shadow-lg transition-shadow duration-200"
+            className="hover-lift img-zoom group block overflow-hidden rounded-lg border border-border bg-card"
         >
             <div className="relative aspect-video bg-muted">
                 {article.coverImage ? (
@@ -31,7 +31,7 @@ export function ArticleCard({article, locale}: ArticleCardProps) {
                         src={`${article.coverImage.preview}?preset=medium`}
                         alt={title}
                         fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover"
                     />
                 ) : (
                     <div className="flex h-full w-full items-center justify-center text-muted-foreground">

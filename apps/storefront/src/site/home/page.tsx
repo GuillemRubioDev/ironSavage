@@ -9,7 +9,7 @@ import {FeaturedProducts} from '@/features/products/featured-products';
 import {LoyaltyTeaser} from '@/features/loyalty/loyalty-teaser';
 import {LatestNewsSection} from '@/features/news/latest-news-section';
 import {DEFAULT_OG_IMAGES, SITE_NAME, buildCanonicalUrl, localizedPath} from "@/config/metadata";
-import {BadgeCheck, RotateCcw, ShieldCheck, Star, Tag, Truck, Zap} from "lucide-react";
+import {RotateCcw, ShieldCheck, Star, Truck} from "lucide-react";
 import {TrustStrip} from '@/components/brand/trust-strip';
 import {getTranslations} from 'next-intl/server';
 import {toOgLocale} from '@/platform/i18n/locale-utils';
@@ -42,12 +42,6 @@ export async function generateMetadata(): Promise<Metadata> {
         },
     };
 }
-
-const featureKeys = [
-    {icon: BadgeCheck, key: 'highQuality'},
-    {icon: Tag, key: 'bestPrices'},
-    {icon: Zap, key: 'fastDelivery'},
-] as const;
 
 export default async function Home() {
     const locale = await getRouteLocale();
@@ -88,23 +82,6 @@ export default async function Home() {
             <Suspense>
                 <GoalsSection/>
             </Suspense>
-
-            <section className="bg-brand py-16 md:py-28">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-display text-3xl md:text-5xl font-bold text-white max-w-2xl mb-12 md:mb-16">
-                        {t('whyShopWithUs')}
-                    </h2>
-                    <div className="grid sm:grid-cols-3 gap-10 sm:gap-6">
-                        {featureKeys.map((feature) => (
-                            <div key={feature.key} className="border-t border-white/15 pt-6 space-y-3">
-                                <feature.icon className="size-6 text-primary" strokeWidth={1.75} />
-                                <h3 className="text-lg font-semibold text-white">{t(`features.${feature.key}.title`)}</h3>
-                                <p className="text-white/60 leading-relaxed">{t(`features.${feature.key}.description`)}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
 
             <Suspense>
                 <LoyaltyTeaser/>

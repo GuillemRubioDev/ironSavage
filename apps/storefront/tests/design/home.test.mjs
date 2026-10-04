@@ -103,3 +103,18 @@ test('Iron Rewards muestra las cifras de la configuración del programa', async 
     const es = await json('features/loyalty/messages/es.json');
     for (const k of ['earn', 'redeem', 'cap']) assert.ok(es.Loyalty.teaser.stats?.[k], `falta teaser.stats.${k}`);
 });
+
+test('noticias con SectionHeader y tarjetas que se elevan', async () => {
+    const news = await read('features/news/latest-news-section.tsx');
+    assert.match(news, /<SectionHeader title=\{t\('homeTitle'\)\} highlight=\{t\('homeHighlight'\)\}/);
+    assert.match(await read('features/news/components/article-card.tsx'), /hover-lift/);
+});
+
+test('la portada sigue el orden del spec y sin la sección antigua "por qué"', async () => {
+    const page = await read('site/home/page.tsx');
+    const order = ['<HeroBanner', '<CategoriesShowcase', '<TrustStrip', '<FeaturedProducts', '<GoalsSection', '<LoyaltyTeaser', '<LatestNewsSection'];
+    const idx = order.map(tag => page.indexOf(tag));
+    assert.ok(idx.every(i => i >= 0), 'falta algún bloque');
+    assert.deepEqual([...idx].sort((a, b) => a - b), idx, 'orden incorrecto');
+    assert.doesNotMatch(page, /whyShopWithUs|section-spotlight|featureKeys/);
+});

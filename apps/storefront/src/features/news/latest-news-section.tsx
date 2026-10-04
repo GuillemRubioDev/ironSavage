@@ -2,10 +2,10 @@ import {cacheLife, cacheTag} from 'next/cache';
 import {query} from '@/platform/vendure/api';
 import {GetArticlesQuery, type ArticleListItem} from '@/features/news/graphql';
 import {ArticleCard} from '@/features/news/components/article-card';
-import {Link} from '@/platform/i18n/navigation';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
-import {ArrowRight} from 'lucide-react';
+import {SectionHeader} from '@/components/brand/section-header';
+import {Reveal} from '@/components/motion/reveal';
 
 async function getLatestArticles(locale: string) {
     'use cache';
@@ -32,27 +32,12 @@ export async function LatestNewsSection() {
     return (
         <section className="py-16 md:py-24">
             <div className="container mx-auto px-4">
-                <div className="flex items-center justify-between mb-10">
-                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{t('homeTitle')}</h2>
-                    <Link
-                        href="/noticias"
-                        className="group hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline underline-offset-4"
-                    >
-                        {t('viewAll')}
-                        <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                    </Link>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <SectionHeader title={t('homeTitle')} highlight={t('homeHighlight')} action={{href: '/noticias', label: t('viewAll')}} />
+                <Reveal className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {articles.map(article => (
                         <ArticleCard key={article.id} article={article} locale={locale} />
                     ))}
-                </div>
-                <div className="mt-8 flex justify-center sm:hidden">
-                    <Link href="/noticias" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
-                        {t('viewAll')}
-                        <ArrowRight className="size-4" />
-                    </Link>
-                </div>
+                </Reveal>
             </div>
         </section>
     );
