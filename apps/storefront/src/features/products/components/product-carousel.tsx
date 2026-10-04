@@ -5,19 +5,24 @@ import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious,
 import {FragmentOf} from "@/platform/vendure/graphql";
 import {ProductCardFragment} from '@/features/products/graphql';
 import {useId} from "react";
+import {SectionHeader} from "@/components/brand/section-header";
 
 interface ProductCarouselClientProps {
     title: string;
+    /** Palabra del titular en rojo (SectionHeader). */
+    highlight?: string;
+    /** Enlace "Ver todos" a la derecha del titular. */
+    action?: {href: string; label: string};
     products: Array<FragmentOf<typeof ProductCardFragment>>;
 }
 
-export function ProductCarousel({title, products}: ProductCarouselClientProps) {
+export function ProductCarousel({title, highlight, action, products}: ProductCarouselClientProps) {
     const id = useId();
 
     return (
-        <section className="py-12 md:py-16">
+        <section className="py-12 md:py-20">
             <div className="container mx-auto px-4">
-                <h2 className="text-display text-2xl md:text-4xl font-bold mb-8">{title}</h2>
+                <SectionHeader title={title} highlight={highlight} action={action} />
                 <Carousel
                     opts={{
                         align: "start",
@@ -28,7 +33,7 @@ export function ProductCarousel({title, products}: ProductCarouselClientProps) {
                     <CarouselContent className="-ml-2 md:-ml-4">
                         {products.map((product, i) => (
                             <CarouselItem key={id + i}
-                                          className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                                          className="hover-lift pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                                 <ProductCard product={product}/>
                             </CarouselItem>
                         ))}

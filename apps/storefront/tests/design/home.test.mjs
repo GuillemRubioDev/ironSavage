@@ -73,3 +73,11 @@ test('las categorías se superponen al borde del banner y la portada muestra la 
     const es = await json('site/home/messages/es.json');
     assert.deepEqual(Object.keys(es.Home.trust ?? {}), ['shipping', 'payment', 'returns', 'points']);
 });
+
+test('los destacados usan SectionHeader con palabra destacada y enlace a todos los productos', async () => {
+    const carousel = await read('features/products/components/product-carousel.tsx');
+    assert.match(carousel, /<SectionHeader title=\{title\} highlight=\{highlight\} action=\{action\}/);
+    const featured = await read('features/products/featured-products.tsx');
+    assert.match(featured, /highlight=\{t\('featuredHighlight'\)\}/);
+    assert.match(featured, /action=\{\{href: '\/productos', label: t\('viewAllProducts'\)\}\}/);
+});
