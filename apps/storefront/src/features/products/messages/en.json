@@ -80,6 +80,7 @@
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
     "viewDetails": "View full details",
-    "productUnavailable": "This product is no longer available"
+    "productUnavailable": "This product is no longer available",
+    "pointsEarned": "{points, plural, one {You earn # point with this purchase} other {You earn # points with this purchase}}"
   }
 }

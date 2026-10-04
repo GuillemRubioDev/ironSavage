@@ -49,3 +49,27 @@ test('los puntos siguen la fórmula del servidor y crecen con la cantidad', asyn
 test('la consulta de la ficha trae las fotos de cada variante', async () => {
     assert.match(await read('features/products/graphql.ts'), /featuredAsset \{[^}]*\}\s*assets \{\s*id\s*preview\s*source\s*\}/);
 });
+
+test('la selección vive solo en el estado: sin URL, con las opciones únicas marcadas', async () => {
+    const client = await read('features/products/components/product-detail-client.tsx');
+    assert.match(client, /useState<Selection>\(\(\) => initialSelection\(product\.optionGroups\)\)/);
+    assert.match(client, /selectOption\(product\.variants, current, groupId, optionId\)/);
+    assert.match(client, /galleryFor\(product\.assets, selectedVariant\)/);
+    assert.doesNotMatch(client, /useSearchParams|router\.push|searchParams/);
+    assert.doesNotMatch(await read('features/products/routes/page.tsx'), /searchParams=\{/);
+});
+
+test('bloque de compra con cantidad, puntos y mini franja de confianza', async () => {
+    const info = await read('features/products/components/product-info.tsx');
+    assert.match(info, /addToCart\(selectedVariant\.id, quantity\)/);
+    assert.match(info, /pointsFor\(selectedVariant\.discountedPriceWithTax, quantity, pointsPerEuro\)/);
+    assert.match(info, /t\('pointsEarned', \{points\}\)/);
+    assert.match(info, /t\('trustBadges\.secureCheckout'\)/);
+    assert.match(info, /isOptionAvailable\(product\.variants, selection, group\.id, option\.id\)/);
+    const page = await read('features/products/routes/page.tsx');
+    assert.match(page, /getLoyaltyProgramConfig\(\)/);
+    assert.match(page, /pointsPerEuro=\{loyalty\.pointsPerEuro\}/);
+    for (const loc of ['es', 'en']) {
+        assert.ok((await json(`features/products/messages/${loc}.json`)).Product.pointsEarned, `${loc}: falta pointsEarned`);
+    }
+});

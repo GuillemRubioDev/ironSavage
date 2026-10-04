@@ -6,6 +6,7 @@ import {GetProductDetailQuery} from '@/features/products/graphql';
 import { ProductDetailClient } from '@/features/products/components/product-detail-client';
 import { FoodInformation } from '@/features/products/components/food-information';
 import {getDisplayOptionGroups} from '@/features/products/product-options';
+import {getLoyaltyProgramConfig} from '@/features/loyalty/program-config';
 import {sanitizeRichText} from '@/platform/security/sanitize-html';
 import { RelatedProducts } from '@/features/products/components/related-products';
 import {
@@ -106,20 +107,21 @@ export interface ProductDetailPageProps extends PageProps<'/[locale]/productos/[
      * compone la página (ver site/products/product-detail-page.tsx).
      */
     reviewsSlot?: (product: {productId: string; productSlug: string}) => ReactNode;
+    /** Estrellas y nº de reseñas junto al nombre (también los aporta site/). */
+    ratingSlot?: (product: {productId: string}) => ReactNode;
 }
 
 export default async function ProductDetailPage({
     params,
-    searchParams,
     reviewsSlot,
+    ratingSlot,
 }: ProductDetailPageProps) {
     const { slug } = await params;
-    const searchParamsResolved = await searchParams;
     const locale = await getRouteLocale();
     const currencyCode = await getActiveCurrencyCode();
     const t = await getTranslations({locale, namespace: 'Product'});
 
-    const result = await getProductData(slug, currencyCode);
+    const [result, loyalty] = await Promise.all([getProductData(slug, currencyCode), getLoyaltyProgramConfig()]);
 
     const product = result.data.product;
 
@@ -171,7 +173,13 @@ export default async function ProductDetailPage({
                     </BreadcrumbList>
                 </Breadcrumb>
 
-                <ProductDetailClient product={productForDisplay} searchParams={searchParamsResolved} currencyCode={currencyCode} />
+                <ProductDetailClient
+                    product={productForDisplay}
+                    currencyCode={currencyCode}
+                    categoryName={primaryCollection?.name}
+                    pointsPerEuro={loyalty.pointsPerEuro}
+                    ratingSlot={ratingSlot?.({productId: product.id})}
+                />
             </div>
 
             <FoodInformation locale={locale} data={product.customFields ?? {}} />

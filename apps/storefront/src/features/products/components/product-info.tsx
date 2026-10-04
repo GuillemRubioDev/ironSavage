@@ -1,240 +1,206 @@
 'use client';
 
-import {useState, useTransition} from 'react';
-import {Button} from '@/components/ui/button';
-import {Label} from '@/components/ui/label';
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
-import {Separator} from '@/components/ui/separator';
-import {ShoppingCart, CheckCircle2} from 'lucide-react';
-import {addToCart} from '@/features/products/add-to-cart';
+import {useState, useTransition, type ReactNode} from 'react';
+import {CheckCircle2, Clock, Minus, Plus, RotateCcw, ShieldCheck, ShoppingCart, Star, Truck} from 'lucide-react';
 import {toast} from 'sonner';
-import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
-import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
 import {useTranslations} from 'next-intl';
-
-interface ProductVariant {
-    id: string;
-    name: string;
-    sku: string;
-    priceWithTax: number;
-    discountedPriceWithTax: number;
-    stockLevel: string;
-    customFields?: {netQuantity?: string | null} | null;
-    options: Array<{
-        id: string;
-        code: string;
-        name: string;
-        groupId: string;
-        group: {
-            id: string;
-            code: string;
-            name: string;
-        };
-    }>;
-}
+import {Button} from '@/components/ui/button';
+import {cn} from '@/lib/utils';
+import {addToCart} from '@/features/products/add-to-cart';
+import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
+import {Price} from '@/features/pricing/price';
+import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
+import {isOptionAvailable, type Selection} from '@/features/products/variant-selection';
+import {pointsFor} from '@/features/products/product-facts';
+import type {DetailProduct, DetailVariant} from '@/features/products/components/product-detail-types';
 
 interface ProductInfoProps {
-    product: {
-        id: string;
-        name: string;
-        description: string;
-        variants: ProductVariant[];
-        optionGroups: Array<{
-            id: string;
-            code: string;
-            name: string;
-            options: Array<{
-                id: string;
-                code: string;
-                name: string;
-            }>;
-        }>;
-    };
+    product: DetailProduct;
     currencyCode: string;
-    selectedOptions: Record<string, string>;
-    selectedVariant: ProductVariant | null | undefined;
-    onOptionChange: (groupId: string, optionId: string) => void;
+    categoryName?: string;
+    selection: Selection;
+    selectedVariant: DetailVariant | undefined;
+    onSelect: (groupId: string, optionId: string) => void;
+    pointsPerEuro: number;
+    ratingSlot?: ReactNode;
 }
 
-export function ProductInfo({product, currencyCode, selectedOptions, selectedVariant, onOptionChange}: ProductInfoProps) {
+/**
+ * Bloque de compra de la ficha: categoría, nombre, reseñas, precio con IVA, opciones
+ * (las que no casan con lo elegido salen tachadas pero se pueden pulsar), stock,
+ * cantidad, Añadir al carrito, puntos que suma la compra y mini franja de confianza.
+ * En móvil, el botón vive en una barra fija abajo.
+ */
+export function ProductInfo({product, currencyCode, categoryName, selection, selectedVariant, onSelect, pointsPerEuro, ratingSlot}: ProductInfoProps) {
     const t = useTranslations('Product');
+    const [quantity, setQuantity] = useState(1);
     const [isPending, startTransition] = useTransition();
     const [isAdded, setIsAdded] = useState(false);
 
-    const handleAddToCart = async () => {
+    const isInStock = !!selectedVariant && selectedVariant.stockLevel !== 'OUT_OF_STOCK';
+    const minPrice = Math.min(...product.variants.map((variant) => variant.discountedPriceWithTax));
+    const points = selectedVariant && pointsPerEuro > 0 ? pointsFor(selectedVariant.discountedPriceWithTax, quantity, pointsPerEuro) : 0;
+
+    const handleAddToCart = () => {
         if (!selectedVariant) return;
-
         startTransition(async () => {
-            const result = await addToCart(selectedVariant.id, 1);
-
-            if (result.success) {
-                setIsAdded(true);
-                const price = toMajorUnits(selectedVariant.priceWithTax);
-                trackEvent('add_to_cart', {
-                    currency: currencyCode,
-                    value: price,
-                    items: [{item_id: selectedVariant.sku || selectedVariant.id, item_name: product.name, item_variant: selectedVariant.name, price, quantity: 1}],
-                });
-                toast.success(t('addedToCartMessage'), {
-                    description: t('addedToCartDescription', {name: product.name}),
-                });
-
-                // Quita el estado «añadido» a los 2 segundos
-                setTimeout(() => setIsAdded(false), 2000);
-            } else {
-                toast.error(t('errorTitle'), {
-                    description: result.error || t('errorAddToCart'),
-                });
+            const result = await addToCart(selectedVariant.id, quantity);
+            if (!result.success) {
+                toast.error(t('errorTitle'), {description: result.error || t('errorAddToCart')});
+                return;
             }
+            setIsAdded(true);
+            const price = toMajorUnits(selectedVariant.priceWithTax);
+            trackEvent('add_to_cart', {
+                currency: currencyCode,
+                value: price * quantity,
+                items: [{item_id: selectedVariant.sku || selectedVariant.id, item_name: product.name, item_variant: selectedVariant.name, price, quantity}],
+            });
+            toast.success(t('addedToCartMessage'), {description: t('addedToCartDescription', {name: product.name})});
+            // Quita el estado «añadido» a los 2 segundos.
+            setTimeout(() => setIsAdded(false), 2000);
         });
     };
-
-    const isInStock = selectedVariant && selectedVariant.stockLevel !== 'OUT_OF_STOCK';
-    const canAddToCart = selectedVariant && isInStock;
 
     const buttonLabel = isAdded
         ? t('addedToCart')
         : isPending
             ? t('adding')
-            : !selectedVariant && product.optionGroups.length > 0
+            : !selectedVariant
                 ? t('selectOptions')
                 : !isInStock
                     ? t('outOfStock')
                     : t('addToCart');
 
+    const addButton = (className: string) => (
+        <Button size="lg" className={className} disabled={!isInStock || isPending} onClick={handleAddToCart}>
+            {isAdded ? <CheckCircle2 aria-hidden="true" /> : <ShoppingCart aria-hidden="true" />}
+            {buttonLabel}
+        </Button>
+    );
+
+    const price = selectedVariant ? (
+        <PriceWithDiscount before={selectedVariant.priceWithTax} after={selectedVariant.discountedPriceWithTax} currencyCode={currencyCode} size="lg" />
+    ) : (
+        <>
+            <span className="mr-1 font-sans text-sm font-normal text-muted-foreground">{t('from')}</span>
+            <Price value={minPrice} currencyCode={currencyCode} />
+        </>
+    );
+
+    const trust = [
+        {icon: Truck, label: t('trustBadges.fastShipping')},
+        {icon: ShieldCheck, label: t('trustBadges.secureCheckout')},
+        {icon: RotateCcw, label: t('trustBadges.freeReturns')},
+        {icon: Clock, label: t('trustBadges.guarantee')},
+    ];
+
     return (
         <>
-        <div className="space-y-6">
-            {/* Título y precio del producto */}
-            <div className="space-y-3">
-                <h1 className="text-display text-3xl md:text-4xl font-bold">{product.name}</h1>
-                {selectedVariant && (
-                    <div>
-                        <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums">
-                            <PriceWithDiscount
-                                before={selectedVariant.priceWithTax}
-                                after={selectedVariant.discountedPriceWithTax}
-                                currencyCode={currencyCode}
-                                size="lg"
-                            />
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">{t('taxIncluded')}</p>
+            <div className="space-y-6">
+                <div className="space-y-2">
+                    {categoryName && <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">{categoryName}</p>}
+                    <h1 className="text-5xl md:text-6xl">{product.name}</h1>
+                    {ratingSlot}
+                    <div className="pt-2">
+                        <p className="font-mono text-3xl font-semibold">{price}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{t('taxIncluded')}</p>
                     </div>
+                </div>
+
+                {product.optionGroups.map((group) => (
+                    <fieldset key={group.id}>
+                        <legend className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.name}</legend>
+                        <div className="flex flex-wrap gap-2">
+                            {group.options.map((option) => {
+                                const selected = selection[group.id] === option.id;
+                                const available = isOptionAvailable(product.variants, selection, group.id, option.id);
+                                return (
+                                    <button
+                                        key={option.id}
+                                        type="button"
+                                        aria-pressed={selected}
+                                        onClick={() => onSelect(group.id, option.id)}
+                                        className={cn(
+                                            'press rounded-md border px-4 py-2.5 text-sm font-medium transition-colors',
+                                            selected
+                                                ? 'border-primary-solid bg-primary-solid text-primary-foreground'
+                                                : available
+                                                    ? 'border-border hover:border-foreground'
+                                                    : 'border-dashed border-border text-muted-foreground line-through hover:border-foreground',
+                                        )}
+                                    >
+                                        {option.name}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </fieldset>
+                ))}
+
+                {selectedVariant && (
+                    <p className="text-sm">
+                        {isInStock ? (
+                            <span className="inline-flex items-center gap-1.5 font-medium text-success">
+                                <span className="size-2 rounded-full bg-success" aria-hidden="true" />
+                                {t('inStock')}
+                            </span>
+                        ) : (
+                            <span className="inline-flex items-center gap-1.5 font-medium text-destructive">
+                                <span className="size-2 rounded-full bg-destructive" aria-hidden="true" />
+                                {t('outOfStock')}
+                            </span>
+                        )}
+                    </p>
+                )}
+
+                <div className="flex items-center gap-3">
+                    <div role="group" aria-label={t('quantity')} className="flex h-12 items-center rounded-md border border-border">
+                        <Button type="button" variant="ghost" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1} aria-label={t('decreaseQuantity')}>
+                            <Minus aria-hidden="true" />
+                        </Button>
+                        <span aria-live="polite" className="w-8 text-center font-mono">{quantity}</span>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => setQuantity(Math.min(99, quantity + 1))} disabled={quantity >= 99} aria-label={t('increaseQuantity')}>
+                            <Plus aria-hidden="true" />
+                        </Button>
+                    </div>
+                    {/* En móvil el botón va en la barra fija de abajo. */}
+                    <div className="hidden flex-1 lg:block">{addButton('h-12 w-full text-base')}</div>
+                </div>
+
+                {points > 0 && (
+                    <p className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm">
+                        <Star className="size-4 shrink-0 text-primary-solid" fill="currentColor" aria-hidden="true" />
+                        {t('pointsEarned', {points})}
+                    </p>
+                )}
+
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                    {trust.map(({icon: Icon, label}) => (
+                        <li key={label} className="flex items-center gap-2">
+                            <Icon className="size-4 shrink-0 text-primary-solid" aria-hidden="true" />
+                            {label}
+                        </li>
+                    ))}
+                </ul>
+
+                {selectedVariant && (
+                    <p className="font-mono text-xs text-muted-foreground">
+                        {selectedVariant.customFields?.netQuantity && <>{t('netQuantity', {quantity: selectedVariant.customFields.netQuantity})} · </>}
+                        {t('sku', {sku: selectedVariant.sku})}
+                    </p>
                 )}
             </div>
 
-            <Separator />
-
-            {/* Descripción del producto */}
-            <div className="prose prose-sm max-w-none text-muted-foreground">
-                <div dangerouslySetInnerHTML={{__html: product.description}}/>
-            </div>
-
-            {/* Grupos de opciones */}
-            {product.optionGroups.length > 0 && (
-                <div className="space-y-5">
-                    {product.optionGroups.map((group) => (
-                        <div key={group.id} className="space-y-3">
-                            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                {group.name}
-                            </Label>
-                            <RadioGroup
-                                value={selectedOptions[group.id] || ''}
-                                onValueChange={(value) => onOptionChange(group.id, value)}
-                            >
-                                <div className="flex flex-wrap gap-2">
-                                    {group.options.map((option) => (
-                                        <div key={option.id}>
-                                            <RadioGroupItem
-                                                value={option.id}
-                                                id={option.id}
-                                                className="peer sr-only"
-                                            />
-                                            <Label
-                                                htmlFor={option.id}
-                                                className="flex items-center justify-center border border-border bg-popover px-5 py-2.5 text-sm font-medium hover:border-foreground/40 peer-data-[checked]:border-primary peer-data-[checked]:bg-primary peer-data-[checked]:text-primary-foreground cursor-pointer transition-colors"
-                                            >
-                                                {option.name}
-                                            </Label>
-                                        </div>
-                                    ))}
-                                </div>
-                            </RadioGroup>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/* Estado del stock */}
-            {selectedVariant && (
-                <div className="text-sm">
-                    {isInStock ? (
-                        <span className="inline-flex items-center gap-1.5 text-success font-medium">
-                            <span className="h-2 w-2 rounded-full bg-success" />
-                            {t('inStock')}
-                        </span>
-                    ) : (
-                        <span className="inline-flex items-center gap-1.5 text-destructive font-medium">
-                            <span className="h-2 w-2 rounded-full bg-destructive" />
-                            {t('outOfStock')}
-                        </span>
-                    )}
-                </div>
-            )}
-
-            {/* Botón de añadir al carrito: oculto en móvil, donde lo sustituye la barra fija de abajo */}
-            <div className="hidden lg:block pt-2">
-                <Button
-                    size="lg"
-                    className="w-full h-12 text-base font-semibold"
-                    disabled={!canAddToCart || isPending}
-                    onClick={handleAddToCart}
-                >
-                    {isAdded ? <CheckCircle2 className="mr-2 h-5 w-5"/> : <ShoppingCart className="mr-2 h-5 w-5"/>}
-                    {buttonLabel}
-                </Button>
-            </div>
-
-            {/* Referencia (SKU) */}
-            {selectedVariant?.customFields?.netQuantity && (
-                <div className="text-sm text-muted-foreground">
-                    {t('netQuantity', {quantity: selectedVariant.customFields.netQuantity})}
-                </div>
-            )}
-            {selectedVariant && (
-                <div className="font-mono text-xs text-muted-foreground">
-                    {t('sku', {sku: selectedVariant.sku})}
-                </div>
-            )}
-        </div>
-
-        {/* Móvil: barra de compra fija abajo, para que la acción principal quede al
-            alcance del pulgar esté donde esté el scroll; un botón normal (como en
-            escritorio) quedaría fuera de vista tras la descripción, las opciones y
-            las preguntas frecuentes en una ficha larga. */}
-        <div
-            className="lg:hidden fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-md px-4 py-3 flex items-center gap-3"
-            style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}
-        >
-            {selectedVariant && (
-                <p className="font-mono text-lg font-semibold tabular-nums shrink-0">
-                    <PriceWithDiscount
-                        before={selectedVariant.priceWithTax}
-                        after={selectedVariant.discountedPriceWithTax}
-                        currencyCode={currencyCode}
-                    />
-                </p>
-            )}
-            <Button
-                size="lg"
-                className="flex-1 h-12 text-base font-semibold"
-                disabled={!canAddToCart || isPending}
-                onClick={handleAddToCart}
+            {/* Móvil: barra de compra fija abajo, para que la acción principal quede al
+                alcance del pulgar esté donde esté el scroll. */}
+            <div
+                className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-md lg:hidden"
+                style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}
             >
-                {isAdded ? <CheckCircle2 className="mr-2 h-5 w-5"/> : <ShoppingCart className="mr-2 h-5 w-5"/>}
-                {buttonLabel}
-            </Button>
-        </div>
+                <p className="shrink-0 font-mono text-lg font-semibold">{price}</p>
+                {addButton('h-12 flex-1 text-base')}
+            </div>
         </>
     );
 }
