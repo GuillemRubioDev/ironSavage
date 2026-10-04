@@ -13,7 +13,6 @@ import {Navbar} from '@/site/navigation/navbar';
 import {Footer} from "@/site/footer";
 import {ThemeProvider} from "@/site/providers/theme-provider";
 import {CookieConsentRoot} from "@/site/cookie-consent/cookie-consent-root";
-import {DisablePinchZoom} from "@/site/app-shell/disable-pinch-zoom";
 import {EnvironmentBadge} from "@/site/app-shell/environment-badge";
 import {DEFAULT_OG_IMAGES, SITE_NAME, SITE_URL} from "@/config/metadata";
 
@@ -90,15 +89,13 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-// Sin zoom con dos dedos: la tienda debe comportarse como una app en el móvil
-// (decisión de producto; ver DisablePinchZoom para Safari de iOS, que ignora
-// userScalable). Ojo: impide ampliar con los dedos (WCAG 1.4.4); el tamaño de texto
-// del sistema o del navegador sigue funcionando.
+// maximumScale 5 a propósito: el zoom con dos dedos debe seguir funcionando por
+// accesibilidad (WCAG 1.4.4, Ley 11/2023). Lo que sí se quita es el zoom por doble
+// toque, con `touch-action: manipulation` en globals.css.
 export const viewport: Viewport = {
     width: "device-width",
     initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
+    maximumScale: 5,
     themeColor: [
         {media: "(prefers-color-scheme: light)", color: "#ffffff"},
         {media: "(prefers-color-scheme: dark)", color: "#000000"},
@@ -122,7 +119,6 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                 className={`${inter.variable} ${oswald.variable} ${geistMono.variable} ${blackOpsOne.variable} antialiased flex flex-col min-h-screen`}
             >
                 <EnvironmentBadge />
-                <DisablePinchZoom />
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
                         <CookieConsentRoot>
