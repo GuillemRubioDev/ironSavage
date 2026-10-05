@@ -121,3 +121,12 @@ test('la ficha compone desplegables, cifras, reseñas con ancla y estrellas junt
         for (const k of ['title', 'protein', 'flavors', 'netQuantity']) assert.ok(p.facts?.[k], `${loc}: falta facts.${k}`);
     }
 });
+
+// Arreglos de la revisión final de la fase 3B.
+test('al ocultarse la ficha (Activity de Next) todo vuelve a empezar: selección, cantidad y galería', async () => {
+    const client = await read('features/products/components/product-detail-client.tsx');
+    assert.match(client, /useEffect\(\(\) => \(\) => setVisit\(\(v\) => v \+ 1\), \[\]\)/);
+    assert.match(client, /<ProductDetailView key=\{visit\}/);
+    const quick = await read('features/products/components/quick-add-button.tsx');
+    assert.match(quick, /useEffect\(\(\) => \(\) => setOpen\(false\), \[\]\)/);
+});

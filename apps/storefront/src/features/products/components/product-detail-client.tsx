@@ -23,7 +23,17 @@ interface ProductDetailClientProps {
     detailsSlot?: ReactNode;
 }
 
-export function ProductDetailClient({product, currencyCode, categoryName, pointsPerEuro, ratingSlot, detailsSlot}: ProductDetailClientProps) {
+export function ProductDetailClient(props: ProductDetailClientProps) {
+    // Con cacheComponents, Next guarda la página que se deja oculta (<Activity>) con su
+    // estado y la vuelve a mostrar al pulsar "atrás". Al ocultarse se desmontan los
+    // efectos: ahí se cambia la clave para que al volver la selección, la cantidad y la
+    // galería empiecen de cero (spec 7.9: la selección no se recuerda).
+    const [visit, setVisit] = useState(0);
+    useEffect(() => () => setVisit((v) => v + 1), []);
+    return <ProductDetailView key={visit} {...props} />;
+}
+
+function ProductDetailView({product, currencyCode, categoryName, pointsPerEuro, ratingSlot, detailsSlot}: ProductDetailClientProps) {
     // La selección vive solo aquí (spec 7.9): ni URL ni almacenamiento. Al volver a la
     // ficha empieza de cero, salvo los grupos de una sola opción (7.8).
     const [selection, setSelection] = useState<Selection>(() => initialSelection(product.optionGroups));
