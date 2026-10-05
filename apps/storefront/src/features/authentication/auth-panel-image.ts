@@ -26,27 +26,33 @@ export interface AuthPanelImage {
     position: string;
 }
 
-/**
- * Imagen del panel de acceso configurada en el admin (Ajustes globales), o null. Si la
- * consulta falla (p. ej. un servidor aún sin el plugin), null: el panel usa el fondo de
- * marca. Se revalida con la etiqueta storefront-settings.
- */
-export async function getAuthPanelImage(): Promise<AuthPanelImage | null> {
+/** Lectura en caché: si la consulta falla lanza el error, y los errores no se cachean. */
+async function loadAuthPanelImage(): Promise<AuthPanelImage | null> {
     'use cache';
     cacheLife('minutes');
     cacheTag('storefront-settings');
 
+    const {data} = await query(StorefrontSettingsQuery);
+    const image = (data as unknown as {
+        storefrontSettings?: {authPanelImage?: {source: string; focalPoint?: {x: number; y: number} | null} | null};
+    }).storefrontSettings?.authPanelImage;
+    if (!image?.source) return null;
+    const focal = image.focalPoint;
+    return {
+        url: image.source,
+        position: focal ? `${Math.round(focal.x * 100)}% ${Math.round(focal.y * 100)}%` : '50% 50%',
+    };
+}
+
+/**
+ * Imagen del panel de acceso configurada en el admin (Ajustes globales), o null. Si la
+ * consulta falla (p. ej. un servidor aún sin el plugin), null y el panel usa el fondo de
+ * marca; ese fallo no se cachea, así que la imagen vuelve en la siguiente visita. Se
+ * revalida con la etiqueta storefront-settings.
+ */
+export async function getAuthPanelImage(): Promise<AuthPanelImage | null> {
     try {
-        const {data} = await query(StorefrontSettingsQuery);
-        const image = (data as unknown as {
-            storefrontSettings?: {authPanelImage?: {source: string; focalPoint?: {x: number; y: number} | null} | null};
-        }).storefrontSettings?.authPanelImage;
-        if (!image?.source) return null;
-        const focal = image.focalPoint;
-        return {
-            url: image.source,
-            position: focal ? `${Math.round(focal.x * 100)}% ${Math.round(focal.y * 100)}%` : '50% 50%',
-        };
+        return await loadAuthPanelImage();
     } catch {
         return null;
     }
