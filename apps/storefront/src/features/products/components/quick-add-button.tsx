@@ -1,6 +1,6 @@
 'use client';
 
-import {useRef, useState, useTransition} from 'react';
+import {useEffect, useRef, useState, useTransition} from 'react';
 import Image from 'next/image';
 import {Minus, Plus, ShoppingBag} from 'lucide-react';
 import {toast} from 'sonner';
@@ -37,6 +37,9 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
     const [loading, startLoading] = useTransition();
     const [adding, startAdding] = useTransition();
     const buttonRef = useRef<HTMLButtonElement>(null);
+    // Si la página se oculta con el selector abierto (p. ej. "Ver ficha completa"), al
+    // volver con "atrás" no debe seguir abierto: Next conserva el estado de la página.
+    useEffect(() => () => setOpen(false), []);
 
     const add = (loaded: Loaded, variant: QuickAddVariant, qty: number) => startAdding(async () => {
         const result = await addToCart(variant.id, qty);

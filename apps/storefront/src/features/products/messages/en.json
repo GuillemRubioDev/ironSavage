@@ -70,7 +70,10 @@
         "dose": "Do not exceed the recommended daily dose.",
         "diet": "Food supplements should not be used as a substitute for a varied and balanced diet and a healthy lifestyle.",
         "children": "Keep out of the reach of young children."
-      }
+      },
+      "description": "Description",
+      "ingredientsAllergens": "Ingredients and allergens",
+      "otherInfo": "Other information"
     },
     "netQuantity": "Net quantity: {quantity}",
     "quickAdd": "Add",
@@ -80,6 +83,14 @@
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
     "viewDetails": "View full details",
-    "productUnavailable": "This product is no longer available"
+    "productUnavailable": "This product is no longer available",
+    "pointsEarned": "{points, plural, one {You earn # point with this purchase} other {You earn # points with this purchase}}",
+    "gallery": "Photo gallery",
+    "facts": {
+      "title": "Key figures",
+      "protein": "protein per serving",
+      "flavors": "flavours",
+      "netQuantity": "net quantity"
+    }
   }
 }

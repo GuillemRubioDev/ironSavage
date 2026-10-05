@@ -1,103 +1,46 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState, type ReactNode} from 'react';
 import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
-import {useSearchParams} from 'next/navigation';
-import {usePathname, useRouter} from '@/platform/i18n/navigation';
-import {ProductImageCarousel} from '@/features/products/components/product-image-carousel';
+import {ProductGallery} from '@/features/products/components/product-gallery';
 import {ProductInfo} from '@/features/products/components/product-info';
 import {ProductBadges} from '@/features/products/components/product-badges';
 import {discountPercent} from '@/features/pricing/discount-percent';
-
-interface Asset {
-    id: string;
-    preview: string;
-    source: string;
-}
-
-interface ProductVariant {
-    id: string;
-    name: string;
-    sku: string;
-    priceWithTax: number;
-    discountedPriceWithTax: number;
-    stockLevel: string;
-    customFields?: {netQuantity?: string | null; isNew?: boolean | null} | null;
-    featuredAsset?: Asset | null;
-    options: Array<{
-        id: string;
-        code: string;
-        name: string;
-        groupId: string;
-        group: {
-            id: string;
-            code: string;
-            name: string;
-        };
-    }>;
-}
+import {findVariant, initialSelection, selectOption, type Selection} from '@/features/products/variant-selection';
+import {galleryFor} from '@/features/products/product-facts';
+import type {DetailProduct} from '@/features/products/components/product-detail-types';
 
 interface ProductDetailClientProps {
-    product: {
-        id: string;
-        name: string;
-        description: string;
-        customFields?: {isNew?: boolean | null} | null;
-        assets: Asset[];
-        variants: ProductVariant[];
-        optionGroups: Array<{
-            id: string;
-            code: string;
-            name: string;
-            options: Array<{
-                id: string;
-                code: string;
-                name: string;
-            }>;
-        }>;
-    };
-    searchParams: { [key: string]: string | string[] | undefined };
+    product: DetailProduct;
     currencyCode: string;
+    /** Categoría principal, encima del nombre. */
+    categoryName?: string;
+    /** Puntos por euro del programa Iron Rewards (configuración real del servidor). */
+    pointsPerEuro: number;
+    /** Estrellas y nº de reseñas (los aporta la feature de reseñas desde site/). */
+    ratingSlot?: ReactNode;
+    /** Desplegables de información (componente de servidor). */
+    detailsSlot?: ReactNode;
 }
 
-export function ProductDetailClient({product, searchParams, currencyCode}: ProductDetailClientProps) {
-    const pathname = usePathname();
-    const router = useRouter();
-    const currentSearchParams = useSearchParams();
+export function ProductDetailClient(props: ProductDetailClientProps) {
+    // Con cacheComponents, Next guarda la página que se deja oculta (<Activity>) con su
+    // estado y la vuelve a mostrar al pulsar "atrás". Al ocultarse se desmontan los
+    // efectos: ahí se cambia la clave para que al volver la selección, la cantidad y la
+    // galería empiecen de cero (spec 7.9: la selección no se recuerda).
+    const [visit, setVisit] = useState(0);
+    useEffect(() => () => setVisit((v) => v + 1), []);
+    return <ProductDetailView key={visit} {...props} />;
+}
 
-    // Inicializa las opciones seleccionadas desde la URL
-    const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
-        const initialOptions: Record<string, string> = {};
-
-        product.optionGroups.forEach((group) => {
-            const paramValue = searchParams[group.code];
-            if (typeof paramValue === 'string') {
-                const option = group.options.find((opt) => opt.code === paramValue);
-                if (option) {
-                    initialOptions[group.id] = option.id;
-                }
-            }
-        });
-
-        return initialOptions;
-    });
-
-    // Busca la variante que corresponde a las opciones seleccionadas
-    const selectedVariant = useMemo(() => {
-        if (product.variants.length === 1) {
-            return product.variants[0];
-        }
-
-        if (Object.keys(selectedOptions).length !== product.optionGroups.length) {
-            return null;
-        }
-
-        return product.variants.find((variant) => {
-            const variantOptionIds = variant.options.map((opt) => opt.id);
-            const selectedOptionIds = Object.values(selectedOptions);
-            return selectedOptionIds.every((optId) => variantOptionIds.includes(optId));
-        });
-    }, [selectedOptions, product.variants, product.optionGroups]);
+function ProductDetailView({product, currencyCode, categoryName, pointsPerEuro, ratingSlot, detailsSlot}: ProductDetailClientProps) {
+    // La selección vive solo aquí (spec 7.9): ni URL ni almacenamiento. Al volver a la
+    // ficha empieza de cero, salvo los grupos de una sola opción (7.8).
+    const [selection, setSelection] = useState<Selection>(() => initialSelection(product.optionGroups));
+    const selectedVariant = useMemo(
+        () => findVariant(product.variants, product.optionGroups, selection),
+        [product.variants, product.optionGroups, selection],
+    );
 
     // view_item de GA4: una vez por producto, y otra si se elige otra variante.
     const viewedVariantId = selectedVariant?.id;
@@ -112,54 +55,30 @@ export function ProductDetailClient({product, searchParams, currencyCode}: Produ
         });
     }, [viewedVariantId, product.id, product.name, product.variants, currencyCode]);
 
-    const handleOptionChange = (groupId: string, optionId: string) => {
-        setSelectedOptions((prev) => ({
-            ...prev,
-            [groupId]: optionId,
-        }));
-
-        const group = product.optionGroups.find((g) => g.id === groupId);
-        const option = group?.options.find((opt) => opt.id === optionId);
-
-        if (group && option) {
-            const params = new URLSearchParams(currentSearchParams);
-            params.set(group.code, option.code);
-            router.push(`${pathname}?${params.toString()}`, {scroll: false});
-        }
-    };
-
-    // Muestra primero la foto propia de la variante seleccionada; si no tiene, la
-    // galería general del producto.
-    const images = useMemo(() => {
-        const variantAsset = selectedVariant?.featuredAsset;
-        if (variantAsset) {
-            const rest = product.assets.filter((asset) => asset.id !== variantAsset.id);
-            return [variantAsset, ...rest];
-        }
-        return product.assets;
-    }, [selectedVariant, product.assets]);
+    // Al elegir variante se ven todas sus fotos y después las del producto.
+    const images = useMemo(() => galleryFor(product.assets, selectedVariant), [product.assets, selectedVariant]);
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-8 lg:gap-16">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
             <div className="relative lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)] lg:self-start">
-                <ProductImageCarousel key={selectedVariant?.id ?? 'default'} images={images} productName={product.name} />
+                <ProductGallery key={selectedVariant?.id ?? 'default'} images={images} productName={product.name} />
                 <ProductBadges
-                    percent={
-                        selectedVariant
-                            ? discountPercent(selectedVariant.priceWithTax, selectedVariant.discountedPriceWithTax)
-                            : 0
-                    }
+                    percent={selectedVariant ? discountPercent(selectedVariant.priceWithTax, selectedVariant.discountedPriceWithTax) : 0}
                     isNew={(product.customFields?.isNew ?? false) || (selectedVariant?.customFields?.isNew ?? false)}
                 />
             </div>
-            <div>
+            <div className="space-y-8">
                 <ProductInfo
                     product={product}
                     currencyCode={currencyCode}
-                    selectedOptions={selectedOptions}
+                    categoryName={categoryName}
+                    selection={selection}
                     selectedVariant={selectedVariant}
-                    onOptionChange={handleOptionChange}
+                    onSelect={(groupId, optionId) => setSelection(current => selectOption(product.variants, current, groupId, optionId))}
+                    pointsPerEuro={pointsPerEuro}
+                    ratingSlot={ratingSlot}
                 />
+                {detailsSlot}
             </div>
         </div>
     );
