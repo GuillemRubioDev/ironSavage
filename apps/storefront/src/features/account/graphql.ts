@@ -288,3 +288,27 @@ export const UpdateCustomerEmailAddressMutation = graphql(`
         }
     }
 `);
+
+// Último pedido pagado del cliente, para "Repetir último pedido" (estados en PAID_ORDER_STATES).
+export const GetLastPaidOrderQuery = graphql(`
+    query GetLastPaidOrder($states: [String!]!) {
+        activeCustomer {
+            id
+            orders(options: {take: 1, sort: {orderPlacedAt: DESC}, filter: {state: {in: $states}}}) {
+                items {
+                    id
+                    code
+                    lines {
+                        id
+                        quantity
+                        productVariant {
+                            id
+                            name
+                            stockLevel
+                        }
+                    }
+                }
+            }
+        }
+    }
+`);

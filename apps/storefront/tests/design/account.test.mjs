@@ -32,3 +32,29 @@ test('títulos de la cuenta al estilo nuevo y "Mi cuenta" en la cabecera', async
         assert.ok(a.summary && a.logout, `${loc}: faltan Account.summary/logout`);
     }
 });
+
+test('estados pagados y progreso de puntos', async () => {
+    const {PAID_ORDER_STATES, loyaltyProgress} = await load('features/account/account-summary.ts');
+    assert.ok(PAID_ORDER_STATES.includes('PaymentSettled') && PAID_ORDER_STATES.includes('Delivered'));
+    for (const s of ['AddingItems', 'ArrangingPayment', 'Cancelled']) assert.equal(PAID_ORDER_STATES.includes(s), false, s);
+    const cfg = {minRedeemablePoints: 100, pointValueInCents: 1, maxDiscountPerOrderCents: 2000};
+    assert.deepEqual(loyaltyProgress({...cfg, balance: 40}), {canRedeem: false, percent: 40, remaining: 60, redeemableCents: 0});
+    assert.deepEqual(loyaltyProgress({...cfg, balance: 500}), {canRedeem: true, percent: 100, remaining: 0, redeemableCents: 500});
+    assert.deepEqual(loyaltyProgress({...cfg, balance: 9000}), {canRedeem: true, percent: 100, remaining: 0, redeemableCents: 2000});
+});
+
+test('repetir último pedido: solo pagados, línea a línea con addToCart, omite agotados e informa', async () => {
+    assert.match(await read('features/account/graphql.ts'), /query GetLastPaidOrder\(\$states: \[String!\]!\)/);
+    const action = await read('features/account/repeat-last-order.ts');
+    assert.match(action, /^'use server';/);
+    assert.match(action, /PAID_ORDER_STATES/);
+    assert.match(action, /stockLevel === 'OUT_OF_STOCK'/);
+    assert.match(action, /await addToCart\(line\.productVariant\.id, line\.quantity\)/);
+    const button = await read('features/account/components/repeat-last-order-button.tsx');
+    assert.match(button, /router\.push\('\/carrito'\)/);
+    assert.match(button, /result\.added === 0/);
+    for (const loc of ['es', 'en']) {
+        const r = (await json(`features/account/messages/${loc}.json`)).Account.repeat;
+        for (const k of ['button', 'added', 'skipped', 'nothingAdded', 'noOrder', 'error']) assert.ok(r?.[k], `${loc}: falta repeat.${k}`);
+    }
+});

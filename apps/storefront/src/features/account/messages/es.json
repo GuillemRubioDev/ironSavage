@@ -115,6 +115,14 @@
     },
     "athlete": "Atleta",
     "summary": "Resumen",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "repeat": {
+      "button": "Repetir último pedido",
+      "added": "{count, plural, one {Añadido # producto al carrito} other {Añadidos # productos al carrito}}",
+      "skipped": "Sin stock o no disponibles: {names}",
+      "nothingAdded": "No se ha podido añadir ningún producto del último pedido.",
+      "noOrder": "No tienes pedidos pagados que repetir.",
+      "error": "No se ha podido repetir el pedido. Inténtalo de nuevo."
+    }
   }
 }

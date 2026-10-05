@@ -115,6 +115,14 @@
     },
     "athlete": "Athlete",
     "summary": "Overview",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "repeat": {
+      "button": "Reorder last order",
+      "added": "{count, plural, one {Added # product to your cart} other {Added # products to your cart}}",
+      "skipped": "Out of stock or unavailable: {names}",
+      "nothingAdded": "None of the products from your last order could be added.",
+      "noOrder": "You have no paid orders to reorder.",
+      "error": "The order couldn't be repeated. Please try again."
+    }
   }
 }
