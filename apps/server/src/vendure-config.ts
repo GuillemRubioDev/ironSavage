@@ -231,6 +231,30 @@ export const config: VendureConfig = {
             },
             ...variantFoodInformationFields,
         ],
+        ProductOption: [
+            {
+                // Muestra de color de la opción (p. ej. el sabor) en los botones de la ficha.
+                name: 'swatchColor',
+                type: 'string',
+                nullable: true,
+                public: true,
+                pattern: '^#[0-9a-fA-F]{6}$',
+                label: [
+                    { languageCode: LanguageCode.en, value: 'Swatch colour' },
+                    { languageCode: LanguageCode.es, value: 'Color de muestra' },
+                ],
+                description: [
+                    {
+                        languageCode: LanguageCode.en,
+                        value: 'Optional hex colour (e.g. #8B4513 for chocolate) shown as a dot on the option button in the store. Empty: no dot.',
+                    },
+                    {
+                        languageCode: LanguageCode.es,
+                        value: 'Color hexadecimal opcional (p. ej. #8B4513 para chocolate) que se ve como un punto en el botón de la opción en la tienda. Vacío: sin punto.',
+                    },
+                ],
+            },
+        ],
     },
     plugins: [
         // IDE interactivo de GraphQL para las dos APIs, solo en desarrollo. Lo

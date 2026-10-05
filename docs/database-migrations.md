@@ -206,8 +206,16 @@ el dashboard (**Customers → Athletes**), igual que los clientes o productos.
 - **Fichero**: [`apps/server/src/migrations/1791210000000-AddAuthPanelImage.ts`](../apps/server/src/migrations/1791210000000-AddAuthPanelImage.ts)
 - **Definición**: campo `authPanelImage` de `GlobalSettings` en [`apps/server/src/vendure-config.ts`](../apps/server/src/vendure-config.ts); la tienda la lee con la consulta pública `storefrontSettings` del plugin [`storefront-settings`](../apps/server/src/plugins/storefront-settings/).
 - **Por qué existe**: la imagen del panel de marca de login y registro se elige en el dashboard (Ajustes → Ajustes globales → «Imagen del panel de acceso»). Vacío: fondo oscuro de marca.
-- **Esquema**: `global_settings.customFieldsAuthpanelimageid` (integer, nulo) con clave foránea `FK_18de4e503601e8016ac0367b183` a `asset(id)`, y la columna booleana auxiliar `customFields__fix_relational_custom_fields__` que Vendure añade cuando una entidad solo tiene campos de tipo relación. Escrita a mano con los mismos nombres que genera TypeORM; conviene confirmarlo con `npx vendure migrate --generate Comprobacion` contra una base de datos local al día (no debería proponer cambios) antes del primer despliegue.
+- **Esquema**: `global_settings.customFieldsAuthpanelimageid` (integer, nulo) con clave foránea `FK_18de4e503601e8016ac0367b183` a `asset(id)`, y la columna booleana auxiliar `customFields__fix_relational_custom_fields__` que Vendure añade cuando una entidad solo tiene campos de tipo relación. Escrita a mano con los mismos nombres que genera TypeORM; comprobado aplicando todas las migraciones en una base de datos vacía y pidiendo después otra a TypeORM (no propone cambios).
 - **Solo añade una columna.** Segura con datos reales. Para borrar el archivo de la imagen, primero hay que quitarlo de los ajustes (la clave foránea no deja borrar un asset en uso).
+
+## Cambio: color de muestra de las opciones (migración `AddProductOptionSwatchColor`)
+
+- **Fichero**: [`apps/server/src/migrations/1791300000000-AddProductOptionSwatchColor.ts`](../apps/server/src/migrations/1791300000000-AddProductOptionSwatchColor.ts)
+- **Definición**: campo `swatchColor` de `ProductOption` en [`apps/server/src/vendure-config.ts`](../apps/server/src/vendure-config.ts) (público, formato `#RRGGBB`).
+- **Por qué existe**: cada opción de producto (p. ej. un sabor) puede llevar un color que la tienda muestra como un punto en su botón de la ficha. Se edita en el dashboard, en las opciones del producto. Vacío: sin punto.
+- **Esquema**: `product_option.customFieldsSwatchcolor` (character varying(255), nulo). Escrita a mano con el nombre que genera TypeORM y comprobada aplicando todas las migraciones en una base de datos vacía y pidiendo después otra (no propone cambios).
+- **Solo añade una columna nula.** Segura con datos reales.
 
 ## Actualizar tu base de datos local después de `git pull`
 

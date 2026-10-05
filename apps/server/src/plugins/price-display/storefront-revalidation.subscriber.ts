@@ -8,9 +8,12 @@ import {
     Logger,
     ProductChannelEvent,
     ProductEvent,
+    ProductOptionEvent,
+    ProductOptionGroupEvent,
     ProductVariantChannelEvent,
     ProductVariantEvent,
     PromotionEvent,
+    ShippingMethodEvent,
     StockMovementEvent,
     Type,
     VendureEvent,
@@ -26,6 +29,9 @@ const CATALOG_EVENTS: Array<Type<VendureEvent>> = [
     ProductVariantEvent,
     ProductChannelEvent,
     ProductVariantChannelEvent,
+    // Opciones: el nombre y el color de muestra salen en la ficha.
+    ProductOptionEvent,
+    ProductOptionGroupEvent,
     CollectionEvent,
     CollectionModificationEvent,
     AssetEvent,
@@ -65,6 +71,8 @@ export class StorefrontRevalidationSubscriber implements OnApplicationBootstrap,
         this.eventBus.ofType(StorefrontCacheEvent).subscribe(event => this.schedule(event.tags, false));
         // La imagen del panel de acceso vive en los ajustes globales.
         this.eventBus.ofType(GlobalSettingsEvent).subscribe(() => this.schedule(['storefront-settings'], false));
+        // Y el pedido mínimo del envío gratis sale de los métodos de envío.
+        this.eventBus.ofType(ShippingMethodEvent).subscribe(() => this.schedule(['storefront-settings'], false));
     }
 
     onModuleDestroy(): void {
