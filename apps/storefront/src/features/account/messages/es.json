@@ -123,6 +123,22 @@
       "nothingAdded": "No se ha podido añadir ningún producto del último pedido.",
       "noOrder": "No tienes pedidos pagados que repetir.",
       "error": "No se ha podido repetir el pedido. Inténtalo de nuevo."
+    },
+    "overview": {
+      "title": "Mi cuenta",
+      "greeting": "Hola, {name}",
+      "intro": "Desde aquí ves tus pedidos, tus puntos y tus datos.",
+      "pointsBalance": "{points} puntos",
+      "progressLabel": "Progreso hacia tu próximo canje",
+      "toFirstRedeem": "Te faltan {remaining} puntos para tu primer canje",
+      "canRedeem": "Puedes canjear hasta {amount} en tu próximo pedido",
+      "viewPoints": "Ver mis puntos",
+      "lastOrder": "Último pedido",
+      "viewOrder": "Ver pedido",
+      "startShopping": "Empezar a comprar",
+      "quickAccess": "Accesos rápidos",
+      "recentOrders": "Pedidos recientes",
+      "viewAllOrders": "Ver todos"
     }
   }
 }

@@ -58,3 +58,18 @@ test('repetir último pedido: solo pagados, línea a línea con addToCart, omite
         for (const k of ['button', 'added', 'skipped', 'nothingAdded', 'noOrder', 'error']) assert.ok(r?.[k], `${loc}: falta repeat.${k}`);
     }
 });
+
+test('resumen /mi-cuenta: saludo, puntos con barra, último pedido, accesos y pedidos recientes', async () => {
+    assert.match(await read('app/[locale]/mi-cuenta/page.tsx'), /export \{default, generateMetadata\} from '@\/features\/account\/routes\/summary\/page'/);
+    const page = await read('features/account/routes/summary/page.tsx');
+    assert.match(page, /loyaltyProgress\(/);
+    assert.match(page, /role="progressbar"/);
+    assert.match(page, /<OrderStatusBadge/);
+    assert.match(page, /\{lastPaid && <RepeatLastOrderButton \/>\}/);
+    assert.match(page, /t\('overview\.startShopping'\)/);
+    assert.match(page, /\.catch\(\(\) => null\)/);
+    for (const loc of ['es', 'en']) {
+        const o = (await json(`features/account/messages/${loc}.json`)).Account.overview;
+        for (const k of ['title', 'greeting', 'intro', 'toFirstRedeem', 'canRedeem', 'viewPoints', 'lastOrder', 'startShopping', 'quickAccess', 'recentOrders', 'viewAllOrders', 'viewOrder', 'pointsBalance']) assert.ok(o?.[k], `${loc}: falta overview.${k}`);
+    }
+});

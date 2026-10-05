@@ -123,6 +123,22 @@
       "nothingAdded": "None of the products from your last order could be added.",
       "noOrder": "You have no paid orders to reorder.",
       "error": "The order couldn't be repeated. Please try again."
+    },
+    "overview": {
+      "title": "My account",
+      "greeting": "Hi, {name}",
+      "intro": "Your orders, points and details, all in one place.",
+      "pointsBalance": "{points} points",
+      "progressLabel": "Progress to your next redemption",
+      "toFirstRedeem": "{remaining} points to go until your first redemption",
+      "canRedeem": "You can redeem up to {amount} on your next order",
+      "viewPoints": "View my points",
+      "lastOrder": "Last order",
+      "viewOrder": "View order",
+      "startShopping": "Start shopping",
+      "quickAccess": "Quick access",
+      "recentOrders": "Recent orders",
+      "viewAllOrders": "View all"
     }
   }
 }
