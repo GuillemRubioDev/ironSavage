@@ -230,11 +230,10 @@
 }
 
 @layer base {
-  /* Sin zoom por doble toque en el móvil (se comporta más como una app), pero
-     manteniendo el zoom con dos dedos por accesibilidad: `manipulation` solo
-     permite desplazar y pellizcar. */
+  /* Sin zoom en el móvil (ni doble toque ni dos dedos): solo se permite desplazar.
+     Ver el viewport de site/locale-layout.tsx y site/app-shell/no-pinch-zoom.tsx. */
   html {
-    touch-action: manipulation;
+    touch-action: pan-x pan-y;
     /* Sin el recuadro gris al tocar un enlace o botón (en una app no existe). */
     -webkit-tap-highlight-color: transparent;
     /* El hueco de la barra de scroll siempre reservado: en escritorio, pasar de una
@@ -364,6 +363,22 @@
 }
 .animate-glitch-in { animation: glitch-in var(--dur-hero) var(--ease-out) both; }
 
+/* Barra de envío gratis (features/cart/free-shipping-bar.tsx): se llena desde cero al
+   aparecer; con transform, no con el ancho. */
+@keyframes bar-fill { from { transform: scaleX(0); } }
+.animate-bar-fill { animation: bar-fill 700ms var(--ease-out) 150ms both; }
+/* Dentro de un contenido aún oculto (panel del carrito) no arranca: se llena al verse. */
+[data-pendiente] .animate-bar-fill { animation: none; }
+
+/* Lista que entra escalonada y rápida (idea "Animated List" de React Bits): el
+   contenido del panel del carrito al revelarse. Máximo 6 pasos de 40 ms. */
+.entrada-lista > * { animation: fade-up 320ms var(--ease-out) both; }
+.entrada-lista > :nth-child(2) { animation-delay: 40ms; }
+.entrada-lista > :nth-child(3) { animation-delay: 80ms; }
+.entrada-lista > :nth-child(4) { animation-delay: 120ms; }
+.entrada-lista > :nth-child(5) { animation-delay: 160ms; }
+.entrada-lista > :nth-child(n+6) { animation-delay: 200ms; }
+
 /* Las entradas ya vistas no se repiten al volver a una página que Next tenía oculta
    (components/motion/entrance-once.tsx); se quedan en su estado final. */
 [data-animado] { animation: none !important; }
@@ -391,19 +406,36 @@
 /* La cabecera es la misma en todas las páginas: con nombre propio queda quieta en vez
    de fundirse con la página (el fundido de toda la pantalla parecía un parpadeo). */
 .vt-site-header { view-transition-name: site-header; }
+/* Indicador de entorno (site/app-shell/environment-badge.tsx): grupo propio, encima
+   de la cabecera y sin animar; es idéntico antes y después. */
+.vt-environment-badge { view-transition-name: environment-badge; }
+::view-transition-group(environment-badge), ::view-transition-old(environment-badge), ::view-transition-new(environment-badge) { animation: none; }
+::view-transition-old(environment-badge) { display: none; }
 /* El banner de cookies también: sin nombre desaparecía un instante en cada cambio. */
 .vt-cookie-banner { view-transition-name: cookie-banner; }
 /* Acceso: el panel de la imagen queda quieto entre login y registro, y el formulario
    (anclado arriba) solo funde su contenido. */
 .vt-auth-panel { view-transition-name: auth-panel; }
 .vt-auth-form { view-transition-name: auth-form; view-transition-class: pagina; }
+/* Logo y pestañas: entre login y registro son los mismos, así que no se animan (la
+   pestaña activa cambia en seco y el logo no se mueve). Si solo existen en una de las
+   dos páginas (:only-child, p. ej. de la portada al login), salen o entran con ella. */
+.vt-auth-head { view-transition-name: auth-head; }
+::view-transition-group(auth-head), ::view-transition-new(auth-head) { animation: none; }
+::view-transition-old(auth-head) { display: none; }
+::view-transition-old(auth-head):only-child { display: block; animation: vt-salida 80ms cubic-bezier(.4, 0, 1, 1) both; }
+::view-transition-new(auth-head):only-child { animation: vt-fundido-entrada 140ms var(--ease-out) 80ms both; }
+/* El formulario se releva solo con opacidad, también en móvil: con el desplazamiento
+   de la entrada parecía que el bloque bajaba y volvía a subir. */
+::view-transition-new(auth-form.pagina) { animation-name: vt-fundido-entrada; }
 .vt-auth-panel-text { view-transition-name: auth-panel-text; view-transition-class: pagina; }
 ::view-transition-old(auth-form), ::view-transition-new(auth-form) { height: auto; object-fit: none; object-position: top; }
 
 /* La página (clase «pagina», que pone el ViewTransition del layout) y el formulario de
    acceso no se funden cruzados: la página vieja sale y la nueva entra cuando ya ha
-   salido (el retraso de la entrada es la duración de la salida). Con el fundido cruzado las dos se veían a la vez a media opacidad (formularios de
-   login y registro mezclados, la lista de productos encima del skeleton de la ficha).
+   salido (el retraso de la entrada es la duración de la salida). Con el fundido
+   cruzado las dos se veían a la vez a media opacidad (formularios de login y registro
+   mezclados, la lista de productos encima del skeleton de la ficha).
    El grupo no anima el tamaño: entre páginas de distinta altura no hay nada que
    interpolar, solo cambia el contenido. */
 ::view-transition-group(.pagina) { animation: none; }
@@ -411,6 +443,7 @@
 ::view-transition-new(.pagina) { animation: vt-entrada 180ms var(--ease-out) 90ms both; }
 @keyframes vt-salida { to { opacity: 0; } }
 @keyframes vt-entrada { from { opacity: 0; transform: translateY(8px); } }
+@keyframes vt-fundido-entrada { from { opacity: 0; } }
 /* Escritorio: más corto y sin desplazamiento. En una pantalla grande el mismo
    movimiento recorre más superficie y se percibe más lento y pesado; aquí basta un
    relevo de opacidad rápido (~220 ms en total). */
@@ -420,8 +453,7 @@
      contenido nuevo que ya haya llegado. */
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 220ms; }
   ::view-transition-old(.pagina) { animation-duration: 80ms; }
-  ::view-transition-new(.pagina) { animation: vt-entrada-escritorio 140ms var(--ease-out) 80ms both; }
-  @keyframes vt-entrada-escritorio { from { opacity: 0; } }
+  ::view-transition-new(.pagina) { animation: vt-fundido-entrada 140ms var(--ease-out) 80ms both; }
 }
 
 /* Móvil: los campos a 16 px como mínimo. Con menos, Safari amplía la página al tocar
@@ -455,7 +487,7 @@
     scroll-behavior: auto !important;
   }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
-  .stagger > *, .animate-hero-in, .animate-hero-zoom, .animate-check-draw, .animate-glitch-in, .marquee-track { animation: none !important; }
+  .stagger > *, .entrada-lista > *, .animate-bar-fill, .animate-hero-in, .animate-hero-zoom, .animate-check-draw, .animate-glitch-in, .marquee-track { animation: none !important; }
   .confetti { display: none !important; }
   /* React ViewTransition nombra sus propios nodos: se anulan todos, no solo (root). */
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }

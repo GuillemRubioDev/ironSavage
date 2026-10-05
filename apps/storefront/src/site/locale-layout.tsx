@@ -18,6 +18,7 @@ import {CookieConsentRoot} from "@/site/cookie-consent/cookie-consent-root";
 import {EnvironmentBadge} from "@/site/app-shell/environment-badge";
 import {AppFreshness} from "@/site/app-shell/app-freshness";
 import {EntranceOnce} from "@/components/motion/entrance-once";
+import {NoPinchZoom} from "@/site/app-shell/no-pinch-zoom";
 import {DEFAULT_OG_IMAGES, SITE_NAME, SITE_URL} from "@/config/metadata";
 
 // Inter: texto de interfaz, cuerpo y precios (con cifras tabulares).
@@ -78,13 +79,17 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-// maximumScale 5 a propósito: el zoom con dos dedos debe seguir funcionando por
-// accesibilidad (WCAG 1.4.4, Ley 11/2023). Lo que sí se quita es el zoom por doble
-// toque, con `touch-action: manipulation` en globals.css.
+// Sin zoom con dos dedos ni doble toque en el móvil, por decisión de diseño (el zoom
+// accidental descolocaba la tienda). Chrome Android respeta maximumScale/userScalable;
+// iOS Safari los ignora y lo bloquea NoPinchZoom (site/app-shell/no-pinch-zoom.tsx), y
+// globals.css usa `touch-action: pan-x pan-y`. Incumple WCAG 1.4.4 para el gesto: queda
+// declarado en la página de accesibilidad, con las alternativas (zoom de texto del
+// navegador y "Forzar zoom" de Chrome, que anula esta configuración).
 export const viewport: Viewport = {
     width: "device-width",
     initialScale: 1,
-    maximumScale: 5,
+    maximumScale: 1,
+    userScalable: false,
     themeColor: [
         {media: "(prefers-color-scheme: light)", color: "#ffffff"},
         {media: "(prefers-color-scheme: dark)", color: "#000000"},
@@ -146,6 +151,7 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                             <Toaster/>
                             <AppFreshness/>
                             <EntranceOnce/>
+                            <NoPinchZoom/>
                         </CartDrawerProvider>
                         </CookieConsentRoot>
                     </ThemeProvider>

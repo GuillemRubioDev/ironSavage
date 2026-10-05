@@ -17,7 +17,7 @@ export function CookieBanner() {
             role="dialog"
             aria-modal="false"
             aria-label={t("title")}
-            className="vt-cookie-banner fixed inset-x-0 bottom-0 z-[60] max-h-[100dvh] overflow-y-auto overscroll-contain print:hidden border-t border-border bg-card/95 backdrop-blur-md shadow-[0_-4px_24px_rgba(0,0,0,0.15)]"
+            className="vt-cookie-banner fixed inset-x-0 bottom-0 z-[60] max-h-[100dvh] overflow-y-auto overscroll-contain print:hidden border-t border-border bg-card shadow-[0_-4px_24px_rgba(0,0,0,0.15)]"
         >
             <div className="container mx-auto flex flex-col gap-4 px-4 py-5 md:flex-row md:items-center md:justify-between">
                 <div className="max-w-2xl">

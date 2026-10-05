@@ -3,7 +3,7 @@
 import {useEffect} from 'react';
 
 // Animaciones de entrada que solo deben verse la primera vez (ver globals.css).
-const ENTRANCES = '.stagger > *, .animate-hero-in, .animate-hero-zoom';
+const ENTRANCES = '.stagger > *, .animate-hero-in, .animate-hero-zoom, .animate-bar-fill';
 
 /**
  * Next conserva ocultas (display: none) las páginas ya visitadas para volver a ellas al
