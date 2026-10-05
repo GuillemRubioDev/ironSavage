@@ -54,21 +54,16 @@ function RegistrationFormSkeleton() {
     );
 }
 
-async function RegisterContent({searchParams}: {searchParams: Promise<Record<string, string | string[] | undefined>>}) {
-    const resolvedParams = await searchParams;
-    const redirectTo = resolvedParams?.redirectTo as string | undefined;
-
-    return <RegistrationForm redirectTo={redirectTo} />;
-}
-
-export default async function RegisterPage({searchParams}: PageProps<'/[locale]/registro'>) {
+// Suspense: el formulario lee la URL (useSearchParams) y al prerenderizar necesita un
+// límite; al navegar en el cliente no llega a mostrarse el skeleton.
+export default async function RegisterPage() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Auth'});
 
     return (
         <AuthShell tab="register" title={t('createAccount')} subtitle={t('signUpMessage')} panelText={t('joinUs')}>
             <Suspense fallback={<RegistrationFormSkeleton />}>
-                <RegisterContent searchParams={searchParams} />
+                <RegistrationForm />
             </Suspense>
         </AuthShell>
     );

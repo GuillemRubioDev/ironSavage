@@ -4,7 +4,7 @@ import {Skeleton} from '@/components/ui/skeleton';
 export default function AthleteLoading() {
     return (
         <div>
-            <Skeleton className="h-9 w-56 mb-2"/>
+            <Skeleton className="h-11 w-56 mb-2 md:h-14"/>
             <Skeleton className="h-4 w-full max-w-2xl mb-6"/>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -48,11 +49,9 @@ function createRegistrationSchema(t: ReturnType<typeof useTranslations<'Auth'>>)
 
 type RegistrationFormData = z.infer<ReturnType<typeof createRegistrationSchema>>;
 
-interface RegistrationFormProps {
-    redirectTo?: string;
-}
-
-export function RegistrationForm({ redirectTo }: RegistrationFormProps) {
+/** redirectTo se lee de la URL en el cliente; ver LoginForm. */
+export function RegistrationForm() {
+    const redirectTo = useSearchParams().get('redirectTo') ?? undefined;
     const t = useTranslations('Auth');
     const [isPending, startTransition] = useTransition();
     const [serverError, setServerError] = useState<string | null>(null);

@@ -27,6 +27,17 @@ const nextConfig: NextConfig = {
     // workspace en ejecución. Es lo que permite una imagen Docker ligera.
     output: 'standalone',
     cacheComponents: true,
+    experimental: {
+        // Next 16.3 predice el árbol de rutas a partir de la URL ("optimistic
+        // routing") para no pedírselo al servidor. Con el prefijo de idioma
+        // opcional de next-intl (`localePrefix: 'as-needed'`), /registro se
+        // reescribe a /es/registro en el proxy, pero el cliente lo interpreta como
+        // [locale]="registro": monta un layout raíz entero nuevo (cabecera, main y
+        // pie) durante la navegación y vuelve al bueno cuando responde el
+        // servidor. Se veía como un fotograma en blanco, skeletons de más y los
+        // botones de la cabecera parpadeando en cada cambio de página.
+        optimisticRouting: false,
+    },
     // Quita la cabecera "X-Powered-By: Next.js": revela menos información del
     // servidor; no cambia nada funcional.
     poweredByHeader: false,

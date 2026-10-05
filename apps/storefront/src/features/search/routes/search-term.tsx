@@ -21,7 +21,3 @@ export async function SearchTerm({searchParams}: SearchTermProps) {
         />
     )
 }
-
-export function SearchTermSkeleton() {
-    return <div className="h-40 animate-pulse bg-brand" />;
-}

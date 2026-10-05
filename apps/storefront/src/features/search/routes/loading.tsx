@@ -1,11 +1,6 @@
-import { SearchTermSkeleton } from '@/features/search/routes/search-term';
-import { SearchResultsSkeleton } from '@/features/search/components/search-results-skeleton';
+import {ListingSkeleton} from '@/features/products/listing-skeleton';
 
 export default function SearchLoading() {
-    return (
-        <div className="container mx-auto px-4 py-8">
-            <SearchTermSkeleton />
-            <SearchResultsSkeleton />
-        </div>
-    );
+    // La cabecera de la búsqueda no muestra el nº de productos.
+    return <ListingSkeleton count={false} />;
 }

@@ -23,7 +23,9 @@ export function Reveal({
 
     useEffect(() => {
         const el = ref.current;
-        if (!el) return;
+        // Ya revelado: al volver a una página que Next tenía oculta, el efecto se
+        // vuelve a ejecutar y no debe ocultar otra vez lo que ya se vio.
+        if (!el || el.dataset.reveal === 'visible') return;
         // Si ya está en pantalla al montar, no se oculta (evita un parpadeo).
         const rect = el.getBoundingClientRect();
         if (rect.top < window.innerHeight && rect.bottom > 0) {
