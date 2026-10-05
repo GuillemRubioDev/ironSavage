@@ -32,6 +32,8 @@ export function ProductGallery({images, productName}: {images: GalleryImage[]; p
     }
 
     const goTo = (index: number) => {
+        // Ir a la foto actual no desplaza nada (no llegaría scrollend y quedaría bloqueado).
+        if (index === current) return;
         setCurrent(index);
         const track = trackRef.current;
         if (!track) return;

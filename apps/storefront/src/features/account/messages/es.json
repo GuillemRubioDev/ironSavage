@@ -113,6 +113,33 @@
       "verifying": "Verificando correo...",
       "verifyingDesc": "Espera mientras verificamos tu dirección de correo."
     },
-    "athlete": "Atleta"
+    "athlete": "Atleta",
+    "summary": "Resumen",
+    "logout": "Cerrar sesión",
+    "repeat": {
+      "button": "Repetir último pedido",
+      "added": "{count, plural, one {Añadido # producto al carrito} other {Añadidos # productos al carrito}}",
+      "skipped": "Sin stock o no disponibles: {names}",
+      "nothingAdded": "No se ha podido añadir ningún producto del último pedido.",
+      "noOrder": "No tienes pedidos pagados que repetir.",
+      "error": "No se ha podido repetir el pedido. Inténtalo de nuevo.",
+      "partial": "Añadidos con menos unidades por falta de stock: {names}"
+    },
+    "overview": {
+      "title": "Mi cuenta",
+      "greeting": "Hola, {name}",
+      "intro": "Desde aquí ves tus pedidos, tus puntos y tus datos.",
+      "pointsBalance": "{points, plural, one {# punto} other {# puntos}}",
+      "progressLabel": "Progreso hacia tu próximo canje",
+      "toFirstRedeem": "{remaining, plural, one {Te falta # punto para tu primer canje} other {Te faltan # puntos para tu primer canje}}",
+      "canRedeem": "Puedes canjear hasta {amount} en tu próximo pedido",
+      "viewPoints": "Ver mis puntos",
+      "lastOrder": "Último pedido",
+      "viewOrder": "Ver pedido",
+      "startShopping": "Empezar a comprar",
+      "quickAccess": "Accesos rápidos",
+      "recentOrders": "Pedidos recientes",
+      "viewAllOrders": "Ver todos"
+    }
   }
 }

@@ -64,7 +64,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/mi-cuenta/p
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6">{t('myOrders')}</h1>
+            <h1 className="text-5xl md:text-6xl mb-6">{t('myOrders')}</h1>
 
             {orders.length === 0 ? (
                 <div className="text-center py-12">

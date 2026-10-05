@@ -56,6 +56,7 @@ export const GetCustomerOrdersQuery = graphql(`
                     totalWithTax
                     currencyCode
                     createdAt
+                    orderPlacedAt
                     updatedAt
                     lines {
                         id
@@ -284,6 +285,35 @@ export const UpdateCustomerEmailAddressMutation = graphql(`
             ... on ErrorResult {
                 errorCode
                 message
+            }
+        }
+    }
+`);
+
+// Último pedido pagado del cliente, para "Repetir último pedido" (estados en PAID_ORDER_STATES).
+export const GetLastPaidOrderQuery = graphql(`
+    query GetLastPaidOrder($states: [String!]!) {
+        activeCustomer {
+            id
+            orders(options: {take: 1, sort: {orderPlacedAt: DESC}, filter: {state: {in: $states}}}) {
+                items {
+                    id
+                    code
+                    state
+                    totalWithTax
+                    currencyCode
+                    orderPlacedAt
+                    createdAt
+                    lines {
+                        id
+                        quantity
+                        productVariant {
+                            id
+                            name
+                            stockLevel
+                        }
+                    }
+                }
             }
         }
     }

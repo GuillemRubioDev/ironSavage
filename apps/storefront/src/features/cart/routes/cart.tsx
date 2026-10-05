@@ -6,6 +6,7 @@ import {getActiveCurrencyCode} from "@/features/currency/currency-server";
 import {cacheLife, cacheTag} from "next/cache";
 import {query} from "@/platform/vendure/api";
 import {GetActiveOrderQuery} from '@/features/cart/graphql';
+import {getAuthToken} from '@/platform/vendure/auth-token';
 import {GetMyLoyaltyQuery} from '@/features/loyalty/graphql';
 import {getLoyaltyProgramConfig} from '@/features/loyalty/program-config';
 import {maxRedeemablePoints} from '@/features/loyalty/redemption';
@@ -20,13 +21,16 @@ export async function Cart() {
     const currencyCode = await getActiveCurrencyCode();
     // El saldo de puntos (null para invitados) y la configuración del programa se leen a
     // la vez que el pedido; si fallan, el carrito se pinta igual, sin el canje.
+    const token = await getAuthToken();
     const [{data}, loyalty, config] = await Promise.all([
         query(GetActiveOrderQuery, {}, {
             useAuthToken: true,
             languageCode: locale,
             currencyCode,
         }),
-        query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true}).catch(() => null),
+        // Sin token no hay sesión ni puntos: no se pregunta a Vendure (con token de
+        // invitado la consulta devuelve null sin coste visible).
+        token ? query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true}).catch(() => null) : null,
         getLoyaltyProgramConfig().catch(() => null),
     ]);
     const loyaltyAccount = loyalty?.data.loyaltyAccount ?? null;
@@ -42,16 +46,18 @@ export async function Cart() {
     const applied = appliedSurcharge && config
         ? {points: Math.round(-appliedSurcharge.priceWithTax / config.pointValueInCents), amount: appliedSurcharge.priceWithTax}
         : null;
+    const maxPoints = loyaltyAccount && config ? maxRedeemablePoints({
+        balance: loyaltyAccount.balance,
+        pointValueInCents: config.pointValueInCents,
+        maxDiscountPerOrderCents: config.maxDiscountPerOrderCents,
+        orderTotalWithTax: activeOrder.totalWithTax,
+    }) : 0;
     const redemption = loyaltyAccount && config ? (
         <PointsRedemption
             balance={loyaltyAccount.balance}
             minPoints={config.minRedeemablePoints}
-            maxPoints={maxRedeemablePoints({
-                balance: loyaltyAccount.balance,
-                pointValueInCents: config.pointValueInCents,
-                maxDiscountPerOrderCents: config.maxDiscountPerOrderCents,
-                orderTotalWithTax: activeOrder.totalWithTax,
-            })}
+            maxPoints={maxPoints}
+            orderTooSmall={loyaltyAccount.balance >= config.minRedeemablePoints && maxPoints < config.minRedeemablePoints}
             pointValueInCents={config.pointValueInCents}
             currencyCode={activeOrder.currencyCode}
             applied={applied}
@@ -59,7 +65,7 @@ export async function Cart() {
     ) : null;
 
     return (
-        <div className="grid gap-8 pb-24 lg:grid-cols-3 lg:pb-0">
+        <div className="grid gap-8 lg:grid-cols-3">
             <CartItems activeOrder={activeOrder}/>
 
             <div className="lg:col-span-1">

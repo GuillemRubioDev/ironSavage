@@ -154,7 +154,7 @@ export default function OrderSummary() {
     <>
       {/* Móvil: resumen plegable */}
       <div className="lg:hidden">
-        <Card className="border-0 bg-brand text-brand-fg">
+        <Card className="border-0 bg-brand text-brand-fg ring-0">
           <Collapsible open={isOpen} onOpenChange={setIsOpen}>
             <CollapsibleTrigger className="w-full">
               <CardHeader className="cursor-pointer">
@@ -183,7 +183,7 @@ export default function OrderSummary() {
 
       {/* Escritorio: resumen fijo siempre visible */}
       <div className="hidden lg:block">
-        <Card className="border-0 bg-brand text-brand-fg lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)]">
+        <Card className="border-0 bg-brand text-brand-fg ring-0 lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)]">
           <CardHeader>
             <CardTitle>{t('orderSummary')}</CardTitle>
           </CardHeader>

@@ -143,10 +143,14 @@ export default function CheckoutFlow() {
         </span>
         <span className="text-lg font-semibold">{label}</span>
         {done && currentStep !== step && (
-          <span className="ml-auto flex min-w-0 items-center gap-3 pr-2 text-sm font-normal normal-case not-italic">
-            {summary && <span className="hidden truncate text-muted-foreground sm:inline">{summary}</span>}
-            <span className="shrink-0 font-semibold text-primary">{t('change')}</span>
-          </span>
+          <>
+            {/* Nombre accesible corto ("…, Cambiar"); lo visible lleva además el resumen. */}
+            <span className="sr-only">{t('change')}</span>
+            <span aria-hidden="true" className="ml-auto flex min-w-0 items-center gap-3 pr-2 text-sm font-normal normal-case not-italic">
+              {summary && <span className="hidden truncate text-muted-foreground sm:inline">{summary}</span>}
+              <span className="shrink-0 font-semibold text-primary">{t('change')}</span>
+            </span>
+          </>
         )}
       </span>
     );
@@ -163,7 +167,7 @@ export default function CheckoutFlow() {
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {t('stepOf', {current: currentIndex + 1, total: stepOrder.length})} · {stepLabels[currentStep]}
             </p>
-            <div className="h-1 rounded-full bg-muted">
+            <div aria-hidden="true" className="h-1 rounded-full bg-muted">
               <div className="h-1 rounded-full bg-primary-solid transition-[width] duration-[var(--dur-slow)]" style={{width: `${((currentIndex + 1) / stepOrder.length) * 100}%`}} />
             </div>
           </div>

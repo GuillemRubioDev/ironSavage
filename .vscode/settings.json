@@ -1,0 +1,19 @@
+{
+  // Carpetas generadas que VS Code no debe vigilar ni indexar: las copias temporales de
+  // verificación (tmp-*) y los builds de Next tienen decenas de miles de archivos y
+  // llegaban a dejar la ventana sin memoria (error "oom").
+  "files.watcherExclude": {
+    "**/tmp-*/**": true,
+    "**/.next/**": true,
+    "**/.superpowers/**": true,
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/tmp-*": true,
+    "**/.next": true,
+    "**/.superpowers": true
+  },
+  "files.exclude": {
+    "**/tmp-*": true
+  }
+}

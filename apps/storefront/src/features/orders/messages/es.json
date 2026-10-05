@@ -18,7 +18,6 @@
     "confirmingPayment": "Confirmando tu pago…",
     "confirmingPaymentMessage": "Esta página se actualizará automáticamente en cuanto se confirme tu pago. Número de pedido",
     "thankYou": "Gracias por tu pedido. Tu número de pedido es",
-    "emailConfirmation": "Te enviaremos un correo con los detalles de tu pedido y la información de seguimiento.",
     "orderSummary": "Resumen del pedido",
     "qty": "Cant.: {quantity}",
     "total": "Total",
@@ -32,6 +31,7 @@
     "invoiceText": "La factura estará disponible en el detalle del pedido, en tu cuenta.",
     "viewOrder": "Ver pedido",
     "accountTitle": "Tu cuenta",
-    "accountText": "Consulta tus pedidos y tus puntos cuando quieras."
+    "accountText": "Consulta tus pedidos y tus puntos cuando quieras.",
+    "viewPoints": "Ver mis puntos"
   }
 }

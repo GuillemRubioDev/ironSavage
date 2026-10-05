@@ -7,6 +7,7 @@ import { CheckCircle } from 'lucide-react';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
 import {SITE_NAME, noIndexRobots} from '@/config/metadata';
+import {AuthShell} from '@/features/authentication/components/auth-shell';
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
@@ -60,13 +61,12 @@ async function VerifyPendingContent({searchParams}: {searchParams: Promise<Recor
 export default async function VerifyPendingPage({searchParams}: PageProps<'/[locale]/verify-pending'>) {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Verify'});
+    const tAuth = await getTranslations({locale, namespace: 'Auth'});
     return (
-        <div className="flex min-h-[calc(100vh-var(--header-offset))] items-center justify-center px-4">
-            <div className="w-full max-w-md space-y-6">
-                <Suspense fallback={<div>{t('loading')}</div>}>
-                    <VerifyPendingContent searchParams={searchParams} />
-                </Suspense>
-            </div>
-        </div>
+        <AuthShell panelText={tAuth('welcomeBack')}>
+            <Suspense fallback={<div>{t('loading')}</div>}>
+                <VerifyPendingContent searchParams={searchParams} />
+            </Suspense>
+        </AuthShell>
     );
 }

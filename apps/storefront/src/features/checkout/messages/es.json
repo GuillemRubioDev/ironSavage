@@ -72,7 +72,6 @@
     "noShippingAddress": "No se ha establecido dirección de envío",
     "noDeliveryMethod": "No se ha seleccionado método de envío",
     "noPaymentMethod": "No se ha seleccionado método de pago",
-    "placeOrder": "Pagar pedido",
     "termsAcceptance": "He leído y acepto los <terms>términos y condiciones</terms>, incluidas las condiciones de <returns>envío y desistimiento</returns>, y la <privacy>política de privacidad</privacy>",
     "termsRequired": "Acepta los términos y condiciones para poder pagar el pedido.",
     "completeAllSteps": "Completa todos los pasos anteriores antes de confirmar tu pedido",

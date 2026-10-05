@@ -134,7 +134,7 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                                                     : 'border-dashed border-border text-muted-foreground line-through hover:border-foreground',
                                         )}
                                     >
-{option.name}
+                                        {option.name}
                                         {!available && !selected && <span className="sr-only"> ({t('optionUnavailable')})</span>}
                                     </button>
                                 );
@@ -200,6 +200,7 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
             {/* Móvil: barra de compra fija abajo, para que la acción principal quede al
                 alcance del pulgar esté donde esté el scroll. */}
             <div
+                data-mobile-bar
                 className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-md lg:hidden"
                 style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}
             >

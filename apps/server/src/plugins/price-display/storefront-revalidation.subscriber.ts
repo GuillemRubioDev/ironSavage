@@ -4,6 +4,7 @@ import {
     CollectionEvent,
     CollectionModificationEvent,
     EventBus,
+    GlobalSettingsEvent,
     Logger,
     ProductChannelEvent,
     ProductEvent,
@@ -62,6 +63,8 @@ export class StorefrontRevalidationSubscriber implements OnApplicationBootstrap,
             this.eventBus.ofType(eventType).subscribe(() => this.schedule(CATALOG_TAGS, true));
         }
         this.eventBus.ofType(StorefrontCacheEvent).subscribe(event => this.schedule(event.tags, false));
+        // La imagen del panel de acceso vive en los ajustes globales.
+        this.eventBus.ofType(GlobalSettingsEvent).subscribe(() => this.schedule(['storefront-settings'], false));
     }
 
     onModuleDestroy(): void {

@@ -18,7 +18,6 @@
     "confirmingPayment": "Confirming your payment…",
     "confirmingPaymentMessage": "This page will update automatically once your payment is confirmed. Order number",
     "thankYou": "Thank you for your order. Your order number is",
-    "emailConfirmation": "We'll send you an email with your order details and tracking information.",
     "orderSummary": "Order Summary",
     "qty": "Qty: {quantity}",
     "total": "Total",
@@ -32,6 +31,7 @@
     "invoiceText": "Your invoice will be available in the order details in your account.",
     "viewOrder": "View order",
     "accountTitle": "Your account",
-    "accountText": "Check your orders and points any time."
+    "accountText": "Check your orders and points any time.",
+    "viewPoints": "View my points"
   }
 }

@@ -33,7 +33,13 @@ export function CartDrawerProvider({children}: {children: ReactNode}) {
     const openDrawer = useCallback((productSlug: string) => {
         setData(undefined);
         setOpen(true);
-        startLoading(async () => setData(await getCartDrawerData(productSlug)));
+        startLoading(async () => {
+            try {
+                setData(await getCartDrawerData(productSlug));
+            } catch {
+                setData(null);
+            }
+        });
     }, []);
     const value = useMemo(() => ({open: openDrawer}), [openDrawer]);
 

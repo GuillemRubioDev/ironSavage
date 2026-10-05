@@ -72,7 +72,6 @@
     "noShippingAddress": "No shipping address set",
     "noDeliveryMethod": "No delivery method selected",
     "noPaymentMethod": "No payment method selected",
-    "placeOrder": "Place order and pay",
     "termsAcceptance": "I have read and accept the <terms>terms and conditions</terms>, including the <returns>shipping and withdrawal</returns> conditions, and the <privacy>privacy policy</privacy>",
     "termsRequired": "Accept the terms and conditions to pay for your order.",
     "completeAllSteps": "Please complete all previous steps before placing your order",

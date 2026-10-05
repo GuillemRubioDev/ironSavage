@@ -44,7 +44,7 @@ export default async function InvoicesPage() {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6">{t('myInvoices')}</h1>
+            <h1 className="text-5xl md:text-6xl mb-6">{t('myInvoices')}</h1>
 
             {invoices.length === 0 ? (
                 <div className="text-center py-12">

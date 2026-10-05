@@ -20,7 +20,7 @@ export default async function AccountLayout({children}: LayoutProps<'/[locale]/m
 
             <div className="flex gap-8">
                 {/* Escritorio: barra lateral */}
-                <aside className="hidden md:block w-64 shrink-0">
+                <aside className="hidden w-64 shrink-0 md:sticky md:top-[calc(var(--header-offset)+1.5rem)] md:block md:self-start">
                     <Suspense>
                         <AccountNav layout="vertical" />
                     </Suspense>

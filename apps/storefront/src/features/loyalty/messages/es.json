@@ -78,7 +78,8 @@
         "NO_CUSTOMER": "Inicia sesión para canjear puntos.",
         "generic": "No se han podido canjear los puntos. Inténtalo de nuevo."
       },
-      "range": "entre {min} y {max} puntos"
+      "range": "entre {min} y {max} puntos",
+      "orderTooSmall": "El pedido aún es pequeño para canjear {min} puntos."
     }
   }
 }

@@ -33,6 +33,7 @@
     "accountSignedOutHint": "Sign in to see your profile, orders, invoices and points.",
     "cartTotal": "Cart, {count, plural, =0 {empty} one {# item} other {# items}}",
     "pauseAnnouncements": "Pause announcements",
-    "goals": "Goals"
+    "goals": "Goals",
+    "myAccount": "My account"
   }
 }

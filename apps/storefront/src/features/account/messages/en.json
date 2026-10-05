@@ -113,6 +113,33 @@
       "verifying": "Verifying Email...",
       "verifyingDesc": "Please wait while we verify your email address."
     },
-    "athlete": "Athlete"
+    "athlete": "Athlete",
+    "summary": "Overview",
+    "logout": "Sign out",
+    "repeat": {
+      "button": "Reorder last order",
+      "added": "{count, plural, one {Added # product to your cart} other {Added # products to your cart}}",
+      "skipped": "Out of stock or unavailable: {names}",
+      "nothingAdded": "None of the products from your last order could be added.",
+      "noOrder": "You have no paid orders to reorder.",
+      "error": "The order couldn't be repeated. Please try again.",
+      "partial": "Added with fewer units due to low stock: {names}"
+    },
+    "overview": {
+      "title": "My account",
+      "greeting": "Hi, {name}",
+      "intro": "Your orders, points and details, all in one place.",
+      "pointsBalance": "{points, plural, one {# point} other {# points}}",
+      "progressLabel": "Progress to your next redemption",
+      "toFirstRedeem": "{remaining, plural, one {# point to go until your first redemption} other {# points to go until your first redemption}}",
+      "canRedeem": "You can redeem up to {amount} on your next order",
+      "viewPoints": "View my points",
+      "lastOrder": "Last order",
+      "viewOrder": "View order",
+      "startShopping": "Start shopping",
+      "quickAccess": "Quick access",
+      "recentOrders": "Recent orders",
+      "viewAllOrders": "View all"
+    }
   }
 }

@@ -5,7 +5,7 @@ import { RequestContext, VendureEvent } from '@vendure/core';
  * apps/storefront/src/platform/revalidation/handler.ts). Son las etiquetas
  * "generales": cada una cubre todas sus páginas en todos los idiomas y monedas.
  */
-export type StorefrontCacheTag = 'products' | 'collection' | 'collections' | 'banners' | 'news';
+export type StorefrontCacheTag = 'products' | 'collection' | 'collections' | 'banners' | 'news' | 'storefront-settings';
 
 /**
  * Lo publican los plugins propios cuyo contenido muestra el storefront (banners,

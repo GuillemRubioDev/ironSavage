@@ -47,7 +47,7 @@ export function OrderDetail({orderPromise, invoicePromise}: OrderDetailProps) {
                 </Button>
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">{t('order', {code: order.code})}</h1>
+                        <h1 className="text-5xl md:text-6xl">{t('order', {code: order.code})}</h1>
                         <p className="text-muted-foreground mt-1">
                             {t('placedOn', {date: formatDate(order.createdAt, 'long', locale)})}
                         </p>
