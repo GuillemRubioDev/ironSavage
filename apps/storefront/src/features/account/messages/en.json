@@ -113,6 +113,8 @@
       "verifying": "Verifying Email...",
       "verifyingDesc": "Please wait while we verify your email address."
     },
-    "athlete": "Athlete"
+    "athlete": "Athlete",
+    "summary": "Overview",
+    "logout": "Sign out"
   }
 }

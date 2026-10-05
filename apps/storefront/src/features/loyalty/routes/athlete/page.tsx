@@ -64,7 +64,7 @@ export default async function AthletePage() {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
+            <h1 className="text-5xl md:text-6xl mb-2">{t('title')}</h1>
             <p className="text-muted-foreground mb-6 max-w-2xl">{t('intro')}</p>
 
             {!profile.enabled && (

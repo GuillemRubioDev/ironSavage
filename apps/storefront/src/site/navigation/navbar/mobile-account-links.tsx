@@ -1,5 +1,5 @@
 import type {ComponentType} from 'react';
-import {FileText, LogIn, MapPin, Package, Star, User, UserPlus} from 'lucide-react';
+import {FileText, LayoutDashboard, LogIn, MapPin, Package, Star, User, UserPlus} from 'lucide-react';
 import {getTranslations} from 'next-intl/server';
 import {SheetClose} from '@/components/ui/sheet';
 import {Link} from '@/platform/i18n/navigation';
@@ -37,6 +37,7 @@ export async function MobileAccountLinks() {
             </p>
             {customer ? (
                 <nav aria-label={t('account')} className="flex flex-col gap-0.5">
+                    <SheetLink href="/mi-cuenta" icon={LayoutDashboard} label={t('myAccount')} />
                     <SheetLink href="/mi-cuenta/profile" icon={User} label={t('profile')} />
                     <SheetLink href="/mi-cuenta/pedidos" icon={Package} label={t('orders')} />
                     <SheetLink href="/mi-cuenta/facturas" icon={FileText} label={t('invoices')} />

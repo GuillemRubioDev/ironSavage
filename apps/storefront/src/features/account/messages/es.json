@@ -113,6 +113,8 @@
       "verifying": "Verificando correo...",
       "verifyingDesc": "Espera mientras verificamos tu dirección de correo."
     },
-    "athlete": "Atleta"
+    "athlete": "Atleta",
+    "summary": "Resumen",
+    "logout": "Cerrar sesión"
   }
 }
