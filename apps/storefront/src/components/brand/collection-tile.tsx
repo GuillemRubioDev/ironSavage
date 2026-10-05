@@ -32,7 +32,7 @@ export function CollectionTile({href, name, imageUrl, variant = 'category', inde
             <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" aria-hidden="true" />
             <span className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-4">
                 {variant === 'goal' && index !== undefined && (
-                    <span className="font-mono text-xs font-bold text-primary-text">{String(index + 1).padStart(2, '0')}</span>
+                    <span aria-hidden="true" className="font-mono text-xs font-bold text-primary-text">{String(index + 1).padStart(2, '0')}</span>
                 )}
                 <span className="font-display text-xl font-extrabold uppercase italic leading-none md:text-2xl">{name}</span>
                 <span aria-hidden="true" className="h-0.5 w-6 bg-primary-solid transition-[width] duration-[var(--dur-base)] group-hover:w-12" />

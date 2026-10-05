@@ -72,3 +72,26 @@ export const GetLoyaltyProgramConfigQuery = graphql(`
         }
     }
 `);
+
+// Canje de puntos sobre el pedido activo (el servidor valida mínimo, tope, total y saldo).
+export const RedeemLoyaltyPointsMutation = graphql(`
+    mutation RedeemLoyaltyPoints($points: Int!) {
+        redeemLoyaltyPoints(points: $points) {
+            __typename
+            ... on LoyaltyRedemption {
+                discountCents
+                balance
+            }
+            ... on LoyaltyRedemptionError {
+                errorCode
+                message
+            }
+        }
+    }
+`);
+
+export const CancelLoyaltyRedemptionMutation = graphql(`
+    mutation CancelLoyaltyRedemption {
+        cancelLoyaltyPointsRedemption
+    }
+`);

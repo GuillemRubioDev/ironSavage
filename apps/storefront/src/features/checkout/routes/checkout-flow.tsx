@@ -12,12 +12,13 @@ import ReviewStep from './steps/review-step';
 import OrderSummary from './order-summary';
 import { useCheckout } from './checkout-provider';
 import {useTranslations} from 'next-intl';
+import { stepSummary } from '@/features/checkout/step-summary';
 
 type CheckoutStep = 'contact' | 'shipping' | 'delivery' | 'payment' | 'review';
 
 export default function CheckoutFlow() {
   const t = useTranslations('Checkout');
-  const { order, isGuest } = useCheckout();
+  const { order, isGuest, paymentMethods, selectedPaymentMethodCode } = useCheckout();
 
   // begin_checkout de GA4: una vez por pedido, no en cada paso o recarga.
   const orderCode = order?.code;
@@ -116,12 +117,57 @@ export default function CheckoutFlow() {
     review: t('steps.review'),
   };
 
+  const summaryData = {
+    email: order.customer?.emailAddress,
+    address: order.shippingAddress,
+    shippingMethodName: order.shippingLines?.[0]?.shippingMethod.name,
+    paymentMethodName: paymentMethods.find((m) => m.code === selectedPaymentMethodCode)?.name,
+  };
+
+  // Cabecera de cada panel: número (o check), título y, en los pasos ya hechos que no
+  // están abiertos, lo elegido en una línea más "Cambiar" (el panel entero es pulsable).
+  // Función de render (no un componente definido dentro de otro, que se remontaría en cada render).
+  const stepTitle = (step: CheckoutStep, label: string) => {
+    const done = completedSteps.has(step) && step !== 'review';
+    const summary = stepSummary(step, summaryData);
+    return (
+      <span className="flex w-full min-w-0 items-center gap-3">
+        <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+          done
+            ? 'bg-success text-success-foreground'
+            : currentStep === step
+            ? 'bg-primary-solid text-primary-foreground'
+            : 'bg-muted text-muted-foreground'
+        }`}>
+          {done ? <Check className="size-4" /> : getStepNumber(step)}
+        </span>
+        <span className="text-lg font-semibold">{label}</span>
+        {done && currentStep !== step && (
+          <span className="ml-auto flex min-w-0 items-center gap-3 pr-2 text-sm font-normal normal-case not-italic">
+            {summary && <span className="hidden truncate text-muted-foreground sm:inline">{summary}</span>}
+            <span className="shrink-0 font-semibold text-primary">{t('change')}</span>
+          </span>
+        )}
+      </span>
+    );
+  };
+
+  const currentIndex = stepOrder.indexOf(currentStep);
+
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2">
-        {/* Indicador de progreso de pasos */}
-        <div className="mb-8 hidden sm:block">
-          <div className="flex items-center justify-between">
+        {/* Indicador de progreso de pasos: compacto en móvil, con círculos desde sm. */}
+        <div className="mb-8">
+          <div className="sm:hidden">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t('stepOf', {current: currentIndex + 1, total: stepOrder.length})} · {stepLabels[currentStep]}
+            </p>
+            <div className="h-1 rounded-full bg-muted">
+              <div className="h-1 rounded-full bg-primary-solid transition-[width] duration-[var(--dur-slow)]" style={{width: `${((currentIndex + 1) / stepOrder.length) * 100}%`}} />
+            </div>
+          </div>
+          <div className="hidden items-center justify-between sm:flex">
             {stepOrder.map((step, index) => (
               <div key={step} className="flex items-center flex-1 last:flex-0">
                 <div className="flex flex-col items-center gap-1.5">
@@ -172,19 +218,8 @@ export default function CheckoutFlow() {
         >
           {isGuest && (
             <AccordionItem value="contact" className="border rounded-lg px-6">
-              <AccordionTrigger headingLevel={2} className="hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                    completedSteps.has('contact')
-                      ? 'bg-success text-success-foreground'
-                      : currentStep === 'contact'
-                      ? 'bg-primary-solid text-primary-foreground'
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
-                    {completedSteps.has('contact') ? <Check className="size-4" /> : getStepNumber('contact')}
-                  </div>
-                  <span className="text-lg font-semibold">{t('contactInformation')}</span>
-                </div>
+              <AccordionTrigger headingLevel={2} className="w-full hover:no-underline">
+                {stepTitle('contact', t('contactInformation'))}
               </AccordionTrigger>
               <AccordionContent className="pt-4">
                 <ContactStep
@@ -200,22 +235,11 @@ export default function CheckoutFlow() {
             disabled={!canAccessStep('shipping')}
           >
             <AccordionTrigger headingLevel={2}
-              className="hover:no-underline"
+              className="w-full hover:no-underline"
               disabled={!canAccessStep('shipping')}
             >
-              <div className="flex items-center gap-3">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                  completedSteps.has('shipping')
-                    ? 'bg-success text-success-foreground'
-                    : currentStep === 'shipping'
-                    ? 'bg-primary-solid text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
-                }`}>
-                  {completedSteps.has('shipping') ? <Check className="size-4" /> : getStepNumber('shipping')}
-                </div>
-                <span className="text-lg font-semibold">{t('shippingAddress')}</span>
-              </div>
-            </AccordionTrigger>
+                {stepTitle('shipping', t('shippingAddress'))}
+              </AccordionTrigger>
             <AccordionContent className="pt-4">
               <ShippingAddressStep
                 onComplete={() => handleStepComplete('shipping')}
@@ -229,22 +253,11 @@ export default function CheckoutFlow() {
             disabled={!canAccessStep('delivery')}
           >
             <AccordionTrigger headingLevel={2}
-              className="hover:no-underline"
+              className="w-full hover:no-underline"
               disabled={!canAccessStep('delivery')}
             >
-              <div className="flex items-center gap-3">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                  completedSteps.has('delivery')
-                    ? 'bg-success text-success-foreground'
-                    : currentStep === 'delivery'
-                    ? 'bg-primary-solid text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
-                }`}>
-                  {completedSteps.has('delivery') ? <Check className="size-4" /> : getStepNumber('delivery')}
-                </div>
-                <span className="text-lg font-semibold">{t('deliveryMethod')}</span>
-              </div>
-            </AccordionTrigger>
+                {stepTitle('delivery', t('deliveryMethod'))}
+              </AccordionTrigger>
             <AccordionContent className="pt-4">
               <DeliveryStep
                 onComplete={() => handleStepComplete('delivery')}
@@ -258,22 +271,11 @@ export default function CheckoutFlow() {
             disabled={!canAccessStep('payment')}
           >
             <AccordionTrigger headingLevel={2}
-              className="hover:no-underline"
+              className="w-full hover:no-underline"
               disabled={!canAccessStep('payment')}
             >
-              <div className="flex items-center gap-3">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                  completedSteps.has('payment')
-                    ? 'bg-success text-success-foreground'
-                    : currentStep === 'payment'
-                    ? 'bg-primary-solid text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
-                }`}>
-                  {completedSteps.has('payment') ? <Check className="size-4" /> : getStepNumber('payment')}
-                </div>
-                <span className="text-lg font-semibold">{t('paymentMethod')}</span>
-              </div>
-            </AccordionTrigger>
+                {stepTitle('payment', t('paymentMethod'))}
+              </AccordionTrigger>
             <AccordionContent className="pt-4">
               <PaymentStep
                 onComplete={() => handleStepComplete('payment')}
@@ -287,20 +289,11 @@ export default function CheckoutFlow() {
             disabled={!canAccessStep('review')}
           >
             <AccordionTrigger headingLevel={2}
-              className="hover:no-underline"
+              className="w-full hover:no-underline"
               disabled={!canAccessStep('review')}
             >
-              <div className="flex items-center gap-3">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                  currentStep === 'review'
-                    ? 'bg-primary-solid text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
-                }`}>
-                  {getStepNumber('review')}
-                </div>
-                <span className="text-lg font-semibold">{t('reviewAndPlaceOrder')}</span>
-              </div>
-            </AccordionTrigger>
+                {stepTitle('review', t('reviewAndPlaceOrder'))}
+              </AccordionTrigger>
             <AccordionContent className="pt-4">
               <ReviewStep
                 onEditStep={setCurrentStep}

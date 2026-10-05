@@ -309,16 +309,6 @@
   animation: pop-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* Parallax de scroll barato y solo por GPU: un translateY que fija JS en una
-   variable CSS, aplicado solo dentro de .parallax-layer. Sin librerías de
-   animación. Se desactiva por completo con reduced-motion. */
-@media (prefers-reduced-motion: no-preference) {
-  .parallax-layer {
-    transform: translateY(calc(var(--parallax-offset, 0) * 1px));
-    will-change: transform;
-  }
-}
-
 /* --- Movimiento (Fase 1 del rediseño) --- */
 /* Reveal: el script pone data-reveal="pending" (oculto) y luego "visible". */
 .reveal {
@@ -350,6 +340,15 @@
 /* Zoom lento de la foto del banner de portada (site/home/hero-banner.tsx). */
 @keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
 .animate-hero-zoom { animation: hero-zoom 9s var(--ease-out) both; }
+
+/* Confirmación de pedido (features/orders): check que se dibuja y confeti rojo breve. */
+@keyframes check-draw { from { stroke-dashoffset: 48; } to { stroke-dashoffset: 0; } }
+.animate-check-draw { stroke-dasharray: 48; animation: check-draw var(--dur-slow) var(--ease-out) 200ms both; }
+@keyframes confetti-fall {
+  0% { opacity: 1; transform: translate3d(0, -20px, 0) rotate(0deg); }
+  100% { opacity: 0; transform: translate3d(var(--dx, 0), 260px, 0) rotate(var(--rot, 360deg)); }
+}
+.confetti > span { position: absolute; top: 0; width: 8px; height: 14px; border-radius: 2px; animation: confetti-fall 1.4s var(--ease-out) both; animation-delay: var(--delay, 0ms); }
 
 /* Cinta de avisos (components/brand/marquee.tsx): bucle continuo; se para al pasar el ratón. */
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -386,7 +385,8 @@
     scroll-behavior: auto !important;
   }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
-  .stagger > *, .animate-hero-in, .animate-hero-zoom, .marquee-track { animation: none !important; }
+  .stagger > *, .animate-hero-in, .animate-hero-zoom, .animate-check-draw, .marquee-track { animation: none !important; }
+  .confetti { display: none !important; }
   /* React ViewTransition nombra sus propios nodos: se anulan todos, no solo (root). */
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }

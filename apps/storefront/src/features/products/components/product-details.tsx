@@ -41,8 +41,8 @@ const text = 'text-sm leading-relaxed text-muted-foreground whitespace-pre-line'
 /**
  * Desplegables de la ficha: descripción (abierta) e información alimentaria
  * obligatoria (Reg. (UE) 1169/2011 art. 14: disponible antes de comprar). El
- * contenido se monta aunque el desplegable esté cerrado (keepMounted), así que está
- * siempre en la página. Solo aparecen los bloques rellenos; en los complementos
+ * contenido se monta aunque el desplegable esté cerrado (hiddenUntilFound): está
+ * siempre en la página y Ctrl+F lo encuentra (y abre el desplegable). Solo aparecen los bloques rellenos; en los complementos
  * alimenticios se añaden siempre las advertencias del RD 1487/2009.
  */
 export async function ProductDetails({locale, description, data}: {locale: string; description: string; data: FoodInformationData}) {
@@ -120,8 +120,8 @@ export async function ProductDetails({locale, description, data}: {locale: strin
         <Accordion multiple defaultValue={['description']} className="w-full border-t border-border">
             {items.map((item) => (
                 <AccordionItem key={item.value} value={item.value}>
-                    <AccordionTrigger className="text-sm font-semibold uppercase tracking-wide">{item.title}</AccordionTrigger>
-                    <AccordionContent keepMounted>{item.body}</AccordionContent>
+                    <AccordionTrigger headingLevel={2} className="text-sm font-semibold uppercase tracking-wide">{item.title}</AccordionTrigger>
+                    <AccordionContent hiddenUntilFound>{item.body}</AccordionContent>
                 </AccordionItem>
             ))}
         </Accordion>

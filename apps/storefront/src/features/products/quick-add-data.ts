@@ -35,7 +35,7 @@ export async function loadQuickAddProduct(slug: string, locale: string, currency
 
     const {data} = await query(GetProductDetailQuery, {slug}, {languageCode: locale, currencyCode});
     const product = data.product;
-    if (!product || !product.enabled || product.customFields?.visibleInStorefront === false) return null;
+    if (!product || !product.enabled || !product.customFields?.visibleInStorefront) return null;
 
     return {
         name: product.name,

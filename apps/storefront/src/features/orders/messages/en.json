@@ -24,6 +24,14 @@
     "total": "Total",
     "shippingAddress": "Shipping Address",
     "continueShopping": "Continue Shopping",
-    "viewOrders": "View Orders"
+    "viewOrders": "View Orders",
+    "pointsEarned": "This order earns you {points} Iron Rewards points",
+    "nextTitle": "What happens next",
+    "nextText": "We'll pack your order and email you the details and shipping tracking.",
+    "invoiceTitle": "Invoice",
+    "invoiceText": "Your invoice will be available in the order details in your account.",
+    "viewOrder": "View order",
+    "accountTitle": "Your account",
+    "accountText": "Check your orders and points any time."
   }
 }

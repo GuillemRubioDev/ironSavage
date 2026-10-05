@@ -6,7 +6,7 @@
       "address": "Address",
       "delivery": "Delivery",
       "payment": "Payment",
-      "review": "Review"
+      "review": "Confirm"
     },
     "contactInformation": "Contact Information",
     "shippingAddress": "Shipping Address",
@@ -86,6 +86,10 @@
     "pricesIncludeTax": "All prices include VAT",
     "taxIncludedNote": "Of which, VAT ({rate}%)",
     "item": "item",
-    "items": "items"
+    "items": "items",
+    "loyaltyDiscount": "Iron Rewards points discount",
+    "change": "Change",
+    "payAmount": "Pay {amount} securely",
+    "stepOf": "Step {current} of {total}"
   }
 }

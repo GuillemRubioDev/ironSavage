@@ -31,7 +31,7 @@ export async function KeyFigures({locale, nutrition, optionGroups, variants}: {
                 <ul className="grid gap-4 sm:grid-cols-3">
                     {figures.map((figure) => (
                         <li key={figure.label} className="rounded-lg border border-brand-line bg-brand-surface p-6 text-center">
-                            <span className="block font-display text-5xl font-black italic leading-none text-primary-text md:text-6xl">{figure.value}</span>
+                            <span className={`block break-words font-display font-black italic leading-none text-primary-text ${figure.value.includes('·') ? 'text-3xl md:text-4xl' : 'text-5xl md:text-6xl'}`}>{figure.value}</span>
                             <span className="mt-2 block text-sm text-brand-muted">{figure.label}</span>
                         </li>
                     ))}

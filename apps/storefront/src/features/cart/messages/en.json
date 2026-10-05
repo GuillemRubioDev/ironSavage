@@ -30,6 +30,11 @@
     "decreaseQuantity": "Decrease quantity of {name}",
     "increaseQuantity": "Increase quantity of {name}",
     "removeItem": "Remove {name} from cart",
-    "quantityOf": "Quantity of {name}:"
+    "quantityOf": "Quantity of {name}:",
+    "drawerTitle": "Added to cart",
+    "combineWith": "Pairs well with",
+    "viewCart": "View cart",
+    "drawerError": "The product is in your cart. We couldn't load the summary.",
+    "loyaltyDiscount": "Iron Rewards points discount"
   }
 }

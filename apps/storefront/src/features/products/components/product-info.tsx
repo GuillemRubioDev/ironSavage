@@ -7,6 +7,7 @@ import {useTranslations} from 'next-intl';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
 import {addToCart} from '@/features/products/add-to-cart';
+import {useCartDrawer} from '@/features/cart/cart-drawer';
 import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
 import {Price} from '@/features/pricing/price';
 import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
@@ -33,12 +34,14 @@ interface ProductInfoProps {
  */
 export function ProductInfo({product, currencyCode, categoryName, selection, selectedVariant, onSelect, pointsPerEuro, ratingSlot}: ProductInfoProps) {
     const t = useTranslations('Product');
+    const {open: openCartDrawer} = useCartDrawer();
     const [quantity, setQuantity] = useState(1);
     const [isPending, startTransition] = useTransition();
     const [isAdded, setIsAdded] = useState(false);
 
     const isInStock = !!selectedVariant && selectedVariant.stockLevel !== 'OUT_OF_STOCK';
-    const minPrice = Math.min(...product.variants.map((variant) => variant.discountedPriceWithTax));
+    // La Shop API solo devuelve variantes activas: un producto sin ninguna no tiene precio.
+    const minPrice = product.variants.length > 0 ? Math.min(...product.variants.map((variant) => variant.discountedPriceWithTax)) : null;
     const points = selectedVariant && pointsPerEuro > 0 ? pointsFor(selectedVariant.discountedPriceWithTax, quantity, pointsPerEuro) : 0;
 
     const handleAddToCart = () => {
@@ -56,7 +59,8 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                 value: price * quantity,
                 items: [{item_id: selectedVariant.sku || selectedVariant.id, item_name: product.name, item_variant: selectedVariant.name, price, quantity}],
             });
-            toast.success(t('addedToCartMessage'), {description: t('addedToCartDescription', {name: product.name})});
+            // El panel lateral confirma el añadido (y propone el siguiente paso).
+            openCartDrawer(product.slug);
             // Quita el estado «añadido» a los 2 segundos.
             setTimeout(() => setIsAdded(false), 2000);
         });
@@ -81,12 +85,12 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
 
     const price = selectedVariant ? (
         <PriceWithDiscount before={selectedVariant.priceWithTax} after={selectedVariant.discountedPriceWithTax} currencyCode={currencyCode} size="lg" />
-    ) : (
+    ) : minPrice !== null ? (
         <>
             <span className="mr-1 font-sans text-sm font-normal text-muted-foreground">{t('from')}</span>
             <Price value={minPrice} currencyCode={currencyCode} />
         </>
-    );
+    ) : null;
 
     const trust = [
         {icon: Truck, label: t('trustBadges.fastShipping')},
@@ -130,7 +134,8 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                                                     : 'border-dashed border-border text-muted-foreground line-through hover:border-foreground',
                                         )}
                                     >
-                                        {option.name}
+{option.name}
+                                        {!available && !selected && <span className="sr-only"> ({t('optionUnavailable')})</span>}
                                     </button>
                                 );
                             })}

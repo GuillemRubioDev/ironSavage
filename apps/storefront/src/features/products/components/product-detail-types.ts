@@ -28,6 +28,7 @@ export interface DetailOptionGroup {
 export interface DetailProduct {
     id: string;
     name: string;
+    slug: string;
     customFields?: {isNew?: boolean | null} | null;
     assets: DetailAsset[];
     variants: DetailVariant[];

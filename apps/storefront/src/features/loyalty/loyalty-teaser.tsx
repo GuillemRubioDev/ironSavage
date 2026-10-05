@@ -19,7 +19,7 @@ import {Star} from 'lucide-react';
 export async function LoyaltyTeaser() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Loyalty.teaser'});
-    const [customer, config] = await Promise.all([getActiveCustomer(), getLoyaltyProgramConfig()]);
+    const [customer, config] = await Promise.all([getActiveCustomer(), getLoyaltyProgramConfig().catch(() => null)]);
 
     let balance: number | null = null;
     if (customer) {
@@ -29,11 +29,12 @@ export async function LoyaltyTeaser() {
     }
 
     const euros = new Intl.NumberFormat(toIntlLocale(locale), {style: 'currency', currency: 'EUR', maximumFractionDigits: 2, minimumFractionDigits: 0});
-    const stats = [
-        {value: String(config.pointsPerEuro), label: t('stats.earn')},
+    // Sin configuración (servidor caído) el bloque se pinta igual, sin las cifras.
+    const stats = config ? [
+        {value: String(config.pointsPerEuro), label: t('stats.earn', {count: config.pointsPerEuro})},
         {value: String(config.minRedeemablePoints), label: t('stats.redeem', {amount: euros.format((config.minRedeemablePoints * config.pointValueInCents) / 100)})},
         {value: euros.format(config.maxDiscountPerOrderCents / 100), label: t('stats.cap')},
-    ];
+    ] : [];
 
     return (
         <section className="relative overflow-hidden bg-brand py-16 text-brand-fg md:py-24">
@@ -60,14 +61,14 @@ export async function LoyaltyTeaser() {
                         {customer ? t('cta') : t('signedOutCta')}
                     </Button>
                 </div>
-                <ul className="stagger grid grid-cols-3 gap-3">
+                {stats.length > 0 && <ul className="stagger grid grid-cols-3 gap-3">
                     {stats.map((stat, i) => (
                         <li key={stat.label} style={{'--i': i} as CSSProperties} className="rounded-lg border border-brand-line bg-brand-surface p-4">
-                            <span className="block font-display text-4xl font-black italic leading-none text-primary-text md:text-5xl">{stat.value}</span>
+                            <span className="block font-display text-3xl sm:text-4xl md:text-5xl font-black italic leading-none text-primary-text">{stat.value}</span>
                             <span className="mt-2 block text-xs text-brand-muted">{stat.label}</span>
                         </li>
                     ))}
-                </ul>
+                </ul>}
             </div>
         </section>
     );

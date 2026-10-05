@@ -1,6 +1,7 @@
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
-import {Check, Loader2, ShoppingBag, ClipboardList} from 'lucide-react';
+import type {CSSProperties} from 'react';
+import {FileText, Loader2, Package, ShoppingBag, ClipboardList, Star, UserRound} from 'lucide-react';
 import { Link } from '@/platform/i18n/navigation';
 import Image from 'next/image';
 import {Separator} from '@/components/ui/separator';
@@ -12,6 +13,24 @@ import {mutate, query} from '@/platform/vendure/api';
 import {graphql} from '@/platform/vendure/graphql';
 import {toMajorUnits} from '@/platform/analytics/gtag';
 import {PurchaseTracker} from '@/features/orders/purchase-tracker';
+import {getLoyaltyProgramConfig} from '@/features/loyalty/program-config';
+import {getMyAthleteProfile} from '@/features/loyalty/athlete';
+
+/** Confeti rojo y blanco una sola vez (solo CSS; con "reducir movimiento" no aparece). */
+function Confetti() {
+    const pieces = Array.from({length: 18}, (_, i) => i);
+    return (
+        <div aria-hidden="true" className="confetti pointer-events-none absolute inset-x-0 top-0 h-0">
+            {pieces.map((i) => (
+                <span
+                    key={i}
+                    className={i % 3 === 0 ? 'bg-white' : 'bg-primary-solid'}
+                    style={{left: `${5 + ((i * 53) % 90)}%`, '--dx': `${((i * 37) % 80) - 40}px`, '--rot': `${180 + ((i * 61) % 360)}deg`, '--delay': `${(i * 45) % 400}ms`} as CSSProperties}
+                />
+            ))}
+        </div>
+    );
+}
 
 function firstValue(value: string | string[] | undefined): string | undefined {
     return Array.isArray(value) ? value[0] : value;
@@ -142,6 +161,15 @@ export async function OrderConfirmation({paramsPromise, searchParamsPromise}: Or
     // se muestra «confirmando» y se refresca solo hasta que el pedido sale de
     // ArrangingPayment.
     const paymentPending = order.state === 'ArrangingPayment';
+    // Solo se celebra (confeti, puntos, tarjetas) con el pago confirmado y el pedido vivo.
+    const celebrate = !paymentPending && order.state !== 'Cancelled';
+    // Estimación con la fórmula del servidor (floor(total en euros × puntos por euro)).
+    // Los atletas activos no suman puntos con sus compras (política del servidor,
+    // athlete.service canEarnForOrder): a ellos no se les promete ninguno.
+    const [loyalty, athlete] = celebrate
+        ? await Promise.all([getLoyaltyProgramConfig().catch(() => null), getMyAthleteProfile().catch(() => null)])
+        : [null, null];
+    const points = loyalty && !athlete?.enabled ? Math.floor((order.totalWithTax / 100) * loyalty.pointsPerEuro) : 0;
 
     return (
         <div className="container mx-auto px-4 py-16">
@@ -162,29 +190,51 @@ export async function OrderConfirmation({paramsPromise, searchParamsPromise}: Or
                 />
             )}
             <div className="max-w-3xl mx-auto">
-                <div className="text-center mb-10">
-                    <div className="flex justify-center mb-6">
-                        <div className="rounded-full bg-primary p-5 shadow-lg shadow-primary/25">
-                            {paymentPending ? (
-                                <Loader2 className="h-10 w-10 text-primary-foreground animate-spin" strokeWidth={3} />
-                            ) : (
-                                <Check className="h-10 w-10 text-primary-foreground" strokeWidth={3} />
-                            )}
-                        </div>
+                <section className="relative mb-8 overflow-hidden rounded-xl bg-brand px-6 py-12 text-center text-brand-fg">
+                    {celebrate && <Confetti />}
+                    <div className="mx-auto mb-6 grid size-20 place-items-center rounded-full bg-primary-solid">
+                        {paymentPending ? (
+                            <Loader2 className="size-10 animate-spin" strokeWidth={3} aria-hidden="true" />
+                        ) : (
+                            <svg viewBox="0 0 24 24" className="size-10" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path className="animate-check-draw" d="M5 12.5l4.5 4.5L19 7.5" />
+                            </svg>
+                        )}
                     </div>
-                    <h1 className="text-3xl font-bold mb-2">
-                        {paymentPending ? t('confirmingPayment') : t('orderConfirmed')}
-                    </h1>
-                    <p className="text-muted-foreground">
+                    <h1 className="text-5xl md:text-6xl">{paymentPending ? t('confirmingPayment') : t('orderConfirmed')}</h1>
+                    <p className="mt-3 text-brand-muted">
                         {paymentPending ? t('confirmingPaymentMessage') : t('thankYou')}{' '}
-                        <span className="font-semibold text-foreground">{order.code}</span>
+                        <span className="font-mono font-semibold text-brand-fg">{order.code}</span>
                     </p>
-                    {!paymentPending && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                            {t('emailConfirmation')}
+                    {celebrate && points > 0 && (
+                        <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brand-line px-4 py-1.5 text-sm">
+                            <Star className="size-4 text-primary-text" fill="currentColor" aria-hidden="true" />
+                            {t('pointsEarned', {points})}
                         </p>
                     )}
-                </div>
+                </section>
+
+                {celebrate && (
+                    <div className="mb-8 grid gap-4 sm:grid-cols-3">
+                        <div className="rounded-lg border border-border p-5">
+                            <Package className="mb-3 size-6 text-primary-solid" aria-hidden="true" />
+                            <h2 className="font-display text-xl font-extrabold uppercase italic">{t('nextTitle')}</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">{t('nextText')}</p>
+                        </div>
+                        <div className="rounded-lg border border-border p-5">
+                            <FileText className="mb-3 size-6 text-primary-solid" aria-hidden="true" />
+                            <h2 className="font-display text-xl font-extrabold uppercase italic">{t('invoiceTitle')}</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">{t('invoiceText')}</p>
+                            <Link href={`/mi-cuenta/pedidos/${order.code}`} className="mt-2 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline">{t('viewOrder')}</Link>
+                        </div>
+                        <div className="rounded-lg border border-border p-5">
+                            <UserRound className="mb-3 size-6 text-primary-solid" aria-hidden="true" />
+                            <h2 className="font-display text-xl font-extrabold uppercase italic">{t('accountTitle')}</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">{t('accountText')}</p>
+                            <Link href="/mi-cuenta/puntos" className="mt-2 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline">{t('accountTitle')}</Link>
+                        </div>
+                    </div>
+                )}
 
                 <Card className="mb-6">
                     <CardHeader>
@@ -253,7 +303,7 @@ export async function OrderConfirmation({paramsPromise, searchParamsPromise}: Or
                 )}
 
                 <div className="flex flex-col sm:flex-row gap-3">
-                    <Button nativeButton={false} render={<Link href="/" />} className="flex-1" size="lg">
+                    <Button nativeButton={false} render={<Link href="/productos" />} className="flex-1" size="lg">
                         <ShoppingBag className="mr-2 h-4 w-4" />
                         {t('continueShopping')}
                     </Button>

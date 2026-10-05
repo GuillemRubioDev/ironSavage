@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, MapPin, Truck, CreditCard, Edit, Mail } from 'lucide-react';
+import { Loader2, MapPin, Truck, CreditCard, Edit, Mail, Lock } from 'lucide-react';
 import { useCheckout } from '../checkout-provider';
 import { placeOrder as placeOrderAction, getRedsysPaymentForm, type RedsysPaymentForm } from '../actions';
 import { Price } from '@/features/pricing/price';
-import {useTranslations} from 'next-intl';
+import {useFormatter, useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -54,6 +54,7 @@ function submitRedsysRedirect(form: RedsysPaymentForm) {
 export default function ReviewStep({ onEditStep }: ReviewStepProps) {
   const t = useTranslations('Checkout');
   const { order, paymentMethods, selectedPaymentMethodCode, isGuest } = useCheckout();
+  const format = useFormatter();
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -234,11 +235,12 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
       <Button
         onClick={handlePlaceOrder}
         disabled={loading || !termsAccepted || !order.shippingAddress || !order.shippingLines?.length || !selectedPaymentMethodCode}
-        size="lg"
-        className="w-full"
+        size="xl"
+        // El importe puede ser largo: en móviles estrechos el texto pasa a dos líneas.
+        className="w-full h-auto min-h-12 whitespace-normal py-3 text-balance"
       >
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {t('placeOrder')}
+        {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Lock aria-hidden="true" />}
+        {t('payAmount', {amount: format.number(order.totalWithTax / 100, {style: 'currency', currency: order.currencyCode})})}
       </Button>
 
       {(!order.shippingAddress || !order.shippingLines?.length || !selectedPaymentMethodCode) ? (

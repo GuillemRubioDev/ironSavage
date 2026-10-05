@@ -13,6 +13,7 @@ import {cn} from '@/lib/utils';
 import {Link} from '@/platform/i18n/navigation';
 import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
 import {addToCart} from '@/features/products/add-to-cart';
+import {useCartDrawer} from '@/features/cart/cart-drawer';
 import {getQuickAddProduct} from '@/features/products/quick-add';
 import type {QuickAddProduct, QuickAddVariant} from '@/features/products/quick-add-data';
 import {findVariant, initialSelection, isOptionAvailable, selectOption, type Selection} from '@/features/products/variant-selection';
@@ -29,6 +30,7 @@ type Loaded = QuickAddProduct & {currencyCode: string};
  */
 export function QuickAddButton({slug, productName, inStock}: {slug: string; productName: string; inStock: boolean}) {
     const t = useTranslations('Product');
+    const {open: openCartDrawer} = useCartDrawer();
     const isMobile = useIsMobile();
     const [product, setProduct] = useState<Loaded | null>(null);
     const [open, setOpen] = useState(false);
@@ -53,7 +55,8 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
             value: price * qty,
             items: [{item_id: variant.sku || variant.id, item_name: loaded.name, item_variant: variant.name, price, quantity: qty}],
         });
-        toast.success(t('addedToCartMessage'), {description: t('addedToCartDescription', {name: loaded.name})});
+        // El panel lateral confirma el añadido (y propone el siguiente paso).
+        openCartDrawer(loaded.slug);
         setOpen(false);
     });
 
@@ -111,14 +114,14 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
             {product && (isMobile ? (
                 <Sheet open={open} onOpenChange={setOpen}>
                     <SheetContent side="bottom" finalFocus={buttonRef} className="max-h-[85vh] overflow-y-auto rounded-t-xl p-5">
-                        <SheetTitle className="sr-only">{t('quickAddTitle')}</SheetTitle>
+                        <SheetTitle className="sr-only">{t('quickAddTitle', {name: product.name})}</SheetTitle>
                         {body}
                     </SheetContent>
                 </Sheet>
             ) : (
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogContent finalFocus={buttonRef} className="sm:max-w-lg">
-                        <DialogTitle className="sr-only">{t('quickAddTitle')}</DialogTitle>
+                        <DialogTitle className="sr-only">{t('quickAddTitle', {name: product.name})}</DialogTitle>
                         {body}
                     </DialogContent>
                 </Dialog>
@@ -192,6 +195,7 @@ function QuickAddBody({product, selection, onSelect, quantity, onQuantity, addin
                                     )}
                                 >
                                     {option.name}
+                                    {!available && !selected && <span className="sr-only"> ({t('optionUnavailable')})</span>}
                                 </button>
                             );
                         })}

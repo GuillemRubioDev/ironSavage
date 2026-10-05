@@ -24,6 +24,12 @@ export const GetActiveOrderQuery = graphql(`
                 description
                 amountWithTax
             }
+            surcharges {
+                id
+                sku
+                description
+                priceWithTax
+            }
             lines {
                 id
                 productVariant {

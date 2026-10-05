@@ -9,6 +9,7 @@ import {routing} from "@/platform/i18n/routing";
 import {toOgLocale} from "@/platform/i18n/locale-utils";
 import {getRouteLocale} from "@/platform/i18n/server";
 import {Toaster} from "@/components/ui/sonner";
+import {CartDrawerProvider} from "@/features/cart/cart-drawer";
 import {TopBar} from '@/site/navigation/top-bar';
 import {Navbar} from '@/site/navigation/navbar';
 import {Footer} from "@/site/footer";
@@ -109,6 +110,8 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
                         <CookieConsentRoot>
+                        {/* Panel lateral del carrito: lo abren las tarjetas y la ficha al añadir. */}
+                        <CartDrawerProvider>
                             {/* WCAG 2.4.1: primer elemento enfocable, visible solo con el foco;
                                 quien usa teclado se salta la cabecera y los menús. */}
                             <a
@@ -130,6 +133,7 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                             <Footer/>
                             <Toaster/>
                             <AppFreshness/>
+                        </CartDrawerProvider>
                         </CookieConsentRoot>
                     </ThemeProvider>
                 </NextIntlClientProvider>

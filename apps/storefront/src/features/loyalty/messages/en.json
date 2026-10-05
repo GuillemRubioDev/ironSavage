@@ -24,7 +24,7 @@
       "signedOutCta": "Sign in to start earning",
       "guestDescription": "Create an account to start earning points on every order.",
       "stats": {
-        "earn": "point per euro spent",
+        "earn": "{count, plural, one {point per euro spent} other {points per euro spent}}",
         "redeem": "points = {amount} off",
         "cap": "maximum discount per order"
       }
@@ -60,6 +60,25 @@
       "statusReverted": "Reversed",
       "revertedPoints": "{points} reversed",
       "footnote": "Rewards are confirmed once the order's payment completes and are reversed if the order is cancelled or returned."
+    },
+    "redeem": {
+      "title": "Redeem your points",
+      "available": "You have {balance} points",
+      "equals": "=",
+      "apply": "Redeem",
+      "applied": "You redeemed {points} points on this order",
+      "remove": "Remove",
+      "minimum": "you need at least {min} points to redeem",
+      "errors": {
+        "BELOW_MINIMUM": "You need to redeem at least the minimum points.",
+        "ALREADY_REDEEMED": "You already redeemed points on this order.",
+        "EXCEEDS_MAX_DISCOUNT": "This exceeds the maximum discount per order.",
+        "EXCEEDS_ORDER_TOTAL": "The discount can't equal or exceed the order total.",
+        "INSUFFICIENT_BALANCE": "You don't have enough points.",
+        "NO_CUSTOMER": "Sign in to redeem points.",
+        "generic": "Points couldn't be redeemed. Please try again."
+      },
+      "range": "between {min} and {max} points"
     }
   }
 }

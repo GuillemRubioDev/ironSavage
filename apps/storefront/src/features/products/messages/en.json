@@ -15,7 +15,6 @@
     "from": "From",
     "taxIncluded": "VAT included",
     "noImage": "No image",
-    "noImagesAvailable": "No images available",
     "featuredProducts": "Featured",
     "featuredHighlight": "products",
     "relatedProducts": "Related Products",
@@ -53,11 +52,8 @@
       }
     },
     "imageAlt": "{name}, image {index} of {total}",
-    "previousImage": "Previous image",
-    "nextImage": "Next image",
     "showImage": "Show image {index} of {total}",
     "food": {
-      "title": "Food information",
       "ingredients": "Ingredients",
       "allergens": "Allergens",
       "nutrition": "Nutrition facts",
@@ -78,7 +74,7 @@
     "netQuantity": "Net quantity: {quantity}",
     "quickAdd": "Add",
     "quickAddLabel": "Add {name} to cart",
-    "quickAddTitle": "Choose your option",
+    "quickAddTitle": "Choose your option: {name}",
     "quantity": "Quantity",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
@@ -91,6 +87,8 @@
       "protein": "protein per serving",
       "flavors": "flavours",
       "netQuantity": "net quantity"
-    }
+    },
+    "optionUnavailable": "not available with the current selection",
+    "galleryRole": "carousel"
   }
 }

@@ -67,7 +67,7 @@ export default async function CheckoutPage({searchParams}: PageProps<'/[locale]/
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-8">{t('pageTitle')}</h1>
+            <h1 className="mb-8 text-5xl md:text-6xl">{t('pageTitle')}</h1>
             {paymentDeclined && (
                 <Alert variant="destructive" className="mb-6">
                     <AlertCircle className="h-4 w-4" />

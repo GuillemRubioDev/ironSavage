@@ -58,7 +58,8 @@ export function HeroBanner({banner, locale, fallback}: {banner: PromoBanner | nu
     const subtitle = (es ? banner.subtitleEs : banner.subtitleEn) ?? null;
     const cta = es ? banner.ctaLabelEs : banner.ctaLabelEn;
     const align = ALIGN[banner.align] ?? ALIGN.left;
-    const side = banner.imageLayout === 'left' || banner.imageLayout === 'right';
+    // Sin foto, la variante lateral dejaría media pantalla vacía: se usa la de fondo.
+    const side = (banner.imageLayout === 'left' || banner.imageLayout === 'right') && Boolean(banner.image);
 
     const text = (
         <div className={cn('stagger relative flex max-w-xl flex-col gap-5', align)}>
