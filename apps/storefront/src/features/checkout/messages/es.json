@@ -6,7 +6,7 @@
       "address": "Dirección",
       "delivery": "Envío",
       "payment": "Pago",
-      "review": "Revisión"
+      "review": "Confirmación"
     },
     "contactInformation": "Información de contacto",
     "shippingAddress": "Dirección de envío",
@@ -87,6 +87,9 @@
     "taxIncludedNote": "De los cuales, IVA ({rate}%)",
     "item": "artículo",
     "items": "artículos",
-    "loyaltyDiscount": "Descuento por puntos Iron Rewards"
+    "loyaltyDiscount": "Descuento por puntos Iron Rewards",
+    "change": "Cambiar",
+    "payAmount": "Pagar {amount} de forma segura",
+    "stepOf": "Paso {current} de {total}"
   }
 }
