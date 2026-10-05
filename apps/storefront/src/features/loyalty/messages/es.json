@@ -60,6 +60,24 @@
       "statusReverted": "Anulada",
       "revertedPoints": "{points} anulados",
       "footnote": "Las recompensas se confirman cuando se completa el pago del pedido y se anulan si el pedido se cancela o se devuelve."
+    },
+    "redeem": {
+      "title": "Canjea tus puntos",
+      "available": "Tienes {balance} puntos",
+      "equals": "=",
+      "apply": "Canjear",
+      "applied": "Has canjeado {points} puntos en este pedido",
+      "remove": "Quitar canje",
+      "minimum": "necesitas al menos {min} puntos para canjear",
+      "errors": {
+        "BELOW_MINIMUM": "Tienes que canjear al menos el mínimo de puntos.",
+        "ALREADY_REDEEMED": "Ya has canjeado puntos en este pedido.",
+        "EXCEEDS_MAX_DISCOUNT": "Superas el descuento máximo por pedido.",
+        "EXCEEDS_ORDER_TOTAL": "El descuento no puede igualar o superar el total del pedido.",
+        "INSUFFICIENT_BALANCE": "No tienes puntos suficientes.",
+        "NO_CUSTOMER": "Inicia sesión para canjear puntos.",
+        "generic": "No se han podido canjear los puntos. Inténtalo de nuevo."
+      }
     }
   }
 }

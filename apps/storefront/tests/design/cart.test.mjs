@@ -22,3 +22,32 @@ test('carrito vacío sin título duplicado y con enlace a seguir comprando', asy
     assert.doesNotMatch(items, /<h1/);
     assert.match(items, /href="\/productos"/);
 });
+
+test('el máximo canjeable respeta saldo, tope por pedido y total del pedido', async () => {
+    const {maxRedeemablePoints} = await load('features/loyalty/redemption.ts');
+    const base = {pointValueInCents: 1, maxDiscountPerOrderCents: 2000};
+    assert.equal(maxRedeemablePoints({...base, balance: 500, orderTotalWithTax: 8139}), 500);
+    assert.equal(maxRedeemablePoints({...base, balance: 5000, orderTotalWithTax: 8139}), 2000);
+    assert.equal(maxRedeemablePoints({...base, balance: 5000, orderTotalWithTax: 1500}), 1499);
+    assert.equal(maxRedeemablePoints({...base, balance: 0, orderTotalWithTax: 1500}), 0);
+});
+
+test('el canje usa las mutaciones del servidor, refresca el carrito y solo aparece con sesión', async () => {
+    assert.match(await read('features/loyalty/graphql.ts'), /redeemLoyaltyPoints\(points: \$points\)/);
+    assert.match(await read('features/loyalty/graphql.ts'), /cancelLoyaltyPointsRedemption/);
+    const actions = await read('features/loyalty/redeem-actions.ts');
+    assert.match(actions, /^'use server';/);
+    assert.match(actions, /updateTag\('cart'\)/);
+    assert.match(actions, /t\(`redeem\.errors\.\$\{code\}`\)/);
+    const cart = await read('features/cart/routes/cart.tsx');
+    assert.match(cart, /loyaltyAccount/);
+    assert.match(cart, /redemptionSlot=\{/);
+    assert.match(cart, /sku === 'LOYALTY_POINTS_DISCOUNT'/);
+    const ui = await read('features/loyalty/points-redemption.tsx');
+    assert.match(ui, /maxPoints < minPoints/);
+    for (const loc of ['es', 'en']) {
+        const r = (await json(`features/loyalty/messages/${loc}.json`)).Loyalty.redeem;
+        for (const k of ['title', 'available', 'equals', 'apply', 'applied', 'remove', 'minimum']) assert.ok(r[k], `${loc}: falta redeem.${k}`);
+        for (const c of ['BELOW_MINIMUM', 'ALREADY_REDEEMED', 'EXCEEDS_MAX_DISCOUNT', 'EXCEEDS_ORDER_TOTAL', 'INSUFFICIENT_BALANCE', 'NO_CUSTOMER', 'generic']) assert.ok(r.errors[c], `${loc}: falta redeem.errors.${c}`);
+    }
+});

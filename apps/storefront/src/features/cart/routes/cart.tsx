@@ -6,6 +6,10 @@ import {getActiveCurrencyCode} from "@/features/currency/currency-server";
 import {cacheLife, cacheTag} from "next/cache";
 import {query} from "@/platform/vendure/api";
 import {GetActiveOrderQuery} from '@/features/cart/graphql';
+import {GetMyLoyaltyQuery} from '@/features/loyalty/graphql';
+import {getLoyaltyProgramConfig} from '@/features/loyalty/program-config';
+import {maxRedeemablePoints} from '@/features/loyalty/redemption';
+import {PointsRedemption} from '@/features/loyalty/points-redemption';
 
 export async function Cart() {
     "use cache: private"
@@ -14,11 +18,18 @@ export async function Cart() {
 
     const locale = await getRouteLocale();
     const currencyCode = await getActiveCurrencyCode();
-    const {data} = await query(GetActiveOrderQuery, {}, {
-        useAuthToken: true,
-        languageCode: locale,
-        currencyCode,
-    });
+    // El saldo de puntos (null para invitados) y la configuración del programa se leen a
+    // la vez que el pedido; si fallan, el carrito se pinta igual, sin el canje.
+    const [{data}, loyalty, config] = await Promise.all([
+        query(GetActiveOrderQuery, {}, {
+            useAuthToken: true,
+            languageCode: locale,
+            currencyCode,
+        }),
+        query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true}).catch(() => null),
+        getLoyaltyProgramConfig().catch(() => null),
+    ]);
+    const loyaltyAccount = loyalty?.data.loyaltyAccount ?? null;
 
     const activeOrder = data.activeOrder;
 
@@ -26,12 +37,33 @@ export async function Cart() {
         return <CartItems activeOrder={null}/>;
     }
 
+    // Canje ya aplicado: el servidor lo guarda como recargo negativo con este sku.
+    const appliedSurcharge = activeOrder.surcharges?.find(s => s.sku === 'LOYALTY_POINTS_DISCOUNT');
+    const applied = appliedSurcharge && config
+        ? {points: Math.round(-appliedSurcharge.priceWithTax / config.pointValueInCents), amount: appliedSurcharge.priceWithTax}
+        : null;
+    const redemption = loyaltyAccount && config ? (
+        <PointsRedemption
+            balance={loyaltyAccount.balance}
+            minPoints={config.minRedeemablePoints}
+            maxPoints={maxRedeemablePoints({
+                balance: loyaltyAccount.balance,
+                pointValueInCents: config.pointValueInCents,
+                maxDiscountPerOrderCents: config.maxDiscountPerOrderCents,
+                orderTotalWithTax: activeOrder.totalWithTax,
+            })}
+            pointValueInCents={config.pointValueInCents}
+            currencyCode={activeOrder.currencyCode}
+            applied={applied}
+        />
+    ) : null;
+
     return (
         <div className="grid gap-8 pb-24 lg:grid-cols-3 lg:pb-0">
             <CartItems activeOrder={activeOrder}/>
 
             <div className="lg:col-span-1">
-                <OrderSummary activeOrder={activeOrder}/>
+                <OrderSummary activeOrder={activeOrder} redemptionSlot={redemption}/>
                 <PromotionCode activeOrder={activeOrder}/>
             </div>
         </div>
