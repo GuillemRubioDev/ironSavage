@@ -24,3 +24,17 @@ test('artículo con lectura cómoda: cabecera oscura y columna de unos 68 caract
     assert.match(article, /max-w-\[68ch\]/);
     assert.match(article, /text-lg leading-8/);
 });
+
+test('legales: índice generado de los títulos, sin índice al imprimir y texto siempre visible', async () => {
+    const toc = await read('site/legal/legal-toc.tsx');
+    assert.match(toc, /^'use client';/);
+    assert.match(toc, /querySelectorAll\('h2'\)/);
+    assert.match(toc, /if \(!items\.length\) return null/);
+    const shell = await read('site/legal/legal-page.tsx');
+    assert.match(shell, /<LegalToc/);
+    assert.match(shell, /print:hidden/);
+    assert.match(shell, /max-w-\[70ch\]/);
+    assert.match(shell, /id="legal-content"/);
+    assert.match(shell, /<h1 className="[^"]*text-5xl/);
+    for (const loc of ['es', 'en']) assert.ok((await json(`site/legal/messages/${loc}.json`)).Legal.contents);
+});
