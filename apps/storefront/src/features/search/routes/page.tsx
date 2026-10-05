@@ -3,8 +3,8 @@ import {Suspense} from 'react';
 import {getTranslations} from 'next-intl/server';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {SearchResults} from "@/features/search/routes/search-results";
-import {SearchTerm, SearchTermSkeleton} from "@/features/search/routes/search-term";
-import {SearchResultsSkeleton} from "@/features/search/components/search-results-skeleton";
+import {SearchTerm} from "@/features/search/routes/search-term";
+import {CatalogResultsSkeleton, ListingHeaderSkeleton} from "@/features/products/listing-skeleton";
 import {SITE_NAME, noIndexRobots} from '@/config/metadata';
 
 export async function generateMetadata({
@@ -31,10 +31,10 @@ export async function generateMetadata({
 export default async function SearchPage({searchParams}: PageProps<'/[locale]/search'>) {
     return (
         <>
-            <Suspense fallback={<SearchTermSkeleton/>}>
+            <Suspense fallback={<ListingHeaderSkeleton count={false}/>}>
                 <SearchTerm searchParams={searchParams}/>
             </Suspense>
-            <Suspense fallback={<SearchResultsSkeleton />}>
+            <Suspense fallback={<CatalogResultsSkeleton />}>
                 <SearchResults searchParams={searchParams}/>
             </Suspense>
         </>

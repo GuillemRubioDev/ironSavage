@@ -40,7 +40,9 @@ export async function AuthShell({tab, title, subtitle, panelText, children}: {
                 )}
                 <div className="relative w-full max-w-lg space-y-6 p-12">
                     <Logo variant="full" className="h-32 w-auto" />
-                    {panelText && <p className="text-xl leading-relaxed text-white/85">{panelText}</p>}
+                    {/* Nombre de transición propio: el texto cambia entre login y registro y se releva
+                        como el formulario, mientras la imagen y el resto del panel quedan quietos. */}
+                    {panelText && <p className="vt-auth-panel-text text-xl leading-relaxed text-white/85">{panelText}</p>}
                     <ul className="grid grid-cols-3 gap-6 pt-2">
                         {[['featureFast', 'featureCheckout'], ['featureSecure', 'featurePayments'], ['featureEasy', 'featureReturns']].map(([featureTitle, featureText]) => (
                             <li key={featureTitle}>

@@ -114,7 +114,9 @@ test('noticias: destacada sin portada a ancho completo, encabezados ordenados y 
     assert.match(page, /featured\.coverImage \? 'md:grid-cols-2' : ''/);
     assert.match(page, /headingLevel="h2"/);
     assert.match(await read('features/news/components/article-card.tsx'), /headingLevel = 'h3'/);
-    assert.match(await read('features/news/routes/list-loading.tsx'), /bg-brand/);
+    // La franja oscura del listado la pinta ListingHeaderSkeleton (misma altura que ListingHeader).
+    assert.match(await read('features/news/routes/list-loading.tsx'), /<ListingHeaderSkeleton count=\{false\} \/>/);
+    assert.match(await read('features/products/listing-skeleton.tsx'), /bg-brand/);
     assert.match(await read('features/news/routes/loading.tsx'), /bg-brand/);
 });
 

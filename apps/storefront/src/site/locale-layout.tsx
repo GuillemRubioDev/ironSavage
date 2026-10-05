@@ -17,6 +17,7 @@ import {ThemeProvider} from "@/site/providers/theme-provider";
 import {CookieConsentRoot} from "@/site/cookie-consent/cookie-consent-root";
 import {EnvironmentBadge} from "@/site/app-shell/environment-badge";
 import {AppFreshness} from "@/site/app-shell/app-freshness";
+import {EntranceOnce} from "@/components/motion/entrance-once";
 import {DEFAULT_OG_IMAGES, SITE_NAME, SITE_URL} from "@/config/metadata";
 
 // Inter: texto de interfaz, cuerpo y precios (con cifras tabulares).
@@ -125,14 +126,26 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
                             {/* Único desplazamiento centralizado para la cabecera fija
                                 TopBar + Navbar: el contenido de cada página empieza aquí,
                                 debajo de la cabecera, sin compensaciones por página. Ver
-                                --header-offset en globals.css. */}
-                            <main id="main-content" tabIndex={-1} className="flex-1 pt-[var(--header-offset)] print:pt-0 focus:outline-none">
-                                {/* Fundido entre páginas en navegadores que lo soportan; ver ::view-transition en globals.css. */}
-                                <ViewTransition>{children}</ViewTransition>
+                                --header-offset en globals.css.
+                                min-h-screen: el pie siempre empieza por debajo de la pantalla. Sin
+                                ella, en escritorio un skeleton más bajo que la ventana subía el pie a
+                                media pantalla durante la carga y luego saltaba abajo. */}
+                            <main id="main-content" tabIndex={-1} className="flex-1 min-h-screen pt-[var(--header-offset)] print:min-h-0 print:pt-0 focus:outline-none">
+                                {/* Fundido entre páginas en navegadores que lo soportan; ver ::view-transition en globals.css.
+                                    Solo con el tipo de transición de los enlaces (PAGE_TRANSITION en
+                                    platform/i18n/navigation): un Suspense que muestra su contenido o un
+                                    router.refresh() no funden la página entera ni encadenan un fundido
+                                    detrás de otro (cada uno retrasaba el siguiente cambio ~250 ms).
+                                    El div es la única caja que se captura, siempre a todo el ancho: sin
+                                    él se emparejaban los bloques de la página vieja con los de la nueva
+                                    (p. ej. la banda de la lista con el contenedor centrado de la ficha)
+                                    y la captura vieja se encogía y desplazaba hasta la caja nueva. */}
+                                <ViewTransition update={{navegacion: 'pagina', default: 'none'}} default="none"><div>{children}</div></ViewTransition>
                             </main>
                             <Footer/>
                             <Toaster/>
                             <AppFreshness/>
+                            <EntranceOnce/>
                         </CartDrawerProvider>
                         </CookieConsentRoot>
                     </ThemeProvider>

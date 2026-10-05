@@ -1,6 +1,7 @@
 'use client';
 
 import {useMemo, useState, useTransition} from 'react';
+import {useSearchParams} from 'next/navigation';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,11 +29,13 @@ const makeLoginSchema = (invalidEmail: string, passwordRequired: string) => z.ob
 
 type LoginFormData = z.infer<ReturnType<typeof makeLoginSchema>>;
 
-interface LoginFormProps {
-    redirectTo?: string;
-}
-
-export function LoginForm({redirectTo}: LoginFormProps) {
+/**
+ * El destino de vuelta (redirectTo) se lee de la URL en el cliente, igual que en las
+ * pestañas (AuthTabs): si lo leyera la página en el servidor, la página dependería de
+ * la URL y al navegar se vería un skeleton en lugar del formulario.
+ */
+export function LoginForm() {
+    const redirectTo = useSearchParams().get('redirectTo') ?? undefined;
     const t = useTranslations('Auth');
     const tErrors = useTranslations('Errors');
     const loginSchema = useMemo(() => makeLoginSchema(tErrors('invalidEmail'), tErrors('passwordRequired')), [tErrors]);

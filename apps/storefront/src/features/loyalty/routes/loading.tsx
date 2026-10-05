@@ -5,7 +5,7 @@ import {Skeleton} from '@/components/ui/skeleton';
 export default function PointsLoading() {
     return (
         <div>
-            <Skeleton className="mb-6 h-14 w-64" />
+            <Skeleton className="mb-6 h-11 w-64 md:h-14" />
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 {Array.from({length: 3}).map((_, i) => (

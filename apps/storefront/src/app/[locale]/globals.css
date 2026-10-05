@@ -364,6 +364,10 @@
 }
 .animate-glitch-in { animation: glitch-in var(--dur-hero) var(--ease-out) both; }
 
+/* Las entradas ya vistas no se repiten al volver a una página que Next tenía oculta
+   (components/motion/entrance-once.tsx); se quedan en su estado final. */
+[data-animado] { animation: none !important; }
+
 /* Confirmación de pedido (features/orders): check que se dibuja y confeti rojo breve. */
 @keyframes check-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 .animate-check-draw { stroke-dasharray: 1; animation: check-draw var(--dur-slow) var(--ease-out) 200ms both; }
@@ -392,8 +396,33 @@
 /* Acceso: el panel de la imagen queda quieto entre login y registro, y el formulario
    (anclado arriba) solo funde su contenido. */
 .vt-auth-panel { view-transition-name: auth-panel; }
-.vt-auth-form { view-transition-name: auth-form; }
+.vt-auth-form { view-transition-name: auth-form; view-transition-class: pagina; }
+.vt-auth-panel-text { view-transition-name: auth-panel-text; view-transition-class: pagina; }
 ::view-transition-old(auth-form), ::view-transition-new(auth-form) { height: auto; object-fit: none; object-position: top; }
+
+/* La página (clase «pagina», que pone el ViewTransition del layout) y el formulario de
+   acceso no se funden cruzados: la página vieja sale y la nueva entra cuando ya ha
+   salido (el retraso de la entrada es la duración de la salida). Con el fundido cruzado las dos se veían a la vez a media opacidad (formularios de
+   login y registro mezclados, la lista de productos encima del skeleton de la ficha).
+   El grupo no anima el tamaño: entre páginas de distinta altura no hay nada que
+   interpolar, solo cambia el contenido. */
+::view-transition-group(.pagina) { animation: none; }
+::view-transition-old(.pagina) { animation: vt-salida 90ms cubic-bezier(.4, 0, 1, 1) both; }
+::view-transition-new(.pagina) { animation: vt-entrada 180ms var(--ease-out) 90ms both; }
+@keyframes vt-salida { to { opacity: 0; } }
+@keyframes vt-entrada { from { opacity: 0; transform: translateY(8px); } }
+/* Escritorio: más corto y sin desplazamiento. En una pantalla grande el mismo
+   movimiento recorre más superficie y se percibe más lento y pesado; aquí basta un
+   relevo de opacidad rápido (~220 ms en total). */
+@media (min-width: 1024px) {
+  /* El resto de grupos (cabecera, raíz…) son iguales antes y después: que no alarguen
+     la transición más allá del relevo, porque mientras dura, React retiene el
+     contenido nuevo que ya haya llegado. */
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 220ms; }
+  ::view-transition-old(.pagina) { animation-duration: 80ms; }
+  ::view-transition-new(.pagina) { animation: vt-entrada-escritorio 140ms var(--ease-out) 80ms both; }
+  @keyframes vt-entrada-escritorio { from { opacity: 0; } }
+}
 
 /* Móvil: los campos a 16 px como mínimo. Con menos, Safari amplía la página al tocar
    el campo (y no vuelve al quitar el foco), que es lo que menos parece una app.

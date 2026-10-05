@@ -1,9 +1,5 @@
-import {ProductGridSkeleton} from '@/features/products/product-grid-skeleton';
+import {ListingSkeleton} from '@/features/products/listing-skeleton';
 
 export default function ProductListLoading() {
-    return (
-        <div className="container mx-auto px-4 py-8">
-            <ProductGridSkeleton />
-        </div>
-    );
+    return <ListingSkeleton />;
 }

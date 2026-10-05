@@ -39,21 +39,16 @@ function LoginFormSkeleton() {
     );
 }
 
-async function SignInContent({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-    const resolvedParams = await searchParams;
-    const redirectTo = resolvedParams?.redirectTo as string | undefined;
-
-    return <LoginForm redirectTo={redirectTo}/>;
-}
-
-export default async function SignInPage({searchParams}: PageProps<'/[locale]/login'>) {
+// Suspense: el formulario lee la URL (useSearchParams) y al prerenderizar necesita un
+// límite; al navegar en el cliente no llega a mostrarse el skeleton.
+export default async function SignInPage() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Auth'});
 
     return (
         <AuthShell tab="signIn" title={t('signIn')} subtitle={t('enterCredentials')} panelText={t('welcomeBack')}>
             <Suspense fallback={<LoginFormSkeleton/>}>
-                <SignInContent searchParams={searchParams}/>
+                <LoginForm/>
             </Suspense>
         </AuthShell>
     );
