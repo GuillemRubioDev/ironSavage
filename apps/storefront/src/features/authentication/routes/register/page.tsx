@@ -5,7 +5,7 @@ import {getTranslations} from 'next-intl/server';
 import { RegistrationForm } from "./registration-form";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {Logo} from "@/components/brand/logo";
+import {AuthShell} from "@/features/authentication/components/auth-shell";
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
@@ -66,49 +66,10 @@ export default async function RegisterPage({searchParams}: PageProps<'/[locale]/
     const t = await getTranslations({locale, namespace: 'Auth'});
 
     return (
-        <div className="flex min-h-[calc(100vh-var(--header-offset))]">
-            {/* Panel de marca, solo escritorio. Fondo oscuro fijo (no depende del
-                tema): las letras rojas del logo necesitan un fondo oscuro o neutro
-                para contrastar, no el degradado rojo que tenía antes. */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[oklch(0.13_0.004_260)] items-center justify-center p-12 rounded-br-3xl">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,oklch(0.577_0.245_27.325_/_25%),transparent)]" />
-                <div className="relative max-w-md space-y-6">
-                    <Logo variant="full" className="h-40 w-auto" />
-                    <p className="text-xl text-white/80 leading-relaxed">
-                        {t('joinUs')}
-                    </p>
-                    <div className="flex gap-8 pt-4">
-                        <div>
-                            <p className="text-3xl font-bold text-white">{t('featureFast')}</p>
-                            <p className="text-sm text-white/70">{t('featureCheckout')}</p>
-                        </div>
-                        <div>
-                            <p className="text-3xl font-bold text-white">{t('featureSecure')}</p>
-                            <p className="text-sm text-white/70">{t('featurePayments')}</p>
-                        </div>
-                        <div>
-                            <p className="text-3xl font-bold text-white">{t('featureEasy')}</p>
-                            <p className="text-sm text-white/70">{t('featureReturns')}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Panel del formulario */}
-            <div className="flex w-full lg:w-1/2 items-center justify-center px-4 py-12">
-                <div className="w-full max-w-md space-y-6">
-                    <div className="space-y-2 text-center">
-                        <Logo variant="wordmark" className="h-6 mx-auto lg:hidden" />
-                        <h1 className="text-3xl font-bold">{t('createAccount')}</h1>
-                        <p className="text-muted-foreground">
-                            {t('signUpMessage')}
-                        </p>
-                    </div>
-                    <Suspense fallback={<RegistrationFormSkeleton />}>
-                        <RegisterContent searchParams={searchParams} />
-                    </Suspense>
-                </div>
-            </div>
-        </div>
+        <AuthShell tab="register" title={t('createAccount')} subtitle={t('signUpMessage')} panelText={t('joinUs')}>
+            <Suspense fallback={<RegistrationFormSkeleton />}>
+                <RegisterContent searchParams={searchParams} />
+            </Suspense>
+        </AuthShell>
     );
 }

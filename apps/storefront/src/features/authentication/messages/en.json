@@ -52,7 +52,8 @@
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
     "resetPassword": "Reset password",
-    "resettingPassword": "Resetting password..."
+    "resettingPassword": "Resetting password...",
+    "authTabs": "Account access"
   },
   "Verify": {
     "pageTitle": "Verify Email",

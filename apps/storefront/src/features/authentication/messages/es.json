@@ -52,7 +52,8 @@
     "newPassword": "Nueva contraseña",
     "confirmPassword": "Confirmar contraseña",
     "resetPassword": "Restablecer contraseña",
-    "resettingPassword": "Restableciendo contraseña..."
+    "resettingPassword": "Restableciendo contraseña...",
+    "authTabs": "Acceso a tu cuenta"
   },
   "Verify": {
     "pageTitle": "Verificar correo",

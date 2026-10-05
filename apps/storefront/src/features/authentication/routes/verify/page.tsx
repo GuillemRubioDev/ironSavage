@@ -5,6 +5,7 @@ import {getTranslations} from 'next-intl/server';
 import {SITE_NAME, noIndexRobots} from '@/config/metadata';
 import {VerifyLoading} from './verify-loading';
 import {VerifyContent} from './verify-content';
+import {AuthShell} from '@/features/authentication/components/auth-shell';
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
@@ -16,14 +17,14 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default function VerifyPage({searchParams}: PageProps<'/[locale]/verify'>) {
+export default async function VerifyPage({searchParams}: PageProps<'/[locale]/verify'>) {
+    const locale = await getRouteLocale();
+    const t = await getTranslations({locale, namespace: 'Auth'});
     return (
-        <div className="flex min-h-[calc(100vh-var(--header-offset))] items-center justify-center px-4">
-            <div className="w-full max-w-md space-y-6">
-                <Suspense fallback={<VerifyLoading/>}>
-                    <VerifyContent searchParams={searchParams}/>
-                </Suspense>
-            </div>
-        </div>
+        <AuthShell panelText={t('welcomeBack')}>
+            <Suspense fallback={<VerifyLoading/>}>
+                <VerifyContent searchParams={searchParams}/>
+            </Suspense>
+        </AuthShell>
     );
 }
