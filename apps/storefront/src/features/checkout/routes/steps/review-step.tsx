@@ -6,7 +6,8 @@ import { Loader2, MapPin, Truck, CreditCard, Edit, Mail, Lock } from 'lucide-rea
 import { useCheckout } from '../checkout-provider';
 import { placeOrder as placeOrderAction, getRedsysPaymentForm, type RedsysPaymentForm } from '../actions';
 import { Price } from '@/features/pricing/price';
-import {useFormatter, useTranslations} from 'next-intl';
+import {useLocale, useTranslations} from 'next-intl';
+import {toIntlLocale} from '@/platform/i18n/locale-utils';
 import {toast} from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -54,7 +55,7 @@ function submitRedsysRedirect(form: RedsysPaymentForm) {
 export default function ReviewStep({ onEditStep }: ReviewStepProps) {
   const t = useTranslations('Checkout');
   const { order, paymentMethods, selectedPaymentMethodCode, isGuest } = useCheckout();
-  const format = useFormatter();
+  const locale = useLocale();
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -240,7 +241,7 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
         className="w-full h-auto min-h-12 whitespace-normal py-3 text-balance"
       >
         {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Lock aria-hidden="true" />}
-        {t('payAmount', {amount: format.number(order.totalWithTax / 100, {style: 'currency', currency: order.currencyCode})})}
+        {t('payAmount', {amount: new Intl.NumberFormat(toIntlLocale(locale), {style: 'currency', currency: order.currencyCode}).format(order.totalWithTax / 100)})}
       </Button>
 
       {(!order.shippingAddress || !order.shippingLines?.length || !selectedPaymentMethodCode) ? (

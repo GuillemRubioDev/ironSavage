@@ -197,7 +197,7 @@ export async function OrderConfirmation({paramsPromise, searchParamsPromise}: Or
                             <Loader2 className="size-10 animate-spin" strokeWidth={3} aria-hidden="true" />
                         ) : (
                             <svg viewBox="0 0 24 24" className="size-10" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <path className="animate-check-draw" d="M5 12.5l4.5 4.5L19 7.5" />
+                                <path className="animate-check-draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5" />
                             </svg>
                         )}
                     </div>
@@ -231,7 +231,7 @@ export async function OrderConfirmation({paramsPromise, searchParamsPromise}: Or
                             <UserRound className="mb-3 size-6 text-primary-solid" aria-hidden="true" />
                             <h2 className="font-display text-xl font-extrabold uppercase italic">{t('accountTitle')}</h2>
                             <p className="mt-1 text-sm text-muted-foreground">{t('accountText')}</p>
-                            <Link href="/mi-cuenta/puntos" className="mt-2 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline">{t('accountTitle')}</Link>
+                            <Link href="/mi-cuenta/puntos" className="mt-2 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline">{t('viewPoints')}</Link>
                         </div>
                     </div>
                 )}

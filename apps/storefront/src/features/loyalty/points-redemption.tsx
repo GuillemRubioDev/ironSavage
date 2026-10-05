@@ -13,13 +13,15 @@ import {cancelRedemption, redeemPoints} from '@/features/loyalty/redeem-actions'
  * Ofrece hasta el máximo que el servidor aceptaría; con un canje aplicado muestra los
  * puntos usados y permite quitarlo.
  */
-export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCents, currencyCode, applied}: {
+export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCents, currencyCode, applied, orderTooSmall = false}: {
     balance: number;
     minPoints: number;
     maxPoints: number;
     pointValueInCents: number;
     currencyCode: string;
     applied: {points: number; amount: number} | null;
+    /** El saldo llega al mínimo pero el pedido es demasiado pequeño para canjearlo. */
+    orderTooSmall?: boolean;
 }) {
     const t = useTranslations('Loyalty.redeem');
     // Se guarda el texto tal cual (escribir "500" pasa por "5" y "50") y se valida al enviar.
@@ -40,8 +42,12 @@ export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCen
                     className="mt-2"
                     disabled={pending}
                     onClick={() => startTransition(async () => {
-                        const result = await cancelRedemption();
-                        if (!result.success) toast.error(t('errors.generic'));
+                        try {
+                            const result = await cancelRedemption();
+                            if (!result.success) toast.error(t('errors.generic'));
+                        } catch {
+                            toast.error(t('errors.generic'));
+                        }
                     })}
                 >
                     {t('remove')}
@@ -53,7 +59,7 @@ export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCen
     if (maxPoints < minPoints) {
         return (
             <p className="rounded-md border border-brand-line p-3 text-xs text-brand-muted">
-                {t('available', {balance})} · {t('minimum', {min: minPoints})}
+                {t('available', {balance})} · {orderTooSmall ? t('orderTooSmall', {min: minPoints}) : t('minimum', {min: minPoints})}
             </p>
         );
     }
@@ -68,8 +74,12 @@ export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCen
                 event.preventDefault();
                 startTransition(async () => {
                     if (!valid) return;
-                    const result = await redeemPoints(parsed);
-                    if (!result.success) toast.error(result.error);
+                    try {
+                        const result = await redeemPoints(parsed);
+                        if (!result.success) toast.error(result.error);
+                    } catch {
+                        toast.error(t('errors.generic'));
+                    }
                 });
             }}
         >

@@ -329,6 +329,9 @@
   .img-zoom:hover img { transform: scale(1.06); }
 }
 
+/* Las barras fijas de móvil (carrito, ficha) no tapan el final del pie. */
+@media (max-width: 1023px) { body:has([data-mobile-bar]) { padding-bottom: 5rem; } }
+
 /* Respuesta al pulsar. */
 .press { transition: transform var(--dur-fast) var(--ease-out); }
 .press:active { transform: scale(.97); }
@@ -342,8 +345,8 @@
 .animate-hero-zoom { animation: hero-zoom 9s var(--ease-out) both; }
 
 /* Confirmación de pedido (features/orders): check que se dibuja y confeti rojo breve. */
-@keyframes check-draw { from { stroke-dashoffset: 48; } to { stroke-dashoffset: 0; } }
-.animate-check-draw { stroke-dasharray: 48; animation: check-draw var(--dur-slow) var(--ease-out) 200ms both; }
+@keyframes check-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.animate-check-draw { stroke-dasharray: 1; animation: check-draw var(--dur-slow) var(--ease-out) 200ms both; }
 @keyframes confetti-fall {
   0% { opacity: 1; transform: translate3d(0, -20px, 0) rotate(0deg); }
   100% { opacity: 0; transform: translate3d(var(--dx, 0), 260px, 0) rotate(var(--rot, 360deg)); }

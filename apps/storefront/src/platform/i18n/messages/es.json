@@ -3,7 +3,8 @@
     "loading": "Cargando...",
     "sending": "Enviando...",
     "sku": "SKU",
-    "siteDescription": "Compra los mejores productos en {siteName}. Productos de calidad, precios competitivos y entrega rápida."
+    "siteDescription": "Compra los mejores productos en {siteName}. Productos de calidad, precios competitivos y entrega rápida.",
+    "close": "Cerrar"
   },
   "Errors": {
     "fieldsRequired": "Todos los campos son obligatorios",
