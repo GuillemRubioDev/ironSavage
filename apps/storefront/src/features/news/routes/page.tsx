@@ -2,7 +2,12 @@ import type {Metadata} from 'next';
 import {cacheLife, cacheTag} from 'next/cache';
 import {query} from '@/platform/vendure/api';
 import {GetArticlesQuery, type ArticleListItem} from '@/features/news/graphql';
+import Image from 'next/image';
+import {ArrowRight} from 'lucide-react';
+import {Link} from '@/platform/i18n/navigation';
+import {formatDate} from '@/platform/i18n/format';
 import {ArticleCard} from '@/features/news/components/article-card';
+import {ListingHeader} from '@/features/products/listing-header';
 import {Pagination} from '@/components/pagination';
 import {DEFAULT_OG_IMAGES, SITE_NAME, buildCanonicalUrl, localizedPath} from '@/config/metadata';
 import {getRouteLocale} from '@/platform/i18n/server';
@@ -58,22 +63,50 @@ export default async function NewsListPage({searchParams}: PageProps<'/[locale]/
     const articles = data.articles.items as ArticleListItem[];
     const totalPages = Math.ceil(data.articles.totalItems / ITEMS_PER_PAGE);
 
-    return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-10">{t('pageTitle')}</h1>
+    // La primera noticia de la primera página va destacada en un bloque oscuro.
+    const featured = currentPage === 1 ? articles[0] : undefined;
+    const rest = featured ? articles.slice(1) : articles;
+    const featuredTitle = featured && (locale === 'es' ? featured.titleEs : featured.titleEn);
+    const featuredExcerpt = featured && (locale === 'es' ? featured.excerptEs : featured.excerptEn);
 
-            {articles.length === 0 ? (
-                <p className="text-muted-foreground">{t('noArticles')}</p>
-            ) : (
-                <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                        {articles.map(article => (
-                            <ArticleCard key={article.id} article={article} locale={locale} />
-                        ))}
-                    </div>
-                    {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} />}
-                </>
-            )}
-        </div>
+    return (
+        <>
+            <ListingHeader crumbs={[{label: t('home'), href: '/'}, {label: t('pageTitle')}]} title={t('pageTitle')} watermark="N" />
+            <div className="container mx-auto px-4 py-10">
+                {articles.length === 0 ? (
+                    <p className="text-muted-foreground">{t('noArticles')}</p>
+                ) : (
+                    <>
+                        {featured && (
+                            <Link href={`/noticias/${featured.slug}`} className="group hover-lift img-zoom mb-10 grid overflow-hidden rounded-xl bg-brand text-brand-fg md:grid-cols-2">
+                                {featured.coverImage && (
+                                    <div className="relative aspect-video overflow-hidden md:aspect-auto md:min-h-80">
+                                        <Image src={`${featured.coverImage.preview}?preset=large`} alt="" fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+                                    </div>
+                                )}
+                                <div className="flex flex-col justify-center gap-3 p-6 md:p-10">
+                                    {featured.publishedAt && (
+                                        <p className="text-xs uppercase tracking-[.16em] text-brand-muted">{formatDate(featured.publishedAt, 'long', locale)}</p>
+                                    )}
+                                    <h2 className="text-4xl md:text-5xl">{featuredTitle}</h2>
+                                    <p className="line-clamp-3 text-brand-muted">{featuredExcerpt}</p>
+                                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary-text">
+                                        {t('readArticle')} <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                                    </span>
+                                </div>
+                            </Link>
+                        )}
+                        {rest.length > 0 && (
+                            <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                {rest.map(article => (
+                                    <ArticleCard key={article.id} article={article} locale={locale} />
+                                ))}
+                            </div>
+                        )}
+                        {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} />}
+                    </>
+                )}
+            </div>
+        </>
     );
 }

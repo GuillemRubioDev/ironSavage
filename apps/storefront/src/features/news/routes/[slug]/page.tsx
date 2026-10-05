@@ -79,31 +79,39 @@ export default async function ArticleDetailPage({params}: PageProps<'/[locale]/n
     const paragraphs = content.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
 
     return (
-        <article className="container mx-auto px-4 py-8 max-w-3xl">
-            <Link href="/noticias" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
-                <ChevronLeft className="h-4 w-4" />
-                {t('backToNews')}
-            </Link>
-
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">{title}</h1>
-            {article.publishedAt && (
-                <p className="text-sm text-muted-foreground mb-6">{formatDate(article.publishedAt, 'long', locale)}</p>
-            )}
-
-            {article.coverImage && (
-                <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-8">
-                    <Image src={`${article.coverImage.preview}?preset=large`} alt={title} fill className="object-cover" priority />
+        <article>
+            <header className="bg-brand text-brand-fg">
+                <div className="container mx-auto max-w-[68ch] px-4 pb-24 pt-10 md:pb-28 md:pt-14">
+                    <Link href="/noticias" className="mb-6 inline-flex items-center gap-1 text-sm text-brand-muted transition-colors hover:text-brand-fg">
+                        <ChevronLeft className="size-4" aria-hidden="true" />
+                        {t('backToNews')}
+                    </Link>
+                    {article.publishedAt && (
+                        <p className="mb-3 text-xs uppercase tracking-[.16em] text-brand-muted">{formatDate(article.publishedAt, 'long', locale)}</p>
+                    )}
+                    <h1 className="text-4xl md:text-6xl">{title}</h1>
                 </div>
-            )}
+            </header>
 
-            <p className="text-lg text-muted-foreground leading-relaxed mb-6">{excerpt}</p>
+            {/* Columna de unos 68 caracteres: la medida cómoda para leer. */}
+            <div className="container mx-auto max-w-[68ch] px-4 pb-16">
+                {article.coverImage ? (
+                    <div className="relative -mt-16 mb-10 aspect-video overflow-hidden rounded-xl bg-muted shadow-xl md:-mt-20">
+                        <Image src={`${article.coverImage.preview}?preset=large`} alt={title} fill className="object-cover" priority />
+                    </div>
+                ) : (
+                    <div className="h-10" />
+                )}
 
-            <div className="space-y-4">
-                {paragraphs.map((paragraph, index) => (
-                    <p key={index} className="text-base leading-relaxed">
-                        {paragraph}
-                    </p>
-                ))}
+                <p className="mb-8 text-xl leading-relaxed text-muted-foreground">{excerpt}</p>
+
+                <div className="space-y-6">
+                    {paragraphs.map((paragraph, index) => (
+                        <p key={index} className="text-lg leading-8">
+                            {paragraph}
+                        </p>
+                    ))}
+                </div>
             </div>
         </article>
     );
