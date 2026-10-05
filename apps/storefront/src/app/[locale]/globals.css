@@ -330,7 +330,7 @@
 }
 
 /* Las barras fijas de móvil (carrito, ficha) no tapan el final del pie. */
-@media (max-width: 1023px) { body:has([data-mobile-bar]) { padding-bottom: 5rem; } }
+@media (max-width: 1023px) { body:has([data-mobile-bar]) { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); } }
 
 /* Respuesta al pulsar. */
 .press { transition: transform var(--dur-fast) var(--ease-out); }

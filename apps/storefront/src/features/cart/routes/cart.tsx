@@ -28,7 +28,8 @@ export async function Cart() {
             languageCode: locale,
             currencyCode,
         }),
-        // Sin sesión no hay puntos: no se pregunta a Vendure.
+        // Sin token no hay sesión ni puntos: no se pregunta a Vendure (con token de
+        // invitado la consulta devuelve null sin coste visible).
         token ? query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true}).catch(() => null) : null,
         getLoyaltyProgramConfig().catch(() => null),
     ]);
@@ -64,7 +65,7 @@ export async function Cart() {
     ) : null;
 
     return (
-        <div className="grid gap-8 pb-24 lg:grid-cols-3 lg:pb-0">
+        <div className="grid gap-8 lg:grid-cols-3">
             <CartItems activeOrder={activeOrder}/>
 
             <div className="lg:col-span-1">

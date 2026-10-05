@@ -5,6 +5,7 @@ import {cn} from '@/lib/utils';
 import {FileText, LayoutDashboard, LogOut, MapPin, Package, Star, Trophy, User} from 'lucide-react';
 import type {LucideIcon} from 'lucide-react';
 import {useTranslations} from 'next-intl';
+import {useFormStatus} from 'react-dom';
 import {logoutAction} from '@/features/authentication/logout';
 
 const iconMap: Record<string, LucideIcon> = {
@@ -101,14 +102,24 @@ export function AccountNavLinks({items, layout, name, initial}: AccountNavLinksP
                 })}
             </nav>
             <form action={logoutAction} className="border-t border-brand-line p-2">
-                <button
-                    type="submit"
-                    className="flex w-full items-center gap-3 rounded-md border-l-2 border-transparent px-3 py-2 text-sm font-medium text-brand-muted transition-colors hover:bg-white/5 hover:text-brand-fg"
-                >
-                    <LogOut className="size-5" aria-hidden="true" />
-                    {t('logout')}
-                </button>
+                <LogoutButton label={t('logout')} />
             </form>
         </div>
+    );
+}
+
+/** Botón de cerrar sesión: se bloquea mientras la acción trabaja (evita un doble envío). */
+function LogoutButton({label}: {label: string}) {
+    const {pending} = useFormStatus();
+    return (
+        <button
+            type="submit"
+            disabled={pending}
+            aria-busy={pending}
+            className="flex w-full items-center gap-3 rounded-md border-l-2 border-transparent px-3 py-2 text-sm font-medium text-brand-muted transition-colors hover:bg-white/5 hover:text-brand-fg disabled:opacity-60"
+        >
+            <LogOut className="size-5" aria-hidden="true" />
+            {label}
+        </button>
     );
 }

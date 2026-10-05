@@ -15,6 +15,7 @@ import {GetMyLoyaltyQuery} from '@/features/loyalty/graphql';
 import {getLoyaltyProgramConfig} from '@/features/loyalty/program-config';
 import {OrderStatusBadge} from '@/features/orders/order-status-badge';
 import {Price} from '@/features/pricing/price';
+import {getActiveCurrencyCode} from '@/features/currency/currency-server';
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
@@ -31,13 +32,15 @@ export default async function AccountSummaryPage() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Account'});
 
-    const [customer, ordersResult, lastPaidResult, loyaltyResult, config] = await Promise.all([
+    const [customer, ordersResult, lastPaidResult, loyaltyResult, config, activeCurrency] = await Promise.all([
         getActiveCustomer(),
         // Solo pedidos realizados (con orderPlacedAt): fuera el carrito y los checkouts sin pagar.
         query(GetCustomerOrdersQuery, {options: {take: 5, sort: {orderPlacedAt: 'DESC'}, filter: {orderPlacedAt: {isNull: false}}}}, {useAuthToken: true}).catch(() => null),
         query(GetLastPaidOrderQuery, {states: PAID_ORDER_STATES}, {useAuthToken: true}).catch(() => null),
         query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true}).catch(() => null),
         getLoyaltyProgramConfig().catch(() => null),
+        // El canje se aplica en la moneda activa del carrito, no en la de un pedido antiguo.
+        getActiveCurrencyCode(),
     ]);
 
     const orders = ordersResult?.data.activeCustomer?.orders.items ?? [];
@@ -46,7 +49,7 @@ export default async function AccountSummaryPage() {
     const lastOrder = lastPaid;
     const balance = loyaltyResult?.data.loyaltyAccount?.balance ?? 0;
     const progress = config ? loyaltyProgress({balance, ...config}) : null;
-    const currencyCode = lastOrder?.currencyCode ?? 'EUR';
+    const currencyCode = activeCurrency;
 
     const quickLinks = [
         {href: '/mi-cuenta/pedidos', icon: Package, label: t('orders')},
@@ -59,7 +62,7 @@ export default async function AccountSummaryPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-5xl md:text-6xl">{t('overview.greeting', {name: customer?.firstName || ''})}</h1>
+                <h1 className="text-5xl md:text-6xl">{customer?.firstName ? t('overview.greeting', {name: customer.firstName}) : t('overview.title')}</h1>
                 <p className="mt-2 text-muted-foreground">{t('overview.intro')}</p>
             </div>
 

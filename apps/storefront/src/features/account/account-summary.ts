@@ -26,9 +26,11 @@ export function loyaltyProgress({balance, minRedeemablePoints, pointValueInCents
     pointValueInCents: number;
     maxDiscountPerOrderCents: number;
 }): {canRedeem: boolean; percent: number; remaining: number; redeemableCents: number} {
-    if (minRedeemablePoints <= 0 || balance >= minRedeemablePoints) {
+    // Sin saldo no hay nada que canjear, aunque el mínimo sea 0.
+    if (balance > 0 && (minRedeemablePoints <= 0 || balance >= minRedeemablePoints)) {
         return {canRedeem: true, percent: 100, remaining: 0, redeemableCents: Math.min(balance * pointValueInCents, maxDiscountPerOrderCents)};
     }
+    if (minRedeemablePoints <= 0) return {canRedeem: false, percent: 0, remaining: 0, redeemableCents: 0};
     return {
         canRedeem: false,
         percent: Math.round((Math.max(0, balance) / minRedeemablePoints) * 100),
