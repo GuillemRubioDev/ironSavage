@@ -24,7 +24,7 @@
       "signedOutCta": "Inicia sesión para empezar a ganar",
       "guestDescription": "Crea una cuenta para empezar a ganar puntos en cada pedido.",
       "stats": {
-        "earn": "punto por cada euro",
+        "earn": "{count, plural, one {punto por cada euro} other {puntos por cada euro}}",
         "redeem": "puntos = {amount} de descuento",
         "cap": "de descuento máximo por pedido"
       }

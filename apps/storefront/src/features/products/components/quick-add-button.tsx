@@ -111,14 +111,14 @@ export function QuickAddButton({slug, productName, inStock}: {slug: string; prod
             {product && (isMobile ? (
                 <Sheet open={open} onOpenChange={setOpen}>
                     <SheetContent side="bottom" finalFocus={buttonRef} className="max-h-[85vh] overflow-y-auto rounded-t-xl p-5">
-                        <SheetTitle className="sr-only">{t('quickAddTitle')}</SheetTitle>
+                        <SheetTitle className="sr-only">{t('quickAddTitle', {name: product.name})}</SheetTitle>
                         {body}
                     </SheetContent>
                 </Sheet>
             ) : (
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogContent finalFocus={buttonRef} className="sm:max-w-lg">
-                        <DialogTitle className="sr-only">{t('quickAddTitle')}</DialogTitle>
+                        <DialogTitle className="sr-only">{t('quickAddTitle', {name: product.name})}</DialogTitle>
                         {body}
                     </DialogContent>
                 </Dialog>

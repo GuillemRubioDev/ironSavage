@@ -50,7 +50,7 @@ test('withFacets cambia los filtros y vuelve a la página 1 sin tocar el resto',
 test('el selector rápido carga el producto al pulsar y lo oculta si no está a la venta', async () => {
     const data = await read('features/products/quick-add-data.ts');
     assert.match(data, /'use cache'/);
-    assert.match(data, /!product\.enabled \|\| product\.customFields\?\.visibleInStorefront === false/);
+    assert.match(data, /!product\.enabled \|\| !product\.customFields\?\.visibleInStorefront/);
     assert.match(data, /getDisplayOptionGroups\(product\)/);
     assert.match(await read('features/products/quick-add.ts'), /^'use server';/);
 });
@@ -112,7 +112,7 @@ test('etiquetas de filtros activos que se quitan y orden encima de la rejilla', 
 test('en móvil los filtros salen desde abajo, no se cierran al marcar y muestran "Ver X productos"', async () => {
     const filters = await read('features/search/facet-filters.tsx');
     assert.match(filters, /side="bottom"/);
-    assert.match(filters, /t\('showResults', \{count: searchResult\.totalItems\}\)/);
+    assert.match(filters, /t\('showResults', \{count: visibleTotal\}\)/);
     assert.doesNotMatch(filters, /setSheetOpen\(false\)/);
     assert.match(filters, /withFacets\(/);
     for (const loc of ['es', 'en']) {

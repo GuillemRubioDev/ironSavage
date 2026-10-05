@@ -78,7 +78,7 @@
     "netQuantity": "Net quantity: {quantity}",
     "quickAdd": "Add",
     "quickAddLabel": "Add {name} to cart",
-    "quickAddTitle": "Choose your option",
+    "quickAddTitle": "Choose your option: {name}",
     "quantity": "Quantity",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",

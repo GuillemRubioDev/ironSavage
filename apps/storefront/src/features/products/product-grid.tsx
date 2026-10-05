@@ -30,6 +30,12 @@ async function countVisible(searchResult: SearchResult) {
     return {visibleItems, totalItems};
 }
 
+/** Total de productos visibles de un listado (para el botón "Ver X productos" de los filtros en móvil). */
+export async function visibleTotal(productDataPromise: ProductGridProps['productDataPromise']): Promise<number> {
+    const result = await productDataPromise;
+    return (await countVisible(result.data.search)).totalItems;
+}
+
 /** Nº de productos del listado, para la franja oscura (va dentro de su propio Suspense). */
 export async function ProductCount({productDataPromise}: Pick<ProductGridProps, 'productDataPromise'>) {
     const locale = await getRouteLocale();
@@ -51,9 +57,13 @@ export async function ProductGrid({productDataPromise, currentPage, take, showCo
     ]);
     const totalPages = Math.ceil(totalItems / take);
 
+    const facetValues = searchResult.facetValues.map(f => ({id: f.facetValue.id, name: f.facetValue.name}));
+
     if (!visibleItems.length) {
+        // Con 0 resultados (filtros que no casan) se pueden quitar los filtros desde aquí.
         return (
-            <div className="text-center py-12">
+            <div className="space-y-6 py-12 text-center">
+                <div className="flex justify-center"><ActiveFilters facetValues={facetValues} /></div>
                 <p className="text-muted-foreground">{t('noProductsFound')}</p>
             </div>
         );
@@ -64,7 +74,7 @@ export async function ProductGrid({productDataPromise, currentPage, take, showCo
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-3">
                     {showCount && <p className="text-sm text-muted-foreground">{t('productCount', {count: totalItems})}</p>}
-                    <ActiveFilters facetValues={searchResult.facetValues.map(f => ({id: f.facetValue.id, name: f.facetValue.name}))} />
+                    <ActiveFilters facetValues={facetValues} />
                 </div>
                 <SortDropdown/>
             </div>

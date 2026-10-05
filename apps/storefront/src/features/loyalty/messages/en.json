@@ -24,7 +24,7 @@
       "signedOutCta": "Sign in to start earning",
       "guestDescription": "Create an account to start earning points on every order.",
       "stats": {
-        "earn": "point per euro spent",
+        "earn": "{count, plural, one {point per euro spent} other {points per euro spent}}",
         "redeem": "points = {amount} off",
         "cap": "maximum discount per order"
       }

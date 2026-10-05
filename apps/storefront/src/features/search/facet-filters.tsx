@@ -19,6 +19,8 @@ interface FacetFiltersProps {
         data: ResultOf<typeof SearchProductsQuery>;
         token?: string;
     }>;
+    /** Total de productos visibles (sin los ocultos en la tienda), el mismo que la franja. */
+    visibleTotalPromise: Promise<number>;
 }
 
 function FilterContent({
@@ -85,9 +87,10 @@ function FilterContent({
     );
 }
 
-export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
+export function FacetFilters({ productDataPromise, visibleTotalPromise }: FacetFiltersProps) {
     const t = useTranslations('Filters');
     const result = use(productDataPromise);
+    const visibleTotal = use(visibleTotalPromise);
     const searchResult = result.data.search;
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -184,7 +187,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
                         </div>
                         <div className="sticky bottom-0 -mx-6 mt-4 border-t border-border bg-background px-6 pt-4">
                             <SheetClose render={<Button size="lg" className="w-full" />}>
-                                {t('showResults', {count: searchResult.totalItems})}
+                                {t('showResults', {count: visibleTotal})}
                             </SheetClose>
                         </div>
                     </SheetContent>

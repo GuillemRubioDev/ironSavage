@@ -309,16 +309,6 @@
   animation: pop-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* Parallax de scroll barato y solo por GPU: un translateY que fija JS en una
-   variable CSS, aplicado solo dentro de .parallax-layer. Sin librerías de
-   animación. Se desactiva por completo con reduced-motion. */
-@media (prefers-reduced-motion: no-preference) {
-  .parallax-layer {
-    transform: translateY(calc(var(--parallax-offset, 0) * 1px));
-    will-change: transform;
-  }
-}
-
 /* --- Movimiento (Fase 1 del rediseño) --- */
 /* Reveal: el script pone data-reveal="pending" (oculto) y luego "visible". */
 .reveal {

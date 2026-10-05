@@ -78,7 +78,7 @@
     "netQuantity": "Cantidad neta: {quantity}",
     "quickAdd": "Añadir",
     "quickAddLabel": "Añadir {name} al carrito",
-    "quickAddTitle": "Elige tu opción",
+    "quickAddTitle": "Elige tu opción: {name}",
     "quantity": "Cantidad",
     "decreaseQuantity": "Quitar uno",
     "increaseQuantity": "Añadir uno",
