@@ -38,9 +38,9 @@ export async function LegalPageShell({title, children}: {title: string; children
         <>
             <header className="bg-brand text-brand-fg print:bg-transparent print:text-black">
                 <div className="container mx-auto px-4 py-10 md:py-14">
-                    <h1 className="text-5xl md:text-6xl">{title}</h1>
+                    <h1 data-legal-title className="text-5xl md:text-6xl">{title}</h1>
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-brand-muted print:text-black">
-                        <span>
+                        <span data-legal-updated>
                             {t('lastUpdated', {date: format.dateTime(LEGAL_LAST_UPDATED, {dateStyle: 'long', timeZone: 'UTC'})})}
                         </span>
                         <PrintButton label={t('print')} />

@@ -32,21 +32,21 @@ export default function ProfileLoading() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle><Skeleton className="h-4 w-23" /></CardTitle>
+                    <CardTitle><Skeleton className="h-4 w-32" /></CardTitle>
                     <CardDescription>
-                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-4 w-56" />
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-32"/>
-                        <Skeleton className="h-10 w-full"/>
-                    </div>
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-32"/>
-                        <Skeleton className="h-10 w-full"/>
-                    </div>
-                    <Skeleton className="h-10 w-32"/>
+                    {[0, 1].map((row) => (
+                        <div key={row} className="flex items-center justify-between gap-4">
+                            <div className="space-y-1">
+                                <Skeleton className="h-4 w-28" />
+                                <Skeleton className="h-4 w-44" />
+                            </div>
+                            <Skeleton className="h-8 w-20" />
+                        </div>
+                    ))}
                 </CardContent>
             </Card>
         </div>
