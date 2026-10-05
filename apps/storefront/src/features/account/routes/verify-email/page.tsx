@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/platform/i18n/navigation';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 
 async function VerifyEmailContent({searchParams}: {searchParams: Promise<Record<string, string | string[] | undefined>>}) {
     const locale = await getRouteLocale();
@@ -61,7 +62,7 @@ async function VerifyEmailContent({searchParams}: {searchParams: Promise<Record<
                 <CardHeader>
                     <CardTitle>{t('verifyEmail.failed')}</CardTitle>
                     <CardDescription>
-                        {updateResult.message || t('verifyEmail.failedDefault')}
+                        {updateResult.errorCode ? await serverErrorMessage(updateResult.errorCode, locale) : t('verifyEmail.failedDefault')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

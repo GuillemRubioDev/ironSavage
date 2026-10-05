@@ -22,7 +22,7 @@ export interface DetailOptionGroup {
     id: string;
     code: string;
     name: string;
-    options: Array<{id: string; code: string; name: string}>;
+    options: Array<{id: string; code: string; name: string; customFields?: {swatchColor?: string | null} | null}>;
 }
 
 export interface DetailProduct {

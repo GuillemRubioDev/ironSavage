@@ -11,6 +11,8 @@ import {GetMyLoyaltyQuery} from '@/features/loyalty/graphql';
 import {getLoyaltyProgramConfig} from '@/features/loyalty/program-config';
 import {maxRedeemablePoints} from '@/features/loyalty/redemption';
 import {PointsRedemption} from '@/features/loyalty/points-redemption';
+import {getFreeShippingThreshold} from '@/features/cart/free-shipping';
+import {freeShippingProgress} from '@/features/cart/free-shipping-progress';
 
 export async function Cart() {
     "use cache: private"
@@ -22,7 +24,7 @@ export async function Cart() {
     // El saldo de puntos (null para invitados) y la configuración del programa se leen a
     // la vez que el pedido; si fallan, el carrito se pinta igual, sin el canje.
     const token = await getAuthToken();
-    const [{data}, loyalty, config] = await Promise.all([
+    const [{data}, loyalty, config, freeShippingThreshold] = await Promise.all([
         query(GetActiveOrderQuery, {}, {
             useAuthToken: true,
             languageCode: locale,
@@ -32,6 +34,7 @@ export async function Cart() {
         // invitado la consulta devuelve null sin coste visible).
         token ? query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true}).catch(() => null) : null,
         getLoyaltyProgramConfig().catch(() => null),
+        getFreeShippingThreshold(),
     ]);
     const loyaltyAccount = loyalty?.data.loyaltyAccount ?? null;
 
@@ -69,7 +72,7 @@ export async function Cart() {
             <CartItems activeOrder={activeOrder}/>
 
             <div className="lg:col-span-1">
-                <OrderSummary activeOrder={activeOrder} redemptionSlot={redemption}/>
+                <OrderSummary activeOrder={activeOrder} redemptionSlot={redemption} freeShipping={freeShippingProgress(freeShippingThreshold, activeOrder)}/>
                 <PromotionCode activeOrder={activeOrder}/>
             </div>
         </div>

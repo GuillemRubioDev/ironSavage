@@ -8,6 +8,7 @@ import {ProductBadges} from '@/features/products/components/product-badges';
 import {discountPercent} from '@/features/pricing/discount-percent';
 import {findVariant, initialSelection, selectOption, type Selection} from '@/features/products/variant-selection';
 import {galleryFor} from '@/features/products/product-facts';
+import {earnsLoyaltyPoints} from '@/features/loyalty/earning-actions';
 import type {DetailProduct} from '@/features/products/components/product-detail-types';
 
 interface ProductDetailClientProps {
@@ -55,6 +56,17 @@ function ProductDetailView({product, currencyCode, categoryName, pointsPerEuro, 
         });
     }, [viewedVariantId, product.id, product.name, product.variants, currencyCode]);
 
+    // Los atletas activos no suman puntos: la línea de puntos sale solo cuando el servidor
+    // confirma que este cliente los suma (la página es la misma para todos).
+    const [earnsPoints, setEarnsPoints] = useState(false);
+    useEffect(() => {
+        let active = true;
+        earnsLoyaltyPoints().then((earns) => active && setEarnsPoints(earns), () => active && setEarnsPoints(true));
+        return () => {
+            active = false;
+        };
+    }, []);
+
     // Al elegir variante se ven todas sus fotos y después las del producto.
     const images = useMemo(() => galleryFor(product.assets, selectedVariant), [product.assets, selectedVariant]);
 
@@ -75,7 +87,7 @@ function ProductDetailView({product, currencyCode, categoryName, pointsPerEuro, 
                     selection={selection}
                     selectedVariant={selectedVariant}
                     onSelect={(groupId, optionId) => setSelection(current => selectOption(product.variants, current, groupId, optionId))}
-                    pointsPerEuro={pointsPerEuro}
+                    pointsPerEuro={earnsPoints ? pointsPerEuro : 0}
                     ratingSlot={ratingSlot}
                 />
                 {detailsSlot}

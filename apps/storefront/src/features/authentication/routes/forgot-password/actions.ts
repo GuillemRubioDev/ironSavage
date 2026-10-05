@@ -3,6 +3,7 @@
 import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {RequestPasswordResetMutation} from '@/features/authentication/graphql';
 import {getTranslations} from 'next-intl/server';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 
 export async function requestPasswordResetAction(prevState: { error?: string; success?: boolean } | undefined, formData: FormData) {
     const t = await getTranslations('Errors');
@@ -20,7 +21,7 @@ export async function requestPasswordResetAction(prevState: { error?: string; su
         const resetResult = result.data.requestPasswordReset;
 
         if (resetResult?.__typename !== 'Success') {
-            return {error: resetResult?.message || t('failedPasswordReset')};
+            return {error: resetResult?.errorCode ? await serverErrorMessage(resetResult.errorCode) : t('failedPasswordReset')};
         }
 
         return {success: true};

@@ -24,6 +24,30 @@
     "failedAddToCart": "No se ha podido añadir el artículo al carrito",
     "firstNameRequired": "El nombre es obligatorio",
     "termsRequired": "Debes aceptar los términos y condiciones",
-    "tooManyAttempts": "Demasiados intentos. Espera unos minutos antes de volver a intentarlo."
+    "tooManyAttempts": "Demasiados intentos. Espera unos minutos antes de volver a intentarlo.",
+    "passwordRequired": "La contraseña es obligatoria"
+  },
+  "ServerErrors": {
+    "generic": "No hemos podido completar la operación. Inténtalo de nuevo.",
+    "verificationTokenInvalid": "Este enlace de verificación no es válido o ya se ha usado. Si ya verificaste tu cuenta, inicia sesión.",
+    "verificationTokenExpired": "Este enlace de verificación ha caducado. Regístrate de nuevo con el mismo correo para recibir otro.",
+    "passwordResetTokenInvalid": "Este enlace para restablecer la contraseña no es válido o ya se ha usado. Pide uno nuevo.",
+    "passwordResetTokenExpired": "Este enlace para restablecer la contraseña ha caducado. Pide uno nuevo.",
+    "emailChangeTokenInvalid": "Este enlace para cambiar el correo no es válido o ya se ha usado.",
+    "emailChangeTokenExpired": "Este enlace para cambiar el correo ha caducado. Vuelve a pedir el cambio desde tu perfil.",
+    "passwordAlreadySet": "Esta cuenta ya tiene contraseña. Inicia sesión.",
+    "passwordValidation": "La contraseña no cumple los requisitos. Prueba con una más larga.",
+    "invalidCredentials": "Correo electrónico o contraseña no válidos.",
+    "notVerified": "Verifica tu correo electrónico antes de iniciar sesión.",
+    "emailAddressConflict": "Ya existe una cuenta con este correo electrónico.",
+    "insufficientStock": "No quedan suficientes unidades: hemos añadido las que hay disponibles.",
+    "negativeQuantity": "La cantidad no es válida.",
+    "orderLimit": "Has llegado al máximo de unidades que se pueden pedir.",
+    "orderModification": "Este pedido ya no se puede modificar.",
+    "noActiveOrder": "Tu carrito está vacío.",
+    "ineligibleShippingMethod": "Este método de envío no está disponible para tu dirección.",
+    "ineligiblePaymentMethod": "Este método de pago no está disponible para tu pedido.",
+    "paymentDeclined": "El pago ha sido rechazado. Prueba con otra tarjeta.",
+    "paymentFailed": "No se ha podido completar el pago. Inténtalo de nuevo."
   }
 }

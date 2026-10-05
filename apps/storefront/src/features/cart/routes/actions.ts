@@ -5,6 +5,7 @@ import {RemoveFromCartMutation, AdjustCartItemMutation, ApplyPromotionCodeMutati
 import {getActiveCurrencyCode} from '@/features/currency/currency-server';
 import {updateTag} from 'next/cache';
 import {getTranslations} from 'next-intl/server';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 
 export type CartActionResult = {success: true} | {success: false; error: string};
 
@@ -37,7 +38,7 @@ export async function removeFromCart(lineId: string): Promise<CartActionResult> 
     updateTag('cart');
 
     if (result.__typename !== 'Order') {
-        return {success: false, error: result.message};
+        return {success: false, error: await serverErrorMessage(result.errorCode)};
     }
     return {success: true};
 }
@@ -51,7 +52,7 @@ export async function adjustQuantity(lineId: string, quantity: number): Promise<
     updateTag('cart');
 
     if (result.__typename !== 'Order') {
-        return {success: false, error: result.message};
+        return {success: false, error: await serverErrorMessage(result.errorCode)};
     }
     return {success: true};
 }

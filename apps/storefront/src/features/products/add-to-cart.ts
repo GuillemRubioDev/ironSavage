@@ -6,6 +6,7 @@ import {AddToCartMutation, ReopenStuckOrderMutation} from '@/features/cart/graph
 import {getActiveCurrencyCode} from '@/features/currency/currency-server';
 import {mutate} from '@/platform/vendure/api';
 import {setAuthToken} from '@/platform/vendure/auth-token';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 
 export async function addToCart(variantId: string, quantity = 1) {
     const locale = await getLocale();
@@ -49,11 +50,11 @@ export async function addToCart(variantId: string, quantity = 1) {
                     updateTag('active-order');
                     return {success: true, order: retry.data.addItemToOrder};
                 }
-                return {success: false, error: retry.data.addItemToOrder.message};
+                return {success: false, error: await serverErrorMessage(retry.data.addItemToOrder.errorCode, locale)};
             }
         }
 
-        return {success: false, error: result.data.addItemToOrder.message};
+        return {success: false, error: await serverErrorMessage(result.data.addItemToOrder.errorCode, locale)};
     } catch {
         return {success: false, error: t('failedAddToCart')};
     }

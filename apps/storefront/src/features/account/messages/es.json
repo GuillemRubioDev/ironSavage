@@ -140,6 +140,9 @@
       "quickAccess": "Accesos rápidos",
       "recentOrders": "Pedidos recientes",
       "viewAllOrders": "Ver todos"
-    }
+    },
+    "addressSaveError": "No se ha podido guardar la dirección. Inténtalo de nuevo.",
+    "addressDeleteError": "No se ha podido eliminar la dirección. Inténtalo de nuevo.",
+    "addressDefaultError": "No se ha podido cambiar la dirección predeterminada. Inténtalo de nuevo."
   }
 }

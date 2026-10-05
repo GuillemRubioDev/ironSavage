@@ -5,6 +5,7 @@ import {ResetPasswordMutation} from '@/features/authentication/graphql';
 import {setAuthToken} from '@/platform/vendure/auth-token';
 import {redirect} from '@/platform/i18n/navigation';
 import {getLocale, getTranslations} from 'next-intl/server';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 
 export async function resetPasswordAction(prevState: { error?: string } | undefined, formData: FormData) {
     const t = await getTranslations('Errors');
@@ -29,7 +30,7 @@ export async function resetPasswordAction(prevState: { error?: string } | undefi
     const resetResult = result.data.resetPassword;
 
     if (resetResult.__typename !== 'CurrentUser') {
-        return {error: resetResult.message};
+        return {error: await serverErrorMessage(resetResult.errorCode)};
     }
 
     // Guarda el token en una cookie si viene en la respuesta

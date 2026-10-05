@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useTransition} from 'react';
+import {useMemo, useState, useTransition} from 'react';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -20,12 +20,13 @@ import {
 import { Link } from '@/platform/i18n/navigation';
 import {useTranslations} from 'next-intl';
 
-const loginSchema = z.object({
-    username: z.email('Please enter a valid email address'),
-    password: z.string().min(1, 'Password is required'),
+// Los textos de error se traducen: el esquema se crea con las traducciones del idioma.
+const makeLoginSchema = (invalidEmail: string, passwordRequired: string) => z.object({
+    username: z.email(invalidEmail),
+    password: z.string().min(1, passwordRequired),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type LoginFormData = z.infer<ReturnType<typeof makeLoginSchema>>;
 
 interface LoginFormProps {
     redirectTo?: string;
@@ -33,6 +34,8 @@ interface LoginFormProps {
 
 export function LoginForm({redirectTo}: LoginFormProps) {
     const t = useTranslations('Auth');
+    const tErrors = useTranslations('Errors');
+    const loginSchema = useMemo(() => makeLoginSchema(tErrors('invalidEmail'), tErrors('passwordRequired')), [tErrors]);
     const [isPending, startTransition] = useTransition();
     const [serverError, setServerError] = useState<string | null>(null);
 

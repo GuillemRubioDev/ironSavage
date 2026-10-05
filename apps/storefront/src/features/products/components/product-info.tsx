@@ -14,6 +14,7 @@ import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
 import {isOptionAvailable, type Selection} from '@/features/products/variant-selection';
 import {pointsFor} from '@/features/products/product-facts';
 import type {DetailProduct, DetailVariant} from '@/features/products/components/product-detail-types';
+import {OptionSwatch} from '@/features/products/components/option-swatch';
 
 interface ProductInfoProps {
     product: DetailProduct;
@@ -126,7 +127,7 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                                         aria-pressed={selected}
                                         onClick={() => onSelect(group.id, option.id)}
                                         className={cn(
-                                            'press rounded-md border px-4 py-2.5 text-sm font-medium transition-colors',
+                                            'press inline-flex items-center gap-2 rounded-md border px-4 py-2.5 text-sm font-medium transition-colors',
                                             selected
                                                 ? 'border-primary-solid bg-primary-solid text-primary-foreground'
                                                 : available
@@ -134,6 +135,7 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                                                     : 'border-dashed border-border text-muted-foreground line-through hover:border-foreground',
                                         )}
                                     >
+                                        <OptionSwatch color={option.customFields?.swatchColor} />
                                         {option.name}
                                         {!available && !selected && <span className="sr-only"> ({t('optionUnavailable')})</span>}
                                     </button>

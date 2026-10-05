@@ -4,6 +4,8 @@ import {Button} from '@/components/ui/button';
 import {Lock} from 'lucide-react';
 import {Price} from '@/features/pricing/price';
 import {getTranslations} from 'next-intl/server';
+import {FreeShippingBar} from '@/features/cart/free-shipping-bar';
+import type {FreeShippingProgress} from '@/features/cart/free-shipping-progress';
 
 type ActiveOrder = {
     id: string;
@@ -46,10 +48,15 @@ function combineTaxByRate(taxSummary: ActiveOrder['taxSummary']) {
 
 /**
  * Resumen del carrito en zona de marca (oscuro en los dos temas): subtotal, descuentos,
- * recargos (canje de puntos), envío, canje (hueco que rellena la feature de puntos) y
- * total con IVA. En móvil, además, una barra fija abajo con el total y Finalizar compra.
+ * recargos (canje de puntos), envío, lo que falta para el envío gratis, canje (hueco que
+ * rellena la feature de puntos) y total con IVA. En móvil, además, una barra fija abajo con el total y Finalizar compra.
  */
-export async function OrderSummary({activeOrder, redemptionSlot}: { activeOrder: ActiveOrder; redemptionSlot?: ReactNode }) {
+export async function OrderSummary({activeOrder, redemptionSlot, freeShipping}: {
+    activeOrder: ActiveOrder;
+    redemptionSlot?: ReactNode;
+    /** Lo que falta para el envío gratis; null si la tienda no tiene envío gratis. */
+    freeShipping?: FreeShippingProgress | null;
+}) {
     const t = await getTranslations('Cart');
     const combinedTax = combineTaxByRate(activeOrder.taxSummary ?? []);
     const total = <Price value={activeOrder.totalWithTax} currencyCode={activeOrder.currencyCode}/>;
@@ -86,6 +93,12 @@ export async function OrderSummary({activeOrder, redemptionSlot}: { activeOrder:
                         </span>
                     </div>
                 </div>
+
+                {freeShipping && (
+                    <div className="mb-5">
+                        <FreeShippingBar progress={freeShipping} currencyCode={activeOrder.currencyCode} tone="brand" />
+                    </div>
+                )}
 
                 {redemptionSlot && <div className="mb-5">{redemptionSlot}</div>}
 

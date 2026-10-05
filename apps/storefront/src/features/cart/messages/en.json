@@ -35,6 +35,9 @@
     "combineWith": "Pairs well with",
     "viewCart": "View cart",
     "drawerError": "The product is in your cart. We couldn't load the summary.",
-    "loyaltyDiscount": "Iron Rewards points discount"
+    "loyaltyDiscount": "Iron Rewards points discount",
+    "freeShippingRemaining": "You are <amount></amount> away from free shipping",
+    "freeShippingReached": "You have free shipping!",
+    "freeShippingProgress": "Progress towards free shipping"
   }
 }

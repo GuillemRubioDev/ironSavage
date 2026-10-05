@@ -9,6 +9,8 @@ import {getActiveCurrencyCode} from '@/features/currency/currency-server';
 import {GetProductDetailQuery, ProductCardFragment} from '@/features/products/graphql';
 import {filterVisibleProducts} from '@/features/products/visibility';
 import {SearchProductsQuery} from '@/features/search/graphql';
+import {getFreeShippingThreshold} from '@/features/cart/free-shipping';
+import {freeShippingProgress} from '@/features/cart/free-shipping-progress';
 
 type Related = Array<{slug: string; name: string; imageUrl: string | null; price: number; currencyCode: string}>;
 
@@ -42,15 +44,17 @@ async function loadRelated(slug: string, locale: string, currencyCode: string): 
 
 /**
  * Datos del panel lateral tras añadir: el pedido activo (sin caché, es del cliente),
- * la línea del producto añadido y los productos para combinar. null si algo falla:
+ * la línea del producto añadido, lo que falta para el envío gratis y los productos
+ * para combinar. null si algo falla:
  * el producto ya está en el carrito y el panel muestra igualmente "Ver carrito".
  */
 export async function getCartDrawerData(slug: string) {
     try {
         const [locale, currencyCode] = await Promise.all([getLocale(), getActiveCurrencyCode()]);
-        const [{data}, related] = await Promise.all([
+        const [{data}, related, freeShippingThreshold] = await Promise.all([
             query(GetActiveOrderQuery, {}, {useAuthToken: true, languageCode: locale, currencyCode}),
             loadRelated(slug, locale, currencyCode).catch(() => [] as Related),
+            getFreeShippingThreshold(),
         ]);
         const order = data.activeOrder;
         const line = order?.lines.find(l => l.productVariant.product.slug === slug) ?? null;
@@ -59,6 +63,7 @@ export async function getCartDrawerData(slug: string) {
                 totalQuantity: order.totalQuantity,
                 subTotalWithTax: order.subTotalWithTax,
                 currencyCode: order.currencyCode,
+                freeShipping: freeShippingProgress(freeShippingThreshold, order),
                 line: line ? {
                     name: line.productVariant.product.name,
                     variantName: line.productVariant.name,

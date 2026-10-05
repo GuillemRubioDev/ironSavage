@@ -4,6 +4,7 @@ import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {VerifyCustomerAccountMutation} from '@/features/authentication/graphql';
 import {setAuthToken} from '@/platform/vendure/auth-token';
 import {getTranslations} from 'next-intl/server';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 import type {VerifyResultValue} from './verify-result';
 
 export async function verifyAccountAction(token: string, password?: string): Promise<VerifyResultValue> {
@@ -28,7 +29,7 @@ export async function verifyAccountAction(token: string, password?: string): Pro
             if (verifyResult.errorCode === 'MISSING_PASSWORD_ERROR') {
                 return {needsPassword: true};
             }
-            return {error: verifyResult.message};
+            return {error: await serverErrorMessage(verifyResult.errorCode)};
         }
 
         // Guarda el token en una cookie si viene en la respuesta
