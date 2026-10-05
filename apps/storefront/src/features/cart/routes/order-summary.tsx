@@ -128,7 +128,7 @@ export async function OrderSummary({activeOrder, redemptionSlot, freeShipping}: 
             {/* Móvil: el total y Finalizar compra siempre a mano, abajo. */}
             <div
                 data-mobile-bar
-                className="lg:hidden fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-brand-line bg-brand px-4 py-3 text-brand-fg"
+                className="lg:hidden fixed inset-x-0 bottom-0 z-30 !mb-0 flex items-center gap-3 border-t border-brand-line bg-brand px-4 py-3 text-brand-fg"
                 style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}
             >
                 <p className="shrink-0">

@@ -21,15 +21,16 @@ export async function NavbarUser() {
 
     if (!customer) {
         return (
-            <Button render={<LoginButton isLoggedIn={false} />} variant="ghost" />
+            <Button render={<LoginButton isLoggedIn={false} />} variant="ghost" className="size-10 px-0 lg:h-9 lg:w-auto lg:px-3" />
         );
     }
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="ghost" />}>
-                <User className="h-5 w-5"/>
-                {t('greeting', {name: customer.firstName})}
+            <DropdownMenuTrigger render={<Button variant="ghost" className="size-10 px-0 lg:h-9 lg:w-auto lg:px-3" />}>
+                <User className="h-5 w-5" aria-hidden="true"/>
+                {/* En el móvil solo el icono; el saludo sigue anunciándose a los lectores de pantalla. */}
+                <span className="sr-only lg:not-sr-only">{t('greeting', {name: customer.firstName})}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuItem render={<Link href="/mi-cuenta" />}>{t('myAccount')}</DropdownMenuItem>

@@ -25,8 +25,10 @@ export async function AuthShell({tab, title, subtitle, panelText, children}: {
 
     return (
         <div className="flex min-h-[calc(100vh-var(--header-offset))]">
-            {/* Panel de marca, solo escritorio: siempre oscuro, sea cual sea el tema. */}
-            <div className="relative hidden overflow-hidden bg-brand text-brand-fg lg:flex lg:w-1/2 lg:items-end">
+            {/* Panel de marca, solo escritorio: siempre oscuro, sea cual sea el tema. Fijo a la
+                altura de la pantalla y con nombre de transición propio: al pasar de login a
+                registro (formularios de distinta altura) no se mueve ni cambia de tamaño. */}
+            <div className="vt-auth-panel relative hidden overflow-hidden bg-brand text-brand-fg lg:sticky lg:top-[var(--header-offset)] lg:flex lg:h-[calc(100vh-var(--header-offset))] lg:w-1/2 lg:items-end lg:self-start">
                 {image ? (
                     <>
                         {/* Solo se ve en escritorio: en móvil el panel está oculto y no se descarga (sizes 1px). */}
@@ -50,8 +52,9 @@ export async function AuthShell({tab, title, subtitle, panelText, children}: {
                 </div>
             </div>
 
-            {/* Formulario */}
-            <div className="flex w-full items-center justify-center px-4 py-12 lg:w-1/2">
+            {/* Formulario anclado arriba (no centrado en vertical): las pestañas y el título no
+                saltan al cambiar entre login y registro, solo se funde el contenido. */}
+            <div className="vt-auth-form flex w-full justify-center px-4 py-12 lg:w-1/2 lg:py-16">
                 <div className="w-full max-w-md space-y-6">
                     <Logo variant="wordmark" className="mx-auto h-6 lg:hidden" />
                     {tab && (
