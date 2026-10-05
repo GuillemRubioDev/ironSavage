@@ -46,3 +46,29 @@ test('resumen del checkout en zona de marca, legible en oscuro, y título grande
     assert.match(summary, /text-brand-muted/);
     assert.match(await read('features/checkout/routes/page.tsx'), /<h1 className="mb-8 text-5xl md:text-6xl">/);
 });
+
+test('confirmación: bloque oscuro, confeti solo con el pago confirmado, puntos y tres tarjetas', async () => {
+    const page = await read('features/orders/routes/order-confirmation.tsx');
+    assert.match(page, /bg-brand/);
+    assert.match(page, /const celebrate = !paymentPending && order\.state !== 'Cancelled'/);
+    assert.match(page, /\{celebrate && <Confetti \/>\}/);
+    assert.match(page, /getLoyaltyProgramConfig\(\)\.catch\(\(\) => null\)/);
+    assert.match(page, /Math\.floor\(\(order\.totalWithTax \/ 100\) \* loyalty\.pointsPerEuro\)/);
+    for (const k of ['nextTitle', 'invoiceTitle', 'accountTitle']) assert.match(page, new RegExp(`t\\('${k}'\\)`));
+    // Se conserva la confirmación de Redsys y el refresco mientras el pago está pendiente.
+    assert.match(page, /ConfirmRedsysPaymentMutation/);
+    assert.match(page, /httpEquiv="refresh"/);
+    for (const loc of ['es', 'en']) {
+        const o = (await json(`features/orders/messages/${loc}.json`)).OrderConfirmation;
+        for (const k of ['nextTitle', 'nextText', 'invoiceTitle', 'invoiceText', 'accountTitle', 'accountText', 'pointsEarned', 'viewOrder']) assert.ok(o[k], `${loc}: falta ${k}`);
+    }
+});
+
+test('check animado y confeti en CSS, anulados con reducir movimiento', async () => {
+    const css = await read('app/[locale]/globals.css');
+    assert.match(css, /@keyframes check-draw/);
+    assert.match(css, /@keyframes confetti-fall/);
+    const tail = css.slice(css.lastIndexOf('@media (prefers-reduced-motion: reduce)'));
+    assert.match(tail, /\.confetti \{ display: none !important; \}/);
+    assert.match(tail, /\.animate-check-draw/);
+});
