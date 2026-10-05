@@ -9,26 +9,44 @@ const StorefrontSettingsQuery = graphql(`
     query StorefrontSettings {
         storefrontSettings {
             authPanelImage {
-                preview
+                source
+                focalPoint {
+                    x
+                    y
+                }
             }
         }
     }
 `);
 
+export interface AuthPanelImage {
+    /** Imagen original: next/image la reduce al tamaño justo (el preview de Vendure se ve borroso a media pantalla). */
+    url: string;
+    /** Punto focal elegido en el dashboard, como object-position ("50% 30%"). */
+    position: string;
+}
+
 /**
- * URL de la imagen del panel de acceso configurada en el admin (Ajustes globales), o
- * null. Si la consulta falla (p. ej. un servidor aún sin el plugin), null: el panel
- * usa el fondo de marca. Se revalida con la etiqueta storefront-settings.
+ * Imagen del panel de acceso configurada en el admin (Ajustes globales), o null. Si la
+ * consulta falla (p. ej. un servidor aún sin el plugin), null: el panel usa el fondo de
+ * marca. Se revalida con la etiqueta storefront-settings.
  */
-export async function getAuthPanelImage(): Promise<string | null> {
+export async function getAuthPanelImage(): Promise<AuthPanelImage | null> {
     'use cache';
     cacheLife('minutes');
     cacheTag('storefront-settings');
 
     try {
         const {data} = await query(StorefrontSettingsQuery);
-        const settings = (data as unknown as {storefrontSettings?: {authPanelImage?: {preview: string} | null}}).storefrontSettings;
-        return settings?.authPanelImage?.preview ?? null;
+        const image = (data as unknown as {
+            storefrontSettings?: {authPanelImage?: {source: string; focalPoint?: {x: number; y: number} | null} | null};
+        }).storefrontSettings?.authPanelImage;
+        if (!image?.source) return null;
+        const focal = image.focalPoint;
+        return {
+            url: image.source,
+            position: focal ? `${Math.round(focal.x * 100)}% ${Math.round(focal.y * 100)}%` : '50% 50%',
+        };
     } catch {
         return null;
     }

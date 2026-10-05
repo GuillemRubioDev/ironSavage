@@ -8,8 +8,9 @@ import {AuthTabs} from '@/features/authentication/components/auth-tabs';
 
 /**
  * Envoltorio de las páginas de acceso: panel de marca a la izquierda (imagen elegida en
- * el admin con un velo oscuro para leer el texto, o el fondo de marca) y, a la derecha,
- * pestañas Iniciar sesión / Crear cuenta (solo en login y registro), título y formulario.
+ * el admin, encuadrada con su punto focal y con un velo oscuro para leer el texto, o el
+ * fondo de marca) y, a la derecha, pestañas Iniciar sesión / Crear cuenta (solo en login
+ * y registro), título y formulario.
  * Las pestañas (AuthTabs, de cliente) conservan el destino de vuelta de la URL.
  */
 export async function AuthShell({tab, title, subtitle, panelText, children}: {
@@ -28,7 +29,8 @@ export async function AuthShell({tab, title, subtitle, panelText, children}: {
             <div className="relative hidden overflow-hidden bg-brand text-brand-fg lg:flex lg:w-1/2 lg:items-end">
                 {image ? (
                     <>
-                        <Image src={image} alt="" fill priority sizes="50vw" className="object-cover" />
+                        {/* Solo se ve en escritorio: en móvil el panel está oculto y no se descarga (sizes 1px). */}
+                        <Image src={image.url} alt="" fill sizes="(min-width: 1024px) 50vw, 1px" className="object-cover" style={{objectPosition: image.position}} />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" aria-hidden="true" />
                     </>
                 ) : (
