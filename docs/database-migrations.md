@@ -201,6 +201,14 @@ el dashboard (**Customers → Athletes**), igual que los clientes o productos.
 - **No hay cambios de esquema** para IVA y envíos: las categorías, zonas y el método «Envío estándar» son datos que
   crea o actualiza `npm run seed`. Ejecútalo una vez tras actualizar, porque es idempotente.
 
+## Cambio: imagen del panel de acceso (migración `AddAuthPanelImage`)
+
+- **Fichero**: [`apps/server/src/migrations/1791210000000-AddAuthPanelImage.ts`](../apps/server/src/migrations/1791210000000-AddAuthPanelImage.ts)
+- **Definición**: campo `authPanelImage` de `GlobalSettings` en [`apps/server/src/vendure-config.ts`](../apps/server/src/vendure-config.ts); la tienda la lee con la consulta pública `storefrontSettings` del plugin [`storefront-settings`](../apps/server/src/plugins/storefront-settings/).
+- **Por qué existe**: la imagen del panel de marca de login y registro se elige en el dashboard (Ajustes → Ajustes globales → «Imagen del panel de acceso»). Vacío: fondo oscuro de marca.
+- **Esquema**: `global_settings.customFieldsAuthpanelimageid` (integer, nulo) con clave foránea `FK_18de4e503601e8016ac0367b183` a `asset(id)`. Escrita a mano con los mismos nombres que genera TypeORM.
+- **Solo añade una columna.** Segura con datos reales. Para borrar el archivo de la imagen, primero hay que quitarlo de los ajustes (la clave foránea no deja borrar un asset en uso).
+
 ## Actualizar tu base de datos local después de `git pull`
 
 ```bash

@@ -15,6 +15,7 @@ type TagKind = 'locale-only' | 'currency-dependent' | 'exact';
 const TAG_RULES: ReadonlyArray<{match: string | RegExp; kind: TagKind}> = [
     {match: 'news', kind: 'exact'},
     {match: 'loyalty-config', kind: 'exact'},
+    {match: 'storefront-settings', kind: 'exact'},
     {match: 'collections', kind: 'locale-only'},
     {match: 'products', kind: 'currency-dependent'},
     {match: 'collection', kind: 'currency-dependent'},

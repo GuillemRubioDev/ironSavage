@@ -1,4 +1,5 @@
 import {
+    Asset,
     dummyPaymentHandler,
     DefaultGuestCheckoutStrategy,
     DefaultJobQueuePlugin,
@@ -17,6 +18,7 @@ import { ReviewsPlugin } from './plugins/reviews/reviews.plugin';
 import { ContentPlugin, contentPermission } from './plugins/content/content.plugin';
 import { DashboardExtrasPlugin } from './plugins/dashboard-extras/dashboard-extras.plugin';
 import { BannersPlugin } from './plugins/banners/banners.plugin';
+import { StorefrontSettingsPlugin } from './plugins/storefront-settings/storefront-settings.plugin';
 import { OrderToolsPlugin } from './plugins/order-tools/order-tools.plugin';
 import { LegalAcceptancePlugin } from './plugins/legal-acceptance/legal-acceptance.plugin';
 import { productFoodInformationFields, variantFoodInformationFields } from './product-food-information';
@@ -132,6 +134,32 @@ export const config: VendureConfig = {
     // datos con una migración. Ver la sección «Migraciones» del README.md y
     // docs/database-migrations.md.
     customFields: {
+        GlobalSettings: [
+            {
+                // Imagen del panel de marca de login y registro (la lee el storefront con
+                // la consulta pública storefrontSettings del plugin storefront-settings).
+                name: 'authPanelImage',
+                type: 'relation',
+                entity: Asset,
+                eager: true,
+                nullable: true,
+                public: true,
+                label: [
+                    { languageCode: LanguageCode.en, value: 'Sign-in panel image' },
+                    { languageCode: LanguageCode.es, value: 'Imagen del panel de acceso' },
+                ],
+                description: [
+                    {
+                        languageCode: LanguageCode.en,
+                        value: 'Image on the brand panel of the store sign-in and register pages. Empty: dark brand background. Remove it here before deleting the asset.',
+                    },
+                    {
+                        languageCode: LanguageCode.es,
+                        value: 'Imagen del panel de marca de las páginas de acceso y registro de la tienda. Vacío: fondo oscuro de marca. Quítala aquí antes de borrar el archivo.',
+                    },
+                ],
+            },
+        ],
         Product: [
             {
                 name: 'isNew',
@@ -253,6 +281,7 @@ export const config: VendureConfig = {
         ContentPlugin,
         DashboardExtrasPlugin,
         BannersPlugin,
+        StorefrontSettingsPlugin,
         OrderToolsPlugin,
         // Prueba de aceptación de los términos (cuándo y qué versión) en cada pedido de la tienda.
         LegalAcceptancePlugin,
