@@ -25,6 +25,7 @@ export function RepeatLastOrderButton() {
                 return;
             }
             toast.success(t('added', {count: result.added}));
+            if (result.partial.length) toast.warning(t('partial', {names: result.partial.join(', ')}));
             if (result.skipped.length) toast.warning(t('skipped', {names: result.skipped.join(', ')}));
             router.push('/carrito');
         } catch {

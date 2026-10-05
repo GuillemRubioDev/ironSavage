@@ -122,7 +122,8 @@
       "skipped": "Out of stock or unavailable: {names}",
       "nothingAdded": "None of the products from your last order could be added.",
       "noOrder": "You have no paid orders to reorder.",
-      "error": "The order couldn't be repeated. Please try again."
+      "error": "The order couldn't be repeated. Please try again.",
+      "partial": "Added with fewer units due to low stock: {names}"
     },
     "overview": {
       "title": "My account",

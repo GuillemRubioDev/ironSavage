@@ -6,6 +6,10 @@
 export const PAID_ORDER_STATES = [
     'PaymentAuthorized',
     'PaymentSettled',
+    // Estados propios del almacén (apps/server order-tools/warehouse-order-process.ts):
+    // todo pedido pagado pasa por ellos antes de enviarse.
+    'InPreparation',
+    'ReadyToShip',
     'PartiallyShipped',
     'Shipped',
     'PartiallyDelivered',

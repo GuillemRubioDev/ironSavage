@@ -56,6 +56,7 @@ export const GetCustomerOrdersQuery = graphql(`
                     totalWithTax
                     currencyCode
                     createdAt
+                    orderPlacedAt
                     updatedAt
                     lines {
                         id
@@ -298,6 +299,11 @@ export const GetLastPaidOrderQuery = graphql(`
                 items {
                     id
                     code
+                    state
+                    totalWithTax
+                    currencyCode
+                    orderPlacedAt
+                    createdAt
                     lines {
                         id
                         quantity

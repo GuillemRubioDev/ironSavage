@@ -73,3 +73,26 @@ test('resumen /mi-cuenta: saludo, puntos con barra, último pedido, accesos y pe
         for (const k of ['title', 'greeting', 'intro', 'toFirstRedeem', 'canRedeem', 'viewPoints', 'lastOrder', 'startShopping', 'quickAccess', 'recentOrders', 'viewAllOrders', 'viewOrder', 'pointsBalance']) assert.ok(o?.[k], `${loc}: falta overview.${k}`);
     }
 });
+
+// Arreglos de la revisión final de la fase 5A.
+test('los estados del almacén del servidor cuentan como pagados', async () => {
+    const {PAID_ORDER_STATES} = await load('features/account/account-summary.ts');
+    for (const s of ['InPreparation', 'ReadyToShip']) assert.ok(PAID_ORDER_STATES.includes(s), s);
+});
+
+test('"Último pedido" es el último pagado y la tabla solo lista pedidos realizados', async () => {
+    const page = await read('features/account/routes/summary/page.tsx');
+    assert.match(page, /const lastOrder = lastPaid/);
+    assert.match(page, /orderPlacedAt: \{isNull: false\}/);
+    assert.match(page, /orderPlacedAt \?\? /);
+    assert.match(await read('features/account/graphql.ts'), /query GetLastPaidOrder[\s\S]*?state\s*totalWithTax\s*currencyCode\s*orderPlacedAt/);
+});
+
+test('repetir: una línea añadida con menos cantidad cuenta como parcial, no como omitida', async () => {
+    const action = await read('features/account/repeat-last-order.ts');
+    assert.match(action, /GetActiveOrderQuery/);
+    assert.match(action, /partial/);
+    assert.match(action, /updateTag\('cart'\)/);
+    assert.match(await read('features/account/components/repeat-last-order-button.tsx'), /t\('partial'/);
+    for (const loc of ['es', 'en']) assert.ok((await json(`features/account/messages/${loc}.json`)).Account.repeat.partial);
+});

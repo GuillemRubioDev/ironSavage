@@ -33,15 +33,17 @@ export default async function AccountSummaryPage() {
 
     const [customer, ordersResult, lastPaidResult, loyaltyResult, config] = await Promise.all([
         getActiveCustomer(),
-        query(GetCustomerOrdersQuery, {options: {take: 5, sort: {orderPlacedAt: 'DESC'}, filter: {state: {notEq: 'AddingItems'}}}}, {useAuthToken: true}).catch(() => null),
+        // Solo pedidos realizados (con orderPlacedAt): fuera el carrito y los checkouts sin pagar.
+        query(GetCustomerOrdersQuery, {options: {take: 5, sort: {orderPlacedAt: 'DESC'}, filter: {orderPlacedAt: {isNull: false}}}}, {useAuthToken: true}).catch(() => null),
         query(GetLastPaidOrderQuery, {states: PAID_ORDER_STATES}, {useAuthToken: true}).catch(() => null),
         query(GetMyLoyaltyQuery, {options: {skip: 0, take: 0}}, {useAuthToken: true}).catch(() => null),
         getLoyaltyProgramConfig().catch(() => null),
     ]);
 
     const orders = ordersResult?.data.activeCustomer?.orders.items ?? [];
-    const lastOrder = orders[0] ?? null;
     const lastPaid = lastPaidResult?.data.activeCustomer?.orders.items[0] ?? null;
+    // La tarjeta "Último pedido" muestra el último pedido pagado (no un checkout en curso).
+    const lastOrder = lastPaid;
     const balance = loyaltyResult?.data.loyaltyAccount?.balance ?? 0;
     const progress = config ? loyaltyProgress({balance, ...config}) : null;
     const currencyCode = lastOrder?.currencyCode ?? 'EUR';
@@ -95,7 +97,7 @@ export default async function AccountSummaryPage() {
                                 <span className="font-mono font-semibold">{lastOrder.code}</span>
                                 <OrderStatusBadge state={lastOrder.state} />
                             </p>
-                            <p className="text-muted-foreground">{formatDate(lastOrder.createdAt, 'long', locale)} · <Price value={lastOrder.totalWithTax} currencyCode={lastOrder.currencyCode} /></p>
+                            <p className="text-muted-foreground">{formatDate(lastOrder.orderPlacedAt ?? lastOrder.createdAt, 'long', locale)} · <Price value={lastOrder.totalWithTax} currencyCode={lastOrder.currencyCode} /></p>
                             <Link href={`/mi-cuenta/pedidos/${lastOrder.code}`} className="inline-block font-semibold text-primary underline-offset-4 hover:underline">{t('overview.viewOrder')}</Link>
                         </div>
                     ) : (
@@ -140,7 +142,7 @@ export default async function AccountSummaryPage() {
                                 {orders.map((order) => (
                                     <tr key={order.id} className="border-t border-border">
                                         <td className="px-4 py-3"><Link href={`/mi-cuenta/pedidos/${order.code}`} className="font-mono font-semibold hover:text-primary">{order.code}</Link></td>
-                                        <td className="px-4 py-3 text-muted-foreground">{formatDate(order.createdAt, 'short', locale)}</td>
+                                        <td className="px-4 py-3 text-muted-foreground">{formatDate(order.orderPlacedAt ?? order.createdAt, 'short', locale)}</td>
                                         <td className="px-4 py-3"><OrderStatusBadge state={order.state} /></td>
                                         <td className="px-4 py-3 text-right font-mono"><Price value={order.totalWithTax} currencyCode={order.currencyCode} /></td>
                                     </tr>
