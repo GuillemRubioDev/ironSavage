@@ -10,11 +10,11 @@ export default function OrdersLoading() {
                 <Table>
                     <TableHeader className="bg-muted">
                         <TableRow>
-                            <TableHead>Order Number</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Items</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead><Skeleton className="h-4 w-20" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-12" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-14" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-13" /></TableHead>
+                            <TableHead className="text-right"><Skeleton className="h-4 w-13" /></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

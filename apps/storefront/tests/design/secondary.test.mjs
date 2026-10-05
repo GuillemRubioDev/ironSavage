@@ -29,7 +29,7 @@ test('legales: índice generado de los títulos, sin índice al imprimir y texto
     const toc = await read('site/legal/legal-toc.tsx');
     assert.match(toc, /^'use client';/);
     assert.match(toc, /querySelectorAll\('h2'\)/);
-    assert.match(toc, /if \(!items\.length\) return null/);
+    assert.match(toc, /if \(!items\.length\) return <div ref=\{navRef\} \/>;/);
     const shell = await read('site/legal/legal-page.tsx');
     assert.match(shell, /<LegalToc/);
     assert.match(shell, /print:hidden/);
@@ -79,4 +79,53 @@ test('repaso final: ningún h1 con el estilo antiguo ni esqueletos con texto en 
     }
     assert.deepEqual(offenders, []);
     assert.doesNotMatch(await read('features/search/facet-filters.tsx'), /text-display text-lg font-bold/);
+});
+
+// Arreglos de la revisión final de la fase 6 (la última: se cierran también los menores).
+test('ningún esqueleto ni pantalla de carga con texto fijo en inglés (incluida la verificación)', async () => {
+    const offenders = [];
+    for (const file of await tsxFiles(src)) {
+        const name = path.basename(file);
+        if (!/loading\.tsx$|skeleton.*\.tsx$/.test(name) || name === 'skeleton.tsx') continue;
+        const s = await readFile(file, 'utf8');
+        const m = s.match(/>\s*[A-Z][A-Za-z]+(?:[ ,.'][A-Za-z.]+)*\s*</);
+        if (m) offenders.push(`${path.relative(src, file)}: ${m[0].trim()}`);
+    }
+    assert.deepEqual(offenders, []);
+    assert.match(await read('features/authentication/routes/verify/verify-loading.tsx'), /t\('verifying'\)/);
+    for (const loc of ['es', 'en']) {
+        const v = (await json(`features/authentication/messages/${loc}.json`)).Verify;
+        assert.ok(v.verifying && v.verifyingMessage);
+    }
+});
+
+test('índice legal también en móvil, enlaces directos a un apartado y sin depender de un id global', async () => {
+    const toc = await read('site/legal/legal-toc.tsx');
+    assert.match(toc, /closest\('\[data-legal-page\]'\)/);
+    assert.match(toc, /location\.hash/);
+    assert.match(toc, /scrollIntoView/);
+    const shell = await read('site/legal/legal-page.tsx');
+    assert.match(shell, /data-legal-page/);
+    assert.match(shell, /<details className="[^"]*lg:hidden/);
+});
+
+test('noticias: destacada sin portada a ancho completo, encabezados ordenados y esqueletos con el diseño nuevo', async () => {
+    const page = await read('features/news/routes/page.tsx');
+    assert.match(page, /featured\.coverImage \? 'md:grid-cols-2' : ''/);
+    assert.match(page, /headingLevel="h2"/);
+    assert.match(await read('features/news/components/article-card.tsx'), /headingLevel = 'h3'/);
+    assert.match(await read('features/news/routes/list-loading.tsx'), /bg-brand/);
+    assert.match(await read('features/news/routes/loading.tsx'), /bg-brand/);
+});
+
+test('restos de estilo antiguo fuera: reseñas, puntos y restablecer contraseña', async () => {
+    assert.doesNotMatch(await read('features/reviews/product-reviews-section.tsx'), /text-2xl font-bold/);
+    for (const f of ['features/loyalty/routes/page.tsx', 'features/loyalty/routes/athlete/page.tsx']) {
+        const s = await read(f);
+        assert.doesNotMatch(s, /text-3xl font-bold|text-xl font-semibold/, f);
+    }
+    assert.match(await read('features/authentication/routes/reset-password/reset-password-form.tsx'), /<h1 className="text-3xl">/);
+    const cfg = await readFile(path.join(src, '..', '..', 'server', 'src', 'vendure-config.ts'), 'utf8');
+    const field = cfg.slice(cfg.indexOf("name: 'authPanelImage'"), cfg.indexOf("name: 'authPanelImage'") + 500);
+    assert.match(field, /public: false/);
 });

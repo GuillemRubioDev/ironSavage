@@ -24,6 +24,6 @@ test('authPanelImage sin public:true (GlobalSettings no está en la Shop API)', 
 
 test('restablecer contraseña tiene su título principal', async () => {
     const form = await read('apps/storefront/src/features/authentication/routes/reset-password/reset-password-form.tsx');
-    assert.match(form, /<CardTitle><h1>\{t\('invalidResetLink'\)\}<\/h1><\/CardTitle>/);
-    assert.match(form, /<CardTitle><h1>\{t\('resetYourPassword'\)\}<\/h1><\/CardTitle>/);
+    assert.match(form, /<CardTitle><h1 className="text-3xl">\{t\('invalidResetLink'\)\}<\/h1><\/CardTitle>/);
+    assert.match(form, /<CardTitle><h1 className="text-3xl">\{t\('resetYourPassword'\)\}<\/h1><\/CardTitle>/);
 });

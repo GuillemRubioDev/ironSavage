@@ -7,7 +7,7 @@ export default function AddressesLoading() {
             <div>
                 <Skeleton className="h-14 w-64" />
                 <p className="text-muted-foreground mt-2">
-                    Manage your saved shipping and billing addresses
+                    <Skeleton className="h-4 w-48" />
                 </p>
             </div>
 

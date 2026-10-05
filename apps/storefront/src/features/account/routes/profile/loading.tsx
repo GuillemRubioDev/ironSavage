@@ -7,24 +7,24 @@ export default function ProfileLoading() {
             <div>
                 <Skeleton className="h-14 w-64" />
                 <p className="text-muted-foreground mt-2">
-                    Manage your account information
+                    <Skeleton className="h-4 w-39" />
                 </p>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Account Information</CardTitle>
+                    <CardTitle><Skeleton className="h-4 w-27" /></CardTitle>
                     <CardDescription>
-                        Your personal details
+                        <Skeleton className="h-4 w-29" />
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div>
-                        <p className="text-sm font-medium">Email</p>
+                        <p className="text-sm font-medium"><Skeleton className="h-4 w-13" /></p>
                         <Skeleton className="h-4 w-48 mt-1"/>
                     </div>
                     <div>
-                        <p className="text-sm font-medium">Name</p>
+                        <p className="text-sm font-medium"><Skeleton className="h-4 w-12" /></p>
                         <Skeleton className="h-4 w-32 mt-1"/>
                     </div>
                 </CardContent>
@@ -32,9 +32,9 @@ export default function ProfileLoading() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Change Password</CardTitle>
+                    <CardTitle><Skeleton className="h-4 w-23" /></CardTitle>
                     <CardDescription>
-                        Update your password
+                        <Skeleton className="h-4 w-28" />
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

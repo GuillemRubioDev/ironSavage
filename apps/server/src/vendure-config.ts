@@ -143,8 +143,9 @@ export const config: VendureConfig = {
                 entity: Asset,
                 eager: true,
                 nullable: true,
-                // Sin public: GlobalSettings no está en la Shop API; la imagen la expone solo
-                // la consulta storefrontSettings (plugin storefront-settings).
+                // Privado (en Vendure public vale true por defecto): la imagen la expone solo
+                // la consulta storefrontSettings del plugin storefront-settings.
+                public: false,
                 label: [
                     { languageCode: LanguageCode.en, value: 'Sign-in panel image' },
                     { languageCode: LanguageCode.es, value: 'Imagen del panel de acceso' },

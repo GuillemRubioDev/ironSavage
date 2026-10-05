@@ -47,8 +47,9 @@ async function loadAuthPanelImage(): Promise<AuthPanelImage | null> {
 /**
  * Imagen del panel de acceso configurada en el admin (Ajustes globales), o null. Si la
  * consulta falla (p. ej. un servidor aún sin el plugin), null y el panel usa el fondo de
- * marca; ese fallo no se cachea, así que la imagen vuelve en la siguiente visita. Se
- * revalida con la etiqueta storefront-settings.
+ * marca. Ese fallo no se guarda en la caché de datos, pero si ocurre al prerenderizar
+ * la página, el HTML se queda sin imagen hasta que la página se regenere (etiqueta
+ * storefront-settings).
  */
 export async function getAuthPanelImage(): Promise<AuthPanelImage | null> {
     try {

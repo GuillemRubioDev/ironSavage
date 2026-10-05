@@ -78,7 +78,7 @@ export default async function NewsListPage({searchParams}: PageProps<'/[locale]/
                 ) : (
                     <>
                         {featured && (
-                            <Link href={`/noticias/${featured.slug}`} className="group hover-lift img-zoom mb-10 grid overflow-hidden rounded-xl bg-brand text-brand-fg md:grid-cols-2">
+                            <Link href={`/noticias/${featured.slug}`} className={`group hover-lift img-zoom mb-10 grid overflow-hidden rounded-xl bg-brand text-brand-fg ${featured.coverImage ? 'md:grid-cols-2' : ''}`}>
                                 {featured.coverImage && (
                                     <div className="relative aspect-video overflow-hidden md:aspect-auto md:min-h-80">
                                         <Image src={`${featured.coverImage.preview}?preset=large`} alt="" fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
@@ -99,7 +99,7 @@ export default async function NewsListPage({searchParams}: PageProps<'/[locale]/
                         {rest.length > 0 && (
                             <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {rest.map(article => (
-                                    <ArticleCard key={article.id} article={article} locale={locale} />
+                                    <ArticleCard key={article.id} article={article} locale={locale} headingLevel="h2" />
                                 ))}
                             </div>
                         )}

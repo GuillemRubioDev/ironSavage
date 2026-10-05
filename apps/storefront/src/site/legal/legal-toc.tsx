@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 /** Convierte un título en un id de ancla estable ("1. Datos identificativos" → "datos-identificativos"). */
 function slugify(text: string): string {
@@ -18,11 +18,15 @@ function slugify(text: string): string {
  * y lista los enlaces. Así no se tocan los textos legales. Antes de hidratar (o sin
  * JavaScript) no se pinta nada y el texto se lee igual.
  */
-export function LegalToc({label}: {label: string}) {
+export function LegalToc({label, showLabel = true}: {label: string; showLabel?: boolean}) {
     const [items, setItems] = useState<Array<{id: string; text: string}>>([]);
+    const navRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const headings = [...(document.getElementById('legal-content')?.querySelectorAll('h2') ?? [])];
+        // Se busca el contenido desde la propia página (no por id global: Next conserva
+        // páginas anteriores ocultas en el DOM y podría haber dos #legal-content).
+        const page = navRef.current?.closest('[data-legal-page]');
+        const headings = [...(page?.querySelector('#legal-content')?.querySelectorAll('h2') ?? [])];
         const used = new Set<string>();
         setItems(headings.map((heading) => {
             let id = heading.id || slugify(heading.textContent ?? '') || 'seccion';
@@ -31,13 +35,16 @@ export function LegalToc({label}: {label: string}) {
             heading.id = id;
             return {id, text: heading.textContent ?? ''};
         }));
+        // Un enlace directo a un apartado (#…) llega antes de que existan los id: se baja ahora.
+        const hash = decodeURIComponent(window.location.hash.slice(1));
+        if (hash) page?.querySelector(`[id="${CSS.escape(hash)}"]`)?.scrollIntoView();
     }, []);
 
-    if (!items.length) return null;
+    if (!items.length) return <div ref={navRef} />;
 
     return (
-        <nav aria-label={label} className="text-sm">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">{label}</p>
+        <nav ref={navRef as never} aria-label={label} className="text-sm">
+            {showLabel && <p className="mb-3 text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">{label}</p>}
             <ol className="space-y-2 border-l border-border">
                 {items.map((item) => (
                     <li key={item.id}>

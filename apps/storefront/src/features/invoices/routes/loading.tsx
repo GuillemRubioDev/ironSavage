@@ -10,10 +10,10 @@ export default function InvoicesLoading() {
                 <Table>
                     <TableHeader className="bg-muted">
                         <TableRow>
-                            <TableHead>Invoice Number</TableHead>
-                            <TableHead>Issue Date</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
-                            <TableHead className="text-right">Download</TableHead>
+                            <TableHead><Skeleton className="h-4 w-22" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-18" /></TableHead>
+                            <TableHead className="text-right"><Skeleton className="h-4 w-13" /></TableHead>
+                            <TableHead className="text-right"><Skeleton className="h-4 w-16" /></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

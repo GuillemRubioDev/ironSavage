@@ -48,7 +48,7 @@ export async function LegalPageShell({title, children}: {title: string; children
                 </div>
             </header>
 
-            <div className="container mx-auto grid gap-10 px-4 py-10 lg:grid-cols-[14rem_minmax(0,1fr)] print:block print:py-0">
+            <div data-legal-page className="container mx-auto grid gap-10 px-4 py-10 lg:grid-cols-[14rem_minmax(0,1fr)] print:block print:py-0">
                 {/* Índice generado de los títulos (solo escritorio y nunca al imprimir). */}
                 <aside className="hidden lg:block print:hidden">
                     <div className="sticky top-[calc(var(--header-offset)+1.5rem)]">
@@ -58,6 +58,13 @@ export async function LegalPageShell({title, children}: {title: string; children
 
                 {/* Ancho de línea cómodo (~70 caracteres); completo al imprimir. */}
                 <div className="max-w-[70ch] print:max-w-none">
+                    {/* Móvil: el índice plegable encima del texto. */}
+                    <details className="mb-8 rounded-lg border border-border p-4 lg:hidden print:hidden">
+                        <summary className="cursor-pointer text-sm font-semibold uppercase tracking-wide">{t('contents')}</summary>
+                        <div className="mt-4">
+                            <LegalToc label={t('contents')} showLabel={false} />
+                        </div>
+                    </details>
                     {locale !== routing.defaultLocale && (
                         <Alert className="mb-6">
                             <Languages />
