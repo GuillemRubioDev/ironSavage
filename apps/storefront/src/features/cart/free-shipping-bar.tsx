@@ -35,7 +35,7 @@ export function FreeShippingBar({progress, currencyCode, tone = 'default'}: {
                 className={cn('h-1.5 overflow-hidden rounded-full', tone === 'brand' ? 'bg-white/15' : 'bg-muted')}
             >
                 <div
-                    className={cn('h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none', progress.reached ? 'bg-success' : 'bg-primary-solid')}
+                    className={cn('animate-bar-fill h-full origin-left rounded-full transition-[width] duration-500 motion-reduce:transition-none', progress.reached ? 'bg-success' : 'bg-primary-solid')}
                     style={{width: `${progress.percent}%`}}
                 />
             </div>

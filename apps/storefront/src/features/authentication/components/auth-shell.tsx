@@ -54,23 +54,32 @@ export async function AuthShell({tab, title, subtitle, panelText, children}: {
                 </div>
             </div>
 
-            {/* Formulario anclado arriba (no centrado en vertical): las pestañas y el título no
-                saltan al cambiar entre login y registro, solo se funde el contenido. */}
-            <div className="vt-auth-form flex w-full justify-center px-4 py-12 lg:w-1/2 lg:py-16">
+            {/* Formulario anclado arriba (no centrado en vertical). Dos grupos de transición
+                (globals.css): logo y pestañas (vt-auth-head), iguales en login y registro,
+                no se animan nada; solo título, subtítulo y formulario (vt-auth-form) se
+                relevan con un fundido, sin desplazamiento. */}
+            <div className="flex w-full justify-center px-4 py-12 lg:w-1/2 lg:py-16">
                 <div className="w-full max-w-md space-y-6">
-                    <Logo variant="wordmark" className="mx-auto h-6 lg:hidden" />
-                    {tab && (
-                        <Suspense fallback={<div className="h-12 border-b border-border" />}>
-                            <AuthTabs tab={tab} />
-                        </Suspense>
-                    )}
-                    {(title || subtitle) && (
-                        <div className="space-y-2 text-center">
-                            {title && <h1 className="text-5xl">{title}</h1>}
-                            {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
-                        </div>
-                    )}
-                    {children}
+                    <div className="vt-auth-head space-y-6">
+                        <Logo variant="wordmark" className="mx-auto h-6 lg:hidden" />
+                        {tab && (
+                            <Suspense fallback={<div className="h-12 border-b border-border" />}>
+                                <AuthTabs tab={tab} />
+                            </Suspense>
+                        )}
+                    </div>
+                    <div className="vt-auth-form space-y-6">
+                        {(title || subtitle) && (
+                            <div className="space-y-2 text-center">
+                                {title && <h1 className="text-5xl">{title}</h1>}
+                                {/* Con pestañas, dos líneas reservadas en pantallas estrechas: el
+                                    subtítulo de login ocupa dos y el de registro una, y el
+                                    formulario empezaba a distinta altura en cada página. */}
+                                {subtitle && <p className={tab ? 'min-h-12 text-balance text-muted-foreground min-[480px]:min-h-0' : 'text-muted-foreground'}>{subtitle}</p>}
+                            </div>
+                        )}
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>

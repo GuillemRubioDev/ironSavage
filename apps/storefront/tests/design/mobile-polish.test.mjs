@@ -8,15 +8,22 @@ import test from 'node:test';
 const src = path.join(import.meta.dirname, '..', '..', 'src');
 const read = f => readFile(path.join(src, f), 'utf8').catch(() => '');
 
-test('móvil como una app sin quitar el zoom con dos dedos (WCAG 1.4.4)', async () => {
+test('móvil como una app, sin zoom con dos dedos (decisión de diseño, declarada en accesibilidad)', async () => {
     const css = await read('app/[locale]/globals.css');
-    assert.match(css, /touch-action: manipulation/);
+    assert.match(css, /touch-action: pan-x pan-y/);
     assert.match(css, /-webkit-tap-highlight-color: transparent/);
     assert.match(css, /user-select: none/);
     assert.match(css, /@media \(max-width: 767px\) \{\s*input:not\(\[type="checkbox"\]\)[^}]*font-size: 16px/);
     const layout = await read('site/locale-layout.tsx');
-    assert.match(layout, /maximumScale: 5/);
-    assert.doesNotMatch(layout, /userScalable:\s*false/);
+    assert.match(layout, /maximumScale: 1/);
+    assert.match(layout, /userScalable: false/);
+    assert.match(layout, /<NoPinchZoom\/>/);
+    // iOS Safari ignora el viewport: se anulan los gestos de WebKit, sin touchmove no pasivo.
+    const guard = await read('site/app-shell/no-pinch-zoom.tsx');
+    assert.match(guard, /gesturestart/);
+    assert.doesNotMatch(guard, /addEventListener\('touchmove'/);
+    // WCAG 1.4.4: la limitación y sus alternativas quedan declaradas.
+    assert.match(await read('site/legal/accesibilidad.tsx'), /gesto de dos dedos/);
 });
 
 test('las barras fijas de abajo no heredan margen del contenedor', async () => {

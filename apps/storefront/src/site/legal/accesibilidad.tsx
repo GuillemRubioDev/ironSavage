@@ -55,7 +55,8 @@ export default async function AccessibilityPage() {
                     <li>Las valoraciones con estrellas se anuncian como texto (por ejemplo, &quot;4 de 5
                         estrellas&quot;).</li>
                     <li>Si tu sistema pide reducir el movimiento, el sitio desactiva animaciones y transiciones.</li>
-                    <li>El texto se puede ampliar hasta el 200 % sin perder contenido, y el diseño se adapta a móviles.</li>
+                    <li>El texto se puede ampliar hasta el 200 % con el tamaño de texto del navegador sin perder
+                        contenido, y el diseño se adapta a móviles.</li>
                     <li>Los textos legales se pueden imprimir o guardar en PDF.</li>
                 </ul>
             </section>
@@ -65,6 +66,9 @@ export default async function AccessibilityPage() {
                 <ul>
                     <li>El pago con tarjeta se completa en la pasarela de Redsys, que no gestionamos nosotros. Su
                         accesibilidad depende de Redsys y de tu entidad bancaria.</li>
+                    <li>En el móvil no se puede ampliar la página con el gesto de dos dedos. Como alternativa, se
+                        puede ampliar el texto desde el navegador (en Safari, con el botón «Aa»; en Chrome, en Ajustes
+                        &gt; Accesibilidad, con «Escala del texto» o con «Forzar zoom», que vuelve a activar el gesto).</li>
                     <li>Algunas imágenes de producto facilitadas por los fabricantes pueden contener texto (por ejemplo,
                         la etiqueta del envase). Esa información está disponible también como texto en la ficha del
                         producto.</li>

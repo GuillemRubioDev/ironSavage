@@ -17,6 +17,7 @@ import {Search} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {NavbarUserSkeleton} from '@/site/navigation/skeletons/navbar-user-skeleton';
 import {SearchInputSkeleton} from '@/site/navigation/skeletons/search-input-skeleton';
+import {NavbarCartSkeleton} from '@/site/navigation/skeletons/navbar-cart-skeleton';
 
 export async function Navbar() {
     const locale = await getRouteLocale();
@@ -87,7 +88,7 @@ export async function Navbar() {
                         {/* Móvil: el carrito en el extremo derecho (cuenta a su izquierda); en
                             escritorio, carrito y después la cuenta. */}
                         <div className="order-last flex lg:order-none">
-                            <Suspense>
+                            <Suspense fallback={<NavbarCartSkeleton />}>
                                 <NavbarCart/>
                             </Suspense>
                         </div>
