@@ -30,6 +30,10 @@
     "decreaseQuantity": "Reducir la cantidad de {name}",
     "increaseQuantity": "Aumentar la cantidad de {name}",
     "removeItem": "Eliminar {name} del carrito",
-    "quantityOf": "Cantidad de {name}:"
+    "quantityOf": "Cantidad de {name}:",
+    "drawerTitle": "Añadido al carrito",
+    "combineWith": "Combínalo con",
+    "viewCart": "Ver carrito",
+    "drawerError": "El producto está en tu carrito. No hemos podido cargar el resumen."
   }
 }

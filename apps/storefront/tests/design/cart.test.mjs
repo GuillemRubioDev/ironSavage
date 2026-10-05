@@ -51,3 +51,23 @@ test('el canje usa las mutaciones del servidor, refresca el carrito y solo apare
         for (const c of ['BELOW_MINIMUM', 'ALREADY_REDEEMED', 'EXCEEDS_MAX_DISCOUNT', 'EXCEEDS_ORDER_TOTAL', 'INSUFFICIENT_BALANCE', 'NO_CUSTOMER', 'generic']) assert.ok(r.errors[c], `${loc}: falta redeem.errors.${c}`);
     }
 });
+
+test('panel lateral: se abre tras añadir desde la tarjeta y la ficha, con pedido activo y "Combínalo con"', async () => {
+    const drawer = await read('features/cart/cart-drawer.tsx');
+    assert.match(drawer, /^'use client';/);
+    assert.match(drawer, /export function useCartDrawer\b/);
+    assert.match(drawer, /export function CartDrawerProvider\b/);
+    assert.match(drawer, /side="right"/);
+    assert.match(drawer, /href="\/carrito"/);
+    assert.match(drawer, /href="\/checkout"/);
+    const data = await read('features/cart/drawer-data.ts');
+    assert.match(data, /^'use server';/);
+    assert.match(data, /filterVisibleProducts/);
+    assert.match(await read('site/locale-layout.tsx'), /<CartDrawerProvider>/);
+    assert.match(await read('features/products/components/quick-add-button.tsx'), /openCartDrawer\(loaded\.slug\)/);
+    assert.match(await read('features/products/components/product-info.tsx'), /openCartDrawer\(product\.slug\)/);
+    for (const loc of ['es', 'en']) {
+        const c = (await json(`features/cart/messages/${loc}.json`)).Cart;
+        for (const k of ['drawerTitle', 'combineWith', 'viewCart', 'drawerError']) assert.ok(c[k], `${loc}: falta Cart.${k}`);
+    }
+});

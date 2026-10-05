@@ -7,6 +7,7 @@ import {useTranslations} from 'next-intl';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
 import {addToCart} from '@/features/products/add-to-cart';
+import {useCartDrawer} from '@/features/cart/cart-drawer';
 import {toMajorUnits, trackEvent} from '@/platform/analytics/gtag';
 import {Price} from '@/features/pricing/price';
 import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
@@ -33,6 +34,7 @@ interface ProductInfoProps {
  */
 export function ProductInfo({product, currencyCode, categoryName, selection, selectedVariant, onSelect, pointsPerEuro, ratingSlot}: ProductInfoProps) {
     const t = useTranslations('Product');
+    const {open: openCartDrawer} = useCartDrawer();
     const [quantity, setQuantity] = useState(1);
     const [isPending, startTransition] = useTransition();
     const [isAdded, setIsAdded] = useState(false);
@@ -57,7 +59,8 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                 value: price * quantity,
                 items: [{item_id: selectedVariant.sku || selectedVariant.id, item_name: product.name, item_variant: selectedVariant.name, price, quantity}],
             });
-            toast.success(t('addedToCartMessage'), {description: t('addedToCartDescription', {name: product.name})});
+            // El panel lateral confirma el añadido (y propone el siguiente paso).
+            openCartDrawer(product.slug);
             // Quita el estado «añadido» a los 2 segundos.
             setTimeout(() => setIsAdded(false), 2000);
         });
