@@ -59,3 +59,24 @@ test('página de error con el estilo nuevo y el mismo comportamiento', async () 
     assert.match(page, /router\.refresh\(\)/);
     assert.match(page, /<h1 className="[^"]*text-5xl/);
 });
+
+async function tsxFiles(dir) {
+    const out = [];
+    for (const e of await readdir(dir, {withFileTypes: true})) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) out.push(...await tsxFiles(p));
+        else if (e.name.endsWith('.tsx')) out.push(p);
+    }
+    return out;
+}
+
+test('repaso final: ningún h1 con el estilo antiguo ni esqueletos con texto en inglés fijo', async () => {
+    const offenders = [];
+    for (const file of await tsxFiles(src)) {
+        const s = await readFile(file, 'utf8');
+        if (/<h1 className="[^"]*text-[23]xl[^"]*font-bold/.test(s)) offenders.push(path.relative(src, file));
+        if (file.endsWith('loading.tsx') && /<h1[^>]*>[A-Z][a-z]+( [A-Z][a-z]+)?<\/h1>/.test(s)) offenders.push(`${path.relative(src, file)} (texto fijo)`);
+    }
+    assert.deepEqual(offenders, []);
+    assert.doesNotMatch(await read('features/search/facet-filters.tsx'), /text-display text-lg font-bold/);
+});

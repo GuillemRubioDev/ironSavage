@@ -4,7 +4,7 @@ import {Skeleton} from '@/components/ui/skeleton';
 export default function InvoicesLoading() {
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6">My Invoices</h1>
+            <Skeleton className="mb-6 h-14 w-64" />
 
             <div className="border rounded-lg">
                 <Table>

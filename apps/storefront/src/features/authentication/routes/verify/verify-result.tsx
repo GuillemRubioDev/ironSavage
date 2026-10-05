@@ -29,7 +29,7 @@ export function VerifyResult({result}: VerifyResultProps) {
                             <CheckCircle className="h-16 w-16 text-success"/>
                         </div>
                         <div className="space-y-2 text-center">
-                            <h1 className="text-2xl font-bold">{t('accountVerified')}</h1>
+                            <h1 className="text-4xl">{t('accountVerified')}</h1>
                             <p className="text-muted-foreground">
                                 {t('accountVerifiedMessage')}
                             </p>
@@ -46,7 +46,7 @@ export function VerifyResult({result}: VerifyResultProps) {
                             <XCircle className="h-16 w-16 text-destructive"/>
                         </div>
                         <div className="space-y-2 text-center">
-                            <h1 className="text-2xl font-bold">{t('verificationFailed')}</h1>
+                            <h1 className="text-4xl">{t('verificationFailed')}</h1>
                             <p className="text-muted-foreground">
                                 {result.error || t('verificationFailedMessage')}
                             </p>
