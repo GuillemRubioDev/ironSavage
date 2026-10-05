@@ -4,6 +4,7 @@ import {Button} from '@/components/ui/button';
 import {Price} from '@/features/pricing/price';
 import {QuantityControl} from './quantity-control';
 import {getTranslations} from 'next-intl/server';
+import {ShoppingBag} from 'lucide-react';
 
 type ActiveOrder = {
     id: string;
@@ -34,14 +35,11 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
     const t = await getTranslations('Cart');
     if (!activeOrder || activeOrder.lines.length === 0) {
         return (
-            <div className="container mx-auto px-4 py-16">
-                <div className="text-center">
-                    <h1 className="text-display text-3xl font-bold mb-4">{t('empty')}</h1>
-                    <p className="text-muted-foreground mb-8">
-                        {t('emptyMessage')}
-                    </p>
-                    <Button render={<Link href="/" />} nativeButton={false}>{t('continueShopping')}</Button>
-                </div>
+            <div className="flex flex-col items-center gap-4 py-16 text-center">
+                <ShoppingBag className="size-12 text-muted-foreground" aria-hidden="true" />
+                <p className="text-display text-3xl">{t('empty')}</p>
+                <p className="max-w-md text-muted-foreground">{t('emptyMessage')}</p>
+                <Button render={<Link href="/productos" />} nativeButton={false} size="lg">{t('continueShopping')}</Button>
             </div>
         );
     }
@@ -63,7 +61,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                                 alt={line.productVariant.name}
                                 width={120}
                                 height={120}
-                                className="rounded-md object-cover w-full sm:w-[100px] h-[100px]"
+                                className="h-[100px] w-full rounded-lg bg-muted object-cover sm:w-[100px]"
                             />
                         </Link>
                     )}
@@ -71,7 +69,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                     <div className="flex-grow min-w-0">
                         <Link
                             href={`/productos/${line.productVariant.product.slug}`}
-                            className="text-display font-semibold hover:text-primary transition-colors block"
+                            className="block font-display text-lg font-extrabold uppercase italic leading-tight transition-colors hover:text-primary"
                         >
                             {line.productVariant.product.name}
                         </Link>
