@@ -77,7 +77,8 @@
         "INSUFFICIENT_BALANCE": "You don't have enough points.",
         "NO_CUSTOMER": "Sign in to redeem points.",
         "generic": "Points couldn't be redeemed. Please try again."
-      }
+      },
+      "range": "between {min} and {max} points"
     }
   }
 }

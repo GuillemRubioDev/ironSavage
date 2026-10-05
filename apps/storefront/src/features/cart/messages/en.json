@@ -34,6 +34,7 @@
     "drawerTitle": "Added to cart",
     "combineWith": "Pairs well with",
     "viewCart": "View cart",
-    "drawerError": "The product is in your cart. We couldn't load the summary."
+    "drawerError": "The product is in your cart. We couldn't load the summary.",
+    "loyaltyDiscount": "Iron Rewards points discount"
   }
 }

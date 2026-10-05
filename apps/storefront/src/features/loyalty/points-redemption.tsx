@@ -22,7 +22,8 @@ export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCen
     applied: {points: number; amount: number} | null;
 }) {
     const t = useTranslations('Loyalty.redeem');
-    const [points, setPoints] = useState(maxPoints);
+    // Se guarda el texto tal cual (escribir "500" pasa por "5" y "50") y se valida al enviar.
+    const [points, setPoints] = useState(String(maxPoints));
     const [pending, startTransition] = useTransition();
 
     if (applied) {
@@ -57,7 +58,8 @@ export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCen
         );
     }
 
-    const value = Math.min(Math.max(points, minPoints), maxPoints);
+    const parsed = Number(points);
+    const valid = Number.isInteger(parsed) && parsed >= minPoints && parsed <= maxPoints;
 
     return (
         <form
@@ -65,7 +67,8 @@ export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCen
             onSubmit={(event) => {
                 event.preventDefault();
                 startTransition(async () => {
-                    const result = await redeemPoints(value);
+                    if (!valid) return;
+                    const result = await redeemPoints(parsed);
                     if (!result.success) toast.error(result.error);
                 });
             }}
@@ -84,14 +87,16 @@ export function PointsRedemption({balance, minPoints, maxPoints, pointValueInCen
                     min={minPoints}
                     max={maxPoints}
                     step={1}
-                    value={value}
-                    onChange={(event) => setPoints(Number(event.target.value) || minPoints)}
+                    value={points}
+                    onChange={(event) => setPoints(event.target.value)}
+                    aria-invalid={!valid}
+                    aria-describedby="redeem-range"
                     className="h-9 w-24 rounded-md border border-brand-line bg-transparent px-2 font-mono text-brand-fg"
                 />
-                <span className="text-xs text-brand-muted">
-                    {t('equals')} <Price value={value * pointValueInCents} currencyCode={currencyCode} />
+                <span id="redeem-range" className="text-xs text-brand-muted">
+                    {valid ? <>{t('equals')} <Price value={parsed * pointValueInCents} currencyCode={currencyCode} /></> : t('range', {min: minPoints, max: maxPoints})}
                 </span>
-                <Button type="submit" size="sm" className="ml-auto" disabled={pending}>{t('apply')}</Button>
+                <Button type="submit" size="sm" className="ml-auto" disabled={pending || !valid}>{t('apply')}</Button>
             </div>
         </form>
     );

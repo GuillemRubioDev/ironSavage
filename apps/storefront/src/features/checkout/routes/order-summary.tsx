@@ -98,6 +98,16 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
           </>
         )}
 
+        {/* Recargos: el canje de puntos del carrito llega como uno negativo. */}
+        {order.surcharges?.map((surcharge) => (
+          <div key={surcharge.id} className={`flex justify-between text-sm ${surcharge.priceWithTax < 0 ? 'font-medium text-primary' : ''}`}>
+            <span>{surcharge.sku === 'LOYALTY_POINTS_DISCOUNT' ? t('loyaltyDiscount') : surcharge.description}</span>
+            <span>
+              <Price value={surcharge.priceWithTax} currencyCode={order.currencyCode} />
+            </span>
+          </div>
+        ))}
+
         {order.couponCodes && order.couponCodes.length > 0 && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Tag className="h-3 w-3" />

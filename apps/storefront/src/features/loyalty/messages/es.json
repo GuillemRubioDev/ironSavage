@@ -77,7 +77,8 @@
         "INSUFFICIENT_BALANCE": "No tienes puntos suficientes.",
         "NO_CUSTOMER": "Inicia sesión para canjear puntos.",
         "generic": "No se han podido canjear los puntos. Inténtalo de nuevo."
-      }
+      },
+      "range": "entre {min} y {max} puntos"
     }
   }
 }

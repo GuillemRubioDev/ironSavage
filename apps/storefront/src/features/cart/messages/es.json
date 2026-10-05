@@ -34,6 +34,7 @@
     "drawerTitle": "Añadido al carrito",
     "combineWith": "Combínalo con",
     "viewCart": "Ver carrito",
-    "drawerError": "El producto está en tu carrito. No hemos podido cargar el resumen."
+    "drawerError": "El producto está en tu carrito. No hemos podido cargar el resumen.",
+    "loyaltyDiscount": "Descuento por puntos Iron Rewards"
   }
 }

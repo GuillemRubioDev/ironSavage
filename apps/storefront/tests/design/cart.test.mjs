@@ -71,3 +71,36 @@ test('panel lateral: se abre tras añadir desde la tarjeta y la ficha, con pedid
         for (const k of ['drawerTitle', 'combineWith', 'viewCart', 'drawerError']) assert.ok(c[k], `${loc}: falta Cart.${k}`);
     }
 });
+
+// Arreglos de la revisión final de la fase 4A.
+test('el motivo del rechazo del canje sale del texto del servidor (su errorCode es siempre el mismo)', async () => {
+    const {redemptionErrorReason} = await load('features/loyalty/redemption.ts');
+    assert.equal(redemptionErrorReason('This order already has an active points redemption'), 'ALREADY_REDEEMED');
+    assert.equal(redemptionErrorReason('Not enough points in the account balance'), 'INSUFFICIENT_BALANCE');
+    assert.equal(redemptionErrorReason('This would exceed the order total'), 'EXCEEDS_ORDER_TOTAL');
+    assert.equal(redemptionErrorReason('algo raro'), 'generic');
+    const actions = await read('features/loyalty/redeem-actions.ts');
+    assert.match(actions, /redemptionErrorReason\(result\.message\)/);
+    // También se refresca el carrito al fallar (otra pestaña pudo cambiarlo).
+    assert.equal((actions.match(/updateTag\('cart'\)/g) ?? []).length >= 3, true);
+});
+
+test('el campo de puntos se escribe libremente y se valida al enviar', async () => {
+    const ui = await read('features/loyalty/points-redemption.tsx');
+    assert.match(ui, /useState\(String\(maxPoints\)\)/);
+    assert.match(ui, /const valid = Number\.isInteger\(parsed\) && parsed >= minPoints && parsed <= maxPoints/);
+    assert.match(ui, /disabled=\{pending \|\| !valid\}/);
+});
+
+test('el canje se explica igual en el carrito y en el checkout, con texto traducido', async () => {
+    const checkoutGql = await read('features/checkout/graphql.ts');
+    assert.match(checkoutGql, /surcharges \{\s*id\s*sku\s*description\s*priceWithTax\s*\}/);
+    const checkoutSummary = await read('features/checkout/routes/order-summary.tsx');
+    assert.match(checkoutSummary, /order\.surcharges/);
+    assert.match(checkoutSummary, /t\('loyaltyDiscount'\)/);
+    assert.match(await read('features/cart/routes/order-summary.tsx'), /t\('loyaltyDiscount'\)/);
+    for (const loc of ['es', 'en']) {
+        assert.ok((await json(`features/cart/messages/${loc}.json`)).Cart.loyaltyDiscount);
+        assert.ok((await json(`features/checkout/messages/${loc}.json`)).Checkout.loyaltyDiscount);
+    }
+});

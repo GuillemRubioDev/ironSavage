@@ -86,6 +86,7 @@
     "pricesIncludeTax": "Todos los precios incluyen IVA",
     "taxIncludedNote": "De los cuales, IVA ({rate}%)",
     "item": "artículo",
-    "items": "artículos"
+    "items": "artículos",
+    "loyaltyDiscount": "Descuento por puntos Iron Rewards"
   }
 }

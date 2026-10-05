@@ -86,6 +86,7 @@
     "pricesIncludeTax": "All prices include VAT",
     "taxIncludedNote": "Of which, VAT ({rate}%)",
     "item": "item",
-    "items": "items"
+    "items": "items",
+    "loyaltyDiscount": "Iron Rewards points discount"
   }
 }

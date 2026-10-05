@@ -4,8 +4,7 @@ import {getLocale, getTranslations} from 'next-intl/server';
 import {updateTag} from 'next/cache';
 import {mutate} from '@/platform/vendure/api';
 import {CancelLoyaltyRedemptionMutation, RedeemLoyaltyPointsMutation} from '@/features/loyalty/graphql';
-
-const KNOWN_ERRORS = ['BELOW_MINIMUM', 'ALREADY_REDEEMED', 'EXCEEDS_MAX_DISCOUNT', 'EXCEEDS_ORDER_TOTAL', 'INSUFFICIENT_BALANCE', 'NO_CUSTOMER'];
+import {redemptionErrorReason} from '@/features/loyalty/redemption';
 
 /** Canjea puntos sobre el pedido activo con la mutación del servidor y refresca el carrito. */
 export async function redeemPoints(points: number): Promise<{success: true} | {success: false; error: string}> {
@@ -18,7 +17,10 @@ export async function redeemPoints(points: number): Promise<{success: true} | {s
             updateTag('active-order');
             return {success: true};
         }
-        const code = KNOWN_ERRORS.includes(result.errorCode) ? result.errorCode : 'generic';
+        // Aunque falle, el carrito se refresca: otra pestaña pudo cambiar el canje o el saldo.
+        updateTag('cart');
+        updateTag('active-order');
+        const code = redemptionErrorReason(result.message);
         return {success: false, error: t(`redeem.errors.${code}`)};
     } catch {
         return {success: false, error: t('redeem.errors.generic')};

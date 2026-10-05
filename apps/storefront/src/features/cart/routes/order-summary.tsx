@@ -73,7 +73,7 @@ export async function OrderSummary({activeOrder, redemptionSlot}: { activeOrder:
                     ))}
                     {activeOrder.surcharges?.map((surcharge) => (
                         <div key={surcharge.id} className={`flex justify-between text-sm ${surcharge.priceWithTax < 0 ? 'font-medium text-primary-text' : ''}`}>
-                            <span>{surcharge.description}</span>
+                            <span>{surcharge.sku === 'LOYALTY_POINTS_DISCOUNT' ? t('loyaltyDiscount') : surcharge.description}</span>
                             <span className="font-mono"><Price value={surcharge.priceWithTax} currencyCode={activeOrder.currencyCode}/></span>
                         </div>
                     ))}
