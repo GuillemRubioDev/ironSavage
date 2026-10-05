@@ -14,9 +14,12 @@ interface ArticleCardProps {
         coverImage?: {preview: string} | null;
     };
     locale: string;
+    /** h2 en el listado de noticias (bajo su h1); h3 donde la tarjeta va bajo otro h2 (portada). */
+    headingLevel?: 'h2' | 'h3';
 }
 
-export function ArticleCard({article, locale}: ArticleCardProps) {
+export function ArticleCard({article, locale, headingLevel = 'h3'}: ArticleCardProps) {
+    const Heading = headingLevel;
     const title = locale === 'es' ? article.titleEs : article.titleEn;
     const excerpt = locale === 'es' ? article.excerptEs : article.excerptEn;
 
@@ -43,9 +46,9 @@ export function ArticleCard({article, locale}: ArticleCardProps) {
                 {article.publishedAt && (
                     <p className="text-xs text-muted-foreground">{formatDate(article.publishedAt, 'long', locale)}</p>
                 )}
-                <h3 className="font-semibold text-lg leading-snug group-hover:text-primary transition-colors">
+                <Heading className="text-2xl leading-tight transition-colors group-hover:text-primary">
                     {title}
-                </h3>
+                </Heading>
                 <p className="text-sm text-muted-foreground line-clamp-2">{excerpt}</p>
             </div>
         </Link>

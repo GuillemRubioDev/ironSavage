@@ -1,6 +1,7 @@
 'use server';
 
 import {mutate} from '@/platform/vendure/api';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 import {SetOrderShippingAddressMutation, SetOrderBillingAddressMutation, SetOrderShippingMethodMutation, AddPaymentToOrderMutation, TransitionOrderToStateMutation, SetCustomerForOrderMutation, CreateRedsysPaymentFormMutation, AcceptTermsForActiveOrderMutation} from '@/features/checkout/graphql';
 import {LEGAL_VERSION} from '@/config/legal';
 import {CreateCustomerAddressMutation} from '@/features/account/graphql';
@@ -139,7 +140,7 @@ export async function getRedsysPaymentForm(termsAccepted: boolean): Promise<
     const data = result.data.createRedsysPaymentForm;
 
     if (data.__typename !== 'RedsysPaymentForm') {
-        return {success: false, error: data.message};
+        return {success: false, error: await serverErrorMessage(data.errorCode)};
     }
 
     return {
@@ -231,12 +232,12 @@ export async function setCustomerForOrder(
         case 'AlreadyLoggedInError':
             return { success: true };
         case 'EmailAddressConflictError':
-            return { success: false, errorCode: 'EMAIL_CONFLICT', message: response.message };
+            return { success: false, errorCode: 'EMAIL_CONFLICT', message: await serverErrorMessage(response.errorCode) };
         case 'GuestCheckoutError':
-            return { success: false, errorCode: 'GUEST_CHECKOUT_DISABLED', message: response.message };
+            return { success: false, errorCode: 'GUEST_CHECKOUT_DISABLED', message: await serverErrorMessage(response.errorCode) };
         case 'NoActiveOrderError':
-            return { success: false, errorCode: 'NO_ACTIVE_ORDER', message: response.message };
+            return { success: false, errorCode: 'NO_ACTIVE_ORDER', message: await serverErrorMessage(response.errorCode) };
         default:
-            return { success: false, errorCode: 'UNKNOWN', message: 'Unknown error' };
+            return { success: false, errorCode: 'UNKNOWN', message: await serverErrorMessage(null) };
     }
 }

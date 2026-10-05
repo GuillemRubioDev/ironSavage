@@ -36,7 +36,7 @@ async function VerifyPendingContent({searchParams}: {searchParams: Promise<Recor
                     <CheckCircle className="h-16 w-16 text-success" />
                 </div>
                 <div className="space-y-2 text-center">
-                    <h1 className="text-2xl font-bold">{t('pending.title')}</h1>
+                    <h1 className="text-4xl">{t('pending.title')}</h1>
                     <p className="text-muted-foreground">
                         {t('pending.message')}
                     </p>

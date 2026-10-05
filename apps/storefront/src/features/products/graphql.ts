@@ -97,6 +97,9 @@ export const GetProductDetailQuery = graphql(`
                     id
                     code
                     name
+                    customFields {
+                        swatchColor
+                    }
                 }
             }
             collections {

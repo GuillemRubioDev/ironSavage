@@ -4,6 +4,8 @@ import {Button} from '@/components/ui/button';
 import {Lock} from 'lucide-react';
 import {Price} from '@/features/pricing/price';
 import {getTranslations} from 'next-intl/server';
+import {FreeShippingBar} from '@/features/cart/free-shipping-bar';
+import type {FreeShippingProgress} from '@/features/cart/free-shipping-progress';
 
 type ActiveOrder = {
     id: string;
@@ -46,10 +48,15 @@ function combineTaxByRate(taxSummary: ActiveOrder['taxSummary']) {
 
 /**
  * Resumen del carrito en zona de marca (oscuro en los dos temas): subtotal, descuentos,
- * recargos (canje de puntos), envío, canje (hueco que rellena la feature de puntos) y
- * total con IVA. En móvil, además, una barra fija abajo con el total y Finalizar compra.
+ * recargos (canje de puntos), envío, lo que falta para el envío gratis, canje (hueco que
+ * rellena la feature de puntos) y total con IVA. En móvil, además, una barra fija abajo con el total y Finalizar compra.
  */
-export async function OrderSummary({activeOrder, redemptionSlot}: { activeOrder: ActiveOrder; redemptionSlot?: ReactNode }) {
+export async function OrderSummary({activeOrder, redemptionSlot, freeShipping}: {
+    activeOrder: ActiveOrder;
+    redemptionSlot?: ReactNode;
+    /** Lo que falta para el envío gratis; null si la tienda no tiene envío gratis. */
+    freeShipping?: FreeShippingProgress | null;
+}) {
     const t = await getTranslations('Cart');
     const combinedTax = combineTaxByRate(activeOrder.taxSummary ?? []);
     const total = <Price value={activeOrder.totalWithTax} currencyCode={activeOrder.currencyCode}/>;
@@ -87,6 +94,12 @@ export async function OrderSummary({activeOrder, redemptionSlot}: { activeOrder:
                     </div>
                 </div>
 
+                {freeShipping && (
+                    <div className="mb-5">
+                        <FreeShippingBar progress={freeShipping} currencyCode={activeOrder.currencyCode} tone="brand" />
+                    </div>
+                )}
+
                 {redemptionSlot && <div className="mb-5">{redemptionSlot}</div>}
 
                 <div className="mb-6 border-t border-brand-line pt-4">
@@ -115,7 +128,7 @@ export async function OrderSummary({activeOrder, redemptionSlot}: { activeOrder:
             {/* Móvil: el total y Finalizar compra siempre a mano, abajo. */}
             <div
                 data-mobile-bar
-                className="lg:hidden fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-brand-line bg-brand px-4 py-3 text-brand-fg"
+                className="lg:hidden fixed inset-x-0 bottom-0 z-30 !mb-0 flex items-center gap-3 border-t border-brand-line bg-brand px-4 py-3 text-brand-fg"
                 style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}
             >
                 <p className="shrink-0">

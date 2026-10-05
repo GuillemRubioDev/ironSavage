@@ -40,7 +40,7 @@ function FilterContent({
     return (
         <div className="space-y-1">
             <div className="flex items-center justify-between pb-4 border-b border-border">
-                <h2 className="text-display text-lg font-bold">{t('title')}</h2>
+                <h2 className="text-2xl">{t('title')}</h2>
                 {hasActiveFilters && (
                     <Button variant="ghost" size="sm" onClick={clearFilters} className="h-auto p-0 text-xs font-medium uppercase tracking-wide text-primary hover:bg-transparent hover:text-primary/80">
                         {t('clearAll')}

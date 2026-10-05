@@ -4,17 +4,17 @@ import {Skeleton} from '@/components/ui/skeleton';
 export default function OrdersLoading() {
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6">My Orders</h1>
+            <Skeleton className="mb-6 h-14 w-64" />
 
             <div className="border rounded-lg">
                 <Table>
                     <TableHeader className="bg-muted">
                         <TableRow>
-                            <TableHead>Order Number</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Items</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead><Skeleton className="h-4 w-20" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-12" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-14" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-13" /></TableHead>
+                            <TableHead className="text-right"><Skeleton className="h-4 w-13" /></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

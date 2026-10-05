@@ -78,6 +78,8 @@
       "message": "Tu cuenta ya está creada. Elige una contraseña para activarla y poder iniciar sesión.",
       "submit": "Activar mi cuenta",
       "submitting": "Activando..."
-    }
+    },
+    "verifying": "Verificando tu cuenta",
+    "verifyingMessage": "Un momento, estamos comprobando tu correo electrónico…"
   }
 }

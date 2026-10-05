@@ -1,7 +1,7 @@
 {
   "NotFound": {
-    "title": "Page Not Found",
-    "message": "The page you are looking for does not exist, has been moved, or is temporarily unavailable.",
+    "title": "You've gone off the route",
+    "message": "This page doesn't exist or has moved. Head home or keep browsing.",
     "goHome": "Go to Home",
     "browseProducts": "Browse Products",
     "popularCollections": "Popular Collections"

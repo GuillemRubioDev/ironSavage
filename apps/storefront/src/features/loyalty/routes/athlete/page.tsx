@@ -80,7 +80,7 @@ export default async function AthletePage() {
                         <Star className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{balance}</div>
+                        <div className="font-display text-4xl font-black italic">{balance}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -89,7 +89,7 @@ export default async function AthletePage() {
                         <Trophy className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{profile.netRewardPoints}</div>
+                        <div className="font-display text-4xl font-black italic">{profile.netRewardPoints}</div>
                         {profile.revertedRewardPoints > 0 && (
                             <p className="text-xs text-muted-foreground mt-1">
                                 {t('revertedHint', {reverted: profile.revertedRewardPoints})}
@@ -103,12 +103,12 @@ export default async function AthletePage() {
                         <ShoppingBag className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{profile.rewardedOrders}</div>
+                        <div className="font-display text-4xl font-black italic">{profile.rewardedOrders}</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <h2 className="text-xl font-semibold mb-4">{t('myCodes')}</h2>
+            <h2 className="mb-4 text-3xl">{t('myCodes')}</h2>
             {profile.codes.length === 0 ? (
                 <p className="text-muted-foreground mb-8">{t('noCodes')}</p>
             ) : (
@@ -143,7 +143,7 @@ export default async function AthletePage() {
                 </div>
             )}
 
-            <h2 className="text-xl font-semibold mb-4">{t('rewardsHistory')}</h2>
+            <h2 className="mb-4 text-3xl">{t('rewardsHistory')}</h2>
             {rewards.length === 0 ? (
                 <div className="text-center py-12">
                     <p className="text-muted-foreground">{t('noRewards')}</p>

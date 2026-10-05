@@ -9,6 +9,7 @@ import {Sheet, SheetContent, SheetTitle} from '@/components/ui/sheet';
 import {Link} from '@/platform/i18n/navigation';
 import {Price} from '@/features/pricing/price';
 import {getCartDrawerData} from '@/features/cart/drawer-data';
+import {FreeShippingBar} from '@/features/cart/free-shipping-bar';
 
 type DrawerData = Awaited<ReturnType<typeof getCartDrawerData>>;
 
@@ -21,7 +22,7 @@ export function useCartDrawer() {
 
 /**
  * Panel lateral que se abre al añadir un producto: confirmación, línea añadida,
- * subtotal, "Combínalo con" y botones Finalizar compra / Ver carrito. Lee el pedido
+ * subtotal, lo que falta para el envío gratis, "Combínalo con" y botones Finalizar compra / Ver carrito. Lee el pedido
  * activo al abrirse; si eso falla, el producto ya está añadido y quedan los botones.
  */
 export function CartDrawerProvider({children}: {children: ReactNode}) {
@@ -79,6 +80,7 @@ export function CartDrawerProvider({children}: {children: ReactNode}) {
                                 <span className="font-mono font-semibold"><Price value={order.subTotalWithTax} currencyCode={order.currencyCode} /></span>
                             </p>
                         )}
+                        {order?.freeShipping && <FreeShippingBar progress={order.freeShipping} currencyCode={order.currencyCode} />}
                         {data?.related && data.related.length > 0 && (
                             <section aria-labelledby="drawer-combine">
                                 <h3 id="drawer-combine" className="mb-3 text-xl">{t('combineWith')}</h3>

@@ -140,6 +140,9 @@
       "quickAccess": "Quick access",
       "recentOrders": "Recent orders",
       "viewAllOrders": "View all"
-    }
+    },
+    "addressSaveError": "The address could not be saved. Please try again.",
+    "addressDeleteError": "The address could not be deleted. Please try again.",
+    "addressDefaultError": "The default address could not be changed. Please try again."
   }
 }

@@ -18,7 +18,7 @@ export interface QuickAddProduct {
     name: string;
     slug: string;
     imageUrl: string | null;
-    optionGroups: Array<{id: string; name: string; options: Array<{id: string; name: string}>}>;
+    optionGroups: Array<{id: string; name: string; options: Array<{id: string; name: string; swatchColor: string | null}>}>;
     variants: QuickAddVariant[];
 }
 
@@ -44,7 +44,7 @@ export async function loadQuickAddProduct(slug: string, locale: string, currency
         optionGroups: getDisplayOptionGroups(product).map(group => ({
             id: group.id,
             name: group.name,
-            options: group.options.map(option => ({id: option.id, name: option.name})),
+            options: group.options.map(option => ({id: option.id, name: option.name, swatchColor: option.customFields?.swatchColor ?? null})),
         })),
         variants: product.variants.map(variant => ({
             id: variant.id,

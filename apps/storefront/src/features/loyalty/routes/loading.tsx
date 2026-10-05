@@ -5,7 +5,7 @@ import {Skeleton} from '@/components/ui/skeleton';
 export default function PointsLoading() {
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6">My Points</h1>
+            <Skeleton className="mb-6 h-14 w-64" />
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 {Array.from({length: 3}).map((_, i) => (
@@ -26,10 +26,10 @@ export default function PointsLoading() {
                 <Table>
                     <TableHeader className="bg-muted">
                         <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead className="text-right">Points</TableHead>
+                            <TableHead><Skeleton className="h-4 w-12" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-14" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-19" /></TableHead>
+                            <TableHead className="text-right"><Skeleton className="h-4 w-14" /></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

@@ -33,3 +33,7 @@ apps/server/.tanstack/
 
 # Copias temporales de verificación del storefront (build de Next en local): nunca se suben.
 /tmp-*/
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json

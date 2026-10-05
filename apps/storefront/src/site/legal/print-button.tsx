@@ -11,7 +11,7 @@ import {Button} from '@/components/ui/button';
  */
 export function PrintButton({label}: {label: string}) {
     return (
-        <Button type="button" variant="outline" size="sm" className="print:hidden" onClick={() => window.print()}>
+        <Button type="button" variant="brand" size="sm" className="print:hidden" onClick={() => window.print()}>
             <Printer />
             {label}
         </Button>

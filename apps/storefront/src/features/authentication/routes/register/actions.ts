@@ -4,6 +4,7 @@ import {mutate, VendureHttpError} from '@/platform/vendure/api';
 import {RegisterCustomerAccountMutation} from '@/features/authentication/graphql';
 import {redirect} from '@/platform/i18n/navigation';
 import {getLocale, getTranslations} from 'next-intl/server';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 
 export async function registerAction(prevState: { error?: string } | undefined, formData: FormData) {
     const t = await getTranslations('Errors');
@@ -49,7 +50,7 @@ export async function registerAction(prevState: { error?: string } | undefined, 
     const registerResult = result.data.registerCustomerAccount;
 
     if (registerResult.__typename !== 'Success') {
-        return {error: registerResult.message};
+        return {error: await serverErrorMessage(registerResult.errorCode)};
     }
 
     // Redirige a la página de verificación pendiente, conservando redirectTo si lo hay

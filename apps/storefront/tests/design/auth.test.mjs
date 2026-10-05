@@ -36,3 +36,15 @@ test('las seis páginas de acceso usan AuthShell; login y registro con pestañas
     assert.match(await read('features/authentication/routes/register/page.tsx'), /tab="register"/);
     for (const loc of ['es', 'en']) assert.ok((await json(`features/authentication/messages/${loc}.json`)).Auth.authTabs);
 });
+
+// Arreglo tras probar en develop: la imagen salía borrosa y recortada por el centro.
+test('la imagen del panel usa el original con su punto focal y no se descarga en móvil', async () => {
+    const data = await read('features/authentication/auth-panel-image.ts');
+    assert.match(data, /source/);
+    assert.match(data, /focalPoint \{\s*x\s*y\s*\}/);
+    const shell = await read('features/authentication/components/auth-shell.tsx');
+    assert.match(shell, /src=\{image\.url\}/);
+    assert.match(shell, /objectPosition: image\.position/);
+    assert.match(shell, /sizes="\(min-width: 1024px\) 50vw, 1px"/);
+    assert.doesNotMatch(shell, /\bpriority\b/);
+});

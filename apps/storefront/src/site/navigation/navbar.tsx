@@ -24,10 +24,11 @@ export async function Navbar() {
 
     // Zona de marca: siempre oscura y opaca en los dos temas. Los botones fantasma de
     // dentro (idioma, tema, cuenta, menú) se adaptan al fondo oscuro con la regla del header.
+    // Móvil (hasta lg): menú a la izquierda, logo centrado, cuenta y carrito a la derecha.
     return (
-        <header className="fixed print:hidden top-[var(--top-bar-h)] left-0 right-0 z-40 border-b border-brand-line bg-brand text-brand-fg [&_[data-slot=button]]:text-brand-fg/85 [&_[data-slot=button]:hover]:bg-white/10 [&_[data-slot=button]:hover]:text-brand-fg [&_[data-slot=button][aria-expanded=true]]:bg-white/10 [&_[data-slot=button][aria-expanded=true]]:text-brand-fg [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-white">
+        <header className="vt-site-header fixed print:hidden top-[var(--top-bar-h)] left-0 right-0 z-40 border-b border-brand-line bg-brand text-brand-fg [&_[data-slot=button]]:text-brand-fg/85 [&_[data-slot=button]:hover]:bg-white/10 [&_[data-slot=button]:hover]:text-brand-fg [&_[data-slot=button][aria-expanded=true]]:bg-white/10 [&_[data-slot=button][aria-expanded=true]]:text-brand-fg [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-white">
             <div className="container mx-auto px-4">
-                <div className="flex items-center h-[var(--header-h)] gap-4">
+                <div className="relative flex items-center h-[var(--header-h)] gap-4">
                     <div className="flex items-center gap-4 shrink-0">
                         <Suspense>
                             <MobileNavWrapper
@@ -35,8 +36,8 @@ export async function Navbar() {
                                 accountLinks={<Suspense><MobileAccountLinks /></Suspense>}
                             />
                         </Suspense>
-                        <NavigationLink href="/" className="shrink-0">
-                            <Logo variant="wordmark" priority className="h-7 md:h-8" />
+                        <NavigationLink href="/" className="absolute left-1/2 shrink-0 -translate-x-1/2 lg:static lg:translate-x-0">
+                            <Logo variant="wordmark" priority className="h-7 min-[380px]:h-8" />
                         </NavigationLink>
                     </div>
                     {/* min-w-0 permite que esto se encoja por debajo del ancho natural de su
@@ -53,7 +54,7 @@ export async function Navbar() {
                             <NavbarCollections/>
                         </Suspense>
                     </nav>
-                    <div className="flex items-center gap-3 shrink-0">
+                    <div className="ml-auto flex items-center gap-1 shrink-0 sm:gap-3 lg:ml-0">
                         {/* Buscador completo desde xl (1280 px); entre lg y xl, un icono a /search para
                             dejar sitio a las categorías (que además tienen min-w-0 y scroll propio).
                             En móvil el buscador está en el menú lateral. */}
@@ -83,9 +84,13 @@ export async function Navbar() {
                                 <ThemeSwitcher />
                             </Suspense>
                         </div>
-                        <Suspense>
-                            <NavbarCart/>
-                        </Suspense>
+                        {/* Móvil: el carrito en el extremo derecho (cuenta a su izquierda); en
+                            escritorio, carrito y después la cuenta. */}
+                        <div className="order-last flex lg:order-none">
+                            <Suspense>
+                                <NavbarCart/>
+                            </Suspense>
+                        </div>
                         <Suspense fallback={<NavbarUserSkeleton />}>
                             <NavbarUser/>
                         </Suspense>

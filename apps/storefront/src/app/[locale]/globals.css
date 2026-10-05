@@ -235,6 +235,17 @@
      permite desplazar y pellizcar. */
   html {
     touch-action: manipulation;
+    /* Sin el recuadro gris al tocar un enlace o botón (en una app no existe). */
+    -webkit-tap-highlight-color: transparent;
+    /* El hueco de la barra de scroll siempre reservado: en escritorio, pasar de una
+       página corta a una larga (o abrir un diálogo, que bloquea el scroll) ya no
+       desplaza todo 15 px de golpe. En el móvil la barra no ocupa sitio. */
+    scrollbar-gutter: stable;
+  }
+  /* Una pulsación larga en un botón no selecciona su texto. */
+  button, [role="button"], [data-slot="button"] {
+    -webkit-user-select: none;
+    user-select: none;
   }
   * {
     @apply border-border outline-ring/50;
@@ -344,6 +355,15 @@
 @keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
 .animate-hero-zoom { animation: hero-zoom 9s var(--ease-out) both; }
 
+/* 404 (site/not-found.tsx): el número entra con un leve temblor y se asienta. */
+@keyframes glitch-in {
+  0% { opacity: 0; transform: translate3d(-12px, 0, 0) skewX(-12deg); }
+  40% { opacity: 1; transform: translate3d(8px, 0, 0) skewX(6deg); }
+  70% { transform: translate3d(-4px, 0, 0) skewX(-3deg); }
+  100% { opacity: 1; transform: none; }
+}
+.animate-glitch-in { animation: glitch-in var(--dur-hero) var(--ease-out) both; }
+
 /* Confirmación de pedido (features/orders): check que se dibuja y confeti rojo breve. */
 @keyframes check-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 .animate-check-draw { stroke-dasharray: 1; animation: check-draw var(--dur-slow) var(--ease-out) 200ms both; }
@@ -361,8 +381,26 @@
 .marquee:focus-within .marquee-track,
 .marquee[data-paused="true"] .marquee-track { animation-play-state: paused; }
 
-/* Transiciones entre páginas (React ViewTransition): fundido corto. */
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur-base); animation-timing-function: var(--ease-out); }
+/* Transiciones entre páginas (React ViewTransition): fundido corto. Mismo ritmo para
+   todos los grupos (root, el que crea React para la página y los nombrados abajo). */
+::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: var(--dur-base); animation-timing-function: var(--ease-out); }
+/* La cabecera es la misma en todas las páginas: con nombre propio queda quieta en vez
+   de fundirse con la página (el fundido de toda la pantalla parecía un parpadeo). */
+.vt-site-header { view-transition-name: site-header; }
+/* El banner de cookies también: sin nombre desaparecía un instante en cada cambio. */
+.vt-cookie-banner { view-transition-name: cookie-banner; }
+/* Acceso: el panel de la imagen queda quieto entre login y registro, y el formulario
+   (anclado arriba) solo funde su contenido. */
+.vt-auth-panel { view-transition-name: auth-panel; }
+.vt-auth-form { view-transition-name: auth-form; }
+::view-transition-old(auth-form), ::view-transition-new(auth-form) { height: auto; object-fit: none; object-position: top; }
+
+/* Móvil: los campos a 16 px como mínimo. Con menos, Safari amplía la página al tocar
+   el campo (y no vuelve al quitar el foco), que es lo que menos parece una app.
+   Fuera de capa a propósito: gana a utilidades como text-sm. */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select { font-size: 16px; }
+}
 
 /* Impresión / «Guardar como PDF» (p. ej. el botón de imprimir de las páginas
    legales): siempre texto negro sobre papel blanco, sea cual sea el tema. Cabecera,
@@ -388,7 +426,7 @@
     scroll-behavior: auto !important;
   }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
-  .stagger > *, .animate-hero-in, .animate-hero-zoom, .animate-check-draw, .marquee-track { animation: none !important; }
+  .stagger > *, .animate-hero-in, .animate-hero-zoom, .animate-check-draw, .animate-glitch-in, .marquee-track { animation: none !important; }
   .confetti { display: none !important; }
   /* React ViewTransition nombra sus propios nodos: se anulan todos, no solo (root). */
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }

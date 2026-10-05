@@ -16,6 +16,7 @@ import {addToCart} from '@/features/products/add-to-cart';
 import {useCartDrawer} from '@/features/cart/cart-drawer';
 import {getQuickAddProduct} from '@/features/products/quick-add';
 import type {QuickAddProduct, QuickAddVariant} from '@/features/products/quick-add-data';
+import {OptionSwatch} from '@/features/products/components/option-swatch';
 import {findVariant, initialSelection, isOptionAvailable, selectOption, type Selection} from '@/features/products/variant-selection';
 import {Price} from '@/features/pricing/price';
 import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
@@ -186,7 +187,7 @@ function QuickAddBody({product, selection, onSelect, quantity, onQuantity, addin
                                     // Sin variante con lo ya elegido: se ve tachada pero se puede pulsar;
                                     // al pulsarla se quitan las elecciones que chocan (selectOption).
                                     className={cn(
-                                        'press rounded-md border px-3 py-2 text-sm font-medium transition-colors',
+                                        'press inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors',
                                         selected
                                             ? 'border-primary-solid bg-primary-solid text-primary-foreground'
                                             : available
@@ -194,6 +195,7 @@ function QuickAddBody({product, selection, onSelect, quantity, onQuantity, addin
                                                 : 'border-dashed border-border text-muted-foreground line-through hover:border-foreground',
                                     )}
                                 >
+                                    <OptionSwatch color={option.swatchColor} />
                                     {option.name}
                                     {!available && !selected && <span className="sr-only"> ({t('optionUnavailable')})</span>}
                                 </button>

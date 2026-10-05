@@ -14,6 +14,7 @@ import {PriceWithDiscount} from '@/features/pricing/price-with-discount';
 import {isOptionAvailable, type Selection} from '@/features/products/variant-selection';
 import {pointsFor} from '@/features/products/product-facts';
 import type {DetailProduct, DetailVariant} from '@/features/products/components/product-detail-types';
+import {OptionSwatch} from '@/features/products/components/option-swatch';
 
 interface ProductInfoProps {
     product: DetailProduct;
@@ -126,7 +127,7 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                                         aria-pressed={selected}
                                         onClick={() => onSelect(group.id, option.id)}
                                         className={cn(
-                                            'press rounded-md border px-4 py-2.5 text-sm font-medium transition-colors',
+                                            'press inline-flex items-center gap-2 rounded-md border px-4 py-2.5 text-sm font-medium transition-colors',
                                             selected
                                                 ? 'border-primary-solid bg-primary-solid text-primary-foreground'
                                                 : available
@@ -134,6 +135,7 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                                                     : 'border-dashed border-border text-muted-foreground line-through hover:border-foreground',
                                         )}
                                     >
+                                        <OptionSwatch color={option.customFields?.swatchColor} />
                                         {option.name}
                                         {!available && !selected && <span className="sr-only"> ({t('optionUnavailable')})</span>}
                                     </button>
@@ -198,10 +200,11 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
             </div>
 
             {/* Móvil: barra de compra fija abajo, para que la acción principal quede al
-                alcance del pulgar esté donde esté el scroll. */}
+                alcance del pulgar esté donde esté el scroll. !mb-0: el space-y del
+                contenedor le daba margen inferior y la separaba del borde. */}
             <div
                 data-mobile-bar
-                className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-md lg:hidden"
+                className="fixed inset-x-0 bottom-0 z-30 !mb-0 flex items-center gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-md lg:hidden"
                 style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}
             >
                 <p className="shrink-0 font-mono text-lg font-semibold">{price}</p>

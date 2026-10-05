@@ -27,6 +27,7 @@ import { AddressForm } from './address-form';
 import { createAddress, updateAddress, deleteAddress, setDefaultShippingAddress, setDefaultBillingAddress } from './actions';
 import { useRouter } from '@/platform/i18n/navigation';
 import {useTranslations} from 'next-intl';
+import {toast} from 'sonner';
 
 interface Country {
     id: string;
@@ -87,7 +88,7 @@ export function AddressesClient({ addresses, countries }: AddressesClientProps) 
             router.refresh();
         } catch (error) {
             console.error('Error setting default shipping address:', error);
-            alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            toast.error(t('addressDefaultError'));
         } finally {
             setSettingDefault(null);
         }
@@ -100,7 +101,7 @@ export function AddressesClient({ addresses, countries }: AddressesClientProps) 
             router.refresh();
         } catch (error) {
             console.error('Error setting default billing address:', error);
-            alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            toast.error(t('addressDefaultError'));
         } finally {
             setSettingDefault(null);
         }
@@ -117,7 +118,7 @@ export function AddressesClient({ addresses, countries }: AddressesClientProps) 
             setAddressToDelete(null);
         } catch (error) {
             console.error('Error deleting address:', error);
-            alert(`Error deleting address: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            toast.error(t('addressDeleteError'));
         } finally {
             setIsDeleting(false);
         }
@@ -137,7 +138,7 @@ export function AddressesClient({ addresses, countries }: AddressesClientProps) 
             setEditingAddress(null);
         } catch (error) {
             console.error('Error saving address:', error);
-            alert(`Error saving address: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            toast.error(t('addressSaveError'));
         } finally {
             setIsSubmitting(false);
         }

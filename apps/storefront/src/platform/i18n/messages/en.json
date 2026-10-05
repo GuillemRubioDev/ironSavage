@@ -24,6 +24,30 @@
     "failedAddToCart": "Failed to add item to cart",
     "firstNameRequired": "First name is required",
     "termsRequired": "You must accept the terms and conditions",
-    "tooManyAttempts": "Too many attempts. Please wait a few minutes before trying again."
+    "tooManyAttempts": "Too many attempts. Please wait a few minutes before trying again.",
+    "passwordRequired": "Password is required"
+  },
+  "ServerErrors": {
+    "generic": "We could not complete the operation. Please try again.",
+    "verificationTokenInvalid": "This verification link is not valid or has already been used. If you have already verified your account, sign in.",
+    "verificationTokenExpired": "This verification link has expired. Register again with the same email to get a new one.",
+    "passwordResetTokenInvalid": "This password reset link is not valid or has already been used. Request a new one.",
+    "passwordResetTokenExpired": "This password reset link has expired. Request a new one.",
+    "emailChangeTokenInvalid": "This email change link is not valid or has already been used.",
+    "emailChangeTokenExpired": "This email change link has expired. Request the change again from your profile.",
+    "passwordAlreadySet": "This account already has a password. Sign in.",
+    "passwordValidation": "The password does not meet the requirements. Try a longer one.",
+    "invalidCredentials": "Invalid email or password.",
+    "notVerified": "Verify your email address before signing in.",
+    "emailAddressConflict": "An account with this email address already exists.",
+    "insufficientStock": "Not enough units left: we have added the ones available.",
+    "negativeQuantity": "The quantity is not valid.",
+    "orderLimit": "You have reached the maximum number of units per order.",
+    "orderModification": "This order can no longer be changed.",
+    "noActiveOrder": "Your cart is empty.",
+    "ineligibleShippingMethod": "This shipping method is not available for your address.",
+    "ineligiblePaymentMethod": "This payment method is not available for your order.",
+    "paymentDeclined": "The payment was declined. Try another card.",
+    "paymentFailed": "The payment could not be completed. Please try again."
   }
 }

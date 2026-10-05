@@ -79,7 +79,7 @@ export default async function PointsPage() {
                         <Star className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{balance}</div>
+                        <div className="font-display text-4xl font-black italic">{balance}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -88,7 +88,7 @@ export default async function PointsPage() {
                         <TrendingUp className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{lifetimeEarned}</div>
+                        <div className="font-display text-4xl font-black italic">{lifetimeEarned}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -97,12 +97,12 @@ export default async function PointsPage() {
                         <TrendingDown className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{lifetimeSpent}</div>
+                        <div className="font-display text-4xl font-black italic">{lifetimeSpent}</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <h2 className="text-xl font-semibold mb-4">{t('pointsHistory')}</h2>
+            <h2 className="mb-4 text-3xl">{t('pointsHistory')}</h2>
 
             {history.length === 0 ? (
                 <div className="text-center py-12">

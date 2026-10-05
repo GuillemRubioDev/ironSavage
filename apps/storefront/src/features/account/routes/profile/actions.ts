@@ -4,6 +4,7 @@ import {mutate} from '@/platform/vendure/api';
 import {UpdateCustomerPasswordMutation, UpdateCustomerMutation, RequestUpdateCustomerEmailAddressMutation} from '@/features/account/graphql';
 import {revalidatePath} from 'next/cache';
 import {getLocale, getTranslations} from 'next-intl/server';
+import {serverErrorMessage} from '@/platform/vendure/server-error-message';
 
 export async function updatePasswordAction(prevState: { error?: string; success?: boolean } | undefined, formData: FormData) {
     const t = await getTranslations('Errors');
@@ -32,7 +33,7 @@ export async function updatePasswordAction(prevState: { error?: string; success?
         const updateResult = result.data.updateCustomerPassword;
 
         if (updateResult.__typename !== 'Success') {
-            return {error: updateResult.message};
+            return {error: await serverErrorMessage(updateResult.errorCode)};
         }
 
         return {success: true};
@@ -96,7 +97,7 @@ export async function requestEmailUpdateAction(prevState: { error?: string; succ
         const updateResult = result.data.requestUpdateCustomerEmailAddress;
 
         if (updateResult.__typename !== 'Success') {
-            return {error: updateResult.message};
+            return {error: await serverErrorMessage(updateResult.errorCode)};
         }
 
         return {success: true};

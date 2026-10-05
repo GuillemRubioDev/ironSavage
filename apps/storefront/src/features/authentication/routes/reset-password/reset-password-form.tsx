@@ -24,7 +24,7 @@ export function ResetPasswordForm({ searchParams }: ResetPasswordFormProps) {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>{t('invalidResetLink')}</CardTitle>
+                    <CardTitle><h1 className="text-3xl">{t('invalidResetLink')}</h1></CardTitle>
                     <CardDescription>
                         {t('invalidResetLinkDescription')}
                     </CardDescription>
@@ -43,7 +43,7 @@ export function ResetPasswordForm({ searchParams }: ResetPasswordFormProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{t('resetYourPassword')}</CardTitle>
+                <CardTitle><h1 className="text-3xl">{t('resetYourPassword')}</h1></CardTitle>
                 <CardDescription>
                     {t('resetYourPasswordDescription')}
                 </CardDescription>

@@ -4,16 +4,16 @@ import {Skeleton} from '@/components/ui/skeleton';
 export default function InvoicesLoading() {
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6">My Invoices</h1>
+            <Skeleton className="mb-6 h-14 w-64" />
 
             <div className="border rounded-lg">
                 <Table>
                     <TableHeader className="bg-muted">
                         <TableRow>
-                            <TableHead>Invoice Number</TableHead>
-                            <TableHead>Issue Date</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
-                            <TableHead className="text-right">Download</TableHead>
+                            <TableHead><Skeleton className="h-4 w-22" /></TableHead>
+                            <TableHead><Skeleton className="h-4 w-18" /></TableHead>
+                            <TableHead className="text-right"><Skeleton className="h-4 w-13" /></TableHead>
+                            <TableHead className="text-right"><Skeleton className="h-4 w-16" /></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

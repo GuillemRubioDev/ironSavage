@@ -78,6 +78,8 @@
       "message": "Your account has already been created. Choose a password to activate it and sign in.",
       "submit": "Activate my account",
       "submitting": "Activating..."
-    }
+    },
+    "verifying": "Verifying your account",
+    "verifyingMessage": "One moment, we are checking your email address…"
   }
 }

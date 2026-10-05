@@ -5,7 +5,8 @@ import { StorefrontSettingsShopResolver } from './storefront-settings-shop.resol
 
 /**
  * Publica en la Shop API los ajustes globales que necesita el storefront sin sesión
- * (hoy, la imagen del panel de acceso, GlobalSettings.authPanelImage). El campo
+ * (la imagen del panel de acceso, GlobalSettings.authPanelImage, y el pedido mínimo
+ * del envío gratis, sacado de los métodos de envío activos). El campo
  * personalizado se define en vendure-config.ts, como los demás.
  */
 @VendurePlugin({
