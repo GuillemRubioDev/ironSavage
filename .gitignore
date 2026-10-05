@@ -30,3 +30,6 @@ apps/server/.tanstack/
 
 # Maquetas del asistente de diseño (brainstorming visual); solo para trabajar en local.
 /.superpowers/
+
+# Copias temporales de verificación del storefront (build de Next en local): nunca se suben.
+/tmp-*/
