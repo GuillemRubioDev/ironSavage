@@ -38,3 +38,11 @@ test('el botón de pagar dice el importe y conserva las mismas condiciones', asy
         assert.equal(c.steps.review, loc === 'es' ? 'Confirmación' : 'Confirm');
     }
 });
+
+test('resumen del checkout en zona de marca, legible en oscuro, y título grande', async () => {
+    const summary = await read('features/checkout/routes/order-summary.tsx');
+    assert.match(summary, /bg-brand/);
+    assert.doesNotMatch(summary, /text-muted-foreground/);
+    assert.match(summary, /text-brand-muted/);
+    assert.match(await read('features/checkout/routes/page.tsx'), /<h1 className="mb-8 text-5xl md:text-6xl">/);
+});
