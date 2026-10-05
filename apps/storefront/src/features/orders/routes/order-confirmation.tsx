@@ -14,6 +14,7 @@ import {graphql} from '@/platform/vendure/graphql';
 import {toMajorUnits} from '@/platform/analytics/gtag';
 import {PurchaseTracker} from '@/features/orders/purchase-tracker';
 import {getLoyaltyProgramConfig} from '@/features/loyalty/program-config';
+import {getMyAthleteProfile} from '@/features/loyalty/athlete';
 
 /** Confeti rojo y blanco una sola vez (solo CSS; con "reducir movimiento" no aparece). */
 function Confetti() {
@@ -163,8 +164,12 @@ export async function OrderConfirmation({paramsPromise, searchParamsPromise}: Or
     // Solo se celebra (confeti, puntos, tarjetas) con el pago confirmado y el pedido vivo.
     const celebrate = !paymentPending && order.state !== 'Cancelled';
     // Estimación con la fórmula del servidor (floor(total en euros × puntos por euro)).
-    const loyalty = celebrate ? await getLoyaltyProgramConfig().catch(() => null) : null;
-    const points = loyalty ? Math.floor((order.totalWithTax / 100) * loyalty.pointsPerEuro) : 0;
+    // Los atletas activos no suman puntos con sus compras (política del servidor,
+    // athlete.service canEarnForOrder): a ellos no se les promete ninguno.
+    const [loyalty, athlete] = celebrate
+        ? await Promise.all([getLoyaltyProgramConfig().catch(() => null), getMyAthleteProfile().catch(() => null)])
+        : [null, null];
+    const points = loyalty && !athlete?.enabled ? Math.floor((order.totalWithTax / 100) * loyalty.pointsPerEuro) : 0;
 
     return (
         <div className="container mx-auto px-4 py-16">

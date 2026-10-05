@@ -72,3 +72,14 @@ test('check animado y confeti en CSS, anulados con reducir movimiento', async ()
     assert.match(tail, /\.confetti \{ display: none !important; \}/);
     assert.match(tail, /\.animate-check-draw/);
 });
+
+// Arreglos de la revisión final de la fase 4B.
+test('a los atletas activos no se les prometen puntos (el servidor no se los da)', async () => {
+    const page = await read('features/orders/routes/order-confirmation.tsx');
+    assert.match(page, /getMyAthleteProfile\(\)\.catch\(\(\) => null\)/);
+    assert.match(page, /athlete\?\.enabled/);
+});
+
+test('el botón de pagar puede partirse en dos líneas en móviles estrechos', async () => {
+    assert.match(await read('features/checkout/routes/steps/review-step.tsx'), /h-auto min-h-12 whitespace-normal py-3 text-balance/);
+});

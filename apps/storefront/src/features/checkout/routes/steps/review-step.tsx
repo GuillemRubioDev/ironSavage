@@ -236,7 +236,8 @@ export default function ReviewStep({ onEditStep }: ReviewStepProps) {
         onClick={handlePlaceOrder}
         disabled={loading || !termsAccepted || !order.shippingAddress || !order.shippingLines?.length || !selectedPaymentMethodCode}
         size="xl"
-        className="w-full"
+        // El importe puede ser largo: en móviles estrechos el texto pasa a dos líneas.
+        className="w-full h-auto min-h-12 whitespace-normal py-3 text-balance"
       >
         {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Lock aria-hidden="true" />}
         {t('payAmount', {amount: format.number(order.totalWithTax / 100, {style: 'currency', currency: order.currencyCode})})}
