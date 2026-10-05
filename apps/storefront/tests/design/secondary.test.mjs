@@ -38,3 +38,24 @@ test('legales: índice generado de los títulos, sin índice al imprimir y texto
     assert.match(shell, /<h1 className="[^"]*text-5xl/);
     for (const loc of ['es', 'en']) assert.ok((await json(`site/legal/messages/${loc}.json`)).Legal.contents);
 });
+
+test('404 en bloque oscuro con el número enorme animado (quieto con reducir movimiento)', async () => {
+    const nf = await read('site/not-found.tsx');
+    assert.match(nf, /bg-brand/);
+    assert.match(nf, /animate-glitch-in/);
+    assert.match(nf, /text-\[clamp\(/);
+    const css = await read('app/[locale]/globals.css');
+    assert.match(css, /@keyframes glitch-in/);
+    const tail = css.slice(css.lastIndexOf('@media (prefers-reduced-motion: reduce)'));
+    assert.match(tail, /\.animate-glitch-in/);
+    const es = (await json('site/messages/es.json')).NotFound;
+    assert.equal(es.title, 'Te has salido de la ruta');
+});
+
+test('página de error con el estilo nuevo y el mismo comportamiento', async () => {
+    const page = await read('site/errors/error-page.tsx');
+    assert.match(page, /bg-brand/);
+    assert.match(page, /useAutoRecovery/);
+    assert.match(page, /router\.refresh\(\)/);
+    assert.match(page, /<h1 className="[^"]*text-5xl/);
+});

@@ -344,6 +344,15 @@
 @keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
 .animate-hero-zoom { animation: hero-zoom 9s var(--ease-out) both; }
 
+/* 404 (site/not-found.tsx): el número entra con un leve temblor y se asienta. */
+@keyframes glitch-in {
+  0% { opacity: 0; transform: translate3d(-12px, 0, 0) skewX(-12deg); }
+  40% { opacity: 1; transform: translate3d(8px, 0, 0) skewX(6deg); }
+  70% { transform: translate3d(-4px, 0, 0) skewX(-3deg); }
+  100% { opacity: 1; transform: none; }
+}
+.animate-glitch-in { animation: glitch-in var(--dur-hero) var(--ease-out) both; }
+
 /* Confirmación de pedido (features/orders): check que se dibuja y confeti rojo breve. */
 @keyframes check-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 .animate-check-draw { stroke-dasharray: 1; animation: check-draw var(--dur-slow) var(--ease-out) 200ms both; }
@@ -388,7 +397,7 @@
     scroll-behavior: auto !important;
   }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
-  .stagger > *, .animate-hero-in, .animate-hero-zoom, .animate-check-draw, .marquee-track { animation: none !important; }
+  .stagger > *, .animate-hero-in, .animate-hero-zoom, .animate-check-draw, .animate-glitch-in, .marquee-track { animation: none !important; }
   .confetti { display: none !important; }
   /* React ViewTransition nombra sus propios nodos: se anulan todos, no solo (root). */
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }

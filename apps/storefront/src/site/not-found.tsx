@@ -1,10 +1,15 @@
 import { getRouteLocale } from '@/platform/i18n/server';
 import { Button } from '@/components/ui/button';
-import { SearchX, Home, ShoppingBag } from 'lucide-react';
+import { Home, ShoppingBag } from 'lucide-react';
 import { Link } from '@/platform/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import {getTopCollections} from '@/features/collections/data';
 
+/**
+ * 404 de la tienda: bloque oscuro de marca con el "404" enorme (entra con un leve temblor,
+ * quieto con "reducir movimiento"), "Te has salido de la ruta", vuelta al inicio o a la
+ * tienda y las categorías principales.
+ */
 export default async function NotFound() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'NotFound'});
@@ -16,53 +21,46 @@ export default async function NotFound() {
     }
 
     return (
-        <div className="min-h-[calc(100vh-var(--header-offset))] flex items-center justify-center px-4 py-16">
-            <div className="text-center space-y-8 max-w-lg">
-                <div className="flex justify-center">
-                    <div className="rounded-full bg-muted p-6">
-                        <SearchX className="h-16 w-16 text-muted-foreground" />
-                    </div>
-                </div>
+        <section className="relative flex min-h-[calc(100vh-var(--header-offset))] items-center overflow-hidden bg-brand px-4 py-16 text-brand-fg">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,rgb(231_0_11/22%),transparent)]" aria-hidden="true" />
+            <div className="container relative mx-auto max-w-2xl space-y-8 text-center">
+                <p aria-hidden="true" className="animate-glitch-in font-display text-[clamp(8rem,28vw,18rem)] font-black italic leading-none text-primary-text">
+                    404
+                </p>
 
                 <div className="space-y-3">
-                    <h1 className="text-7xl font-bold text-primary">404</h1>
-                    <h2 className="text-2xl font-semibold">{t('title')}</h2>
-                    <p className="text-muted-foreground max-w-sm mx-auto">
-                        {t('message')}
-                    </p>
+                    <h1 className="text-5xl md:text-6xl">{t('title')}</h1>
+                    <p className="mx-auto max-w-md text-brand-muted">{t('message')}</p>
                 </div>
 
-                <div className="flex gap-3 justify-center">
-                    <Button nativeButton={false} render={<Link href="/" />} size="lg">
-                        <Home className="mr-2 h-4 w-4" />
+                <div className="flex flex-col justify-center gap-3 sm:flex-row">
+                    <Button nativeButton={false} render={<Link href="/" />} size="xl">
+                        <Home aria-hidden="true" />
                         {t('goHome')}
                     </Button>
-                    <Button nativeButton={false} render={<Link href="/productos" />} variant="outline" size="lg">
-                        <ShoppingBag className="mr-2 h-4 w-4" />
+                    <Button nativeButton={false} render={<Link href="/productos" />} variant="brand" size="xl">
+                        <ShoppingBag aria-hidden="true" />
                         {t('browseProducts')}
                     </Button>
                 </div>
 
                 {collections.length > 0 && (
-                    <div className="pt-4 border-t">
-                        <p className="text-sm font-medium text-muted-foreground mb-3">{t('popularCollections')}</p>
-                        <div className="flex flex-wrap gap-2 justify-center">
+                    <div className="border-t border-brand-line pt-6">
+                        <p className="mb-3 text-sm font-medium text-brand-muted">{t('popularCollections')}</p>
+                        <div className="flex flex-wrap justify-center gap-2">
                             {collections.slice(0, 6).map((collection) => (
-                                <Button
+                                <Link
                                     key={collection.id}
-                                    render={<Link href={`/categorias/${collection.slug}`} />}
-                                    nativeButton={false}
-                                    variant="outline"
-                                    size="sm"
-                                    className="rounded-full"
+                                    href={`/categorias/${collection.slug}`}
+                                    className="rounded-full border border-brand-line px-4 py-1.5 text-sm transition-colors hover:bg-white/10"
                                 >
                                     {collection.name}
-                                </Button>
+                                </Link>
                             ))}
                         </div>
                     </div>
                 )}
             </div>
-        </div>
+        </section>
     );
 }
