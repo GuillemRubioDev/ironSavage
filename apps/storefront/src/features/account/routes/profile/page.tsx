@@ -1,8 +1,7 @@
 import type {Metadata} from 'next';
 import {getActiveCustomer} from '@/features/account/customer';
-import { ChangePasswordForm } from './change-password-form';
 import { EditProfileForm } from './edit-profile-form';
-import { EditEmailForm } from './edit-email-form';
+import { AccountAccessCard } from './account-access-card';
 import {getRouteLocale} from '@/platform/i18n/server';
 import {getTranslations} from 'next-intl/server';
 
@@ -30,9 +29,7 @@ export default async function ProfilePage() {
 
             <EditProfileForm customer={customer} />
 
-            <EditEmailForm currentEmail={customer?.emailAddress || ''} />
-
-            <ChangePasswordForm />
+            <AccountAccessCard email={customer?.emailAddress || ''} />
         </div>
     );
 }

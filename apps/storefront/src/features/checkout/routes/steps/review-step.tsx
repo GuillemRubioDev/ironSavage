@@ -12,11 +12,46 @@ import {toast} from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Link } from '@/platform/i18n/navigation';
+import { localizedPath } from '@/config/metadata';
+import { cn } from '@/lib/utils';
 
-/** Abre un texto legal en una pestaña nueva para no perder el checkout en curso. */
+/**
+ * Descarga el texto legal en PDF sin salir del checkout (abrir la página, aunque sea en
+ * otra pestaña, saca al cliente del pago en el móvil). El href se mantiene para
+ * accesibilidad y como alternativa: si la descarga falla, se abre la página en una
+ * pestaña nueva como antes.
+ */
 function LegalLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const locale = useLocale();
+  const [downloading, setDownloading] = useState(false);
+
+  const onClick = async (event: React.MouseEvent<HTMLAnchorElement>) => {
+    // Ctrl/Cmd+clic o clic central: el usuario pide la página en otra pestaña.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+    event.preventDefault();
+    if (downloading) return;
+    setDownloading(true);
+    const path = localizedPath(locale, href);
+    try {
+      const {downloadLegalPdf} = await import('@/site/legal/legal-pdf');
+      await downloadLegalPdf(path);
+    } catch (error) {
+      console.error('Error downloading legal PDF:', error);
+      window.open(path, '_blank', 'noopener');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
-    <Link href={href} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-primary">
+    <Link
+      href={href}
+      target="_blank"
+      rel="noopener"
+      onClick={onClick}
+      aria-busy={downloading}
+      className={cn('underline underline-offset-2 hover:text-primary', downloading && 'cursor-progress opacity-60')}
+    >
       {children}
     </Link>
   );
