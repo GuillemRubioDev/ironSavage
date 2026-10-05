@@ -19,6 +19,9 @@ export function ProductGallery({images, productName}: {images: GalleryImage[]; p
     const [current, setCurrent] = useState(0);
     const [zoom, setZoom] = useState<{x: number; y: number} | null>(null);
     const trackRef = useRef<HTMLDivElement>(null);
+    // Mientras dura un desplazamiento lanzado por goTo, onScroll no toca el índice: si no,
+    // al saltar de la foto 1 a la 5 el resaltado pasaría por las intermedias.
+    const programmaticScroll = useRef(false);
 
     if (!images.length) {
         return (
@@ -33,10 +36,15 @@ export function ProductGallery({images, productName}: {images: GalleryImage[]; p
         const track = trackRef.current;
         if (!track) return;
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        programmaticScroll.current = true;
+        const release = () => { programmaticScroll.current = false; };
+        if ('onscrollend' in track) track.addEventListener('scrollend', release, {once: true});
+        else window.setTimeout(release, 600);
         track.scrollTo({left: index * track.clientWidth, behavior: reduced ? 'auto' : 'smooth'});
     };
 
     const onScroll = () => {
+        if (programmaticScroll.current) return;
         const track = trackRef.current;
         if (track) setCurrent(Math.round(track.scrollLeft / track.clientWidth));
     };
@@ -52,6 +60,8 @@ export function ProductGallery({images, productName}: {images: GalleryImage[]; p
             <div
                 ref={trackRef}
                 role="region"
+                aria-roledescription={t('galleryRole')}
+                tabIndex={0}
                 aria-label={t('gallery')}
                 onScroll={onScroll}
                 onMouseMove={onMove}
@@ -65,7 +75,7 @@ export function ProductGallery({images, productName}: {images: GalleryImage[]; p
                             alt={t('imageAlt', {name: productName, index: index + 1, total: images.length})}
                             fill
                             priority={index === 0}
-                            sizes="(max-width: 1024px) 100vw, 55vw"
+                            sizes="(max-width: 1024px) 100vw, 1100px"
                             className="object-cover transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)]"
                             style={zoom && index === current ? {transform: 'scale(2)', transformOrigin: `${zoom.x}% ${zoom.y}%`} : undefined}
                         />
@@ -84,8 +94,11 @@ export function ProductGallery({images, productName}: {images: GalleryImage[]; p
                                 onClick={() => goTo(index)}
                                 aria-label={t('showImage', {index: index + 1, total: images.length})}
                                 aria-current={index === current ? 'true' : undefined}
-                                className={cn('h-1.5 rounded-full transition-all', index === current ? 'w-6 bg-primary-solid' : 'w-1.5 bg-foreground/25')}
-                            />
+                                // Zona táctil de 24 px (WCAG 2.5.8) con el punto visual dentro.
+                                className="grid size-6 place-items-center"
+                            >
+                                <span className={cn('h-1.5 rounded-full transition-all', index === current ? 'w-6 bg-primary-solid' : 'w-1.5 bg-foreground/25')} />
+                            </button>
                         ))}
                     </div>
                     {/* Escritorio: miniaturas. */}

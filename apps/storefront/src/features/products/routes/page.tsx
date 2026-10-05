@@ -122,7 +122,11 @@ export default async function ProductDetailPage({
     const currencyCode = await getActiveCurrencyCode();
     const t = await getTranslations({locale, namespace: 'Product'});
 
-    const [result, loyalty] = await Promise.all([getProductData(slug, currencyCode), getLoyaltyProgramConfig()]);
+    const [result, loyalty] = await Promise.all([
+        getProductData(slug, currencyCode),
+        // Sin la configuración de puntos la ficha se pinta igual, sin la línea de puntos.
+        getLoyaltyProgramConfig().catch(() => null),
+    ]);
 
     const product = result.data.product;
 
@@ -176,7 +180,7 @@ export default async function ProductDetailPage({
                     product={productForDisplay}
                     currencyCode={currencyCode}
                     categoryName={primaryCollection?.name}
-                    pointsPerEuro={loyalty.pointsPerEuro}
+                    pointsPerEuro={loyalty?.pointsPerEuro ?? 0}
                     ratingSlot={ratingSlot?.({productId: product.id})}
                     detailsSlot={<ProductDetails locale={locale} description={sanitizeRichText(product.description)} data={product.customFields ?? {}} />}
                 />

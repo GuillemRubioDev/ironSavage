@@ -15,7 +15,6 @@
     "from": "Desde",
     "taxIncluded": "IVA incluido",
     "noImage": "Sin imagen",
-    "noImagesAvailable": "No hay imágenes disponibles",
     "featuredProducts": "Productos",
     "featuredHighlight": "destacados",
     "relatedProducts": "Productos relacionados",
@@ -53,11 +52,8 @@
       }
     },
     "imageAlt": "{name}, imagen {index} de {total}",
-    "previousImage": "Imagen anterior",
-    "nextImage": "Imagen siguiente",
     "showImage": "Ver imagen {index} de {total}",
     "food": {
-      "title": "Información alimentaria",
       "ingredients": "Ingredientes",
       "allergens": "Alérgenos",
       "nutrition": "Información nutricional",
@@ -91,6 +87,8 @@
       "protein": "de proteína por dosis",
       "flavors": "sabores",
       "netQuantity": "cantidad neta"
-    }
+    },
+    "optionUnavailable": "no disponible con la selección actual",
+    "galleryRole": "carrusel"
   }
 }

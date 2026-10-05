@@ -41,3 +41,37 @@ test('listados: "Ver X" cuenta visibles, título del selector con el producto, m
     const empty = grid.slice(grid.indexOf('if (!visibleItems.length)'), grid.indexOf('if (!visibleItems.length)') + 600);
     assert.match(empty, /<ActiveFilters/);
 });
+
+test('ficha a prueba de fallos: sin configuración de puntos o sin variantes no se rompe', async () => {
+    assert.match(await read('features/products/routes/page.tsx'), /getLoyaltyProgramConfig\(\)\.catch\(\(\) => null\)/);
+    assert.match(await read('features/products/routes/page.tsx'), /pointsPerEuro=\{loyalty\?\.pointsPerEuro \?\? 0\}/);
+    assert.match(await read('features/products/components/product-info.tsx'), /product\.variants\.length > 0 \? Math\.min/);
+});
+
+test('desplegables encontrables con Ctrl+F y con encabezado h2', async () => {
+    const details = await read('features/products/components/product-details.tsx');
+    assert.match(details, /hiddenUntilFound/);
+    assert.match(details, /headingLevel=\{2\}/);
+});
+
+test('galería: sin parpadeo al saltar, zoom nítido, región con teclado y puntos de 24 px', async () => {
+    const gallery = await read('features/products/components/product-gallery.tsx');
+    assert.match(gallery, /programmaticScroll\.current/);
+    assert.match(gallery, /tabIndex=\{0\}/);
+    assert.match(gallery, /size-6/);
+    assert.match(gallery, /\(max-width: 1024px\) 100vw, 1100px/);
+});
+
+test('opciones no disponibles anunciadas, "formato" no es cantidad y claves huérfanas fuera', async () => {
+    for (const f of ['features/products/components/product-info.tsx', 'features/products/components/quick-add-button.tsx']) {
+        assert.match(await read(f), /t\('optionUnavailable'\)/, f);
+    }
+    assert.doesNotMatch(await read('features/products/product-facts.ts'), /formato/);
+    assert.match(await read('features/products/components/key-figures.tsx'), /break-words/);
+    for (const loc of ['es', 'en']) {
+        const p = (await json(`features/products/messages/${loc}.json`)).Product;
+        assert.ok(p.optionUnavailable, `${loc}: falta optionUnavailable`);
+        for (const k of ['noImagesAvailable', 'previousImage', 'nextImage']) assert.equal(p[k], undefined, `${loc}: sobra ${k}`);
+        assert.equal(p.food.title, undefined, `${loc}: sobra food.title`);
+    }
+});

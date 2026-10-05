@@ -33,7 +33,7 @@ export function proteinPerServing(nutrition?: string | null): string | null {
 
 type FactGroup = {code: string; name: string; options: Array<{name: string}>};
 const FLAVOR = /sabor|flavou?r/i;
-const SIZE = /peso|tama[nñ]o|size|weight|cantidad|formato/i;
+const SIZE = /peso|tama[nñ]o|size|weight|cantidad/i;
 const findGroup = (groups: FactGroup[], pattern: RegExp) => groups.find(group => pattern.test(group.code) || pattern.test(group.name));
 
 /** Nº de sabores (grupo de opciones Sabor/Flavour); solo cuando hay dos o más. */

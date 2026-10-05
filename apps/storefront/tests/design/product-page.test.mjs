@@ -68,7 +68,7 @@ test('bloque de compra con cantidad, puntos y mini franja de confianza', async (
     assert.match(info, /isOptionAvailable\(product\.variants, selection, group\.id, option\.id\)/);
     const page = await read('features/products/routes/page.tsx');
     assert.match(page, /getLoyaltyProgramConfig\(\)/);
-    assert.match(page, /pointsPerEuro=\{loyalty\.pointsPerEuro\}/);
+    assert.match(page, /pointsPerEuro=\{loyalty\?\.pointsPerEuro \?\? 0\}/);
     for (const loc of ['es', 'en']) {
         assert.ok((await json(`features/products/messages/${loc}.json`)).Product.pointsEarned, `${loc}: falta pointsEarned`);
     }
@@ -91,7 +91,7 @@ test('desplegables con la información (montada aunque estén cerrados) y la des
     assert.equal(await exists('features/products/components/food-information.tsx'), false);
     const details = await read('features/products/components/product-details.tsx');
     assert.match(details, /<Accordion multiple defaultValue=\{\['description'\]\}/);
-    assert.match(details, /keepMounted/);
+    assert.match(details, /hiddenUntilFound/);
     for (const key of ['nutrition', 'directions', 'ingredientsAllergens', 'warnings', 'storage']) assert.match(details, new RegExp(`'${key}'`));
     assert.match(details, /legalWarnings\.dose/);
 });

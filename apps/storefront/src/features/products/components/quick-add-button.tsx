@@ -192,6 +192,7 @@ function QuickAddBody({product, selection, onSelect, quantity, onQuantity, addin
                                     )}
                                 >
                                     {option.name}
+                                    {!available && !selected && <span className="sr-only"> ({t('optionUnavailable')})</span>}
                                 </button>
                             );
                         })}

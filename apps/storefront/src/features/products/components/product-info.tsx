@@ -38,7 +38,8 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
     const [isAdded, setIsAdded] = useState(false);
 
     const isInStock = !!selectedVariant && selectedVariant.stockLevel !== 'OUT_OF_STOCK';
-    const minPrice = Math.min(...product.variants.map((variant) => variant.discountedPriceWithTax));
+    // La Shop API solo devuelve variantes activas: un producto sin ninguna no tiene precio.
+    const minPrice = product.variants.length > 0 ? Math.min(...product.variants.map((variant) => variant.discountedPriceWithTax)) : null;
     const points = selectedVariant && pointsPerEuro > 0 ? pointsFor(selectedVariant.discountedPriceWithTax, quantity, pointsPerEuro) : 0;
 
     const handleAddToCart = () => {
@@ -81,12 +82,12 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
 
     const price = selectedVariant ? (
         <PriceWithDiscount before={selectedVariant.priceWithTax} after={selectedVariant.discountedPriceWithTax} currencyCode={currencyCode} size="lg" />
-    ) : (
+    ) : minPrice !== null ? (
         <>
             <span className="mr-1 font-sans text-sm font-normal text-muted-foreground">{t('from')}</span>
             <Price value={minPrice} currencyCode={currencyCode} />
         </>
-    );
+    ) : null;
 
     const trust = [
         {icon: Truck, label: t('trustBadges.fastShipping')},
@@ -130,7 +131,8 @@ export function ProductInfo({product, currencyCode, categoryName, selection, sel
                                                     : 'border-dashed border-border text-muted-foreground line-through hover:border-foreground',
                                         )}
                                     >
-                                        {option.name}
+{option.name}
+                                        {!available && !selected && <span className="sr-only"> ({t('optionUnavailable')})</span>}
                                     </button>
                                 );
                             })}
