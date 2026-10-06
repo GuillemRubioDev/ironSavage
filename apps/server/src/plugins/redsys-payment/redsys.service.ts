@@ -198,7 +198,22 @@ export class RedsysService {
                 return { orderCode, alreadyProcessed: true };
             }
 
-            await this.recordPayment(ctx, order, approved, responseCode, params.Ds_AuthorisationCode);
+            // La firma solo garantiza que Redsys cobró Ds_Amount, no que eso sea lo que
+            // vale el pedido AHORA: entre firmar el formulario y pagar, el cliente puede
+            // devolver el pedido a AddingItems por la Shop API y cambiar el carrito. Sin
+            // esta comprobación, pagar el formulario de 10 € de un carrito que después pasa
+            // a 510 € registraría el pedido entero como pagado (addPaymentToOrder cubre
+            // el total pendiente, no lo cobrado).
+            const amountMismatch = approved ? this.findAmountMismatch(order, params) : undefined;
+            if (amountMismatch) {
+                Logger.error(
+                    `Redsys approved attempt ${merchantOrder} but ${amountMismatch}: NOT marking the order as paid. ` +
+                        'The charge must be reviewed by hand (refund it in the Redsys portal or contact the customer).',
+                    loggerCtx,
+                );
+            }
+
+            await this.recordPayment(ctx, order, approved && !amountMismatch, responseCode, params.Ds_AuthorisationCode, amountMismatch);
 
             try {
                 await repository.insert({
@@ -217,6 +232,7 @@ export class RedsysService {
                         Ds_AuthorisationCode: params.Ds_AuthorisationCode,
                         Ds_TransactionType: params.Ds_TransactionType,
                         Ds_SecurePayment: params.Ds_SecurePayment,
+                        ...(amountMismatch ? { amountMismatch } : {}),
                     }),
                 });
             } catch (err) {
@@ -245,6 +261,7 @@ export class RedsysService {
         approved: boolean,
         responseCode: string,
         authorisationCode: string | undefined,
+        amountMismatch?: string,
     ): Promise<void> {
         if (order.state !== 'ArrangingPayment') {
             const transitionResult = await this.orderService.transitionToState(ctx, order.id, 'ArrangingPayment');
@@ -258,7 +275,9 @@ export class RedsysService {
         const paymentMethodCode = await this.getRedsysPaymentMethodCode(ctx);
         const result = await this.orderService.addPaymentToOrder(ctx, order.id, {
             method: paymentMethodCode,
-            metadata: { approved, responseCode, authorisationCode },
+            // Con importe distinto queda un Payment «Declined» con el motivo: así el
+            // equipo lo ve en el pedido del dashboard y el cliente puede volver a pagar.
+            metadata: { approved, responseCode, authorisationCode, ...(amountMismatch ? { amountMismatch } : {}) },
         });
 
         if (!(result instanceof Order)) {
@@ -276,6 +295,26 @@ export class RedsysService {
         Logger.info(
             `Order ${order.code} payment ${approved ? 'approved' : 'declined'} (Ds_Response=${responseCode})`,
             loggerCtx,
+        );
+    }
+
+    /**
+     * Compara lo que cobró Redsys (Ds_Amount en céntimos y Ds_Currency numérico ISO
+     * 4217, ya verificados por la firma) con el total y la moneda actuales del pedido.
+     * Devuelve la descripción de la diferencia, o undefined si coinciden. Se compara
+     * como número porque Redsys no garantiza el formato exacto del texto (ceros a la
+     * izquierda). Una notificación aprobada sin importe se trata como diferencia.
+     */
+    private findAmountMismatch(order: Order, params: RedsysResponseParameters): string | undefined {
+        const charged = Number.parseInt(params.Ds_Amount ?? '', 10);
+        const chargedCurrency = Number.parseInt(params.Ds_Currency ?? '', 10);
+        const expectedCurrency = Number.parseInt(REDSYS_CURRENCY_NUMERIC[order.currencyCode] ?? '', 10);
+        if (charged === order.totalWithTax && chargedCurrency === expectedCurrency) {
+            return undefined;
+        }
+        return (
+            `charged amount ${params.Ds_Amount ?? '(missing)'} (currency ${params.Ds_Currency ?? '(missing)'}) ` +
+            `does not match order ${order.code} total ${order.totalWithTax} ${order.currencyCode}`
         );
     }
 
