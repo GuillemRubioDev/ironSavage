@@ -33,7 +33,7 @@ function LegalLink({ href, children }: { href: string; children: React.ReactNode
     setDownloading(true);
     const path = localizedPath(locale, href);
     try {
-      const {downloadLegalPdf} = await import('@/site/legal/legal-pdf');
+      const {downloadLegalPdf} = await import('@/lib/legal-pdf');
       await downloadLegalPdf(path);
     } catch (error) {
       console.error('Error downloading legal PDF:', error);
