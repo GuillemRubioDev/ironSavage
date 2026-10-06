@@ -84,7 +84,19 @@ function submitRedsysRedirect(form: RedsysPaymentForm) {
     formEl.appendChild(input);
   }
   document.body.appendChild(formEl);
+
+  // Sin Origin ni Referer hacia Redsys: su cortafuegos rechaza («Your request has not
+  // been processed… support ID») los pagos cuyo Origin es un dominio *.sslip.io como
+  // el del servidor de desarrollo, y Redsys no necesita ninguna de las dos cabeceras.
+  // Con la política no-referrer el navegador envía «Origin: null». La política se toma
+  // en el momento de submit(), así que se quita en el acto: si el cliente vuelve atrás
+  // desde Redsys, las Server Actions (que comprueban el Origin) siguen funcionando.
+  const referrerPolicy = document.createElement('meta');
+  referrerPolicy.name = 'referrer';
+  referrerPolicy.content = 'no-referrer';
+  document.head.appendChild(referrerPolicy);
   formEl.submit();
+  referrerPolicy.remove();
 }
 
 export default function ReviewStep({ onEditStep }: ReviewStepProps) {
