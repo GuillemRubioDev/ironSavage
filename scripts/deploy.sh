@@ -10,6 +10,8 @@
 # Qué hace, en orden:
 #   1. Comprueba que la rama es la que le toca a este servidor (DEPLOY_BRANCH del
 #      .env.prod): el servidor de producción nunca despliega develop, ni al revés.
+#   1b. Limpia la caché de compilación e imágenes sin uso de Docker (también al
+#      final) y se para si aun así quedan menos de 8 GB libres para compilar.
 #   2. En producción, hace copia de seguridad con scripts/backup.sh antes de tocar
 #      nada (las migraciones se aplican solas al arrancar el servidor nuevo).
 #   3. Deja el repositorio exactamente en ese commit.
@@ -98,6 +100,34 @@ compose() {
     docker compose "${COMPOSE_FILES[@]}" --env-file "$ENV_FILE" "$@"
 }
 
+# Limpieza de Docker: caché de compilación, contenedores parados e imágenes que no usa
+# ningún contenedor. Cada build del servidor deja 1,5-2 GB de caché que Docker nunca
+# borra solo: en unos días llenó el disco del servidor de desarrollo («no space left
+# on device» en mitad del npm ci). NUNCA toca volúmenes (base de datos, imágenes
+# subidas, certificados): no uses aquí `volume prune` ni `system prune --volumes`.
+# Contrapartida: cada build empieza sin caché (npm ci completo, algo más lento).
+clean_docker() {
+    docker builder prune -af >/dev/null
+    docker container prune -f >/dev/null
+    docker image prune -af >/dev/null
+}
+
+# Espacio libre en GB en el disco de Docker (el raíz en estos servidores).
+free_gb() {
+    df -BG --output=avail / | tail -1 | tr -dc '0-9'
+}
+
+# --- 0. Espacio en disco: limpia antes de compilar (un despliegue anterior que falló
+# a medias deja su caché) y no empieza si aun así no hay sitio para los builds ---
+log "Limpieza de Docker previa ($(free_gb) GB libres)"
+clean_docker
+MIN_FREE_GB=8
+if [ "$(free_gb)" -lt "$MIN_FREE_GB" ]; then
+    df -h / >&2
+    docker system df >&2 || true
+    fail "Solo quedan $(free_gb) GB libres tras limpiar Docker (mínimo $MIN_FREE_GB GB para compilar). Revisa qué ocupa el disco o amplíalo."
+fi
+
 # --- 1. Copia de seguridad (solo producción y solo si ya hay algo que copiar) ---
 if [ "$DEPLOY_ENV" = "production" ] && [ -n "$(compose ps -q postgres 2>/dev/null)" ]; then
     log "Copia de seguridad previa al despliegue"
@@ -147,8 +177,9 @@ fi
 wait_healthy storefront
 wait_healthy vendure-worker
 
-# --- 5. Limpieza de imágenes antiguas sin uso (no toca volúmenes ni datos) ---
-docker image prune -f >/dev/null
+# --- 5. Limpieza: la caché de este build y las imágenes de la versión anterior ---
+clean_docker
+log "Espacio libre tras el despliegue: $(free_gb) GB"
 
 echo "$SHA" > .deployed-sha
 log "Despliegue terminado: $BRANCH @ $SHA"
