@@ -20,12 +20,16 @@ const SECRET_KEY = process.env.REDSYS_SECRET_KEY!;
 // a los sustitutos de este archivo no les importa su contenido.
 const FAKE_REQ = {} as any;
 
-function buildNotificationBody(order: string, responseCode: string, authorisationCode = '123456') {
+function buildNotificationBody(
+    order: string,
+    responseCode: string,
+    authorisationCode = '123456',
+    charged: { Ds_Amount?: string; Ds_Currency?: string } = { Ds_Amount: '1999', Ds_Currency: '978' },
+) {
     const params = {
         Ds_Order: order,
         Ds_Response: responseCode,
-        Ds_Amount: '1999',
-        Ds_Currency: '978',
+        ...charged,
         Ds_AuthorisationCode: authorisationCode,
     };
     const merchantParameters = encodeMerchantParameters(params);
@@ -71,17 +75,21 @@ function createFakeAttemptRepository(order: { code: string }) {
     };
 }
 
-function createService(order: { id: string; code: string; state: string }) {
+function createService(input: { id: string; code: string; state: string; totalWithTax?: number; currencyCode?: string }) {
+    // Por defecto el pedido vale lo mismo que cobra buildNotificationBody (19,99 EUR).
+    const order = { totalWithTax: 1999, currencyCode: 'EUR', ...input };
+    // En la entidad Order de Vendure totalWithTax es un getter calculado: fuera al construirla.
+    const { totalWithTax: _totalWithTax, ...orderColumns } = order;
     // El código real distingue éxito de fallo con `result instanceof Order`, así que el
     // mock debe devolver una instancia real de Order, no algo con la misma forma. Un
     // pago denegado también es comportamiento real de Vendure: addPaymentToOrder lo
     // devuelve como PaymentDeclinedError aunque el Payment se guarde igualmente.
     const addPaymentToOrder = mock.fn(async (_ctx: unknown, _orderId: unknown, input: {metadata: {approved: boolean}}) =>
         input.metadata.approved
-            ? new Order({ ...order, state: 'PaymentSettled' })
+            ? new Order({ ...orderColumns, state: 'PaymentSettled' })
             : { __typename: 'PaymentDeclinedError', errorCode: 'PAYMENT_DECLINED_ERROR', message: 'PAYMENT_DECLINED_ERROR' },
     );
-    const transitionToState = mock.fn(async (..._args: unknown[]) => new Order({ ...order, state: 'ArrangingPayment' }));
+    const transitionToState = mock.fn(async (..._args: unknown[]) => new Order({ ...orderColumns, state: 'ArrangingPayment' }));
     const findOneByCode = mock.fn(async (..._args: unknown[]) => order);
 
     // En el código real, el éxito de OrderService.addPaymentToOrder/transitionToState
@@ -273,4 +281,81 @@ test('a notification is NOT marked as processed if addPaymentToOrder fails, so a
     const retry = await service.handleNotification(body, FAKE_REQ);
     assert.equal(retry.alreadyProcessed, false);
     assert.equal(addPaymentToOrder.mock.callCount(), 2);
+});
+
+test('handleNotification does NOT mark the order as paid when Redsys charged less than the order total', async () => {
+    // El ataque: firmar el formulario con un carrito de 19,99 €, devolver el pedido a
+    // AddingItems por la Shop API, llenar el carrito hasta 510 € y pagar el formulario
+    // viejo. La notificación es auténtica, pero el importe no cubre el pedido.
+    const order = { id: '1', code: '0010MMMMMMMM', state: 'ArrangingPayment', totalWithTax: 51000 };
+    const { service, addPaymentToOrder, fakeRepository } = createService(order);
+
+    const body = buildNotificationBody(order.code, '0000');
+    const result = await service.handleNotification(body, FAKE_REQ);
+
+    assert.equal(result.alreadyProcessed, false);
+    assert.equal(addPaymentToOrder.mock.callCount(), 1);
+    const [, , input] = addPaymentToOrder.mock.calls[0].arguments as [unknown, unknown, { metadata: { approved: boolean; amountMismatch?: string } }];
+    assert.equal(input.metadata.approved, false, 'the payment must be recorded as Declined, never Settled');
+    assert.match(input.metadata.amountMismatch ?? '', /1999.*51000/);
+
+    // Queda registrada para auditoría y los reintentos de Redsys no la reprocesan.
+    const [row] = fakeRepository.insert.mock.calls[0].arguments as unknown as [{ approved: boolean; rawResponse: string }];
+    assert.equal(row.approved, true, 'Redsys did approve (and charge) it: the audit row must say so');
+    assert.match(row.rawResponse, /amountMismatch/);
+    const retry = await service.handleNotification(body, FAKE_REQ);
+    assert.equal(retry.alreadyProcessed, true);
+    assert.equal(addPaymentToOrder.mock.callCount(), 1);
+});
+
+test('handleNotification does NOT mark the order as paid when Redsys charged more than the order total', async () => {
+    // El caso contrario: el carrito se reduce después de firmar.
+    const order = { id: '1', code: '0011NNNNNNNN', state: 'ArrangingPayment', totalWithTax: 500 };
+    const { service, addPaymentToOrder } = createService(order);
+
+    await service.handleNotification(buildNotificationBody(order.code, '0000'), FAKE_REQ);
+
+    const [, , input] = addPaymentToOrder.mock.calls[0].arguments as [unknown, unknown, { metadata: { approved: boolean } }];
+    assert.equal(input.metadata.approved, false);
+});
+
+test('handleNotification does NOT mark the order as paid when the currency or the amount is missing or different', async () => {
+    const cases = [
+        { Ds_Amount: '1999', Ds_Currency: '840' }, // USD en vez de EUR
+        { Ds_Currency: '978' }, // sin importe
+        { Ds_Amount: '1999' }, // sin moneda
+    ];
+    for (const [index, charged] of cases.entries()) {
+        const order = { id: '1', code: `001${index}PPPPPPPP`, state: 'ArrangingPayment' };
+        const { service, addPaymentToOrder } = createService(order);
+        await service.handleNotification(buildNotificationBody(order.code, '0000', '123456', charged), FAKE_REQ);
+        const [, , input] = addPaymentToOrder.mock.calls[0].arguments as [unknown, unknown, { metadata: { approved: boolean } }];
+        assert.equal(input.metadata.approved, false, JSON.stringify(charged));
+    }
+});
+
+test('handleNotification accepts an amount with leading zeros when it equals the order total', async () => {
+    const order = { id: '1', code: '0013QQQQQQQQ', state: 'ArrangingPayment' };
+    const { service, addPaymentToOrder } = createService(order);
+
+    await service.handleNotification(
+        buildNotificationBody(order.code, '0000', '123456', { Ds_Amount: '000000001999', Ds_Currency: '978' }),
+        FAKE_REQ,
+    );
+
+    const [, , input] = addPaymentToOrder.mock.calls[0].arguments as [unknown, unknown, { metadata: { approved: boolean; amountMismatch?: string } }];
+    assert.equal(input.metadata.approved, true);
+    assert.equal(input.metadata.amountMismatch, undefined);
+});
+
+test('handleNotification does not compare amounts for a declined payment', async () => {
+    // Una tarjeta denegada no cobra nada: no es una diferencia de importe que revisar.
+    const order = { id: '1', code: '0014RRRRRRRR', state: 'ArrangingPayment', totalWithTax: 51000 };
+    const { service, addPaymentToOrder } = createService(order);
+
+    await service.handleNotification(buildNotificationBody(order.code, '0180'), FAKE_REQ);
+
+    const [, , input] = addPaymentToOrder.mock.calls[0].arguments as [unknown, unknown, { metadata: { approved: boolean; amountMismatch?: string } }];
+    assert.equal(input.metadata.approved, false);
+    assert.equal(input.metadata.amountMismatch, undefined);
 });

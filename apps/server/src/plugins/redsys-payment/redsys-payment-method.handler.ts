@@ -30,7 +30,9 @@ export const redsysPaymentHandler = new PaymentMethodHandler({
             transactionId: typeof metadata.authorisationCode === 'string' ? metadata.authorisationCode : undefined,
             errorMessage: metadata.approved
                 ? undefined
-                : `Redsys declined the payment (Ds_Response=${String(metadata.responseCode)})`,
+                : metadata.amountMismatch
+                  ? `Redsys cobró un importe distinto del total del pedido; revisar a mano y devolver el cobro si procede (${String(metadata.amountMismatch)})`
+                  : `Redsys declined the payment (Ds_Response=${String(metadata.responseCode)})`,
             metadata,
         };
     },
