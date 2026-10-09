@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { routing } from '@/platform/i18n/routing';
+import { OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, ogImagePath } from '@/platform/vendure/og-image-path';
 
 export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Iron Savage';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
@@ -48,29 +49,41 @@ export function buildCanonicalUrl(path: string): string {
 
 /**
  * Imagen que se muestra al compartir una página (WhatsApp, redes sociales…) que no
- * tiene imagen propia: public/og-image.png, 1200×630. Para cambiarla, sustituye ese
- * archivo.
+ * tiene imagen propia: public/og-image.jpg, 1200×630. Para cambiarla, sustituye ese
+ * archivo por otro JPG de 1200×630 de menos de ~300 KB (WhatsApp ignora los más
+ * pesados).
  */
 export const DEFAULT_OG_IMAGES = [
-  {url: '/og-image.png', width: 1200, height: 630, alt: `${SITE_NAME} — suplementación deportiva`},
+  {url: '/og-image.jpg', width: 1200, height: 630, alt: `${SITE_NAME} — suplementación deportiva`},
 ];
 
 /**
- * Construye el array de imágenes Open Graph a partir de una URL de imagen; si no hay,
- * usa la imagen por defecto (una página que define `openGraph` sustituye la del layout).
+ * Construye el array de imágenes Open Graph a partir de la preview de un asset de
+ * Vendure; si no hay, usa la imagen por defecto (una página que define `openGraph`
+ * sustituye la del layout). La preview no se enlaza tal cual: va por /api/og-image,
+ * que la entrega en JPG de 1200×630 (ver platform/vendure/og-image.ts).
  */
 export function buildOgImages(
-  imageUrl: string | null | undefined,
+  previewUrl: string | null | undefined,
   alt?: string
 ): NonNullable<Metadata['openGraph']>['images'] {
-  if (!imageUrl) return DEFAULT_OG_IMAGES;
+  const url = ogImagePath(previewUrl);
+  if (!url) return DEFAULT_OG_IMAGES;
 
   return [
     {
-      url: imageUrl,
+      url,
+      width: OG_IMAGE_WIDTH,
+      height: OG_IMAGE_HEIGHT,
       alt: alt || 'Product image',
     },
   ];
+}
+
+/** Imagen de la tarjeta de Twitter/X: la misma que la de Open Graph. */
+export function buildTwitterImages(previewUrl: string | null | undefined): string[] | undefined {
+  const url = ogImagePath(previewUrl);
+  return url ? [url] : undefined;
 }
 
 /**

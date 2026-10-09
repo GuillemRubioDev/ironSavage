@@ -34,6 +34,7 @@ import {
     buildCanonicalUrl,
     localizedPath,
     buildOgImages,
+    buildTwitterImages,
 } from '@/config/metadata';
 import {getTranslations} from 'next-intl/server';
 import {toOgLocale} from '@/platform/i18n/locale-utils';
@@ -95,7 +96,7 @@ export async function generateMetadata({
             card: 'summary_large_image',
             title: product.name,
             description: description || fallbackDescription,
-            images: ogImage ? [ogImage] : undefined,
+            images: buildTwitterImages(ogImage),
         },
     };
 }

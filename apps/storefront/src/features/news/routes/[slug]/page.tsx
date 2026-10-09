@@ -97,7 +97,7 @@ export default async function ArticleDetailPage({params}: PageProps<'/[locale]/n
             <div className="container mx-auto max-w-[68ch] px-4 pb-16">
                 {article.coverImage ? (
                     <div className="relative -mt-16 mb-10 aspect-video overflow-hidden rounded-xl bg-muted shadow-xl md:-mt-20">
-                        <Image src={`${article.coverImage.preview}?preset=large`} alt={title} fill className="object-cover" priority />
+                        <Image src={article.coverImage.preview} alt={title} fill sizes="(min-width: 768px) 720px, 100vw" className="object-cover" priority />
                     </div>
                 ) : (
                     <div className="h-10" />

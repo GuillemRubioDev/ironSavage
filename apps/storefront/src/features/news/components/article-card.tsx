@@ -31,9 +31,10 @@ export function ArticleCard({article, locale, headingLevel = 'h3'}: ArticleCardP
             <div className="relative aspect-video bg-muted">
                 {article.coverImage ? (
                     <Image
-                        src={`${article.coverImage.preview}?preset=medium`}
+                        src={article.coverImage.preview}
                         alt={title}
                         fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         className="object-cover"
                     />
                 ) : (

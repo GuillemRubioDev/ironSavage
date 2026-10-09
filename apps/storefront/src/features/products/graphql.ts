@@ -54,7 +54,6 @@ export const GetProductDetailQuery = graphql(`
             assets {
                 id
                 preview
-                source
             }
             variants {
                 id
@@ -70,12 +69,10 @@ export const GetProductDetailQuery = graphql(`
                 featuredAsset {
                     id
                     preview
-                    source
                 }
                 assets {
                     id
                     preview
-                    source
                 }
                 options {
                     id

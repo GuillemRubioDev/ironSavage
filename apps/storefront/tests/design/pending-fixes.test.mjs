@@ -59,7 +59,8 @@ test('galería: sin parpadeo al saltar, zoom nítido, región con teclado y punt
     assert.match(gallery, /programmaticScroll\.current/);
     assert.match(gallery, /tabIndex=\{0\}/);
     assert.match(gallery, /size-6/);
-    assert.match(gallery, /\(max-width: 1024px\) 100vw, 1100px/);
+    // Zoom nítido: al hacer zoom se pide una versión del doble de ancho (ZOOM_SIZES).
+    assert.match(gallery, /sizes=\{zoomed\.has\(index\) \? ZOOM_SIZES : SIZES\}/);
 });
 
 test('opciones no disponibles anunciadas, "formato" no es cantidad y claves huérfanas fuera', async () => {

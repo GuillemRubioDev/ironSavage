@@ -87,7 +87,7 @@ Generadas a partir del logo. Para cambiarlas, sustituye el archivo:
 
 - **Favicon**: `apps/storefront/src/app/[locale]/favicon.ico` e `icon.png` (512×512).
 - **Icono de iPhone**: `apps/storefront/src/app/[locale]/apple-icon.png` (180×180).
-- **Imagen al compartir** (WhatsApp, redes): `apps/storefront/public/og-image.png` (1200×630). Se usa en toda página
+- **Imagen al compartir** (WhatsApp, redes): `apps/storefront/public/og-image.jpg` (JPG de 1200×630 y menos de ~300 KB, el límite de WhatsApp). Se usa en toda página
   que no tenga foto propia.
 
 `robots.txt` (`site/seo/robots.ts`) deja indexar la tienda, excluye cuenta, carrito y checkout, y apunta al sitemap.

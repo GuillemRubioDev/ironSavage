@@ -42,6 +42,21 @@ const nextConfig: NextConfig = {
     // servidor; no cambia nada funcional.
     poweredByHeader: false,
     images: {
+        // AVIF a quien lo acepta (≈ la mitad de peso que WebP en nuestras fotos de
+        // producto, medido con las imágenes de develop) y WebP al resto; el formato
+        // se negocia con la cabecera Accept de cada navegador.
+        formats: ['image/avif', 'image/webp'],
+        // Anchos que puede generar el optimizador. Menos combinaciones que los de
+        // serie (menos CPU y caché) y ninguno por encima de 2048, el lado máximo de
+        // la preview de Vendure (webp-asset-preview-strategy.ts en el servidor).
+        // imageSizes cubre miniaturas y tarjetas; deviceSizes, lo que ocupa
+        // casi toda la pantalla.
+        imageSizes: [64, 128, 256, 384],
+        deviceSizes: [640, 828, 1080, 1200, 1920, 2048],
+        // Las URLs de los assets de Vendure no cambian de contenido (una imagen nueva
+        // es un archivo con otro nombre), así que la versión optimizada se puede
+        // guardar mucho tiempo: 30 días en vez de las 4 h de serie.
+        minimumCacheTTL: 60 * 60 * 24 * 30,
         // Solo hace falta para que la API de optimización de imágenes pueda leer
         // de un Vendure local en desarrollo (URLs de recursos en
         // localhost/127.0.0.1). Activado en producción, permitiría a esa API leer de

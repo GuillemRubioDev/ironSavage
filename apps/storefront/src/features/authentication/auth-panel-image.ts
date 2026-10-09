@@ -9,7 +9,7 @@ const StorefrontSettingsQuery = graphql(`
     query StorefrontSettings {
         storefrontSettings {
             authPanelImage {
-                source
+                preview
                 focalPoint {
                     x
                     y
@@ -20,7 +20,11 @@ const StorefrontSettingsQuery = graphql(`
 `);
 
 export interface AuthPanelImage {
-    /** Imagen original: next/image la reduce al tamaño justo (el preview de Vendure se ve borroso a media pantalla). */
+    /**
+     * Preview de Vendure (WebP de hasta 2048 px, de sobra para media pantalla); next/image
+     * la reduce al tamaño justo. Antes se usaba el original porque la preview de serie
+     * (máx. 1600 px) se veía borrosa, pero el original no tiene límite de tamaño.
+     */
     url: string;
     /** Punto focal elegido en el dashboard, como object-position ("50% 30%"). */
     position: string;
@@ -34,12 +38,12 @@ async function loadAuthPanelImage(): Promise<AuthPanelImage | null> {
 
     const {data} = await query(StorefrontSettingsQuery);
     const image = (data as unknown as {
-        storefrontSettings?: {authPanelImage?: {source: string; focalPoint?: {x: number; y: number} | null} | null};
+        storefrontSettings?: {authPanelImage?: {preview: string; focalPoint?: {x: number; y: number} | null} | null};
     }).storefrontSettings?.authPanelImage;
-    if (!image?.source) return null;
+    if (!image?.preview) return null;
     const focal = image.focalPoint;
     return {
-        url: image.source,
+        url: image.preview,
         position: focal ? `${Math.round(focal.x * 100)}% ${Math.round(focal.y * 100)}%` : '50% 50%',
     };
 }

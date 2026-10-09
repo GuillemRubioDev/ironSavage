@@ -30,6 +30,7 @@ networks:
 volumes:
   postgres_data:
   vendure_static:
+  storefront_image_cache:
   caddy_data:
   caddy_config:
 
@@ -208,6 +209,11 @@ services:
       NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME}
       NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
       REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+    # Solo la caché de next/image (no toda .next/cache: la de datos va ligada a cada
+    # build). Así las imágenes ya optimizadas sobreviven a los despliegues y nadie
+    # paga la generación en frío después de cada uno.
+    volumes:
+      - storefront_image_cache:/app/apps/storefront/.next/cache/images
     # Sin `ports:`: desde fuera solo se llega a través de Caddy; internamente
     # es `storefront:3001`.
     healthcheck:

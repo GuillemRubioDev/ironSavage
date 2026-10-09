@@ -72,6 +72,7 @@ export function OrderDetail({orderPromise, invoicePromise}: OrderDetailProps) {
                                                     src={line.productVariant.product.featuredAsset.preview}
                                                     alt={line.productVariant.name}
                                                     fill
+                                                    sizes="80px"
                                                     className="object-cover"
                                                 />
                                             )}

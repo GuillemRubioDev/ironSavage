@@ -15,6 +15,7 @@ import {
     buildCanonicalUrl,
     localizedPath,
     buildOgImages,
+    buildTwitterImages,
 } from '@/config/metadata';
 import {toOgLocale} from '@/platform/i18n/locale-utils';
 import {getActiveCurrencyCode} from '@/features/currency/currency-server';
@@ -93,9 +94,7 @@ export async function generateMetadata({
             card: 'summary_large_image',
             title: collection.name,
             description,
-            images: collection.featuredAsset?.preview
-                ? [collection.featuredAsset.preview]
-                : undefined,
+            images: buildTwitterImages(collection.featuredAsset?.preview),
         },
     };
 }
