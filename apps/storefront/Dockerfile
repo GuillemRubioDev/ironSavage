@@ -69,6 +69,11 @@ WORKDIR /app
 COPY --from=build --chown=nextjs:nextjs /app/apps/storefront/.next/standalone ./
 COPY --from=build --chown=nextjs:nextjs /app/apps/storefront/.next/static ./apps/storefront/.next/static
 COPY --from=build --chown=nextjs:nextjs /app/apps/storefront/public ./apps/storefront/public
+# Caché de next/image (las versiones AVIF/WebP de cada imagen y ancho). Se monta en
+# un volumen (storefront_image_cache en docker-compose.prod.yml) para que no se
+# pierda en cada despliegue; la carpeta tiene que existir y ser de nextjs para que
+# Docker cree el volumen con ese dueño.
+RUN mkdir -p apps/storefront/.next/cache/images && chown -R nextjs:nextjs apps/storefront/.next/cache
 USER nextjs
 EXPOSE 3001
 ENV PORT=3001

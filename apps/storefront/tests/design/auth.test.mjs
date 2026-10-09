@@ -38,9 +38,10 @@ test('las seis páginas de acceso usan AuthShell; login y registro con pestañas
 });
 
 // Arreglo tras probar en develop: la imagen salía borrosa y recortada por el centro.
-test('la imagen del panel usa el original con su punto focal y no se descarga en móvil', async () => {
+test('la imagen del panel usa la preview (WebP de hasta 2048 px) con su punto focal y no se descarga en móvil', async () => {
     const data = await read('features/authentication/auth-panel-image.ts');
-    assert.match(data, /source/);
+    assert.match(data, /authPanelImage \{\s*preview\b/);
+    assert.doesNotMatch(data, /\bsource\b/);
     assert.match(data, /focalPoint \{\s*x\s*y\s*\}/);
     const shell = await read('features/authentication/components/auth-shell.tsx');
     assert.match(shell, /src=\{image\.url\}/);

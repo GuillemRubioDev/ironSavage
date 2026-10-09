@@ -15,6 +15,7 @@
     "start:worker": "node ./dist/index-worker.js",
     "start": "vendure start all",
     "seed": "node --require ts-node/register src/seed.ts",
+    "assets:regenerate-previews": "node --require ts-node/register src/regenerate-asset-previews.ts",
     "i18n:extract": "lingui extract",
     "test": "find src -name '*.spec.ts' -print0 | xargs -0 node --require ts-node/register --test"
   },
@@ -28,7 +29,8 @@
     "graphql-tag": "2.12.7",
     "nodemailer": "^9.0.5",
     "pdfkit": "^0.15.0",
-    "pg": "8.23.0"
+    "pg": "8.23.0",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@types/nodemailer": "^8.0.1",

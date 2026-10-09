@@ -1,5 +1,6 @@
 import { RequestContext } from '@vendure/core';
 import { HashedAssetNamingStrategy } from '@vendure/asset-server-plugin';
+import { hasWebpPreview } from './webp-asset-preview-strategy';
 
 /**
  * HashedAssetNamingStrategy construye los nombres de archivo con `path.join()`, que
@@ -15,7 +16,13 @@ export class PosixAssetNamingStrategy extends HashedAssetNamingStrategy {
         return super.generateSourceFileName(ctx, originalFileName, conflictFileName).replace(/\\/g, '/');
     }
 
+    /**
+     * Además, la preview de las imágenes raster se guarda en WebP
+     * (webp-asset-preview-strategy.ts), así que su nombre lleva `.webp`: el servidor
+     * de assets deduce el Content-Type de la extensión.
+     */
     generatePreviewFileName(ctx: RequestContext, originalFileName: string, conflictFileName?: string): string {
-        return super.generatePreviewFileName(ctx, originalFileName, conflictFileName).replace(/\\/g, '/');
+        const fileName = super.generatePreviewFileName(ctx, originalFileName, conflictFileName).replace(/\\/g, '/');
+        return hasWebpPreview(originalFileName) ? fileName.replace(/\.[^./]+$/, '.webp') : fileName;
     }
 }

@@ -47,7 +47,7 @@ test('los puntos siguen la fórmula del servidor y crecen con la cantidad', asyn
 });
 
 test('la consulta de la ficha trae las fotos de cada variante', async () => {
-    assert.match(await read('features/products/graphql.ts'), /featuredAsset \{[^}]*\}\s*assets \{\s*id\s*preview\s*source\s*\}/);
+    assert.match(await read('features/products/graphql.ts'), /featuredAsset \{[^}]*\}\s*assets \{\s*id\s*preview\s*\}/);
 });
 
 test('la selección vive solo en el estado: sin URL, con las opciones únicas marcadas', async () => {
@@ -83,7 +83,7 @@ test('galería única: carrusel deslizable en móvil, zoom que sigue al ratón e
     assert.match(gallery, /prefers-reduced-motion: reduce/);
     assert.doesNotMatch(gallery, /noImagesAvailable/);
     // Un solo juego de imágenes (no uno para móvil y otro para escritorio).
-    assert.equal((gallery.match(/src=\{image\.source\}/g) ?? []).length, 1);
+    assert.equal((gallery.match(/src=\{image\.preview\}/g) ?? []).length, 2); // foto grande y miniatura
     assert.match(await read('features/products/components/product-detail-client.tsx'), /<ProductGallery/);
 });
 

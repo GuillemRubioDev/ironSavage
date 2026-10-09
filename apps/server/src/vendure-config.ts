@@ -29,6 +29,8 @@ import { bannerPermission } from './plugins/banners/banner.permission';
 import { TransactionalEmailPlugin } from './plugins/transactional-email/transactional-email.plugin';
 import { PriceDisplayPlugin } from './plugins/price-display/price-display.plugin';
 import { PosixAssetNamingStrategy } from './posix-asset-naming-strategy';
+import { WebpAssetPreviewStrategy } from './webp-asset-preview-strategy';
+import { CappedImageTransformStrategy } from './capped-image-transform-strategy';
 import { posixAssetStorageStrategyFactory } from './posix-asset-storage-strategy-factory';
 import { getAssetUrlPrefix, getCorsOrigin, runProductionSafetyChecks } from './production-safety';
 import { graphqlRateLimitMiddleware } from './plugins/security/graphql-rate-limit.middleware';
@@ -273,6 +275,11 @@ export const config: VendureConfig = {
             // producción hay que fijarlo con ASSET_URL_PREFIX; production-safety.ts
             // explica por qué aquí había antes un dominio de ejemplo fijo.
             assetUrlPrefix: getAssetUrlPrefix(IS_DEV),
+            // Preview en WebP de calidad alta (máx. 2048 px): es la fuente de la que
+            // next/image genera cada tamaño en AVIF/WebP. Ver webp-asset-preview-strategy.ts.
+            previewStrategy: new WebpAssetPreviewStrategy(),
+            // Ancho/alto de ?w=/?h= limitados a 2048 px. Ver capped-image-transform-strategy.ts.
+            imageTransformStrategy: new CappedImageTransformStrategy(),
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),

@@ -2,7 +2,6 @@
 export interface DetailAsset {
     id: string;
     preview: string;
-    source: string;
 }
 
 export interface DetailVariant {

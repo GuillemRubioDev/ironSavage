@@ -81,7 +81,7 @@ export default async function NewsListPage({searchParams}: PageProps<'/[locale]/
                             <Link href={`/noticias/${featured.slug}`} className={`group hover-lift img-zoom mb-10 grid overflow-hidden rounded-xl bg-brand text-brand-fg ${featured.coverImage ? 'md:grid-cols-2' : ''}`}>
                                 {featured.coverImage && (
                                     <div className="relative aspect-video overflow-hidden md:aspect-auto md:min-h-80">
-                                        <Image src={`${featured.coverImage.preview}?preset=large`} alt="" fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+                                        <Image src={featured.coverImage.preview} alt="" fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
                                     </div>
                                 )}
                                 <div className="flex flex-col justify-center gap-3 p-6 md:p-10">
